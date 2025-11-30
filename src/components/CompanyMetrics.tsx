@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, DollarSign, Users, Percent, Save } from "lucide-react";
 
 interface Metrics {
@@ -241,24 +240,21 @@ export const CompanyMetrics = ({
   );
 
   return (
-    <Tabs defaultValue="current" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="current">Текущая ситуация</TabsTrigger>
-        <TabsTrigger value="scenarioA">Сценарий A</TabsTrigger>
-        <TabsTrigger value="scenarioB">Сценарий Б</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="current" className="mt-6">
+    <div className="space-y-12">
+      <div>
+        <h2 className="text-2xl font-bold mb-6">Текущая ситуация</h2>
         <MetricsForm metrics={currentMetrics} scenario="current" />
-      </TabsContent>
+      </div>
 
-      <TabsContent value="scenarioA" className="mt-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-6">Сценарий A</h2>
         <MetricsForm metrics={scenarioA} scenario="scenarioA" />
-      </TabsContent>
+      </div>
 
-      <TabsContent value="scenarioB" className="mt-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-6">Сценарий Б</h2>
         <MetricsForm metrics={scenarioB} scenario="scenarioB" />
-      </TabsContent>
-    </Tabs>
+      </div>
+    </div>
   );
 };
