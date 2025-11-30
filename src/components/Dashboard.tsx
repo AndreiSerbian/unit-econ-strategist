@@ -11,6 +11,7 @@ import { ExportDialog } from "./ExportDialog";
 import { AnimatedCard } from "./AnimatedCard";
 import { ProductsManagement } from "./ProductsManagement";
 import { ProductsCharts } from "./ProductsCharts";
+import { ProductComparison } from "./ProductComparison";
 import { CurrencySelector } from "./CurrencySelector";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
@@ -177,6 +178,16 @@ export const Dashboard = () => {
             {products.length > 0 && (
               <AnimatedCard delay={0.2}>
                 <ProductsCharts products={products} currency={currency} />
+              </AnimatedCard>
+            )}
+
+            {(products.length > 0 || competitors.some(c => (c.products || []).length > 0)) && (
+              <AnimatedCard delay={0.3}>
+                <ProductComparison 
+                  products={products} 
+                  competitors={competitors} 
+                  currency={currency} 
+                />
               </AnimatedCard>
             )}
           </TabsContent>
