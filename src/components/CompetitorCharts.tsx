@@ -1,6 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Users } from "lucide-react";
+import { BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
+import { Users, Package, TrendingUp, Share2 } from "lucide-react";
+
+interface CompetitorProduct {
+  id: string;
+  name: string;
+  price: number;
+  annualSales: number;
+  annualRevenue: number;
+  salesChannels: string[];
+}
 
 interface Competitor {
   id: string;
@@ -10,6 +19,7 @@ interface Competitor {
   pricing: number;
   quality: number;
   marketingSpend: number;
+  products: CompetitorProduct[];
 }
 
 interface CompetitorChartsProps {
@@ -39,6 +49,61 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
     доляРынка: c.marketShare,
     маркетинг: c.marketingSpend / 100000, // Нормализация
   }));
+
+  // Products analysis data
+  const hasProducts = competitors.some(c => c.products && c.products.length > 0);
+
+  const productsComparisonData = hasProducts 
+    ? competitors.flatMap(c => 
+        (c.products || []).map(p => ({
+          competitor: c.name,
+          product: p.name,
+          price: p.price,
+          sales: p.annualSales,
+          revenue: p.annualRevenue,
+        }))
+      )
+    : [];
+
+  // Average price per competitor
+  const avgPriceData = competitors
+    .filter(c => c.products && c.products.length > 0)
+    .map(c => ({
+      name: c.name,
+      средняяЦена: c.products.reduce((sum, p) => sum + p.price, 0) / c.products.length,
+      продуктов: c.products.length,
+    }));
+
+  // Total sales volume per competitor
+  const salesVolumeData = competitors
+    .filter(c => c.products && c.products.length > 0)
+    .map(c => ({
+      name: c.name,
+      продажиШт: c.products.reduce((sum, p) => sum + p.annualSales, 0),
+      выручка: c.products.reduce((sum, p) => sum + p.annualRevenue, 0),
+    }));
+
+  // Sales channels distribution
+  const channelsData: { [key: string]: number } = {};
+  competitors.forEach(c => {
+    (c.products || []).forEach(p => {
+      p.salesChannels.forEach(channel => {
+        channelsData[channel] = (channelsData[channel] || 0) + 1;
+      });
+    });
+  });
+
+  const channelsPieData = Object.entries(channelsData).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
+  const COLORS = [
+    'hsl(var(--primary))',
+    'hsl(var(--secondary))',
+    'hsl(var(--accent))',
+    'hsl(var(--success))',
+  ];
 
   return (
     <div className="space-y-6">
@@ -138,6 +203,179 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
           </Card>
         )}
       </div>
+
+      {hasProducts && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-primary" />
+                Анализ продуктов конкурентов
+              </CardTitle>
+              <CardDescription>
+                Детальное сравнение продуктовых линеек
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {avgPriceData.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <TrendingUp className="w-4 h-4 text-secondary" />
+                    Средние цены продуктов
+                  </CardTitle>
+                  <CardDescription>Сравнение ценовой политики</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={avgPriceData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
+                      <YAxis stroke="hsl(var(--foreground))" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Legend />
+                      <Bar dataKey="средняяЦена" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 text-xs text-muted-foreground text-center">
+                    {avgPriceData.map(d => (
+                      <span key={d.name} className="inline-block mx-2">
+                        {d.name}: {d.продуктов} продукт{d.продуктов > 1 ? 'ов' : ''}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {salesVolumeData.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Package className="w-4 h-4 text-accent" />
+                    Объёмы продаж
+                  </CardTitle>
+                  <CardDescription>Годовые продажи в штуках</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={salesVolumeData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
+                      <YAxis stroke="hsl(var(--foreground))" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => value.toLocaleString('ru-RU')}
+                      />
+                      <Legend />
+                      <Bar dataKey="продажиШт" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {channelsPieData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Share2 className="w-5 h-5 text-success" />
+                  Распределение каналов продаж
+                </CardTitle>
+                <CardDescription>
+                  Частота использования различных каналов продаж среди всех продуктов конкурентов
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <PieChart>
+                    <Pie
+                      data={channelsPieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={120}
+                      fill="hsl(var(--primary))"
+                      dataKey="value"
+                    >
+                      {channelsPieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-4 flex flex-wrap gap-3 justify-center">
+                  {channelsPieData.map((entry, index) => (
+                    <div key={entry.name} className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      />
+                      <span className="text-sm">
+                        {entry.name}: <span className="font-semibold">{entry.value}</span> продукт{entry.value > 1 ? 'ов' : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {productsComparisonData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Выручка по продуктам
+                </CardTitle>
+                <CardDescription>
+                  Годовая выручка всех продуктов конкурентов
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={salesVolumeData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
+                    <YAxis stroke="hsl(var(--foreground))" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                      formatter={(value: number) => value.toLocaleString('ru-RU') + ' ₽'}
+                    />
+                    <Legend />
+                    <Bar dataKey="выручка" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
     </div>
   );
 };
