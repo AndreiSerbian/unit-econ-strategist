@@ -1,0 +1,379 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { TrendingUp, DollarSign, Calendar, Target } from "lucide-react";
+
+interface DetailedExpenses {
+  fixedCosts: {
+    salaryOldClients: number;
+    salaryNewClients: number;
+    officeRent: number;
+    warehouseRent: number;
+    managementSalary: number;
+    marketingSalary: number;
+    productionSalary: number;
+    internet: number;
+    communication: number;
+    banking: number;
+    subscriptions: number;
+    utilities: number;
+    customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+  };
+  variableCosts: {
+    marketing: {
+      trafficPurchase: number;
+      contractorsPayment: number;
+      crmCosts: number;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+    salesPayroll: {
+      bonusOldClients: number;
+      bonusNewClients: number;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+    production: {
+      materials: number;
+      curators: number;
+      logistics: number;
+      partnersPercent: number;
+      equipmentRepair: number;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+    other: {
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+  };
+  taxRate: number;
+  taxes: number;
+}
+
+interface Metrics {
+  revenue: number;
+  totalClients: number;
+  newClients: number;
+  returningClients: number;
+  conversionRate: number;
+  avgCheck: number;
+  fixedCosts: number;
+  variableCosts: number;
+  marketingCosts: number;
+  detailedExpenses?: DetailedExpenses;
+}
+
+interface ROICalculatorProps {
+  currentMetrics: Metrics;
+  scenarioA: Metrics;
+  scenarioB: Metrics;
+  currency: string;
+}
+
+export const ROICalculator = ({
+  currentMetrics,
+  scenarioA,
+  scenarioB,
+  currency,
+}: ROICalculatorProps) => {
+  const [timePeriod, setTimePeriod] = useState(12);
+  const [initialInvestment, setInitialInvestment] = useState(0);
+
+  const calculateMonthlyProfit = (metrics: Metrics) => {
+    const totalCosts = metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts;
+    return metrics.revenue - totalCosts;
+  };
+
+  const calculateROI = (metrics: Metrics) => {
+    const monthlyProfit = calculateMonthlyProfit(metrics);
+    const totalProfit = monthlyProfit * timePeriod;
+    if (initialInvestment === 0) return 0;
+    return ((totalProfit - initialInvestment) / initialInvestment) * 100;
+  };
+
+  const calculatePaybackPeriod = (metrics: Metrics) => {
+    const monthlyProfit = calculateMonthlyProfit(metrics);
+    if (monthlyProfit <= 0 || initialInvestment === 0) return Infinity;
+    return initialInvestment / monthlyProfit;
+  };
+
+  const generateCashFlowData = () => {
+    const data = [];
+    let currentCumulative = -initialInvestment;
+    let scenarioACumulative = -initialInvestment;
+    let scenarioBCumulative = -initialInvestment;
+
+    const currentMonthlyProfit = calculateMonthlyProfit(currentMetrics);
+    const scenarioAMonthlyProfit = calculateMonthlyProfit(scenarioA);
+    const scenarioBMonthlyProfit = calculateMonthlyProfit(scenarioB);
+
+    for (let month = 0; month <= timePeriod; month++) {
+      if (month > 0) {
+        currentCumulative += currentMonthlyProfit;
+        scenarioACumulative += scenarioAMonthlyProfit;
+        scenarioBCumulative += scenarioBMonthlyProfit;
+      }
+
+      data.push({
+        month: `М${month}`,
+        "Текущий": Math.round(currentCumulative),
+        "Сценарий A": Math.round(scenarioACumulative),
+        "Сценарий B": Math.round(scenarioBCumulative),
+      });
+    }
+
+    return data;
+  };
+
+  const generateMonthlyProfitData = () => {
+    const data = [];
+    const currentMonthlyProfit = calculateMonthlyProfit(currentMetrics);
+    const scenarioAMonthlyProfit = calculateMonthlyProfit(scenarioA);
+    const scenarioBMonthlyProfit = calculateMonthlyProfit(scenarioB);
+
+    for (let month = 1; month <= Math.min(timePeriod, 12); month++) {
+      data.push({
+        month: `М${month}`,
+        "Текущий": Math.round(currentMonthlyProfit),
+        "Сценарий A": Math.round(scenarioAMonthlyProfit),
+        "Сценарий B": Math.round(scenarioBMonthlyProfit),
+      });
+    }
+
+    return data;
+  };
+
+  const roiData = [
+    {
+      scenario: "Текущий",
+      roi: calculateROI(currentMetrics),
+      payback: calculatePaybackPeriod(currentMetrics),
+      totalProfit: calculateMonthlyProfit(currentMetrics) * timePeriod,
+    },
+    {
+      scenario: "Сценарий A",
+      roi: calculateROI(scenarioA),
+      payback: calculatePaybackPeriod(scenarioA),
+      totalProfit: calculateMonthlyProfit(scenarioA) * timePeriod,
+    },
+    {
+      scenario: "Сценарий B",
+      roi: calculateROI(scenarioB),
+      payback: calculatePaybackPeriod(scenarioB),
+      totalProfit: calculateMonthlyProfit(scenarioB) * timePeriod,
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            💰 Калькулятор ROI
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="investment" className="flex items-center gap-1">
+                <DollarSign className="w-3 h-3" />
+                Начальные инвестиции ({currency})
+              </Label>
+              <Input
+                id="investment"
+                type="number"
+                value={initialInvestment}
+                onChange={(e) => setInitialInvestment(Number(e.target.value))}
+                placeholder="0"
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="period" className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                Период анализа (месяцев)
+              </Label>
+              <Input
+                id="period"
+                type="number"
+                value={timePeriod}
+                onChange={(e) => setTimePeriod(Number(e.target.value))}
+                placeholder="12"
+                min="1"
+                max="60"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+            {roiData.map((item) => (
+              <Card key={item.scenario} className="bg-gradient-to-br from-accent/5 to-primary/5">
+                <CardContent className="pt-6 space-y-3">
+                  <h3 className="font-semibold text-lg">{item.scenario}</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">ROI</p>
+                      <p className={`text-2xl font-bold font-mono ${item.roi >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {item.roi.toFixed(1)}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Окупаемость</p>
+                      <p className="text-lg font-semibold font-mono">
+                        {item.payback === Infinity ? '∞' : `${item.payback.toFixed(1)} мес.`}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Прибыль за период</p>
+                      <p className="text-lg font-semibold font-mono">
+                        {item.totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} {currency}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-accent" />
+            📈 Накопительный денежный поток
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
+            <LineChart data={generateCashFlowData()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip
+                formatter={(value: number) => `${value.toLocaleString()} ${currency}`}
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="Текущий"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Сценарий A"
+                stroke="hsl(var(--secondary))"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Сценарий B"
+                stroke="hsl(var(--accent))"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-success" />
+            💵 Ежемесячная прибыль по сценариям
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
+            <BarChart data={generateMonthlyProfitData()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip
+                formatter={(value: number) => `${value.toLocaleString()} ${currency}`}
+              />
+              <Legend />
+              <Bar dataKey="Текущий" fill="hsl(var(--primary))" />
+              <Bar dataKey="Сценарий A" fill="hsl(var(--secondary))" />
+              <Bar dataKey="Сценарий B" fill="hsl(var(--accent))" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>📊 Сравнительная таблица ROI</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2 font-semibold">Показатель</th>
+                  <th className="text-right p-2 font-semibold">Текущий</th>
+                  <th className="text-right p-2 font-semibold">Сценарий A</th>
+                  <th className="text-right p-2 font-semibold">Сценарий B</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b hover:bg-muted/50">
+                  <td className="p-2">ROI (%)</td>
+                  <td className={`text-right p-2 font-mono font-semibold ${roiData[0].roi >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {roiData[0].roi.toFixed(1)}%
+                  </td>
+                  <td className={`text-right p-2 font-mono font-semibold ${roiData[1].roi >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {roiData[1].roi.toFixed(1)}%
+                  </td>
+                  <td className={`text-right p-2 font-mono font-semibold ${roiData[2].roi >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {roiData[2].roi.toFixed(1)}%
+                  </td>
+                </tr>
+                <tr className="border-b hover:bg-muted/50">
+                  <td className="p-2">Период окупаемости (мес.)</td>
+                  <td className="text-right p-2 font-mono">
+                    {roiData[0].payback === Infinity ? '∞' : roiData[0].payback.toFixed(1)}
+                  </td>
+                  <td className="text-right p-2 font-mono">
+                    {roiData[1].payback === Infinity ? '∞' : roiData[1].payback.toFixed(1)}
+                  </td>
+                  <td className="text-right p-2 font-mono">
+                    {roiData[2].payback === Infinity ? '∞' : roiData[2].payback.toFixed(1)}
+                  </td>
+                </tr>
+                <tr className="border-b hover:bg-muted/50">
+                  <td className="p-2">Прибыль за период ({currency})</td>
+                  <td className="text-right p-2 font-mono">
+                    {roiData[0].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                  </td>
+                  <td className="text-right p-2 font-mono">
+                    {roiData[1].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                  </td>
+                  <td className="text-right p-2 font-mono">
+                    {roiData[2].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                  </td>
+                </tr>
+                <tr className="hover:bg-muted/50">
+                  <td className="p-2">Месячная прибыль ({currency})</td>
+                  <td className="text-right p-2 font-mono">
+                    {calculateMonthlyProfit(currentMetrics).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                  </td>
+                  <td className="text-right p-2 font-mono">
+                    {calculateMonthlyProfit(scenarioA).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                  </td>
+                  <td className="text-right p-2 font-mono">
+                    {calculateMonthlyProfit(scenarioB).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
