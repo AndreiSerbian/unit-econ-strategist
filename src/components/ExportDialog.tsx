@@ -49,9 +49,9 @@ export const ExportDialog = ({ data, projectName = "Анализ" }: ExportDialo
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Download className="w-4 h-4 mr-2" />
-          Экспорт
+        <Button variant="outline" size="sm" className="whitespace-nowrap">
+          <Download className="w-4 h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Экспорт</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

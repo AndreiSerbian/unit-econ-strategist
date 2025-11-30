@@ -143,56 +143,56 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
   return (
     <Card className="bg-gradient-to-br from-accent/5 to-primary/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-accent" />
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
           🎯 Ключевые показатели
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <Target className="w-3 h-3" />
-              CAC (Cost per Acquisition)
+              CAC
             </p>
-            <p className="text-xl font-bold font-mono text-primary">
+            <p className="text-lg sm:text-xl font-bold font-mono text-primary">
               {calculateCAC().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
             </p>
-            <p className="text-xs text-muted-foreground">Стоимость привлечения клиента</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Стоимость привлечения</p>
           </div>
 
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              CPL (Cost per Lead)
+              CPL
             </p>
-            <p className="text-xl font-bold font-mono text-secondary">
+            <p className="text-lg sm:text-xl font-bold font-mono text-secondary">
               {calculateCPL().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
             </p>
-            <p className="text-xs text-muted-foreground">Стоимость лида</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Стоимость лида</p>
           </div>
 
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <BarChart3 className="w-3 h-3" />
-              Точка безубыточности
+              Безубыточность
             </p>
-            <p className="text-xl font-bold font-mono text-accent">
+            <p className="text-lg sm:text-xl font-bold font-mono text-accent">
               {calculateBreakeven().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} кл.
             </p>
-            <p className="text-xs text-muted-foreground">Клиентов для окупаемости</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Клиентов для окупаемости</p>
           </div>
 
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Прибыль на оплату
+              Прибыль
             </p>
-            <p className="text-xl font-bold font-mono text-success">
+            <p className="text-lg sm:text-xl font-bold font-mono text-success">
               {calculateProfitPerPayment().toLocaleString("ru-RU", { maximumFractionDigits: 0 })}{" "}
               {currency}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               Маржа: {calculateProfitMargin().toFixed(1)}%
             </p>
           </div>

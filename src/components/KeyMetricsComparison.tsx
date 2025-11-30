@@ -179,8 +179,8 @@ export const KeyMetricsComparison = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             📊 CAC и CPL по сценариям
           </CardTitle>
         </CardHeader>
@@ -201,8 +201,8 @@ export const KeyMetricsComparison = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-accent" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             🎯 Точка безубыточности и прибыльность
           </CardTitle>
         </CardHeader>
@@ -234,14 +234,14 @@ export const KeyMetricsComparison = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-success" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
             💰 Сравнительная таблица показателей
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <table className="w-full text-xs sm:text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b">
                   <th className="text-left p-2 font-semibold">Показатель</th>

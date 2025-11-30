@@ -60,63 +60,65 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4">
         <motion.header 
-          className="mb-8"
+          className="mb-4 sm:mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Стратегический Анализ
-            </h1>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent leading-tight">
+                Стратегический Анализ
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg mt-1">
+                Платформа для анализа юнит-экономики и теории игр
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
               <ExportDialog data={exportData} />
               {user ? (
-                <Button variant="outline" size="sm" onClick={signOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Выход
+                <Button variant="outline" size="sm" onClick={signOut} className="whitespace-nowrap">
+                  <LogOut className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Выход</span>
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Вход
+                <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="whitespace-nowrap">
+                  <LogIn className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Вход</span>
                 </Button>
               )}
             </div>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Платформа для анализа юнит-экономики и теории игр
-          </p>
           {user && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2">
               Вход выполнен как {user.email}
             </p>
           )}
         </motion.header>
 
-        <Tabs defaultValue="metrics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-            <TabsTrigger value="metrics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Показатели</span>
+        <Tabs defaultValue="metrics" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+            <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Показатели</span>
             </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              <span className="hidden sm:inline">Продукты</span>
+            <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <Package className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Продукты</span>
             </TabsTrigger>
-            <TabsTrigger value="competitors" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Конкуренты</span>
+            <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <Users className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Конкуренты</span>
             </TabsTrigger>
-            <TabsTrigger value="game-theory" className="flex items-center gap-2">
-              <Brain className="w-4 h-4" />
-              <span className="hidden sm:inline">Теория игр</span>
+            <TabsTrigger value="game-theory" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <Brain className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Теория</span>
             </TabsTrigger>
-            <TabsTrigger value="strategy" className="flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              <span className="hidden sm:inline">Стратегия</span>
+            <TabsTrigger value="strategy" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <Target className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Стратегия</span>
             </TabsTrigger>
           </TabsList>
 
