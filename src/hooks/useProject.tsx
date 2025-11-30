@@ -44,6 +44,28 @@ const initialMetrics: Metrics = {
   marketingCosts: 0,
 };
 
+const STORAGE_KEY = "unit-economics-project";
+
+const loadFromLocalStorage = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error("Error loading from localStorage:", error);
+  }
+  return null;
+};
+
+const saveToLocalStorage = (data: any) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error("Error saving to localStorage:", error);
+  }
+};
+
 export const useProject = (userId: string | undefined) => {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [currentMetrics, setCurrentMetrics] = useState<Metrics>(initialMetrics);
@@ -54,11 +76,40 @@ export const useProject = (userId: string | undefined) => {
   const [currency, setCurrency] = useState<string>("RUB");
   const [loading, setLoading] = useState(false);
 
+  // Load from localStorage on mount if no userId
+  useEffect(() => {
+    if (!userId) {
+      const stored = loadFromLocalStorage();
+      if (stored) {
+        setCurrentMetrics(stored.currentMetrics || initialMetrics);
+        setScenarioA(stored.scenarioA || initialMetrics);
+        setScenarioB(stored.scenarioB || initialMetrics);
+        setCompetitors(stored.competitors || []);
+        setProducts(stored.products || []);
+        setCurrency(stored.currency || "RUB");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (userId) {
       loadProject();
     }
   }, [userId]);
+
+  // Auto-save to localStorage when data changes (only if no userId)
+  useEffect(() => {
+    if (!userId) {
+      saveToLocalStorage({
+        currentMetrics,
+        scenarioA,
+        scenarioB,
+        competitors,
+        products,
+        currency,
+      });
+    }
+  }, [currentMetrics, scenarioA, scenarioB, competitors, products, currency, userId]);
 
   const loadProject = async () => {
     if (!userId) return;
@@ -201,7 +252,15 @@ export const useProject = (userId: string | undefined) => {
   };
 
   const saveCompetitor = async (competitor: Omit<Competitor, "id">) => {
-    if (!projectId || !userId) return;
+    if (!userId) {
+      // Local storage mode
+      const newCompetitor = { ...competitor, id: Date.now().toString() };
+      setCompetitors([...competitors, newCompetitor]);
+      toast.success("Конкурент добавлен");
+      return;
+    }
+
+    if (!projectId) return;
 
     try {
       const { error } = await supabase.from("competitors").insert({
@@ -224,7 +283,12 @@ export const useProject = (userId: string | undefined) => {
   };
 
   const deleteCompetitor = async (competitorId: string) => {
-    if (!userId) return;
+    if (!userId) {
+      // Local storage mode
+      setCompetitors(competitors.filter((c) => c.id !== competitorId));
+      toast.success("Конкурент удален");
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -242,7 +306,15 @@ export const useProject = (userId: string | undefined) => {
   };
 
   const saveProduct = async (product: Omit<Product, "id">) => {
-    if (!projectId || !userId) return;
+    if (!userId) {
+      // Local storage mode
+      const newProduct = { ...product, id: Date.now().toString() };
+      setProducts([...products, newProduct]);
+      toast.success("Продукт добавлен");
+      return;
+    }
+
+    if (!projectId) return;
 
     try {
       const { error } = await supabase.from("products").insert({
@@ -263,7 +335,12 @@ export const useProject = (userId: string | undefined) => {
   };
 
   const deleteProduct = async (productId: string) => {
-    if (!userId) return;
+    if (!userId) {
+      // Local storage mode
+      setProducts(products.filter((p) => p.id !== productId));
+      toast.success("Продукт удален");
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -281,7 +358,14 @@ export const useProject = (userId: string | undefined) => {
   };
 
   const updateCurrency = async (newCurrency: string) => {
-    if (!projectId || !userId) return;
+    if (!userId) {
+      // Local storage mode
+      setCurrency(newCurrency);
+      toast.success("Валюта обновлена");
+      return;
+    }
+
+    if (!projectId) return;
 
     try {
       const { error } = await supabase
