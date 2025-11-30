@@ -41,7 +41,6 @@ export const CurrencySelector = ({
           <Select
             value={currency}
             onValueChange={onCurrencyChange}
-            disabled={!isAuthenticated}
           >
             <SelectTrigger id="currency">
               <SelectValue placeholder="Выберите валюту" />
@@ -54,11 +53,6 @@ export const CurrencySelector = ({
               ))}
             </SelectContent>
           </Select>
-          {!isAuthenticated && (
-            <p className="text-xs text-muted-foreground">
-              Войдите для изменения валюты
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>
