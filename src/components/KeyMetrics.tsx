@@ -56,6 +56,8 @@ interface Metrics {
   variableCosts: number;
   marketingCosts: number;
   detailedExpenses?: DetailedExpenses;
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
 }
 
 interface KeyMetricsProps {
@@ -140,6 +142,19 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
     return (profit / metrics.revenue) * 100;
   };
 
+  const hasLTVData = metrics.customerLifetimeMonths && metrics.purchaseFrequency;
+  const calculateLTV = () => {
+    if (!hasLTVData) return 0;
+    return metrics.avgCheck * metrics.purchaseFrequency! * metrics.customerLifetimeMonths!;
+  };
+
+  const calculateLTVCACRatio = () => {
+    const cac = calculateCAC();
+    const ltv = calculateLTV();
+    if (cac === 0) return 0;
+    return ltv / cac;
+  };
+
   return (
     <Card className="bg-gradient-to-br from-accent/5 to-primary/5">
       <CardHeader>
@@ -149,7 +164,7 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className={`grid grid-cols-2 sm:grid-cols-2 ${hasLTVData ? 'lg:grid-cols-6' : 'lg:grid-cols-4'} gap-3 sm:gap-4`}>
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <Target className="w-3 h-3" />
@@ -196,6 +211,35 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
               Маржа: {calculateProfitMargin().toFixed(1)}%
             </p>
           </div>
+
+          {hasLTVData && (
+            <>
+              <div className="space-y-1">
+                <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" />
+                  LTV
+                </p>
+                <p className="text-lg sm:text-xl font-bold font-mono text-primary">
+                  {calculateLTV().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                </p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Ценность клиента</p>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                  <Target className="w-3 h-3" />
+                  LTV/CAC
+                </p>
+                <p className={`text-lg sm:text-xl font-bold font-mono ${
+                  calculateLTVCACRatio() < 1 ? 'text-destructive' : 
+                  calculateLTVCACRatio() < 3 ? 'text-warning' : 'text-success'
+                }`}>
+                  {calculateLTVCACRatio().toFixed(2)}x
+                </p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Эффективность</p>
+              </div>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
