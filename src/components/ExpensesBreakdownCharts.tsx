@@ -122,26 +122,26 @@ export const ExpensesBreakdownCharts = ({ expenses, currency }: ExpensesBreakdow
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-destructive/5 via-warning/5 to-muted/5">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingDown className="w-6 h-6 text-destructive" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-destructive" />
             Структура расходов
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
             Детальное распределение постоянных и переменных расходов по категориям
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Постоянные расходы */}
         {fixedCostsData.length > 0 && (
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
                 <PieChartIcon className="w-4 h-4 text-primary" />
                 Постоянные расходы
               </CardTitle>
-              <CardDescription>Распределение по категориям</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Распределение по категориям</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400} className="text-xs sm:text-sm">
@@ -168,8 +168,8 @@ export const ExpensesBreakdownCharts = ({ expenses, currency }: ExpensesBreakdow
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2 text-center">
-                <p className="text-sm font-semibold text-muted-foreground">Итого постоянные расходы:</p>
-                <p className="text-2xl font-bold text-destructive font-mono">
+                <p className="text-xs sm:text-sm font-semibold text-muted-foreground">Итого постоянные расходы:</p>
+                <p className="text-xl sm:text-2xl font-bold text-destructive font-mono">
                   {totalFixedCosts.toLocaleString("ru-RU")} {currency}
                 </p>
               </div>
@@ -181,11 +181,11 @@ export const ExpensesBreakdownCharts = ({ expenses, currency }: ExpensesBreakdow
         {variableCostsGrouped.length > 0 && (
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
                 <PieChartIcon className="w-4 h-4 text-secondary" />
                 Переменные расходы
               </CardTitle>
-              <CardDescription>Распределение по основным категориям</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Распределение по основным категориям</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400} className="text-xs sm:text-sm">

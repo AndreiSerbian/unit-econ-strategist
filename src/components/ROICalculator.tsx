@@ -167,8 +167,8 @@ export const ROICalculator = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             💰 Калькулятор ROI
           </CardTitle>
         </CardHeader>
@@ -205,27 +205,27 @@ export const ROICalculator = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 pt-4">
             {roiData.map((item) => (
               <Card key={item.scenario} className="bg-gradient-to-br from-accent/5 to-primary/5">
-                <CardContent className="pt-6 space-y-3">
-                  <h3 className="font-semibold text-lg">{item.scenario}</h3>
-                  <div className="space-y-2">
+                <CardContent className="pt-4 sm:pt-6 space-y-2 sm:space-y-3">
+                  <h3 className="font-semibold text-base sm:text-lg">{item.scenario}</h3>
+                  <div className="space-y-1.5 sm:space-y-2">
                     <div>
-                      <p className="text-xs text-muted-foreground">ROI</p>
-                      <p className={`text-2xl font-bold font-mono ${item.roi >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">ROI</p>
+                      <p className={`text-xl sm:text-2xl font-bold font-mono ${item.roi >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {item.roi.toFixed(1)}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Окупаемость</p>
-                      <p className="text-lg font-semibold font-mono">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Окупаемость</p>
+                      <p className="text-base sm:text-lg font-semibold font-mono">
                         {item.payback === Infinity ? '∞' : `${item.payback.toFixed(1)} мес.`}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Прибыль за период</p>
-                      <p className="text-lg font-semibold font-mono">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Прибыль за период</p>
+                      <p className="text-base sm:text-lg font-semibold font-mono">
                         {item.totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} {currency}
                       </p>
                     </div>
@@ -239,8 +239,8 @@ export const ROICalculator = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-accent" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             📈 Накопительный денежный поток
           </CardTitle>
         </CardHeader>
@@ -282,8 +282,8 @@ export const ROICalculator = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-success" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
             💵 Ежемесячная прибыль по сценариям
           </CardTitle>
         </CardHeader>
@@ -307,11 +307,11 @@ export const ROICalculator = ({
 
       <Card>
         <CardHeader>
-          <CardTitle>📊 Сравнительная таблица ROI</CardTitle>
+          <CardTitle className="text-base sm:text-lg">📊 Сравнительная таблица ROI</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <table className="w-full text-xs sm:text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b">
                   <th className="text-left p-2 font-semibold">Показатель</th>
