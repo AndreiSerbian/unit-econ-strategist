@@ -85,7 +85,7 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
             <BarChart data={revenueComparisonData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
@@ -113,7 +113,7 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
             <CardDescription>Новые и повторные клиенты по сценариям</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <LineChart data={clientsComparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
@@ -151,7 +151,7 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
             <CardDescription>Распределение затрат в текущей ситуации</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <PieChart>
                 <Pie
                   data={costsBreakdownData}
