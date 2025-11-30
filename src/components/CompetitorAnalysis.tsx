@@ -38,7 +38,7 @@ export const CompetitorAnalysis = ({
   });
 
   const addCompetitor = async () => {
-    if (newCompetitor.name.trim() && isAuthenticated) {
+    if (newCompetitor.name.trim()) {
       await saveCompetitor(newCompetitor);
       setNewCompetitor({
         name: "",
@@ -64,9 +64,7 @@ export const CompetitorAnalysis = ({
             Добавить конкурента
           </CardTitle>
           <CardDescription>
-            {isAuthenticated 
-              ? "Заполните информацию о конкуренте для анализа"
-              : "Войдите в систему, чтобы сохранять конкурентов"}
+            Заполните информацию о конкуренте для анализа
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -134,9 +132,9 @@ export const CompetitorAnalysis = ({
               />
             </div>
           </div>
-          <Button onClick={addCompetitor} className="w-full" disabled={!isAuthenticated}>
+          <Button onClick={addCompetitor} className="w-full">
             <Plus className="w-4 h-4 mr-2" />
-            {isAuthenticated ? "Добавить конкурента" : "Требуется вход"}
+            Добавить конкурента
           </Button>
         </CardContent>
       </Card>
@@ -149,20 +147,18 @@ export const CompetitorAnalysis = ({
               <Card key={competitor.id}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                       <Building2 className="w-5 h-5 text-primary" />
                       <CardTitle className="text-lg">{competitor.name}</CardTitle>
                     </div>
-                    {isAuthenticated && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteCompetitor(competitor.id)}
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteCompetitor(competitor.id)}
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">

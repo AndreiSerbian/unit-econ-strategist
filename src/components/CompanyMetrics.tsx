@@ -86,7 +86,6 @@ export const CompanyMetrics = ({
                 variant="outline"
                 size="sm"
                 onClick={() => syncProductsToMetrics(scenario)}
-                disabled={!isAuthenticated}
               >
                 Синхронизировать
               </Button>
@@ -293,16 +292,14 @@ export const CompanyMetrics = ({
         </CardContent>
       </Card>
 
-      {isAuthenticated && (
-        <Button 
-          onClick={() => saveScenario(scenario, metrics)} 
-          className="w-full"
-          variant="gradient"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          Сохранить сценарий
-        </Button>
-      )}
+      <Button 
+        onClick={() => saveScenario(scenario, metrics)} 
+        className="w-full"
+        variant="gradient"
+      >
+        <Save className="w-4 h-4 mr-2" />
+        Сохранить сценарий
+      </Button>
     </div>
   );
   };

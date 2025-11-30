@@ -37,11 +37,6 @@ export const ProductsManagement = ({
   });
 
   const handleAddProduct = async () => {
-    if (!isAuthenticated) {
-      toast.error("Войдите для добавления продуктов");
-      return;
-    }
-
     if (!newProduct.name.trim()) {
       toast.error("Введите название продукта");
       return;
@@ -126,7 +121,6 @@ export const ProductsManagement = ({
             </div>
             <Button
               onClick={handleAddProduct}
-              disabled={!isAuthenticated}
               className="w-full"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -173,7 +167,6 @@ export const ProductsManagement = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => deleteProduct(product.id)}
-                    disabled={!isAuthenticated}
                     className="ml-4"
                   >
                     <Trash2 className="w-4 h-4 text-destructive" />
