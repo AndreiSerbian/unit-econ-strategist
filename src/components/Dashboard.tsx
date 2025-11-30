@@ -17,6 +17,7 @@ import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
 import { ROICalculator } from "./ROICalculator";
 import { CompetitorKeyMetricsComparison } from "./CompetitorKeyMetricsComparison";
+import { CompetitorROICalculator } from "./CompetitorROICalculator";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -280,6 +281,22 @@ export const Dashboard = () => {
                     products: [],
                   }}
                   competitors={competitors}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+            
+            {competitors.some((c) => c.detailedExpenses) && currentMetrics.detailedExpenses && (
+              <AnimatedCard delay={0.4}>
+                <CompetitorROICalculator
+                  myCompany={{
+                    name: "Моя компания",
+                    revenue: currentMetrics.revenue,
+                    fixedCosts: currentMetrics.fixedCosts,
+                    variableCosts: currentMetrics.variableCosts,
+                    marketingCosts: currentMetrics.marketingCosts,
+                  }}
+                  competitors={competitors.filter(c => c.detailedExpenses)}
                   currency={currency}
                 />
               </AnimatedCard>

@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Building2, ChevronDown, Package, BarChart3 } from "lucide-react";
 import { CompetitorMetrics } from "./CompetitorMetrics";
+import { CompetitorExpensesCharts } from "./CompetitorExpensesCharts";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -403,12 +404,20 @@ export const CompetitorAnalysis = ({
                           <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${expandedMetrics.has(competitor.id) ? "rotate-180" : ""}`} />
                         </Button>
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-4">
+                      <CollapsibleContent className="mt-4 space-y-6">
                         <CompetitorMetrics
                           competitor={competitor}
                           onUpdate={(updates) => handleUpdateCompetitor(competitor.id, updates)}
                           currency={currency}
                         />
+                        
+                        {competitor.detailedExpenses && (
+                          <CompetitorExpensesCharts
+                            competitorName={competitor.name}
+                            expenses={competitor.detailedExpenses}
+                            currency={currency}
+                          />
+                        )}
                       </CollapsibleContent>
                     </Collapsible>
 
