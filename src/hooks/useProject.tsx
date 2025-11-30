@@ -2,6 +2,57 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export interface ExpenseCategory {
+  id: string;
+  name: string;
+  value: number;
+  isCustom: boolean;
+}
+
+export interface DetailedExpenses {
+  fixedCosts: {
+    salaryOldClients: number;
+    salaryNewClients: number;
+    officeRent: number;
+    warehouseRent: number;
+    managementSalary: number;
+    marketingSalary: number;
+    productionSalary: number;
+    internet: number;
+    communication: number;
+    banking: number;
+    subscriptions: number;
+    utilities: number;
+    customCategories: ExpenseCategory[];
+  };
+  variableCosts: {
+    marketing: {
+      trafficPurchase: number;
+      contractorsPayment: number;
+      crmCosts: number;
+      customCategories: ExpenseCategory[];
+    };
+    salesPayroll: {
+      bonusOldClients: number;
+      bonusNewClients: number;
+      customCategories: ExpenseCategory[];
+    };
+    production: {
+      materials: number;
+      curators: number;
+      logistics: number;
+      partnersPercent: number;
+      equipmentRepair: number;
+      customCategories: ExpenseCategory[];
+    };
+    other: {
+      customCategories: ExpenseCategory[];
+    };
+  };
+  taxRate: number;
+  taxes: number;
+}
+
 interface Metrics {
   revenue: number;
   totalClients: number;
@@ -12,6 +63,7 @@ interface Metrics {
   fixedCosts: number;
   variableCosts: number;
   marketingCosts: number;
+  detailedExpenses?: DetailedExpenses;
 }
 
 interface CompetitorProduct {
@@ -43,6 +95,50 @@ interface Product {
   salesChannels: string[];
 }
 
+const initialDetailedExpenses: DetailedExpenses = {
+  fixedCosts: {
+    salaryOldClients: 0,
+    salaryNewClients: 0,
+    officeRent: 0,
+    warehouseRent: 0,
+    managementSalary: 0,
+    marketingSalary: 0,
+    productionSalary: 0,
+    internet: 0,
+    communication: 0,
+    banking: 0,
+    subscriptions: 0,
+    utilities: 0,
+    customCategories: [],
+  },
+  variableCosts: {
+    marketing: {
+      trafficPurchase: 0,
+      contractorsPayment: 0,
+      crmCosts: 0,
+      customCategories: [],
+    },
+    salesPayroll: {
+      bonusOldClients: 0,
+      bonusNewClients: 0,
+      customCategories: [],
+    },
+    production: {
+      materials: 0,
+      curators: 0,
+      logistics: 0,
+      partnersPercent: 0,
+      equipmentRepair: 0,
+      customCategories: [],
+    },
+    other: {
+      customCategories: [],
+    },
+  },
+  taxRate: 15,
+  taxes: 0,
+};
+
 const initialMetrics: Metrics = {
   revenue: 0,
   totalClients: 0,
@@ -53,6 +149,7 @@ const initialMetrics: Metrics = {
   fixedCosts: 0,
   variableCosts: 0,
   marketingCosts: 0,
+  detailedExpenses: initialDetailedExpenses,
 };
 
 const STORAGE_KEY = "unit-economics-project";

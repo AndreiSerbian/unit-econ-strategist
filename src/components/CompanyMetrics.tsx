@@ -3,6 +3,59 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, DollarSign, Users, Percent, Save, Package } from "lucide-react";
+import { DetailedExpensesForm } from "./DetailedExpensesForm";
+import { KeyMetrics } from "./KeyMetrics";
+
+interface ExpenseCategory {
+  id: string;
+  name: string;
+  value: number;
+  isCustom: boolean;
+}
+
+interface DetailedExpenses {
+  fixedCosts: {
+    salaryOldClients: number;
+    salaryNewClients: number;
+    officeRent: number;
+    warehouseRent: number;
+    managementSalary: number;
+    marketingSalary: number;
+    productionSalary: number;
+    internet: number;
+    communication: number;
+    banking: number;
+    subscriptions: number;
+    utilities: number;
+    customCategories: ExpenseCategory[];
+  };
+  variableCosts: {
+    marketing: {
+      trafficPurchase: number;
+      contractorsPayment: number;
+      crmCosts: number;
+      customCategories: ExpenseCategory[];
+    };
+    salesPayroll: {
+      bonusOldClients: number;
+      bonusNewClients: number;
+      customCategories: ExpenseCategory[];
+    };
+    production: {
+      materials: number;
+      curators: number;
+      logistics: number;
+      partnersPercent: number;
+      equipmentRepair: number;
+      customCategories: ExpenseCategory[];
+    };
+    other: {
+      customCategories: ExpenseCategory[];
+    };
+  };
+  taxRate: number;
+  taxes: number;
+}
 
 interface Metrics {
   revenue: number;
@@ -14,6 +67,7 @@ interface Metrics {
   fixedCosts: number;
   variableCosts: number;
   marketingCosts: number;
+  detailedExpenses?: DetailedExpenses;
 }
 
 interface CompanyMetricsProps {
@@ -60,6 +114,63 @@ export const CompanyMetrics = ({
     return metrics.revenue - metrics.fixedCosts - metrics.variableCosts - metrics.marketingCosts;
   };
 
+  const updateDetailedExpenses = (
+    scenario: "current" | "scenarioA" | "scenarioB",
+    detailedExpenses: DetailedExpenses
+  ) => {
+    const setter = scenario === "current" ? setCurrentMetrics : scenario === "scenarioA" ? setScenarioA : setScenarioB;
+    const current = scenario === "current" ? currentMetrics : scenario === "scenarioA" ? scenarioA : scenarioB;
+    
+    // Calculate totals from detailed expenses
+    const fixedTotal =
+      detailedExpenses.fixedCosts.salaryOldClients +
+      detailedExpenses.fixedCosts.salaryNewClients +
+      detailedExpenses.fixedCosts.officeRent +
+      detailedExpenses.fixedCosts.warehouseRent +
+      detailedExpenses.fixedCosts.managementSalary +
+      detailedExpenses.fixedCosts.marketingSalary +
+      detailedExpenses.fixedCosts.productionSalary +
+      detailedExpenses.fixedCosts.internet +
+      detailedExpenses.fixedCosts.communication +
+      detailedExpenses.fixedCosts.banking +
+      detailedExpenses.fixedCosts.subscriptions +
+      detailedExpenses.fixedCosts.utilities +
+      detailedExpenses.fixedCosts.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const marketingTotal =
+      detailedExpenses.variableCosts.marketing.trafficPurchase +
+      detailedExpenses.variableCosts.marketing.contractorsPayment +
+      detailedExpenses.variableCosts.marketing.crmCosts +
+      detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const salesTotal =
+      detailedExpenses.variableCosts.salesPayroll.bonusOldClients +
+      detailedExpenses.variableCosts.salesPayroll.bonusNewClients +
+      detailedExpenses.variableCosts.salesPayroll.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const productionTotal =
+      detailedExpenses.variableCosts.production.materials +
+      detailedExpenses.variableCosts.production.curators +
+      detailedExpenses.variableCosts.production.logistics +
+      detailedExpenses.variableCosts.production.partnersPercent +
+      detailedExpenses.variableCosts.production.equipmentRepair +
+      detailedExpenses.variableCosts.production.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const otherTotal =
+      detailedExpenses.variableCosts.other.customCategories.reduce((sum, c) => sum + c.value, 0) +
+      detailedExpenses.taxes;
+
+    const variableTotal = salesTotal + productionTotal + otherTotal;
+
+    setter({
+      ...current,
+      fixedCosts: fixedTotal,
+      variableCosts: variableTotal,
+      marketingCosts: marketingTotal,
+      detailedExpenses,
+    });
+  };
+
   const MetricsForm = ({ 
     metrics, 
     scenario 
@@ -69,8 +180,6 @@ export const CompanyMetrics = ({
   }) => {
     const revenueFromProducts = productsRevenue;
     const costsFromProducts = productsCosts;
-    const manualRevenue = metrics.revenue - revenueFromProducts;
-    const manualVariableCosts = metrics.variableCosts - costsFromProducts;
 
     return (
     <div className="space-y-6">
@@ -263,6 +372,57 @@ export const CompanyMetrics = ({
           </CardContent>
         </Card>
       </div>
+
+      <DetailedExpensesForm
+        expenses={metrics.detailedExpenses || {
+          fixedCosts: {
+            salaryOldClients: 0,
+            salaryNewClients: 0,
+            officeRent: 0,
+            warehouseRent: 0,
+            managementSalary: 0,
+            marketingSalary: 0,
+            productionSalary: 0,
+            internet: 0,
+            communication: 0,
+            banking: 0,
+            subscriptions: 0,
+            utilities: 0,
+            customCategories: [],
+          },
+          variableCosts: {
+            marketing: {
+              trafficPurchase: 0,
+              contractorsPayment: 0,
+              crmCosts: 0,
+              customCategories: [],
+            },
+            salesPayroll: {
+              bonusOldClients: 0,
+              bonusNewClients: 0,
+              customCategories: [],
+            },
+            production: {
+              materials: 0,
+              curators: 0,
+              logistics: 0,
+              partnersPercent: 0,
+              equipmentRepair: 0,
+              customCategories: [],
+            },
+            other: {
+              customCategories: [],
+            },
+          },
+          taxRate: 15,
+          taxes: 0,
+        }}
+        onChange={(newExpenses) => updateDetailedExpenses(scenario, newExpenses)}
+        revenue={metrics.revenue}
+        currency={currency}
+      />
+
+      <KeyMetrics metrics={metrics} currency={currency} />
 
       <Card className="bg-gradient-to-br from-primary/5 to-secondary/5">
         <CardHeader>
