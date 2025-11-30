@@ -20,6 +20,7 @@ import { CompetitorKeyMetricsComparison } from "./CompetitorKeyMetricsComparison
 import { CompetitorROICalculator } from "./CompetitorROICalculator";
 import { CompetitiveScoreCalculator } from "./CompetitiveScoreCalculator";
 import { SensitivityAnalysis } from "./SensitivityAnalysis";
+import { SWOTAnalysis } from "./SWOTAnalysis";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,6 +52,7 @@ export const Dashboard = () => {
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
+    projectId,
   } = useProject(user?.id);
 
   const exportData = {
@@ -326,6 +328,16 @@ export const Dashboard = () => {
                   }}
                   competitors={competitors}
                   currency={currency}
+                />
+              </AnimatedCard>
+            )}
+            
+            {competitors.length > 0 && (
+              <AnimatedCard delay={0.6}>
+                <SWOTAnalysis
+                  projectId={projectId}
+                  myCompany={{ name: "Моя компания" }}
+                  competitors={competitors.map(c => ({ id: c.id, name: c.name }))}
                 />
               </AnimatedCard>
             )}
