@@ -24,6 +24,14 @@ interface Competitor {
   marketingSpend: number;
 }
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  cost: number;
+  quantity: number;
+}
+
 const initialMetrics: Metrics = {
   revenue: 0,
   totalClients: 0,
@@ -42,6 +50,8 @@ export const useProject = (userId: string | undefined) => {
   const [scenarioA, setScenarioA] = useState<Metrics>(initialMetrics);
   const [scenarioB, setScenarioB] = useState<Metrics>(initialMetrics);
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currency, setCurrency] = useState<string>("RUB");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -81,6 +91,11 @@ export const useProject = (userId: string | undefined) => {
       }
 
       setProjectId(currentProjectId);
+
+      // Load project settings
+      if (projects && projects.length > 0) {
+        setCurrency(projects[0].currency || "RUB");
+      }
 
       // Load scenarios
       const { data: scenarios, error: scenariosError } = await supabase
@@ -128,6 +143,26 @@ export const useProject = (userId: string | undefined) => {
             pricing: Number(c.pricing) || 0,
             quality: Number(c.quality) || 0,
             marketingSpend: Number(c.marketing_spend) || 0,
+          }))
+        );
+      }
+
+      // Load products
+      const { data: productsData, error: productsError } = await supabase
+        .from("products")
+        .select("*")
+        .eq("project_id", currentProjectId);
+
+      if (productsError) throw productsError;
+
+      if (productsData) {
+        setProducts(
+          productsData.map((p) => ({
+            id: p.id,
+            name: p.name,
+            price: Number(p.price) || 0,
+            cost: Number(p.cost) || 0,
+            quantity: p.quantity || 0,
           }))
         );
       }
@@ -206,6 +241,63 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
+  const saveProduct = async (product: Omit<Product, "id">) => {
+    if (!projectId || !userId) return;
+
+    try {
+      const { error } = await supabase.from("products").insert({
+        project_id: projectId,
+        name: product.name,
+        price: product.price,
+        cost: product.cost,
+        quantity: product.quantity,
+      });
+
+      if (error) throw error;
+      await loadProject();
+      toast.success("Продукт добавлен");
+    } catch (error: any) {
+      console.error("Error saving product:", error);
+      toast.error("Ошибка сохранения продукта");
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", productId);
+
+      if (error) throw error;
+      setProducts(products.filter((p) => p.id !== productId));
+      toast.success("Продукт удален");
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      toast.error("Ошибка удаления");
+    }
+  };
+
+  const updateCurrency = async (newCurrency: string) => {
+    if (!projectId || !userId) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({ currency: newCurrency })
+        .eq("id", projectId);
+
+      if (error) throw error;
+      setCurrency(newCurrency);
+      toast.success("Валюта обновлена");
+    } catch (error: any) {
+      console.error("Error updating currency:", error);
+      toast.error("Ошибка обновления валюты");
+    }
+  };
+
   return {
     projectId,
     currentMetrics,
@@ -216,9 +308,15 @@ export const useProject = (userId: string | undefined) => {
     setScenarioB,
     competitors,
     setCompetitors,
+    products,
+    setProducts,
+    currency,
     loading,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,
+    saveProduct,
+    deleteProduct,
+    updateCurrency,
   };
 };

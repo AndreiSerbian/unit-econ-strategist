@@ -61,9 +61,51 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          cost: number
+          created_at: string
+          id: string
+          name: string
+          price: number
+          project_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          id?: string
+          name: string
+          price?: number
+          project_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          id?: string
+          name?: string
+          price?: number
+          project_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
+          currency: string
           description: string | null
           id: string
           name: string
@@ -72,6 +114,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           name: string
@@ -80,6 +123,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           name?: string
