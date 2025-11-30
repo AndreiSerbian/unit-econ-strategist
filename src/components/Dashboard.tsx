@@ -16,6 +16,7 @@ import { CurrencySelector } from "./CurrencySelector";
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
 import { ROICalculator } from "./ROICalculator";
+import { CompetitorKeyMetricsComparison } from "./CompetitorKeyMetricsComparison";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -245,6 +246,7 @@ export const Dashboard = () => {
                     addCompetitorProduct={addCompetitorProduct}
                     deleteCompetitorProduct={deleteCompetitorProduct}
                     isAuthenticated={!!user}
+                    currency={currency}
                   />
                 </CardContent>
               </Card>
@@ -253,6 +255,33 @@ export const Dashboard = () => {
             {competitors.length > 0 && (
               <AnimatedCard delay={0.2}>
                 <CompetitorCharts competitors={competitors} />
+              </AnimatedCard>
+            )}
+
+            {competitors.some((c) => c.detailedExpenses) && currentMetrics.detailedExpenses && (
+              <AnimatedCard delay={0.3}>
+                <CompetitorKeyMetricsComparison
+                  myCompany={{
+                    id: "my-company",
+                    name: "Моя компания",
+                    revenue: currentMetrics.revenue,
+                    totalClients: currentMetrics.totalClients,
+                    newClients: currentMetrics.newClients,
+                    returningClients: currentMetrics.returningClients,
+                    conversionRate: currentMetrics.conversionRate,
+                    avgCheck: currentMetrics.avgCheck,
+                    fixedCosts: currentMetrics.fixedCosts,
+                    variableCosts: currentMetrics.variableCosts,
+                    marketingSpend: currentMetrics.marketingCosts,
+                    detailedExpenses: currentMetrics.detailedExpenses,
+                    marketShare: 0,
+                    pricing: 0,
+                    quality: 0,
+                    products: [],
+                  }}
+                  competitors={competitors}
+                  currency={currency}
+                />
               </AnimatedCard>
             )}
           </TabsContent>

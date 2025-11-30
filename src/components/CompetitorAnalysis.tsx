@@ -5,7 +5,52 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Building2, ChevronDown, Package } from "lucide-react";
+import { Plus, Trash2, Building2, ChevronDown, Package, BarChart3 } from "lucide-react";
+import { CompetitorMetrics } from "./CompetitorMetrics";
+
+interface DetailedExpenses {
+  fixedCosts: {
+    salaryOldClients: number;
+    salaryNewClients: number;
+    officeRent: number;
+    warehouseRent: number;
+    managementSalary: number;
+    marketingSalary: number;
+    productionSalary: number;
+    internet: number;
+    communication: number;
+    banking: number;
+    subscriptions: number;
+    utilities: number;
+    customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+  };
+  variableCosts: {
+    marketing: {
+      trafficPurchase: number;
+      contractorsPayment: number;
+      crmCosts: number;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+    salesPayroll: {
+      bonusOldClients: number;
+      bonusNewClients: number;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+    production: {
+      materials: number;
+      curators: number;
+      logistics: number;
+      partnersPercent: number;
+      equipmentRepair: number;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+    other: {
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    };
+  };
+  taxRate: number;
+  taxes: number;
+}
 
 interface CompetitorProduct {
   id: string;
@@ -25,6 +70,14 @@ interface Competitor {
   quality: number;
   marketingSpend: number;
   products: CompetitorProduct[];
+  totalClients?: number;
+  newClients?: number;
+  returningClients?: number;
+  conversionRate?: number;
+  avgCheck?: number;
+  fixedCosts?: number;
+  variableCosts?: number;
+  detailedExpenses?: DetailedExpenses;
 }
 
 interface CompetitorAnalysisProps {
@@ -34,9 +87,54 @@ interface CompetitorAnalysisProps {
   addCompetitorProduct: (competitorId: string, product: Omit<CompetitorProduct, "id" | "annualRevenue">) => Promise<void>;
   deleteCompetitorProduct: (competitorId: string, productId: string) => Promise<void>;
   isAuthenticated: boolean;
+  currency: string;
 }
 
 const SALES_CHANNELS = ["Онлайн", "Розница", "Дистрибьюторы", "B2B"];
+
+const initialDetailedExpenses: DetailedExpenses = {
+  fixedCosts: {
+    salaryOldClients: 0,
+    salaryNewClients: 0,
+    officeRent: 0,
+    warehouseRent: 0,
+    managementSalary: 0,
+    marketingSalary: 0,
+    productionSalary: 0,
+    internet: 0,
+    communication: 0,
+    banking: 0,
+    subscriptions: 0,
+    utilities: 0,
+    customCategories: [],
+  },
+  variableCosts: {
+    marketing: {
+      trafficPurchase: 0,
+      contractorsPayment: 0,
+      crmCosts: 0,
+      customCategories: [],
+    },
+    salesPayroll: {
+      bonusOldClients: 0,
+      bonusNewClients: 0,
+      customCategories: [],
+    },
+    production: {
+      materials: 0,
+      curators: 0,
+      logistics: 0,
+      partnersPercent: 0,
+      equipmentRepair: 0,
+      customCategories: [],
+    },
+    other: {
+      customCategories: [],
+    },
+  },
+  taxRate: 0,
+  taxes: 0,
+};
 
 export const CompetitorAnalysis = ({
   competitors,
@@ -45,6 +143,7 @@ export const CompetitorAnalysis = ({
   addCompetitorProduct,
   deleteCompetitorProduct,
   isAuthenticated,
+  currency,
 }: CompetitorAnalysisProps) => {
   const [newCompetitor, setNewCompetitor] = useState<Omit<Competitor, "id">>({
     name: "",
@@ -54,9 +153,11 @@ export const CompetitorAnalysis = ({
     quality: 0,
     marketingSpend: 0,
     products: [],
+    detailedExpenses: initialDetailedExpenses,
   });
 
   const [expandedCompetitors, setExpandedCompetitors] = useState<Set<string>>(new Set());
+  const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
   const [newProducts, setNewProducts] = useState<Record<string, Omit<CompetitorProduct, "id" | "annualRevenue">>>({});
 
   const addCompetitor = async () => {
@@ -70,6 +171,7 @@ export const CompetitorAnalysis = ({
         quality: 0,
         marketingSpend: 0,
         products: [],
+        detailedExpenses: initialDetailedExpenses,
       });
     }
   };
@@ -137,6 +239,26 @@ export const CompetitorAnalysis = ({
       }
       return newSet;
     });
+  };
+
+  const toggleMetrics = (competitorId: string) => {
+    setExpandedMetrics((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(competitorId)) {
+        newSet.delete(competitorId);
+      } else {
+        newSet.add(competitorId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleUpdateCompetitor = async (competitorId: string, updates: Partial<Competitor>) => {
+    const competitor = competitors.find((c) => c.id === competitorId);
+    if (competitor) {
+      const { id, ...competitorData } = { ...competitor, ...updates };
+      await saveCompetitor(competitorData);
+    }
   };
 
   return (
@@ -272,6 +394,23 @@ export const CompetitorAnalysis = ({
                         <span className="font-semibold font-mono">{competitor.quality}/10</span>
                       </div>
                     </div>
+
+                    <Collapsible open={expandedMetrics.has(competitor.id)} onOpenChange={() => toggleMetrics(competitor.id)}>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <BarChart3 className="w-4 h-4 mr-2" />
+                          Детальные показатели и метрики
+                          <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${expandedMetrics.has(competitor.id) ? "rotate-180" : ""}`} />
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-4">
+                        <CompetitorMetrics
+                          competitor={competitor}
+                          onUpdate={(updates) => handleUpdateCompetitor(competitor.id, updates)}
+                          currency={currency}
+                        />
+                      </CollapsibleContent>
+                    </Collapsible>
 
                     <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(competitor.id)}>
                       <CollapsibleTrigger asChild>
