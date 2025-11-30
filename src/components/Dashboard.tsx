@@ -19,6 +19,7 @@ import { ROICalculator } from "./ROICalculator";
 import { CompetitorKeyMetricsComparison } from "./CompetitorKeyMetricsComparison";
 import { CompetitorROICalculator } from "./CompetitorROICalculator";
 import { CompetitiveScoreCalculator } from "./CompetitiveScoreCalculator";
+import { SensitivityAnalysis } from "./SensitivityAnalysis";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -197,6 +198,15 @@ export const Dashboard = () => {
                   currentMetrics={currentMetrics}
                   scenarioA={scenarioA}
                   scenarioB={scenarioB}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+            
+            {currentMetrics.detailedExpenses && (
+              <AnimatedCard delay={0.6}>
+                <SensitivityAnalysis
+                  baseMetrics={currentMetrics}
                   currency={currency}
                 />
               </AnimatedCard>
