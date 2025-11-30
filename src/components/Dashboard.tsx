@@ -15,6 +15,7 @@ import { ProductComparison } from "./ProductComparison";
 import { CurrencySelector } from "./CurrencySelector";
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
+import { ROICalculator } from "./ROICalculator";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -177,6 +178,17 @@ export const Dashboard = () => {
             {currentMetrics.detailedExpenses && scenarioA.detailedExpenses && scenarioB.detailedExpenses && (
               <AnimatedCard delay={0.4}>
                 <KeyMetricsComparison
+                  currentMetrics={currentMetrics}
+                  scenarioA={scenarioA}
+                  scenarioB={scenarioB}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+
+            {currentMetrics.detailedExpenses && scenarioA.detailedExpenses && scenarioB.detailedExpenses && (
+              <AnimatedCard delay={0.5}>
+                <ROICalculator
                   currentMetrics={currentMetrics}
                   scenarioA={scenarioA}
                   scenarioB={scenarioB}
