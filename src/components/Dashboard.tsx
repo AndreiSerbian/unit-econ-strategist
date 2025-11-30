@@ -14,6 +14,7 @@ import { ProductsCharts } from "./ProductsCharts";
 import { ProductComparison } from "./ProductComparison";
 import { CurrencySelector } from "./CurrencySelector";
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
+import { KeyMetricsComparison } from "./KeyMetricsComparison";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -169,6 +170,17 @@ export const Dashboard = () => {
                 <ExpensesBreakdownCharts 
                   expenses={currentMetrics.detailedExpenses} 
                   currency={currency} 
+                />
+              </AnimatedCard>
+            )}
+
+            {currentMetrics.detailedExpenses && scenarioA.detailedExpenses && scenarioB.detailedExpenses && (
+              <AnimatedCard delay={0.4}>
+                <KeyMetricsComparison
+                  currentMetrics={currentMetrics}
+                  scenarioA={scenarioA}
+                  scenarioB={scenarioB}
+                  currency={currency}
                 />
               </AnimatedCard>
             )}
