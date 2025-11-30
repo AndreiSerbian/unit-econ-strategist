@@ -298,6 +298,32 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
+  const calculateProductsRevenue = () => {
+    return products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+  };
+
+  const calculateProductsCosts = () => {
+    return products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
+  };
+
+  const syncProductsToMetrics = (scenarioType: "current" | "scenarioA" | "scenarioB") => {
+    const productsRevenue = calculateProductsRevenue();
+    const productsCosts = calculateProductsCosts();
+    
+    const setter = scenarioType === "current" ? setCurrentMetrics : 
+                   scenarioType === "scenarioA" ? setScenarioA : setScenarioB;
+    const current = scenarioType === "current" ? currentMetrics : 
+                    scenarioType === "scenarioA" ? scenarioA : scenarioB;
+    
+    setter({
+      ...current,
+      revenue: productsRevenue,
+      variableCosts: productsCosts,
+    });
+    
+    toast.success("Метрики обновлены на основе продуктов");
+  };
+
   return {
     projectId,
     currentMetrics,
@@ -318,5 +344,8 @@ export const useProject = (userId: string | undefined) => {
     saveProduct,
     deleteProduct,
     updateCurrency,
+    calculateProductsRevenue,
+    calculateProductsCosts,
+    syncProductsToMetrics,
   };
 };
