@@ -9,7 +9,9 @@ import { MetricsCharts } from "./MetricsCharts";
 import { CompetitorCharts } from "./CompetitorCharts";
 import { ExportDialog } from "./ExportDialog";
 import { AnimatedCard } from "./AnimatedCard";
-import { BarChart3, Users, Brain, Target, LogOut, LogIn } from "lucide-react";
+import { ProductsManagement } from "./ProductsManagement";
+import { CurrencySelector } from "./CurrencySelector";
+import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
@@ -27,9 +29,14 @@ export const Dashboard = () => {
     setScenarioB,
     competitors,
     setCompetitors,
+    products,
+    currency,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,
+    saveProduct,
+    deleteProduct,
+    updateCurrency,
   } = useProject(user?.id);
 
   const exportData = {
@@ -80,10 +87,14 @@ export const Dashboard = () => {
         </motion.header>
 
         <Tabs defaultValue="metrics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="metrics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Показатели</span>
+            </TabsTrigger>
+            <TabsTrigger value="products" className="flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              <span className="hidden sm:inline">Продукты</span>
             </TabsTrigger>
             <TabsTrigger value="competitors" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -100,6 +111,14 @@ export const Dashboard = () => {
           </TabsList>
 
           <TabsContent value="metrics" className="space-y-6">
+            <AnimatedCard delay={0.05}>
+              <CurrencySelector
+                currency={currency}
+                onCurrencyChange={updateCurrency}
+                isAuthenticated={!!user}
+              />
+            </AnimatedCard>
+
             <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">
                 <CardHeader>
@@ -118,6 +137,7 @@ export const Dashboard = () => {
                     setScenarioB={setScenarioB}
                     saveScenario={saveScenario}
                     isAuthenticated={!!user}
+                    currency={currency}
                   />
                 </CardContent>
               </Card>
@@ -132,6 +152,18 @@ export const Dashboard = () => {
                 />
               </AnimatedCard>
             )}
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6">
+            <AnimatedCard delay={0.1}>
+              <ProductsManagement
+                products={products}
+                saveProduct={saveProduct}
+                deleteProduct={deleteProduct}
+                isAuthenticated={!!user}
+                currency={currency}
+              />
+            </AnimatedCard>
           </TabsContent>
 
           <TabsContent value="competitors" className="space-y-6">

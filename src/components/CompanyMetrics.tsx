@@ -25,6 +25,7 @@ interface CompanyMetricsProps {
   setScenarioB: (metrics: Metrics) => void;
   saveScenario: (scenarioType: string, metrics: Metrics) => Promise<void>;
   isAuthenticated: boolean;
+  currency: string;
 }
 
 export const CompanyMetrics = ({
@@ -36,6 +37,7 @@ export const CompanyMetrics = ({
   setScenarioB,
   saveScenario,
   isAuthenticated,
+  currency,
 }: CompanyMetricsProps) => {
   const updateMetric = (
     scenario: "current" | "scenarioA" | "scenarioB",
@@ -70,7 +72,7 @@ export const CompanyMetrics = ({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-revenue`}>Общая выручка (₽)</Label>
+              <Label htmlFor={`${scenario}-revenue`}>Общая выручка ({currency})</Label>
               <Input
                 id={`${scenario}-revenue`}
                 type="number"
@@ -80,7 +82,7 @@ export const CompanyMetrics = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-avgCheck`}>Средний чек (₽)</Label>
+              <Label htmlFor={`${scenario}-avgCheck`}>Средний чек ({currency})</Label>
               <Input
                 id={`${scenario}-avgCheck`}
                 type="number"
@@ -165,7 +167,7 @@ export const CompanyMetrics = ({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-fixedCosts`}>Постоянные расходы (₽)</Label>
+              <Label htmlFor={`${scenario}-fixedCosts`}>Постоянные расходы ({currency})</Label>
               <Input
                 id={`${scenario}-fixedCosts`}
                 type="number"
@@ -175,7 +177,7 @@ export const CompanyMetrics = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-variableCosts`}>Переменные расходы (₽)</Label>
+              <Label htmlFor={`${scenario}-variableCosts`}>Переменные расходы ({currency})</Label>
               <Input
                 id={`${scenario}-variableCosts`}
                 type="number"
@@ -185,7 +187,7 @@ export const CompanyMetrics = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-marketingCosts`}>Маркетинг (₽)</Label>
+              <Label htmlFor={`${scenario}-marketingCosts`}>Маркетинг ({currency})</Label>
               <Input
                 id={`${scenario}-marketingCosts`}
                 type="number"
@@ -207,19 +209,19 @@ export const CompanyMetrics = ({
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Выручка</p>
               <p className="text-2xl font-bold text-primary font-mono">
-                {metrics.revenue.toLocaleString("ru-RU")} ₽
+                {metrics.revenue.toLocaleString("ru-RU")} {currency}
               </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Общие расходы</p>
               <p className="text-2xl font-bold text-destructive font-mono">
-                {(metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts).toLocaleString("ru-RU")} ₽
+                {(metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts).toLocaleString("ru-RU")} {currency}
               </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Прибыль</p>
               <p className={`text-2xl font-bold font-mono ${calculateProfit(metrics) >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {calculateProfit(metrics).toLocaleString("ru-RU")} ₽
+                {calculateProfit(metrics).toLocaleString("ru-RU")} {currency}
               </p>
             </div>
           </div>
