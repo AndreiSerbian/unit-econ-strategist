@@ -14,6 +14,15 @@ interface Metrics {
   marketingCosts: number;
 }
 
+interface CompetitorProduct {
+  id: string;
+  name: string;
+  price: number;
+  annualSales: number;
+  annualRevenue: number;
+  salesChannels: string[];
+}
+
 interface Competitor {
   id: string;
   name: string;
@@ -22,6 +31,7 @@ interface Competitor {
   pricing: number;
   quality: number;
   marketingSpend: number;
+  products: CompetitorProduct[];
 }
 
 interface Product {
@@ -194,6 +204,7 @@ export const useProject = (userId: string | undefined) => {
             pricing: Number(c.pricing) || 0,
             quality: Number(c.quality) || 0,
             marketingSpend: Number(c.marketing_spend) || 0,
+            products: [],
           }))
         );
       }
@@ -357,6 +368,40 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
+  const addCompetitorProduct = async (
+    competitorId: string,
+    product: Omit<CompetitorProduct, "id" | "annualRevenue">
+  ) => {
+    const newProduct: CompetitorProduct = {
+      ...product,
+      id: Date.now().toString(),
+      annualRevenue: product.price * product.annualSales,
+    };
+
+    const updatedCompetitors = competitors.map((c) =>
+      c.id === competitorId
+        ? { ...c, products: [...(c.products || []), newProduct] }
+        : c
+    );
+
+    setCompetitors(updatedCompetitors);
+    toast.success("Продукт конкурента добавлен");
+  };
+
+  const deleteCompetitorProduct = async (
+    competitorId: string,
+    productId: string
+  ) => {
+    const updatedCompetitors = competitors.map((c) =>
+      c.id === competitorId
+        ? { ...c, products: (c.products || []).filter((p) => p.id !== productId) }
+        : c
+    );
+
+    setCompetitors(updatedCompetitors);
+    toast.success("Продукт конкурента удален");
+  };
+
   const updateCurrency = async (newCurrency: string) => {
     if (!userId) {
       // Local storage mode
@@ -431,5 +476,7 @@ export const useProject = (userId: string | undefined) => {
     calculateProductsRevenue,
     calculateProductsCosts,
     syncProductsToMetrics,
+    addCompetitorProduct,
+    deleteCompetitorProduct,
   };
 };

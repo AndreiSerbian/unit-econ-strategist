@@ -41,6 +41,8 @@ export const Dashboard = () => {
     calculateProductsRevenue,
     calculateProductsCosts,
     syncProductsToMetrics,
+    addCompetitorProduct,
+    deleteCompetitorProduct,
   } = useProject(user?.id);
 
   const exportData = {
@@ -193,6 +195,8 @@ export const Dashboard = () => {
                     competitors={competitors}
                     saveCompetitor={saveCompetitor}
                     deleteCompetitor={deleteCompetitor}
+                    addCompetitorProduct={addCompetitorProduct}
+                    deleteCompetitorProduct={deleteCompetitorProduct}
                     isAuthenticated={!!user}
                   />
                 </CardContent>
