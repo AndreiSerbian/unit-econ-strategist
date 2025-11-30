@@ -21,8 +21,14 @@ import { CompetitorROICalculator } from "./CompetitorROICalculator";
 import { CompetitiveScoreCalculator } from "./CompetitiveScoreCalculator";
 import { SensitivityAnalysis } from "./SensitivityAnalysis";
 import { SWOTAnalysis } from "./SWOTAnalysis";
-import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
+import { BusinessToolsSelector } from "./BusinessToolsSelector";
+import { ScenarioSummary } from "./ScenarioSummary";
+import { MetricHistoryChart } from "./MetricHistoryChart";
+import { MetricForecasting } from "./MetricForecasting";
+import { ActionPlanManager } from "./ActionPlanManager";
+import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useNavigate } from "react-router-dom";
@@ -105,7 +111,7 @@ export const Dashboard = () => {
         </motion.header>
 
         <Tabs defaultValue="metrics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-6 h-auto p-1">
             <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
               <span className="text-[10px] sm:text-sm">Показатели</span>
@@ -117,6 +123,10 @@ export const Dashboard = () => {
             <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <Users className="w-4 h-4 sm:w-4 sm:h-4" />
               <span className="text-[10px] sm:text-sm">Конкуренты</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Аналитика</span>
             </TabsTrigger>
             <TabsTrigger value="game-theory" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <Brain className="w-4 h-4 sm:w-4 sm:h-4" />
@@ -341,6 +351,90 @@ export const Dashboard = () => {
                 />
               </AnimatedCard>
             )}
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <AnimatedCard delay={0.1}>
+              <MetricHistoryChart
+                projectId={projectId}
+                scenarioType="current"
+                currentMetrics={currentMetrics.detailedExpenses ? {
+                  revenue: currentMetrics.revenue,
+                  cac: calculateCAC(currentMetrics),
+                  cpl: calculateCPL(currentMetrics),
+                  profit: calculateProfit(currentMetrics),
+                  profitMargin: calculateProfitMargin(currentMetrics),
+                  breakEven: calculateBreakEvenDifference(currentMetrics)
+                } : undefined}
+              />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.2}>
+              <MetricForecasting
+                projectId={projectId}
+                scenarioType="current"
+              />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.3}>
+              <ScenarioSummary
+                projectId={projectId}
+                scenarioType="current"
+                scenarioLabel="Текущая ситуация"
+                metrics={currentMetrics.detailedExpenses ? {
+                  revenue: currentMetrics.revenue,
+                  profit: calculateProfit(currentMetrics),
+                  profitMargin: calculateProfitMargin(currentMetrics),
+                  cac: calculateCAC(currentMetrics),
+                  breakEven: calculateBreakEvenDifference(currentMetrics)
+                } : undefined}
+              />
+            </AnimatedCard>
+
+            {scenarioA.detailedExpenses && (
+              <AnimatedCard delay={0.4}>
+                <ScenarioSummary
+                  projectId={projectId}
+                  scenarioType="scenarioA"
+                  scenarioLabel="Сценарий А"
+                  metrics={{
+                    revenue: scenarioA.revenue,
+                    profit: calculateProfit(scenarioA),
+                    profitMargin: calculateProfitMargin(scenarioA),
+                    cac: calculateCAC(scenarioA),
+                    breakEven: calculateBreakEvenDifference(scenarioA)
+                  }}
+                />
+              </AnimatedCard>
+            )}
+
+            {scenarioB.detailedExpenses && (
+              <AnimatedCard delay={0.5}>
+                <ScenarioSummary
+                  projectId={projectId}
+                  scenarioType="scenarioB"
+                  scenarioLabel="Сценарий Б"
+                  metrics={{
+                    revenue: scenarioB.revenue,
+                    profit: calculateProfit(scenarioB),
+                    profitMargin: calculateProfitMargin(scenarioB),
+                    cac: calculateCAC(scenarioB),
+                    breakEven: calculateBreakEvenDifference(scenarioB)
+                  }}
+                />
+              </AnimatedCard>
+            )}
+
+            <AnimatedCard delay={0.6}>
+              <ActionPlanManager
+                projectId={projectId}
+                currentMetrics={currentMetrics.detailedExpenses ? {
+                  profitMargin: calculateProfitMargin(currentMetrics),
+                  cac: calculateCAC(currentMetrics),
+                  breakEven: calculateBreakEvenDifference(currentMetrics)
+                } : undefined}
+              />
+            </AnimatedCard>
           </TabsContent>
 
           <TabsContent value="game-theory" className="space-y-6">

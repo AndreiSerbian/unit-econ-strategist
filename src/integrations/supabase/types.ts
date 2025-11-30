@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          impact_score: number | null
+          priority: string
+          project_id: string
+          related_metric: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          impact_score?: number | null
+          priority?: string
+          project_id: string
+          related_metric?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          impact_score?: number | null
+          priority?: string
+          project_id?: string
+          related_metric?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_plans_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_tools: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       competitors: {
         Row: {
           created_at: string
@@ -54,6 +128,122 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "competitors_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_tools: {
+        Row: {
+          created_at: string
+          expense_category: string
+          id: string
+          project_id: string
+          scenario_type: string
+          tool_id: string
+        }
+        Insert: {
+          created_at?: string
+          expense_category: string
+          id?: string
+          project_id: string
+          scenario_type: string
+          tool_id: string
+        }
+        Update: {
+          created_at?: string
+          expense_category?: string
+          id?: string
+          project_id?: string
+          scenario_type?: string
+          tool_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_tools_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_tools_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "business_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metric_history: {
+        Row: {
+          avg_check: number | null
+          break_even_point: number | null
+          cac: number | null
+          conversion_rate: number | null
+          cpl: number | null
+          created_at: string
+          fixed_costs: number | null
+          id: string
+          marketing_costs: number | null
+          new_clients: number | null
+          profit: number | null
+          profit_margin: number | null
+          project_id: string
+          returning_clients: number | null
+          revenue: number | null
+          scenario_type: string
+          snapshot_date: string
+          total_clients: number | null
+          variable_costs: number | null
+        }
+        Insert: {
+          avg_check?: number | null
+          break_even_point?: number | null
+          cac?: number | null
+          conversion_rate?: number | null
+          cpl?: number | null
+          created_at?: string
+          fixed_costs?: number | null
+          id?: string
+          marketing_costs?: number | null
+          new_clients?: number | null
+          profit?: number | null
+          profit_margin?: number | null
+          project_id: string
+          returning_clients?: number | null
+          revenue?: number | null
+          scenario_type: string
+          snapshot_date?: string
+          total_clients?: number | null
+          variable_costs?: number | null
+        }
+        Update: {
+          avg_check?: number | null
+          break_even_point?: number | null
+          cac?: number | null
+          conversion_rate?: number | null
+          cpl?: number | null
+          created_at?: string
+          fixed_costs?: number | null
+          id?: string
+          marketing_costs?: number | null
+          new_clients?: number | null
+          profit?: number | null
+          profit_margin?: number | null
+          project_id?: string
+          returning_clients?: number | null
+          revenue?: number | null
+          scenario_type?: string
+          snapshot_date?: string
+          total_clients?: number | null
+          variable_costs?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_history_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -131,6 +321,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      scenario_summaries: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          recommendations: string | null
+          scenario_type: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          recommendations?: string | null
+          scenario_type: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          recommendations?: string | null
+          scenario_type?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scenario_summaries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scenarios: {
         Row: {
