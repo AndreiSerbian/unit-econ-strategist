@@ -40,6 +40,7 @@ interface Product {
   price: number;
   cost: number;
   quantity: number;
+  salesChannels: string[];
 }
 
 const initialMetrics: Metrics = {
@@ -225,6 +226,7 @@ export const useProject = (userId: string | undefined) => {
             price: Number(p.price) || 0,
             cost: Number(p.cost) || 0,
             quantity: p.quantity || 0,
+            salesChannels: [],
           }))
         );
       }

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Package } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,6 +13,7 @@ export interface Product {
   price: number;
   cost: number;
   quantity: number;
+  salesChannels: string[];
 }
 
 interface ProductsManagementProps {
@@ -21,6 +23,8 @@ interface ProductsManagementProps {
   isAuthenticated: boolean;
   currency: string;
 }
+
+const SALES_CHANNELS = ["Онлайн", "Розница", "Дистрибьюторы", "B2B"];
 
 export const ProductsManagement = ({
   products,
@@ -34,6 +38,7 @@ export const ProductsManagement = ({
     price: 0,
     cost: 0,
     quantity: 0,
+    salesChannels: [] as string[],
   });
 
   const handleAddProduct = async () => {
@@ -43,7 +48,16 @@ export const ProductsManagement = ({
     }
 
     await saveProduct(newProduct);
-    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0 });
+    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, salesChannels: [] });
+  };
+
+  const toggleChannel = (channel: string) => {
+    setNewProduct((prev) => ({
+      ...prev,
+      salesChannels: prev.salesChannels.includes(channel)
+        ? prev.salesChannels.filter((c) => c !== channel)
+        : [...prev.salesChannels, channel],
+    }));
   };
 
   const totalRevenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
@@ -119,6 +133,26 @@ export const ProductsManagement = ({
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Каналы продаж</Label>
+              <div className="flex flex-wrap gap-3">
+                {SALES_CHANNELS.map((channel) => (
+                  <div key={channel} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`new-product-${channel}`}
+                      checked={newProduct.salesChannels.includes(channel)}
+                      onCheckedChange={() => toggleChannel(channel)}
+                    />
+                    <label
+                      htmlFor={`new-product-${channel}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {channel}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
             <Button
               onClick={handleAddProduct}
               className="w-full"
@@ -140,28 +174,42 @@ export const ProductsManagement = ({
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div className="md:col-span-2">
-                      <p className="font-medium">{product.name}</p>
+                  <div className="flex-1 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                      <div className="md:col-span-2">
+                        <p className="font-medium">{product.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Цена</p>
+                        <p className="font-mono">
+                          {product.price.toLocaleString("ru-RU")} {currency}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Себестоимость</p>
+                        <p className="font-mono">
+                          {product.cost.toLocaleString("ru-RU")} {currency}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Количество</p>
+                        <p className="font-mono">{product.quantity}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Цена</p>
-                      <p className="font-mono">
-                        {product.price.toLocaleString("ru-RU")} {currency}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Себестоимость</p>
-                      <p className="font-mono">
-                        {product.cost.toLocaleString("ru-RU")} {currency}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Количество</p>
-                      <p className="font-mono">{product.quantity}</p>
-                    </div>
+                    {product.salesChannels && product.salesChannels.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {product.salesChannels.map((channel) => (
+                          <span
+                            key={channel}
+                            className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
+                          >
+                            {channel}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <Button
                     variant="ghost"

@@ -12,7 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, PieChart as PieChartIcon, BarChart3 } from "lucide-react";
+import { TrendingUp, PieChart as PieChartIcon, BarChart3, Package, Share2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -20,6 +20,7 @@ interface Product {
   price: number;
   cost: number;
   quantity: number;
+  salesChannels: string[];
 }
 
 interface ProductsChartsProps {
@@ -31,13 +32,7 @@ const COLORS = [
   "hsl(var(--primary))",
   "hsl(var(--secondary))",
   "hsl(var(--accent))",
-  "hsl(var(--warning))",
   "hsl(var(--success))",
-  "hsl(var(--destructive))",
-  "hsl(215 85% 65%)",
-  "hsl(195 75% 55%)",
-  "hsl(160 75% 52%)",
-  "hsl(38 95% 65%)",
 ];
 
 export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
@@ -82,6 +77,37 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
     })
     .filter((item) => item.value > 0)
     .sort((a, b) => b.value - a.value);
+
+  // Средние цены продуктов
+  const avgPriceData = products.map((p) => ({
+    name: p.name.length > 10 ? p.name.substring(0, 10) + "..." : p.name,
+    fullName: p.name,
+    цена: p.price,
+    себестоимость: p.cost,
+  }));
+
+  // Объёмы продаж
+  const salesVolumeData = products.map((p) => ({
+    name: p.name.length > 10 ? p.name.substring(0, 10) + "..." : p.name,
+    fullName: p.name,
+    количество: p.quantity,
+    выручка: p.price * p.quantity,
+  }));
+
+  // Каналы продаж
+  const channelsData: { [key: string]: number } = {};
+  products.forEach((p) => {
+    (p.salesChannels || []).forEach((channel) => {
+      channelsData[channel] = (channelsData[channel] || 0) + 1;
+    });
+  });
+
+  const channelsPieData = Object.entries(channelsData).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
+  const hasChannels = channelsPieData.length > 0;
 
   const totalRevenue = revenueStructureData.reduce((sum, item) => sum + item.value, 0);
   const totalProfit = profitShareData.reduce((sum, item) => sum + item.value, 0);
@@ -168,6 +194,135 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Новые графики для сравнения */}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="w-5 h-5 text-secondary" />
+            Сравнительный анализ продуктов
+          </CardTitle>
+          <CardDescription>
+            Детальное сравнение цен, объёмов и каналов продаж
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Средние цены */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="w-4 h-4 text-secondary" />
+              Ценообразование
+            </CardTitle>
+            <CardDescription>Сравнение цен и себестоимости</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={avgPriceData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="hsl(var(--foreground))"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis stroke="hsl(var(--foreground))" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="цена" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="себестоимость" fill="hsl(var(--destructive))" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Объёмы продаж */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Package className="w-4 h-4 text-accent" />
+              Объёмы продаж
+            </CardTitle>
+            <CardDescription>Количество проданных единиц</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={salesVolumeData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="hsl(var(--foreground))"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis stroke="hsl(var(--foreground))" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="количество" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Каналы продаж */}
+      {hasChannels && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-success" />
+              Каналы распределения
+            </CardTitle>
+            <CardDescription>
+              Распределение продуктов по каналам продаж
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <PieChart>
+                <Pie
+                  data={channelsPieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={120}
+                  fill="hsl(var(--primary))"
+                  dataKey="value"
+                >
+                  {channelsPieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 flex flex-wrap gap-3 justify-center">
+              {channelsPieData.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  />
+                  <span className="text-sm">
+                    {entry.name}: <span className="font-semibold">{entry.value}</span> продукт{entry.value > 1 ? 'ов' : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Структура выручки */}
