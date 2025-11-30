@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Users, Percent } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Percent, Save } from "lucide-react";
 
 interface Metrics {
   revenue: number;
@@ -18,23 +17,27 @@ interface Metrics {
   marketingCosts: number;
 }
 
-const initialMetrics: Metrics = {
-  revenue: 0,
-  totalClients: 0,
-  newClients: 0,
-  returningClients: 0,
-  conversionRate: 0,
-  avgCheck: 0,
-  fixedCosts: 0,
-  variableCosts: 0,
-  marketingCosts: 0,
-};
+interface CompanyMetricsProps {
+  currentMetrics: Metrics;
+  setCurrentMetrics: (metrics: Metrics) => void;
+  scenarioA: Metrics;
+  setScenarioA: (metrics: Metrics) => void;
+  scenarioB: Metrics;
+  setScenarioB: (metrics: Metrics) => void;
+  saveScenario: (scenarioType: string, metrics: Metrics) => Promise<void>;
+  isAuthenticated: boolean;
+}
 
-export const CompanyMetrics = () => {
-  const [currentMetrics, setCurrentMetrics] = useState<Metrics>(initialMetrics);
-  const [scenarioA, setScenarioA] = useState<Metrics>(initialMetrics);
-  const [scenarioB, setScenarioB] = useState<Metrics>(initialMetrics);
-
+export const CompanyMetrics = ({
+  currentMetrics,
+  setCurrentMetrics,
+  scenarioA,
+  setScenarioA,
+  scenarioB,
+  setScenarioB,
+  saveScenario,
+  isAuthenticated,
+}: CompanyMetricsProps) => {
   const updateMetric = (
     scenario: "current" | "scenarioA" | "scenarioB",
     field: keyof Metrics,
@@ -42,7 +45,8 @@ export const CompanyMetrics = () => {
   ) => {
     const numValue = parseFloat(value) || 0;
     const setter = scenario === "current" ? setCurrentMetrics : scenario === "scenarioA" ? setScenarioA : setScenarioB;
-    setter((prev) => ({ ...prev, [field]: numValue }));
+    const current = scenario === "current" ? currentMetrics : scenario === "scenarioA" ? scenarioA : scenarioB;
+    setter({ ...current, [field]: numValue });
   };
 
   const calculateProfit = (metrics: Metrics) => {
@@ -222,6 +226,17 @@ export const CompanyMetrics = () => {
           </div>
         </CardContent>
       </Card>
+
+      {isAuthenticated && (
+        <Button 
+          onClick={() => saveScenario(scenario, metrics)} 
+          className="w-full"
+          variant="gradient"
+        >
+          <Save className="w-4 h-4 mr-2" />
+          Сохранить сценарий
+        </Button>
+      )}
     </div>
   );
 

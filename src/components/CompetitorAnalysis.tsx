@@ -15,8 +15,19 @@ interface Competitor {
   marketingSpend: number;
 }
 
-export const CompetitorAnalysis = () => {
-  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+interface CompetitorAnalysisProps {
+  competitors: Competitor[];
+  saveCompetitor: (competitor: Omit<Competitor, "id">) => Promise<void>;
+  deleteCompetitor: (competitorId: string) => Promise<void>;
+  isAuthenticated: boolean;
+}
+
+export const CompetitorAnalysis = ({
+  competitors,
+  saveCompetitor,
+  deleteCompetitor,
+  isAuthenticated,
+}: CompetitorAnalysisProps) => {
   const [newCompetitor, setNewCompetitor] = useState<Omit<Competitor, "id">>({
     name: "",
     revenue: 0,
@@ -26,12 +37,9 @@ export const CompetitorAnalysis = () => {
     marketingSpend: 0,
   });
 
-  const addCompetitor = () => {
-    if (newCompetitor.name.trim()) {
-      setCompetitors([
-        ...competitors,
-        { ...newCompetitor, id: Date.now().toString() },
-      ]);
+  const addCompetitor = async () => {
+    if (newCompetitor.name.trim() && isAuthenticated) {
+      await saveCompetitor(newCompetitor);
       setNewCompetitor({
         name: "",
         revenue: 0,
@@ -41,10 +49,6 @@ export const CompetitorAnalysis = () => {
         marketingSpend: 0,
       });
     }
-  };
-
-  const removeCompetitor = (id: string) => {
-    setCompetitors(competitors.filter((c) => c.id !== id));
   };
 
   const updateNewCompetitor = (field: keyof Omit<Competitor, "id">, value: string | number) => {
@@ -60,7 +64,9 @@ export const CompetitorAnalysis = () => {
             Добавить конкурента
           </CardTitle>
           <CardDescription>
-            Заполните информацию о конкуренте для анализа
+            {isAuthenticated 
+              ? "Заполните информацию о конкуренте для анализа"
+              : "Войдите в систему, чтобы сохранять конкурентов"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -128,9 +134,9 @@ export const CompetitorAnalysis = () => {
               />
             </div>
           </div>
-          <Button onClick={addCompetitor} className="w-full">
+          <Button onClick={addCompetitor} className="w-full" disabled={!isAuthenticated}>
             <Plus className="w-4 h-4 mr-2" />
-            Добавить конкурента
+            {isAuthenticated ? "Добавить конкурента" : "Требуется вход"}
           </Button>
         </CardContent>
       </Card>
@@ -147,14 +153,16 @@ export const CompetitorAnalysis = () => {
                       <Building2 className="w-5 h-5 text-primary" />
                       <CardTitle className="text-lg">{competitor.name}</CardTitle>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCompetitor(competitor.id)}
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {isAuthenticated && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteCompetitor(competitor.id)}
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">

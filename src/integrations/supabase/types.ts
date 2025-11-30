@@ -14,7 +14,139 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      competitors: {
+        Row: {
+          created_at: string
+          id: string
+          market_share: number | null
+          marketing_spend: number | null
+          name: string
+          pricing: number | null
+          project_id: string
+          quality: number | null
+          revenue: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market_share?: number | null
+          marketing_spend?: number | null
+          name: string
+          pricing?: number | null
+          project_id: string
+          quality?: number | null
+          revenue?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market_share?: number | null
+          marketing_spend?: number | null
+          name?: string
+          pricing?: number | null
+          project_id?: string
+          quality?: number | null
+          revenue?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scenarios: {
+        Row: {
+          avg_check: number | null
+          conversion_rate: number | null
+          created_at: string
+          fixed_costs: number | null
+          id: string
+          marketing_costs: number | null
+          new_clients: number | null
+          project_id: string
+          returning_clients: number | null
+          revenue: number | null
+          scenario_type: string
+          total_clients: number | null
+          updated_at: string
+          variable_costs: number | null
+        }
+        Insert: {
+          avg_check?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          fixed_costs?: number | null
+          id?: string
+          marketing_costs?: number | null
+          new_clients?: number | null
+          project_id: string
+          returning_clients?: number | null
+          revenue?: number | null
+          scenario_type: string
+          total_clients?: number | null
+          updated_at?: string
+          variable_costs?: number | null
+        }
+        Update: {
+          avg_check?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          fixed_costs?: number | null
+          id?: string
+          marketing_costs?: number | null
+          new_clients?: number | null
+          project_id?: string
+          returning_clients?: number | null
+          revenue?: number | null
+          scenario_type?: string
+          total_clients?: number | null
+          updated_at?: string
+          variable_costs?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scenarios_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
