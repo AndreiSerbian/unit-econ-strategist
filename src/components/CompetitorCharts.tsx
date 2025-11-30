@@ -118,7 +118,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
             <BarChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
@@ -145,7 +145,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
             <CardDescription>Распределение рыночных долей</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={marketShareData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis type="number" stroke="hsl(var(--foreground))" />
@@ -170,7 +170,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
               <CardDescription>Сравнение по ключевым показателям</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="hsl(var(--border))" />
                   <PolarAngleAxis dataKey="competitor" stroke="hsl(var(--foreground))" />
@@ -229,7 +229,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
                   <CardDescription>Сравнение ценовой политики</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
                     <BarChart data={avgPriceData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
@@ -266,7 +266,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
                   <CardDescription>Годовые продажи в штуках</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
                     <BarChart data={salesVolumeData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
@@ -300,7 +300,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
                   <PieChart>
                     <Pie
                       data={channelsPieData}
@@ -354,7 +354,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
+                <ResponsiveContainer width="100%" height={400} className="text-xs sm:text-sm">
                   <BarChart data={salesVolumeData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="name" stroke="hsl(var(--foreground))" />

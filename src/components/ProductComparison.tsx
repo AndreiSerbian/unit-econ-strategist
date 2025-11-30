@@ -217,7 +217,7 @@ export const ProductComparison = ({ products, competitors, currency }: ProductCo
             <CardDescription>Сравнение средних цен продуктов</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={priceComparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="category" stroke="hsl(var(--foreground))" />
@@ -254,7 +254,7 @@ export const ProductComparison = ({ products, competitors, currency }: ProductCo
             <CardDescription>Сравнение объёмов и выручки</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={salesComparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="category" stroke="hsl(var(--foreground))" />
@@ -280,15 +280,16 @@ export const ProductComparison = ({ products, competitors, currency }: ProductCo
             <CardDescription>Все продукты с ценами (отсортировано по убыванию)</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={Math.max(400, detailedPriceData.length * 30)}>
+            <ResponsiveContainer width="100%" height={Math.max(400, detailedPriceData.length * 30)} className="text-xs sm:text-sm">
               <BarChart data={detailedPriceData} layout="horizontal">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--foreground))" />
+                <XAxis type="number" stroke="hsl(var(--foreground))" className="text-xs" />
                 <YAxis 
                   type="category" 
                   dataKey="name" 
-                  width={120}
+                  width={100}
                   stroke="hsl(var(--foreground))"
+                  className="text-[10px] sm:text-xs"
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
@@ -333,7 +334,7 @@ export const ProductComparison = ({ products, competitors, currency }: ProductCo
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={channelsComparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="канал" stroke="hsl(var(--foreground))" />
@@ -361,7 +362,7 @@ export const ProductComparison = ({ products, competitors, currency }: ProductCo
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={priceSegments}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="segment" stroke="hsl(var(--foreground))" />

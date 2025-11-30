@@ -174,7 +174,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
           <CardDescription>Выручка, себестоимость и прибыль по каждому продукту</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={400} className="text-xs sm:text-sm">
             <BarChart data={profitabilityData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
@@ -219,7 +219,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
             <CardDescription>Сравнение цен и себестоимости</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={avgPriceData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
@@ -249,7 +249,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
             <CardDescription>Количество проданных единиц</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={salesVolumeData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
@@ -282,7 +282,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
               <PieChart>
                 <Pie
                   data={channelsPieData}
@@ -336,8 +336,8 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
               <CardDescription>Распределение выручки по продуктам</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
+              <PieChart>
                   <Pie
                     data={revenueStructureData}
                     cx="50%"
@@ -376,8 +376,8 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
               <CardDescription>Вклад каждого продукта в прибыль</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
+            <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
+              <PieChart>
                   <Pie
                     data={profitShareData}
                     cx="50%"
