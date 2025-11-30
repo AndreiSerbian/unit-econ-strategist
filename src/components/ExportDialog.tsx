@@ -72,7 +72,6 @@ export const ExportDialog = ({ data, projectName = "Анализ" }: ExportDialo
       competitorsWithDetails.forEach((c: any) => {
         const de = c.detailedExpenses;
         
-        // Постоянные расходы
         csv += `${c.name},Постоянные,ЗП по старым клиентам,${de.fixedCosts.salaryOldClients}\n`;
         csv += `${c.name},Постоянные,ЗП по новым клиентам,${de.fixedCosts.salaryNewClients}\n`;
         csv += `${c.name},Постоянные,Оклад руководства,${de.fixedCosts.managementSalary}\n`;
@@ -80,21 +79,14 @@ export const ExportDialog = ({ data, projectName = "Анализ" }: ExportDialo
         csv += `${c.name},Постоянные,Оклад производства,${de.fixedCosts.productionSalary}\n`;
         csv += `${c.name},Постоянные,Аренда офиса,${de.fixedCosts.officeRent}\n`;
         csv += `${c.name},Постоянные,Аренда склада,${de.fixedCosts.warehouseRent}\n`;
-        
-        // Переменные расходы - Маркетинг
         csv += `${c.name},Переменные - Маркетинг,Закупка трафика,${de.variableCosts.marketing.trafficPurchase}\n`;
         csv += `${c.name},Переменные - Маркетинг,Оплата подрядчикам,${de.variableCosts.marketing.contractorsPayment}\n`;
         csv += `${c.name},Переменные - Маркетинг,CRM расходы,${de.variableCosts.marketing.crmCosts}\n`;
-        
-        // Переменные расходы - ФОТ продаж
         csv += `${c.name},Переменные - ФОТ продаж,Бонусы по старым клиентам,${de.variableCosts.salesPayroll.bonusOldClients}\n`;
         csv += `${c.name},Переменные - ФОТ продаж,Бонусы по новым клиентам,${de.variableCosts.salesPayroll.bonusNewClients}\n`;
-        
-        // Переменные расходы - Исполнение
         csv += `${c.name},Переменные - Исполнение,Материалы,${de.variableCosts.production.materials}\n`;
         csv += `${c.name},Переменные - Исполнение,Кураторы,${de.variableCosts.production.curators}\n`;
         csv += `${c.name},Переменные - Исполнение,Логистика,${de.variableCosts.production.logistics}\n`;
-        
         csv += `${c.name},Налоги,Налоги,${de.taxes}\n`;
       });
     }
