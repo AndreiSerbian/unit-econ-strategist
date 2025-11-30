@@ -66,6 +66,8 @@ interface Metrics {
   detailedExpenses?: DetailedExpenses;
 }
 
+export type { Metrics, CompetitorProduct, Competitor, Product };
+
 interface CompetitorProduct {
   id: string;
   name: string;
@@ -84,6 +86,14 @@ interface Competitor {
   quality: number;
   marketingSpend: number;
   products: CompetitorProduct[];
+  totalClients?: number;
+  newClients?: number;
+  returningClients?: number;
+  conversionRate?: number;
+  avgCheck?: number;
+  fixedCosts?: number;
+  variableCosts?: number;
+  detailedExpenses?: DetailedExpenses;
 }
 
 interface Product {
