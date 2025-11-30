@@ -191,6 +191,56 @@ export type Database = {
           },
         ]
       }
+      swot_analyses: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_name: string
+          entity_type: string
+          id: string
+          opportunities: string[] | null
+          project_id: string
+          strengths: string[] | null
+          threats: string[] | null
+          updated_at: string
+          weaknesses: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_name: string
+          entity_type: string
+          id?: string
+          opportunities?: string[] | null
+          project_id: string
+          strengths?: string[] | null
+          threats?: string[] | null
+          updated_at?: string
+          weaknesses?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_name?: string
+          entity_type?: string
+          id?: string
+          opportunities?: string[] | null
+          project_id?: string
+          strengths?: string[] | null
+          threats?: string[] | null
+          updated_at?: string
+          weaknesses?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swot_analyses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
