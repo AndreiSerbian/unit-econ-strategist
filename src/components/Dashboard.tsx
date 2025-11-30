@@ -37,6 +37,9 @@ export const Dashboard = () => {
     saveProduct,
     deleteProduct,
     updateCurrency,
+    calculateProductsRevenue,
+    calculateProductsCosts,
+    syncProductsToMetrics,
   } = useProject(user?.id);
 
   const exportData = {
@@ -138,6 +141,9 @@ export const Dashboard = () => {
                     saveScenario={saveScenario}
                     isAuthenticated={!!user}
                     currency={currency}
+                    productsRevenue={calculateProductsRevenue()}
+                    productsCosts={calculateProductsCosts()}
+                    syncProductsToMetrics={syncProductsToMetrics}
                   />
                 </CardContent>
               </Card>

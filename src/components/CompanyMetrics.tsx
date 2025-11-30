@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Users, Percent, Save } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Percent, Save, Package } from "lucide-react";
 
 interface Metrics {
   revenue: number;
@@ -26,6 +26,9 @@ interface CompanyMetricsProps {
   saveScenario: (scenarioType: string, metrics: Metrics) => Promise<void>;
   isAuthenticated: boolean;
   currency: string;
+  productsRevenue: number;
+  productsCosts: number;
+  syncProductsToMetrics: (scenarioType: "current" | "scenarioA" | "scenarioB") => void;
 }
 
 export const CompanyMetrics = ({
@@ -38,6 +41,9 @@ export const CompanyMetrics = ({
   saveScenario,
   isAuthenticated,
   currency,
+  productsRevenue,
+  productsCosts,
+  syncProductsToMetrics,
 }: CompanyMetricsProps) => {
   const updateMetric = (
     scenario: "current" | "scenarioA" | "scenarioB",
@@ -60,8 +66,53 @@ export const CompanyMetrics = ({
   }: { 
     metrics: Metrics; 
     scenario: "current" | "scenarioA" | "scenarioB" 
-  }) => (
+  }) => {
+    const revenueFromProducts = productsRevenue;
+    const costsFromProducts = productsCosts;
+    const manualRevenue = metrics.revenue - revenueFromProducts;
+    const manualVariableCosts = metrics.variableCosts - costsFromProducts;
+
+    return (
     <div className="space-y-6">
+      {productsRevenue > 0 && (
+        <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-accent" />
+                Интеграция с продуктами
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => syncProductsToMetrics(scenario)}
+                disabled={!isAuthenticated}
+              >
+                Синхронизировать
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">Выручка из продуктов</p>
+                <p className="font-mono font-semibold text-accent">
+                  {revenueFromProducts.toLocaleString("ru-RU")} {currency}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Себестоимость продуктов</p>
+                <p className="font-mono font-semibold text-destructive">
+                  {costsFromProducts.toLocaleString("ru-RU")} {currency}
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Нажмите "Синхронизировать" чтобы автоматически обновить выручку и переменные расходы
+            </p>
+          </CardContent>
+        </Card>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-3">
@@ -72,7 +123,14 @@ export const CompanyMetrics = ({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-revenue`}>Общая выручка ({currency})</Label>
+              <Label htmlFor={`${scenario}-revenue`}>
+                Общая выручка ({currency})
+                {productsRevenue > 0 && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (из продуктов: {revenueFromProducts.toLocaleString("ru-RU")} {currency})
+                  </span>
+                )}
+              </Label>
               <Input
                 id={`${scenario}-revenue`}
                 type="number"
@@ -177,7 +235,14 @@ export const CompanyMetrics = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-variableCosts`}>Переменные расходы ({currency})</Label>
+              <Label htmlFor={`${scenario}-variableCosts`}>
+                Переменные расходы ({currency})
+                {productsCosts > 0 && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (из продуктов: {costsFromProducts.toLocaleString("ru-RU")} {currency})
+                  </span>
+                )}
+              </Label>
               <Input
                 id={`${scenario}-variableCosts`}
                 type="number"
@@ -240,6 +305,7 @@ export const CompanyMetrics = ({
       )}
     </div>
   );
+  };
 
   return (
     <div className="space-y-12">
