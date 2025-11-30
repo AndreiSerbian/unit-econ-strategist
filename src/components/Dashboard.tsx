@@ -13,6 +13,7 @@ import { ProductsManagement } from "./ProductsManagement";
 import { ProductsCharts } from "./ProductsCharts";
 import { ProductComparison } from "./ProductComparison";
 import { CurrencySelector } from "./CurrencySelector";
+import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -159,6 +160,15 @@ export const Dashboard = () => {
                   currentMetrics={currentMetrics}
                   scenarioA={scenarioA}
                   scenarioB={scenarioB}
+                />
+              </AnimatedCard>
+            )}
+
+            {currentMetrics.detailedExpenses && (
+              <AnimatedCard delay={0.3}>
+                <ExpensesBreakdownCharts 
+                  expenses={currentMetrics.detailedExpenses} 
+                  currency={currency} 
                 />
               </AnimatedCard>
             )}
