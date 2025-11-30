@@ -18,6 +18,7 @@ import { KeyMetricsComparison } from "./KeyMetricsComparison";
 import { ROICalculator } from "./ROICalculator";
 import { CompetitorKeyMetricsComparison } from "./CompetitorKeyMetricsComparison";
 import { CompetitorROICalculator } from "./CompetitorROICalculator";
+import { CompetitiveScoreCalculator } from "./CompetitiveScoreCalculator";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -297,6 +298,23 @@ export const Dashboard = () => {
                     marketingCosts: currentMetrics.marketingCosts,
                   }}
                   competitors={competitors.filter(c => c.detailedExpenses)}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+            
+            {competitors.length > 0 && (
+              <AnimatedCard delay={0.5}>
+                <CompetitiveScoreCalculator
+                  myCompany={{
+                    name: "Моя компания",
+                    revenue: currentMetrics.revenue,
+                    marketShare: 0,
+                    pricing: currentMetrics.avgCheck,
+                    quality: 8,
+                    marketingSpend: currentMetrics.marketingCosts,
+                  }}
+                  competitors={competitors}
                   currency={currency}
                 />
               </AnimatedCard>
