@@ -10,6 +10,7 @@ import { CompetitorCharts } from "./CompetitorCharts";
 import { ExportDialog } from "./ExportDialog";
 import { AnimatedCard } from "./AnimatedCard";
 import { ProductsManagement } from "./ProductsManagement";
+import { ProductsCharts } from "./ProductsCharts";
 import { CurrencySelector } from "./CurrencySelector";
 import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package } from "lucide-react";
 import { motion } from "framer-motion";
@@ -170,6 +171,12 @@ export const Dashboard = () => {
                 currency={currency}
               />
             </AnimatedCard>
+
+            {products.length > 0 && (
+              <AnimatedCard delay={0.2}>
+                <ProductsCharts products={products} currency={currency} />
+              </AnimatedCard>
+            )}
           </TabsContent>
 
           <TabsContent value="competitors" className="space-y-6">
