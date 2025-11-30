@@ -64,6 +64,12 @@ interface Metrics {
   variableCosts: number;
   marketingCosts: number;
   detailedExpenses?: DetailedExpenses;
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
+  ltv?: number;
+  churnRate?: number;
+  retentionRate?: number;
+  paybackMonths?: number;
 }
 
 export type { Metrics, CompetitorProduct, Competitor, Product };
@@ -94,6 +100,12 @@ interface Competitor {
   fixedCosts?: number;
   variableCosts?: number;
   detailedExpenses?: DetailedExpenses;
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
+  ltv?: number;
+  churnRate?: number;
+  retentionRate?: number;
+  paybackMonths?: number;
 }
 
 interface Product {

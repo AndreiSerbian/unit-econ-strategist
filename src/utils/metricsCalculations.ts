@@ -53,6 +53,8 @@ interface Metrics {
   variableCosts: number;
   marketingCosts: number;
   detailedExpenses?: DetailedExpenses;
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
 }
 
 export const calculateCAC = (metrics: Metrics) => {
@@ -139,4 +141,38 @@ export const calculateProfitMargin = (metrics: Metrics) => {
 export const calculateBreakEvenDifference = (metrics: Metrics) => {
   const breakeven = calculateBreakeven(metrics);
   return metrics.totalClients - breakeven;
+};
+
+export const calculateLTV = (metrics: Metrics) => {
+  if (!metrics.customerLifetimeMonths || !metrics.purchaseFrequency) return 0;
+  return metrics.avgCheck * metrics.purchaseFrequency * metrics.customerLifetimeMonths;
+};
+
+export const calculateLTVCACRatio = (metrics: Metrics) => {
+  const cac = calculateCAC(metrics);
+  const ltv = calculateLTV(metrics);
+  if (cac === 0) return 0;
+  return ltv / cac;
+};
+
+export const calculateChurnRate = (metrics: Metrics) => {
+  if (!metrics.customerLifetimeMonths || metrics.customerLifetimeMonths === 0) return 0;
+  return (1 / metrics.customerLifetimeMonths) * 100;
+};
+
+export const calculateRetentionRate = (metrics: Metrics) => {
+  return 100 - calculateChurnRate(metrics);
+};
+
+export const calculatePaybackPeriod = (metrics: Metrics) => {
+  const cac = calculateCAC(metrics);
+  if (!metrics.customerLifetimeMonths || !metrics.purchaseFrequency || metrics.totalClients === 0) return 0;
+  
+  const monthlyRevenuePerClient = metrics.avgCheck * metrics.purchaseFrequency;
+  const totalCosts = metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts;
+  const costPerClient = totalCosts / metrics.totalClients;
+  const monthlyProfitPerClient = monthlyRevenuePerClient - (costPerClient / metrics.customerLifetimeMonths);
+  
+  if (monthlyProfitPerClient <= 0) return Infinity;
+  return cac / monthlyProfitPerClient;
 };

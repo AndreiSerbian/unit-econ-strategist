@@ -19,6 +19,7 @@ import { ROICalculator } from "./ROICalculator";
 import { CompetitorKeyMetricsComparison } from "./CompetitorKeyMetricsComparison";
 import { CompetitorROICalculator } from "./CompetitorROICalculator";
 import { CompetitiveScoreCalculator } from "./CompetitiveScoreCalculator";
+import { LTVCalculator } from "./LTVCalculator";
 import { SensitivityAnalysis } from "./SensitivityAnalysis";
 import { SWOTAnalysis } from "./SWOTAnalysis";
 import { BusinessToolsSelector } from "./BusinessToolsSelector";
@@ -214,9 +215,21 @@ export const Dashboard = () => {
                 />
               </AnimatedCard>
             )}
+
+            <AnimatedCard delay={0.6}>
+              <LTVCalculator
+                currentMetrics={currentMetrics}
+                setCurrentMetrics={setCurrentMetrics}
+                scenarioA={scenarioA}
+                setScenarioA={setScenarioA}
+                scenarioB={scenarioB}
+                setScenarioB={setScenarioB}
+                currency={currency}
+              />
+            </AnimatedCard>
             
             {currentMetrics.detailedExpenses && (
-              <AnimatedCard delay={0.6}>
+              <AnimatedCard delay={0.7}>
                 <SensitivityAnalysis
                   baseMetrics={currentMetrics}
                   currency={currency}

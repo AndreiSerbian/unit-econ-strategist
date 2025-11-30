@@ -68,6 +68,8 @@ interface Metrics {
   variableCosts: number;
   marketingCosts: number;
   detailedExpenses?: DetailedExpenses;
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
 }
 
 interface CompanyMetricsProps {
@@ -307,7 +309,7 @@ export const CompanyMetrics = ({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Percent className="w-4 h-4 text-accent" />
-              Конверсия
+              Конверсия и LTV
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -320,6 +322,33 @@ export const CompanyMetrics = ({
                 onChange={(e) => updateMetric(scenario, "conversionRate", e.target.value)}
                 placeholder="0"
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor={`${scenario}-lifetime`} className="text-xs">
+                  Срок жизни (мес)
+                </Label>
+                <Input
+                  id={`${scenario}-lifetime`}
+                  type="number"
+                  value={metrics.customerLifetimeMonths || ""}
+                  onChange={(e) => updateMetric(scenario, "customerLifetimeMonths", e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`${scenario}-frequency`} className="text-xs">
+                  Покупок/мес
+                </Label>
+                <Input
+                  id={`${scenario}-frequency`}
+                  type="number"
+                  step="0.1"
+                  value={metrics.purchaseFrequency || ""}
+                  onChange={(e) => updateMetric(scenario, "purchaseFrequency", e.target.value)}
+                  placeholder="0"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
