@@ -177,6 +177,41 @@ export type Database = {
           },
         ]
       }
+      market_overview: {
+        Row: {
+          created_at: string
+          id: string
+          market_growth_rate: number
+          market_size: number
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market_growth_rate?: number
+          market_size?: number
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market_growth_rate?: number
+          market_size?: number
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_overview_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       metric_history: {
         Row: {
           avg_check: number | null
