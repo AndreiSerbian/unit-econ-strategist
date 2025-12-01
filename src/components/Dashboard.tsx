@@ -22,6 +22,7 @@ import { CompetitiveScoreCalculator } from "./CompetitiveScoreCalculator";
 import { LTVCalculator } from "./LTVCalculator";
 import { SensitivityAnalysis } from "./SensitivityAnalysis";
 import { SWOTAnalysis } from "./SWOTAnalysis";
+import { MarketOverview } from "./MarketOverview";
 import { BusinessToolsSelector } from "./BusinessToolsSelector";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
@@ -446,6 +447,15 @@ export const Dashboard = () => {
                   cac: calculateCAC(currentMetrics),
                   breakEven: calculateBreakEvenDifference(currentMetrics)
                 } : undefined}
+              />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.7}>
+              <MarketOverview
+                projectId={projectId}
+                myCompanyRevenue={currentMetrics.revenue}
+                competitors={competitors}
+                currency={currency}
               />
             </AnimatedCard>
           </TabsContent>
