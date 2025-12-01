@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,12 +72,12 @@ interface CompetitorMetricsProps {
   currency: string;
 }
 
-export const CompetitorMetrics = ({ competitor, onUpdate, currency }: CompetitorMetricsProps) => {
-  const handleMetricChange = (field: string, value: number) => {
+export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: CompetitorMetricsProps) => {
+  const handleMetricChange = useCallback((field: string, value: number) => {
     onUpdate({ [field]: value });
-  };
+  }, [onUpdate]);
 
-  const handleDetailedExpensesChange = (detailedExpenses: DetailedExpenses) => {
+  const handleDetailedExpensesChange = useCallback((detailedExpenses: DetailedExpenses) => {
     // Пересчитываем общие суммы
     const fixedCostsTotal =
       detailedExpenses.fixedCosts.salaryOldClients +
@@ -121,7 +122,7 @@ export const CompetitorMetrics = ({ competitor, onUpdate, currency }: Competitor
       variableCosts: variableCostsTotal,
       marketingSpend: marketingCosts,
     });
-  };
+  }, [onUpdate]);
 
   const competitorMetrics: Metrics = {
     revenue: competitor.revenue,
@@ -240,4 +241,4 @@ export const CompetitorMetrics = ({ competitor, onUpdate, currency }: Competitor
       )}
     </div>
   );
-};
+});
