@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -69,7 +69,7 @@ interface DetailedExpensesFormProps {
   currency: string;
 }
 
-export const DetailedExpensesForm = ({
+export const DetailedExpensesForm = memo(({
   expenses,
   onChange,
   revenue,
@@ -77,15 +77,15 @@ export const DetailedExpensesForm = ({
 }: DetailedExpensesFormProps) => {
   const [newCategoryName, setNewCategoryName] = useState("");
 
-  const updateFixedCost = (field: keyof typeof expenses.fixedCosts, value: number) => {
+  const updateFixedCost = useCallback((field: keyof typeof expenses.fixedCosts, value: number) => {
     if (field === "customCategories") return;
     onChange({
       ...expenses,
       fixedCosts: { ...expenses.fixedCosts, [field]: value },
     });
-  };
+  }, [expenses, onChange]);
 
-  const updateVariableCost = (
+  const updateVariableCost = useCallback((
     category: keyof typeof expenses.variableCosts,
     field: string,
     value: number
@@ -101,7 +101,7 @@ export const DetailedExpensesForm = ({
         },
       },
     });
-  };
+  }, [expenses, onChange]);
 
   const addCustomCategory = (
     type: "fixed" | "variable",
@@ -955,4 +955,4 @@ export const DetailedExpensesForm = ({
       </Card>
     </div>
   );
-};
+});

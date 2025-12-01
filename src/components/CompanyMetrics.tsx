@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -101,7 +102,7 @@ export const CompanyMetrics = ({
   productsCosts,
   syncProductsToMetrics,
 }: CompanyMetricsProps) => {
-  const updateMetric = (
+  const updateMetric = useCallback((
     scenario: "current" | "scenarioA" | "scenarioB",
     field: keyof Metrics,
     value: string
@@ -110,13 +111,13 @@ export const CompanyMetrics = ({
     const setter = scenario === "current" ? setCurrentMetrics : scenario === "scenarioA" ? setScenarioA : setScenarioB;
     const current = scenario === "current" ? currentMetrics : scenario === "scenarioA" ? scenarioA : scenarioB;
     setter({ ...current, [field]: numValue });
-  };
+  }, [currentMetrics, scenarioA, scenarioB, setCurrentMetrics, setScenarioA, setScenarioB]);
 
   const calculateProfit = (metrics: Metrics) => {
     return metrics.revenue - metrics.fixedCosts - metrics.variableCosts - metrics.marketingCosts;
   };
 
-  const updateDetailedExpenses = (
+  const updateDetailedExpenses = useCallback((
     scenario: "current" | "scenarioA" | "scenarioB",
     detailedExpenses: DetailedExpenses
   ) => {
@@ -171,9 +172,9 @@ export const CompanyMetrics = ({
       marketingCosts: marketingTotal,
       detailedExpenses,
     });
-  };
+  }, [currentMetrics, scenarioA, scenarioB, setCurrentMetrics, setScenarioA, setScenarioB]);
 
-  const MetricsForm = ({ 
+  const MetricsForm = memo(({ 
     metrics, 
     scenario 
   }: { 
@@ -491,7 +492,7 @@ export const CompanyMetrics = ({
       </Button>
     </div>
   );
-  };
+  });
 
   return (
     <div className="space-y-12">
