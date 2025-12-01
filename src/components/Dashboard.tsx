@@ -26,12 +26,13 @@ import { MarketOverview } from "./MarketOverview";
 import { CompetitiveMap } from "./CompetitiveMap";
 import { StrategyDictionary } from "./StrategyDictionary";
 import { CompetitiveSimulator } from "./CompetitiveSimulator";
+import { CompetitiveRanking } from "./CompetitiveRanking";
 import { BusinessToolsSelector } from "./BusinessToolsSelector";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
-import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package, TrendingUp } from "lucide-react";
+import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package, TrendingUp, Map } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
@@ -116,7 +117,7 @@ export const Dashboard = () => {
         </motion.header>
 
         <Tabs defaultValue="metrics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-6 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-7 h-auto p-1">
             <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
               <span className="text-[10px] sm:text-sm">Показатели</span>
@@ -128,6 +129,10 @@ export const Dashboard = () => {
             <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <Users className="w-4 h-4 sm:w-4 sm:h-4" />
               <span className="text-[10px] sm:text-sm">Конкуренты</span>
+            </TabsTrigger>
+            <TabsTrigger value="market" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <Map className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Рынок</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
@@ -368,10 +373,21 @@ export const Dashboard = () => {
                 />
               </AnimatedCard>
             )}
+          </TabsContent>
+
+          <TabsContent value="market" className="space-y-6">
+            <AnimatedCard delay={0.1}>
+              <MarketOverview
+                projectId={projectId}
+                myCompanyRevenue={currentMetrics.revenue}
+                competitors={competitors}
+                currency={currency}
+              />
+            </AnimatedCard>
 
             {competitors.some(c => c.detailedExpenses && c.customerLifetimeMonths && c.purchaseFrequency) && 
              currentMetrics.detailedExpenses && currentMetrics.customerLifetimeMonths && currentMetrics.purchaseFrequency && (
-              <AnimatedCard delay={0.7}>
+              <AnimatedCard delay={0.2}>
                 <CompetitiveMap
                   myCompany={{
                     name: "Моя компания",
@@ -389,6 +405,16 @@ export const Dashboard = () => {
                     customerLifetimeMonths: currentMetrics.customerLifetimeMonths,
                     purchaseFrequency: currentMetrics.purchaseFrequency,
                   }}
+                  competitors={competitors}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+
+            {competitors.length > 0 && (
+              <AnimatedCard delay={0.3}>
+                <CompetitiveRanking
+                  myCompany={currentMetrics}
                   competitors={competitors}
                   currency={currency}
                 />
@@ -476,15 +502,6 @@ export const Dashboard = () => {
                   cac: calculateCAC(currentMetrics),
                   breakEven: calculateBreakEvenDifference(currentMetrics)
                 } : undefined}
-              />
-            </AnimatedCard>
-
-            <AnimatedCard delay={0.7}>
-              <MarketOverview
-                projectId={projectId}
-                myCompanyRevenue={currentMetrics.revenue}
-                competitors={competitors}
-                currency={currency}
               />
             </AnimatedCard>
           </TabsContent>
