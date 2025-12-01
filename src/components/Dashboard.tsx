@@ -25,6 +25,7 @@ import { SWOTAnalysis } from "./SWOTAnalysis";
 import { MarketOverview } from "./MarketOverview";
 import { CompetitiveMap } from "./CompetitiveMap";
 import { StrategyDictionary } from "./StrategyDictionary";
+import { CompetitiveSimulator } from "./CompetitiveSimulator";
 import { BusinessToolsSelector } from "./BusinessToolsSelector";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
@@ -495,6 +496,14 @@ export const Dashboard = () => {
 
             <AnimatedCard delay={0.2}>
               <StrategyDictionary />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.3}>
+              <CompetitiveSimulator
+                myCompany={currentMetrics}
+                competitors={competitors}
+                currency={currency}
+              />
             </AnimatedCard>
           </TabsContent>
 
