@@ -23,6 +23,7 @@ import { LTVCalculator } from "./LTVCalculator";
 import { SensitivityAnalysis } from "./SensitivityAnalysis";
 import { SWOTAnalysis } from "./SWOTAnalysis";
 import { MarketOverview } from "./MarketOverview";
+import { CompetitiveMap } from "./CompetitiveMap";
 import { BusinessToolsSelector } from "./BusinessToolsSelector";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
@@ -362,6 +363,32 @@ export const Dashboard = () => {
                   projectId={projectId}
                   myCompany={{ name: "Моя компания" }}
                   competitors={competitors.map(c => ({ id: c.id, name: c.name }))}
+                />
+              </AnimatedCard>
+            )}
+
+            {competitors.some(c => c.detailedExpenses && c.customerLifetimeMonths && c.purchaseFrequency) && 
+             currentMetrics.detailedExpenses && currentMetrics.customerLifetimeMonths && currentMetrics.purchaseFrequency && (
+              <AnimatedCard delay={0.7}>
+                <CompetitiveMap
+                  myCompany={{
+                    name: "Моя компания",
+                    revenue: currentMetrics.revenue,
+                    marketShare: 0,
+                    totalClients: currentMetrics.totalClients,
+                    newClients: currentMetrics.newClients,
+                    returningClients: currentMetrics.returningClients,
+                    conversionRate: currentMetrics.conversionRate,
+                    avgCheck: currentMetrics.avgCheck,
+                    fixedCosts: currentMetrics.fixedCosts,
+                    variableCosts: currentMetrics.variableCosts,
+                    marketingCosts: currentMetrics.marketingCosts,
+                    detailedExpenses: currentMetrics.detailedExpenses,
+                    customerLifetimeMonths: currentMetrics.customerLifetimeMonths,
+                    purchaseFrequency: currentMetrics.purchaseFrequency,
+                  }}
+                  competitors={competitors}
+                  currency={currency}
                 />
               </AnimatedCard>
             )}
