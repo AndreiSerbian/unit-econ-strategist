@@ -24,6 +24,7 @@ import { SensitivityAnalysis } from "./SensitivityAnalysis";
 import { SWOTAnalysis } from "./SWOTAnalysis";
 import { MarketOverview } from "./MarketOverview";
 import { CompetitiveMap } from "./CompetitiveMap";
+import { StrategyDictionary } from "./StrategyDictionary";
 import { BusinessToolsSelector } from "./BusinessToolsSelector";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
@@ -489,17 +490,11 @@ export const Dashboard = () => {
 
           <TabsContent value="game-theory" className="space-y-6">
             <AnimatedCard delay={0.1}>
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Матрица теории игр</CardTitle>
-                  <CardDescription>
-                    Анализ стратегических взаимодействий с конкурентами
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <GameTheoryMatrix />
-                </CardContent>
-              </Card>
+              <GameTheoryMatrix />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.2}>
+              <StrategyDictionary />
             </AnimatedCard>
           </TabsContent>
 
