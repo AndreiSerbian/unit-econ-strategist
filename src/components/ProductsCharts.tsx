@@ -117,11 +117,18 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
       return (
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="font-semibold mb-1">{payload[0].payload.fullName || payload[0].payload.name}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.value.toLocaleString("ru-RU")} {entry.name === "profitMargin" ? "%" : currency}
-            </p>
-          ))}
+          {payload.map((entry: any, index: number) => {
+            // Определяем единицу измерения в зависимости от типа данных
+            const isQuantity = entry.dataKey === "количество";
+            const isPercent = entry.dataKey === "profitMargin";
+            const unit = isQuantity ? "ед." : isPercent ? "%" : currency;
+            
+            return (
+              <p key={index} className="text-sm" style={{ color: entry.color }}>
+                {entry.name}: {entry.value.toLocaleString("ru-RU")} {unit}
+              </p>
+            );
+          })}
         </div>
       );
     }

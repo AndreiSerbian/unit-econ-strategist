@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricsForm } from "./MetricsForm";
+import { LeadSource } from "./LeadSourcesForm";
 
 interface ExpenseCategory {
   id: string;
@@ -66,6 +67,8 @@ interface Metrics {
   detailedExpenses?: DetailedExpenses;
   customerLifetimeMonths?: number;
   purchaseFrequency?: number;
+  totalLeads?: number;
+  leadSources?: LeadSource[];
 }
 
 interface CompanyMetricsProps {
@@ -190,6 +193,18 @@ export const CompanyMetrics = ({
   const handleScenarioASave = useCallback(() => saveScenario("scenarioA", scenarioA), [saveScenario, scenarioA]);
   const handleScenarioBSave = useCallback(() => saveScenario("scenarioB", scenarioB), [saveScenario, scenarioB]);
 
+  const handleCurrentLeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
+    setCurrentMetrics({ ...currentMetrics, leadSources: sources });
+  }, [currentMetrics, setCurrentMetrics]);
+
+  const handleScenarioALeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
+    setScenarioA({ ...scenarioA, leadSources: sources });
+  }, [scenarioA, setScenarioA]);
+
+  const handleScenarioBLeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
+    setScenarioB({ ...scenarioB, leadSources: sources });
+  }, [scenarioB, setScenarioB]);
+
   return (
     <div className="space-y-12">
       <Tabs defaultValue="current" className="w-full">
@@ -208,6 +223,7 @@ export const CompanyMetrics = ({
             currency={currency}
             onUpdateMetric={handleCurrentMetricUpdate}
             onUpdateDetailedExpenses={handleCurrentExpensesUpdate}
+            onUpdateLeadSources={handleCurrentLeadSourcesUpdate}
             onSyncProducts={handleCurrentSync}
             onSave={handleCurrentSave}
             isAuthenticated={isAuthenticated}
@@ -224,6 +240,7 @@ export const CompanyMetrics = ({
             currency={currency}
             onUpdateMetric={handleScenarioAMetricUpdate}
             onUpdateDetailedExpenses={handleScenarioAExpensesUpdate}
+            onUpdateLeadSources={handleScenarioALeadSourcesUpdate}
             onSyncProducts={handleScenarioASync}
             onSave={handleScenarioASave}
             isAuthenticated={isAuthenticated}
@@ -240,6 +257,7 @@ export const CompanyMetrics = ({
             currency={currency}
             onUpdateMetric={handleScenarioBMetricUpdate}
             onUpdateDetailedExpenses={handleScenarioBExpensesUpdate}
+            onUpdateLeadSources={handleScenarioBLeadSourcesUpdate}
             onSyncProducts={handleScenarioBSync}
             onSave={handleScenarioBSave}
             isAuthenticated={isAuthenticated}
