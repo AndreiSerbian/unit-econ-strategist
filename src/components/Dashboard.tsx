@@ -12,6 +12,8 @@ import { AnimatedCard } from "./AnimatedCard";
 import { ProductsManagement } from "./ProductsManagement";
 import { ProductsCharts } from "./ProductsCharts";
 import { ProductComparison } from "./ProductComparison";
+import { RawMaterialsManager } from "./RawMaterialsManager";
+import { ProductMaterialsAllocation } from "./ProductMaterialsAllocation";
 import { CurrencySelector } from "./CurrencySelector";
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
@@ -63,6 +65,7 @@ export const Dashboard = () => {
   };
 
   const {
+    projectId,
     currentMetrics,
     setCurrentMetrics,
     scenarioA,
@@ -72,7 +75,13 @@ export const Dashboard = () => {
     competitors,
     setCompetitors,
     products,
+    setProducts,
+    materials,
+    setMaterials,
+    productMaterials,
+    setProductMaterials,
     currency,
+    loading,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,
@@ -81,11 +90,85 @@ export const Dashboard = () => {
     updateCurrency,
     calculateProductsRevenue,
     calculateProductsCosts,
+    calculateMaterialCostPerUnit,
+    calculateTotalMaterialsCost,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
-    projectId,
   } = useProject(user?.id);
+
+  const handleSyncProductCost = (productId: string) => {
+    const costPerUnit = calculateMaterialCostPerUnit(productId);
+    setProducts(
+      products.map((product) =>
+        product.id === productId ? { ...product, cost: costPerUnit } : product
+      )
+    );
+  };
+
+  const handleApplyMaterialsExpenses = () => {
+    if (!currentMetrics.detailedExpenses) return;
+
+    const totalMaterialsCost = calculateTotalMaterialsCost();
+    const detailedExpenses = {
+      ...currentMetrics.detailedExpenses,
+      variableCosts: {
+        ...currentMetrics.detailedExpenses.variableCosts,
+        production: {
+          ...currentMetrics.detailedExpenses.variableCosts.production,
+          materials: totalMaterialsCost,
+        },
+      },
+    };
+
+    const fixedTotal =
+      detailedExpenses.fixedCosts.salaryOldClients +
+      detailedExpenses.fixedCosts.salaryNewClients +
+      detailedExpenses.fixedCosts.officeRent +
+      detailedExpenses.fixedCosts.warehouseRent +
+      detailedExpenses.fixedCosts.managementSalary +
+      detailedExpenses.fixedCosts.marketingSalary +
+      detailedExpenses.fixedCosts.productionSalary +
+      detailedExpenses.fixedCosts.internet +
+      detailedExpenses.fixedCosts.communication +
+      detailedExpenses.fixedCosts.banking +
+      detailedExpenses.fixedCosts.subscriptions +
+      detailedExpenses.fixedCosts.utilities +
+      detailedExpenses.fixedCosts.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const marketingTotal =
+      detailedExpenses.variableCosts.marketing.trafficPurchase +
+      detailedExpenses.variableCosts.marketing.contractorsPayment +
+      detailedExpenses.variableCosts.marketing.crmCosts +
+      detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const salesTotal =
+      detailedExpenses.variableCosts.salesPayroll.bonusOldClients +
+      detailedExpenses.variableCosts.salesPayroll.bonusNewClients +
+      detailedExpenses.variableCosts.salesPayroll.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const productionTotal =
+      detailedExpenses.variableCosts.production.materials +
+      detailedExpenses.variableCosts.production.curators +
+      detailedExpenses.variableCosts.production.logistics +
+      detailedExpenses.variableCosts.production.partnersPercent +
+      detailedExpenses.variableCosts.production.equipmentRepair +
+      detailedExpenses.variableCosts.production.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    const otherTotal =
+      detailedExpenses.variableCosts.other.customCategories.reduce((sum, c) => sum + c.value, 0) +
+      detailedExpenses.taxes;
+
+    const variableTotal = salesTotal + productionTotal + otherTotal;
+
+    setCurrentMetrics({
+      ...currentMetrics,
+      fixedCosts: fixedTotal,
+      variableCosts: variableTotal,
+      marketingCosts: marketingTotal,
+      detailedExpenses,
+    });
+  };
 
   const exportData = {
     scenarios: {
@@ -196,8 +279,32 @@ export const Dashboard = () => {
               />
             </AnimatedCard>
 
-            {products.length > 0 && (
+            <AnimatedCard delay={0.15}>
+              <RawMaterialsManager
+                materials={materials}
+                setMaterials={setMaterials}
+                currency={currency}
+              />
+            </AnimatedCard>
+
+            {products.length > 0 && materials.length > 0 && (
               <AnimatedCard delay={0.2}>
+                <ProductMaterialsAllocation
+                  products={products}
+                  materials={materials}
+                  productMaterials={productMaterials}
+                  setProductMaterials={setProductMaterials}
+                  currency={currency}
+                  onSyncProductCost={handleSyncProductCost}
+                  onApplyMaterialsExpenses={handleApplyMaterialsExpenses}
+                  totalMaterialsCost={calculateTotalMaterialsCost()}
+                  calculateMaterialCostPerUnit={calculateMaterialCostPerUnit}
+                />
+              </AnimatedCard>
+            )}
+
+            {products.length > 0 && (
+              <AnimatedCard delay={0.25}>
                 <ProductsCharts products={products} currency={currency} />
               </AnimatedCard>
             )}
