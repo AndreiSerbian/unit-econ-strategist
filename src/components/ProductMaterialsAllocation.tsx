@@ -64,7 +64,7 @@ export const ProductMaterialsAllocation = ({
     setProductMaterials((prev) => prev.filter((line) => line.id !== id));
   };
 
-  if (products.length === 0 || materials.length === 0) return null;
+  if (products.length === 0) return null;
 
   return (
     <Card>
@@ -75,8 +75,15 @@ export const ProductMaterialsAllocation = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-4">
-          {products.map((product) => {
+        {materials.length === 0 && (
+          <div className="p-4 border-2 border-dashed border-muted rounded-lg text-center text-muted-foreground">
+            <p>Сначала добавьте хотя бы одно сырьё выше ↑</p>
+          </div>
+        )}
+        
+        {materials.length > 0 && (
+          <div className="space-y-4">
+            {products.map((product) => {
             const lines = productMaterials.filter((l) => l.productId === product.id);
             const materialsCostPerUnit = calculateMaterialCostPerUnit(product.id);
             const totalForProduct = materialsCostPerUnit * product.quantity;
@@ -196,9 +203,11 @@ export const ProductMaterialsAllocation = ({
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
 
-        <div className="mt-2 p-4 rounded-lg bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        {materials.length > 0 && (
+          <div className="mt-2 p-4 rounded-lg bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground">
               Общие расходы на сырьё по всем продуктам (по текущим количествам)
@@ -210,7 +219,8 @@ export const ProductMaterialsAllocation = ({
           <Button size="sm" onClick={onApplyMaterialsExpenses}>
             Перенести в статью "Материалы" в расходах
           </Button>
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

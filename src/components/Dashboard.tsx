@@ -287,7 +287,7 @@ export const Dashboard = () => {
               />
             </AnimatedCard>
 
-            {products.length > 0 && materials.length > 0 && (
+            {products.length > 0 && (
               <AnimatedCard delay={0.2}>
                 <ProductMaterialsAllocation
                   products={products}
