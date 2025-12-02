@@ -1,11 +1,13 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Users, Percent, Save, Package } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
 import { NumericInput } from "@/components/ui/numeric-input";
+import { LeadSourcesForm, LeadSource } from "./LeadSourcesForm";
+import { SalesFunnel } from "./SalesFunnel";
 
 interface ExpenseCategory {
   id: string;
@@ -71,6 +73,8 @@ interface Metrics {
   detailedExpenses?: DetailedExpenses;
   customerLifetimeMonths?: number;
   purchaseFrequency?: number;
+  totalLeads?: number;
+  leadSources?: LeadSource[];
 }
 
 const defaultDetailedExpenses: DetailedExpenses = {
@@ -125,6 +129,7 @@ interface MetricsFormProps {
   currency: string;
   onUpdateMetric: (field: keyof Metrics, value: number) => void;
   onUpdateDetailedExpenses: (expenses: DetailedExpenses) => void;
+  onUpdateLeadSources: (sources: LeadSource[]) => void;
   onSyncProducts: () => void;
   onSave: () => void;
   isAuthenticated: boolean;
@@ -139,14 +144,33 @@ export const MetricsForm = memo(({
   currency,
   onUpdateMetric,
   onUpdateDetailedExpenses,
+  onUpdateLeadSources,
   onSyncProducts,
   onSave,
   isAuthenticated,
   calculateProfit,
 }: MetricsFormProps) => {
+  const [showFunnel, setShowFunnel] = useState(true);
+  
   const handleMetricChange = useCallback((field: keyof Metrics) => (value: number) => {
     onUpdateMetric(field, value);
   }, [onUpdateMetric]);
+
+  const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
+    onUpdateLeadSources(sources);
+    // Автоматически пересчитываем общее количество лидов и затраты на маркетинг
+    const totalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
+    const totalMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
+    onUpdateMetric("totalLeads", totalLeads);
+    if (totalMarketingCost > 0) {
+      onUpdateMetric("marketingCosts", totalMarketingCost);
+    }
+    // Автоматически пересчитываем конверсию
+    if (totalLeads > 0 && metrics.totalClients > 0) {
+      const newConversion = (metrics.totalClients / totalLeads) * 100;
+      onUpdateMetric("conversionRate", parseFloat(newConversion.toFixed(2)));
+    }
+  }, [onUpdateLeadSources, onUpdateMetric, metrics.totalClients]);
 
   return (
     <div className="space-y-6">
@@ -345,6 +369,24 @@ export const MetricsForm = memo(({
           </CardContent>
         </Card>
       </div>
+
+      {/* Воронка продаж и источники трафика */}
+      <LeadSourcesForm
+        leadSources={metrics.leadSources || []}
+        onChange={handleLeadSourcesChange}
+        currency={currency}
+      />
+
+      {(metrics.totalLeads || 0) > 0 && (
+        <SalesFunnel
+          totalLeads={metrics.totalLeads || 0}
+          totalClients={metrics.totalClients}
+          conversionRate={metrics.conversionRate}
+          leadSources={metrics.leadSources || []}
+          marketingCosts={metrics.marketingCosts}
+          currency={currency}
+        />
+      )}
 
       <DetailedExpensesForm
         expenses={metrics.detailedExpenses || defaultDetailedExpenses}

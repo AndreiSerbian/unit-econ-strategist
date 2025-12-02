@@ -358,8 +358,11 @@ export const DetailedExpensesForm = memo(({
         <CardContent>
           <Accordion type="multiple" className="w-full">
             <AccordionItem value="fot">
-              <AccordionTrigger>ФОТ (фонд оплаты труда)</AccordionTrigger>
+              <AccordionTrigger>Оклады и ставки (постоянный ФОТ)</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
+                <p className="text-xs text-muted-foreground mb-2">
+                  Фиксированная часть зарплаты, не зависящая от результатов
+                </p>
                 <div className="space-y-2">
                   <Label>ЗП по старым клиентам</Label>
                   <div className="flex items-center gap-2">
@@ -607,13 +610,16 @@ export const DetailedExpensesForm = memo(({
             <AccordionItem value="sales">
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
-                  <span>ФОТ продаж (Sales Cost)</span>
+                  <span>Бонусы и KPI (переменный ФОТ)</span>
                   <span className="text-sm font-mono text-muted-foreground">
                     {calculateSalesTotal().toLocaleString("ru-RU")} {currency}
                   </span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
+                <p className="text-xs text-muted-foreground mb-2">
+                  Переменная часть зарплаты, зависящая от результатов продаж
+                </p>
                 <div className="space-y-2">
                   <Label>Бонусы по старым клиентам</Label>
                   <NumericInput
