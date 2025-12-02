@@ -1,10 +1,10 @@
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CompanyMetrics } from "./CompanyMetrics";
 import { CompetitorAnalysis } from "./CompetitorAnalysis";
 import { GameTheoryMatrix } from "./GameTheoryMatrix";
-import { StrategicRecommendations } from "./StrategicRecommendations";
 import { MetricsCharts } from "./MetricsCharts";
 import { CompetitorCharts } from "./CompetitorCharts";
 import { ExportDialog } from "./ExportDialog";
@@ -27,21 +27,41 @@ import { CompetitiveMap } from "./CompetitiveMap";
 import { StrategyDictionary } from "./StrategyDictionary";
 import { CompetitiveSimulator } from "./CompetitiveSimulator";
 import { CompetitiveRanking } from "./CompetitiveRanking";
-import { BusinessToolsSelector } from "./BusinessToolsSelector";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
-import { BarChart3, Users, Brain, Target, LogOut, LogIn, Package, TrendingUp, Map } from "lucide-react";
+import { OnboardingFlow } from "./OnboardingFlow";
+import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useNavigate } from "react-router-dom";
 
+const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
+
 export const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const completed = localStorage.getItem(ONBOARDING_KEY);
+    if (!completed) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  };
+
+  const handleShowOnboarding = () => {
+    setShowOnboarding(true);
+  };
+
   const {
     currentMetrics,
     setCurrentMetrics,
@@ -76,6 +96,10 @@ export const Dashboard = () => {
     competitors,
   };
 
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <div className="container mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4">
@@ -95,6 +119,14 @@ export const Dashboard = () => {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleShowOnboarding}
+                title="Показать онбординг"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </Button>
               <ExportDialog data={exportData} />
               {user ? (
                 <Button variant="outline" size="sm" onClick={signOut} className="whitespace-nowrap">
@@ -116,15 +148,15 @@ export const Dashboard = () => {
           )}
         </motion.header>
 
-        <Tabs defaultValue="metrics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-7 h-auto p-1">
-            <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Показатели</span>
-            </TabsTrigger>
+        <Tabs defaultValue="products" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-6 h-auto p-1">
             <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <Package className="w-4 h-4 sm:w-4 sm:h-4" />
               <span className="text-[10px] sm:text-sm">Продукты</span>
+            </TabsTrigger>
+            <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+              <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-sm">Показатели</span>
             </TabsTrigger>
             <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
               <Users className="w-4 h-4 sm:w-4 sm:h-4" />
@@ -142,13 +174,10 @@ export const Dashboard = () => {
               <Brain className="w-4 h-4 sm:w-4 sm:h-4" />
               <span className="text-[10px] sm:text-sm">Теория</span>
             </TabsTrigger>
-            <TabsTrigger value="strategy" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <Target className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Стратегия</span>
-            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="metrics" className="space-y-6">
+          {/* PRODUCTS TAB - First in order */}
+          <TabsContent value="products" className="space-y-6">
             <AnimatedCard delay={0.05}>
               <CurrencySelector
                 currency={currency}
@@ -158,11 +187,41 @@ export const Dashboard = () => {
             </AnimatedCard>
 
             <AnimatedCard delay={0.1}>
+              <ProductsManagement
+                products={products}
+                saveProduct={saveProduct}
+                deleteProduct={deleteProduct}
+                isAuthenticated={!!user}
+                currency={currency}
+              />
+            </AnimatedCard>
+
+            {products.length > 0 && (
+              <AnimatedCard delay={0.2}>
+                <ProductsCharts products={products} currency={currency} />
+              </AnimatedCard>
+            )}
+
+            {(products.length > 0 || competitors.some(c => (c.products || []).length > 0)) && (
+              <AnimatedCard delay={0.3}>
+                <ProductComparison 
+                  products={products} 
+                  competitors={competitors} 
+                  currency={currency} 
+                />
+              </AnimatedCard>
+            )}
+          </TabsContent>
+
+          {/* METRICS TAB - Second */}
+          <TabsContent value="metrics" className="space-y-6">
+            <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle>Основные показатели бизнеса</CardTitle>
                   <CardDescription>
-                    Внесите ключевые метрики вашей компании для расчета юнит-экономики
+                    Внесите ключевые метрики вашей компании для расчета юнит-экономики. 
+                    {products.length > 0 && " Используйте кнопку синхронизации для загрузки данных из продуктов."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -247,34 +306,7 @@ export const Dashboard = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="products" className="space-y-6">
-            <AnimatedCard delay={0.1}>
-              <ProductsManagement
-                products={products}
-                saveProduct={saveProduct}
-                deleteProduct={deleteProduct}
-                isAuthenticated={!!user}
-                currency={currency}
-              />
-            </AnimatedCard>
-
-            {products.length > 0 && (
-              <AnimatedCard delay={0.2}>
-                <ProductsCharts products={products} currency={currency} />
-              </AnimatedCard>
-            )}
-
-            {(products.length > 0 || competitors.some(c => (c.products || []).length > 0)) && (
-              <AnimatedCard delay={0.3}>
-                <ProductComparison 
-                  products={products} 
-                  competitors={competitors} 
-                  currency={currency} 
-                />
-              </AnimatedCard>
-            )}
-          </TabsContent>
-
+          {/* COMPETITORS TAB */}
           <TabsContent value="competitors" className="space-y-6">
             <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">
@@ -375,6 +407,7 @@ export const Dashboard = () => {
             )}
           </TabsContent>
 
+          {/* MARKET TAB */}
           <TabsContent value="market" className="space-y-6">
             <AnimatedCard delay={0.1}>
               <MarketOverview
@@ -422,6 +455,7 @@ export const Dashboard = () => {
             )}
           </TabsContent>
 
+          {/* ANALYTICS TAB */}
           <TabsContent value="analytics" className="space-y-6">
             <AnimatedCard delay={0.1}>
               <MetricHistoryChart
@@ -506,6 +540,7 @@ export const Dashboard = () => {
             </AnimatedCard>
           </TabsContent>
 
+          {/* GAME THEORY TAB */}
           <TabsContent value="game-theory" className="space-y-6">
             <AnimatedCard delay={0.1}>
               <GameTheoryMatrix />
@@ -521,22 +556,6 @@ export const Dashboard = () => {
                 competitors={competitors}
                 currency={currency}
               />
-            </AnimatedCard>
-          </TabsContent>
-
-          <TabsContent value="strategy" className="space-y-6">
-            <AnimatedCard delay={0.1}>
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Стратегические рекомендации</CardTitle>
-                  <CardDescription>
-                    Оптимальные стратегии на основе анализа данных
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <StrategicRecommendations />
-                </CardContent>
-              </Card>
             </AnimatedCard>
           </TabsContent>
         </Tabs>
