@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Plus, X, Calculator } from "lucide-react";
+import { NumericInput } from "@/components/ui/numeric-input";
 
 interface ExpenseCategory {
   id: string;
@@ -196,7 +197,7 @@ export const DetailedExpensesForm = memo(({
     }
   };
 
-  const updateCustomCategory = (
+  const updateCustomCategory = useCallback((
     type: "fixed" | "variable",
     categoryId: string,
     value: number,
@@ -238,7 +239,7 @@ export const DetailedExpensesForm = memo(({
         },
       });
     }
-  };
+  }, [expenses, onChange]);
 
   const calculateFixedTotal = () => {
     const predefined =
@@ -335,6 +336,14 @@ export const DetailedExpensesForm = memo(({
     });
   };
 
+  const updateTaxRate = useCallback((value: number) => {
+    onChange({ ...expenses, taxRate: value });
+  }, [expenses, onChange]);
+
+  const updateTaxes = useCallback((value: number) => {
+    onChange({ ...expenses, taxes: value });
+  }, [expenses, onChange]);
+
   return (
     <div className="space-y-6">
       <Card className="border-primary/20">
@@ -354,13 +363,9 @@ export const DetailedExpensesForm = memo(({
                 <div className="space-y-2">
                   <Label>ЗП по старым клиентам</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.salaryOldClients || ""}
-                      onChange={(e) =>
-                        updateFixedCost("salaryOldClients", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.salaryOldClients}
+                      onChange={(v) => updateFixedCost("salaryOldClients", v)}
                     />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {calculatePercent(expenses.fixedCosts.salaryOldClients)}%
@@ -370,13 +375,9 @@ export const DetailedExpensesForm = memo(({
                 <div className="space-y-2">
                   <Label>ЗП по новым клиентам</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.salaryNewClients || ""}
-                      onChange={(e) =>
-                        updateFixedCost("salaryNewClients", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.salaryNewClients}
+                      onChange={(v) => updateFixedCost("salaryNewClients", v)}
                     />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {calculatePercent(expenses.fixedCosts.salaryNewClients)}%
@@ -386,13 +387,9 @@ export const DetailedExpensesForm = memo(({
                 <div className="space-y-2">
                   <Label>Оклад руководящего состава</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.managementSalary || ""}
-                      onChange={(e) =>
-                        updateFixedCost("managementSalary", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.managementSalary}
+                      onChange={(v) => updateFixedCost("managementSalary", v)}
                     />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {calculatePercent(expenses.fixedCosts.managementSalary)}%
@@ -402,13 +399,9 @@ export const DetailedExpensesForm = memo(({
                 <div className="space-y-2">
                   <Label>Оклад отдела маркетинга</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.marketingSalary || ""}
-                      onChange={(e) =>
-                        updateFixedCost("marketingSalary", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.marketingSalary}
+                      onChange={(v) => updateFixedCost("marketingSalary", v)}
                     />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {calculatePercent(expenses.fixedCosts.marketingSalary)}%
@@ -418,13 +411,9 @@ export const DetailedExpensesForm = memo(({
                 <div className="space-y-2">
                   <Label>Оклад отдела производства</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.productionSalary || ""}
-                      onChange={(e) =>
-                        updateFixedCost("productionSalary", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.productionSalary}
+                      onChange={(v) => updateFixedCost("productionSalary", v)}
                     />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {calculatePercent(expenses.fixedCosts.productionSalary)}%
@@ -439,22 +428,16 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label>Аренда офиса</Label>
-                  <Input
-                    type="number"
-                    value={expenses.fixedCosts.officeRent || ""}
-                    onChange={(e) => updateFixedCost("officeRent", parseFloat(e.target.value) || 0)}
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.fixedCosts.officeRent}
+                    onChange={(v) => updateFixedCost("officeRent", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Аренда склада</Label>
-                  <Input
-                    type="number"
-                    value={expenses.fixedCosts.warehouseRent || ""}
-                    onChange={(e) =>
-                      updateFixedCost("warehouseRent", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.fixedCosts.warehouseRent}
+                    onChange={(v) => updateFixedCost("warehouseRent", v)}
                   />
                 </div>
               </AccordionContent>
@@ -466,51 +449,37 @@ export const DetailedExpensesForm = memo(({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Интернет</Label>
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.internet || ""}
-                      onChange={(e) => updateFixedCost("internet", parseFloat(e.target.value) || 0)}
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.internet}
+                      onChange={(v) => updateFixedCost("internet", v)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Связь</Label>
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.communication || ""}
-                      onChange={(e) =>
-                        updateFixedCost("communication", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.communication}
+                      onChange={(v) => updateFixedCost("communication", v)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Банковское обслуживание</Label>
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.banking || ""}
-                      onChange={(e) => updateFixedCost("banking", parseFloat(e.target.value) || 0)}
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.banking}
+                      onChange={(v) => updateFixedCost("banking", v)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Лицензии и подписки</Label>
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.subscriptions || ""}
-                      onChange={(e) =>
-                        updateFixedCost("subscriptions", parseFloat(e.target.value) || 0)
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.subscriptions}
+                      onChange={(v) => updateFixedCost("subscriptions", v)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Коммунальные (уборка и т.д.)</Label>
-                    <Input
-                      type="number"
-                      value={expenses.fixedCosts.utilities || ""}
-                      onChange={(e) => updateFixedCost("utilities", parseFloat(e.target.value) || 0)}
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.fixedCosts.utilities}
+                      onChange={(v) => updateFixedCost("utilities", v)}
                     />
                   </div>
                 </div>
@@ -523,17 +492,9 @@ export const DetailedExpensesForm = memo(({
                 {expenses.fixedCosts.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Label className="min-w-[200px]">{category.name}</Label>
-                    <Input
-                      type="number"
-                      value={category.value || ""}
-                      onChange={(e) =>
-                        updateCustomCategory(
-                          "fixed",
-                          category.id,
-                          parseFloat(e.target.value) || 0
-                        )
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={category.value}
+                      onChange={(v) => updateCustomCategory("fixed", category.id, v)}
                     />
                     <Button
                       variant="ghost"
@@ -589,56 +550,31 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label>Закупка трафика</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.marketing.trafficPurchase || ""}
-                    onChange={(e) =>
-                      updateVariableCost("marketing", "trafficPurchase", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.marketing.trafficPurchase}
+                    onChange={(v) => updateVariableCost("marketing", "trafficPurchase", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Оплата подрядчикам</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.marketing.contractorsPayment || ""}
-                    onChange={(e) =>
-                      updateVariableCost(
-                        "marketing",
-                        "contractorsPayment",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.marketing.contractorsPayment}
+                    onChange={(v) => updateVariableCost("marketing", "contractorsPayment", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>CRM расходы</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.marketing.crmCosts || ""}
-                    onChange={(e) =>
-                      updateVariableCost("marketing", "crmCosts", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.marketing.crmCosts}
+                    onChange={(v) => updateVariableCost("marketing", "crmCosts", v)}
                   />
                 </div>
                 {expenses.variableCosts.marketing.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Label className="min-w-[200px]">{category.name}</Label>
-                    <Input
-                      type="number"
-                      value={category.value || ""}
-                      onChange={(e) =>
-                        updateCustomCategory(
-                          "variable",
-                          category.id,
-                          parseFloat(e.target.value) || 0,
-                          "marketing"
-                        )
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={category.value}
+                      onChange={(v) => updateCustomCategory("variable", category.id, v, "marketing")}
                     />
                     <Button
                       variant="ghost"
@@ -680,49 +616,24 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label>Бонусы по старым клиентам</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.salesPayroll.bonusOldClients || ""}
-                    onChange={(e) =>
-                      updateVariableCost(
-                        "salesPayroll",
-                        "bonusOldClients",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.salesPayroll.bonusOldClients}
+                    onChange={(v) => updateVariableCost("salesPayroll", "bonusOldClients", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Бонусы по новым клиентам</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.salesPayroll.bonusNewClients || ""}
-                    onChange={(e) =>
-                      updateVariableCost(
-                        "salesPayroll",
-                        "bonusNewClients",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.salesPayroll.bonusNewClients}
+                    onChange={(v) => updateVariableCost("salesPayroll", "bonusNewClients", v)}
                   />
                 </div>
                 {expenses.variableCosts.salesPayroll.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Label className="min-w-[200px]">{category.name}</Label>
-                    <Input
-                      type="number"
-                      value={category.value || ""}
-                      onChange={(e) =>
-                        updateCustomCategory(
-                          "variable",
-                          category.id,
-                          parseFloat(e.target.value) || 0,
-                          "salesPayroll"
-                        )
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={category.value}
+                      onChange={(v) => updateCustomCategory("variable", category.id, v, "salesPayroll")}
                     />
                     <Button
                       variant="ghost"
@@ -764,82 +675,45 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label>Материалы</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.production.materials || ""}
-                    onChange={(e) =>
-                      updateVariableCost("production", "materials", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.production.materials}
+                    onChange={(v) => updateVariableCost("production", "materials", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Кураторы</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.production.curators || ""}
-                    onChange={(e) =>
-                      updateVariableCost("production", "curators", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.production.curators}
+                    onChange={(v) => updateVariableCost("production", "curators", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Логистика</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.production.logistics || ""}
-                    onChange={(e) =>
-                      updateVariableCost("production", "logistics", parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.production.logistics}
+                    onChange={(v) => updateVariableCost("production", "logistics", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Процент партнёрам</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.production.partnersPercent || ""}
-                    onChange={(e) =>
-                      updateVariableCost(
-                        "production",
-                        "partnersPercent",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.production.partnersPercent}
+                    onChange={(v) => updateVariableCost("production", "partnersPercent", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Ремонт оборудования</Label>
-                  <Input
-                    type="number"
-                    value={expenses.variableCosts.production.equipmentRepair || ""}
-                    onChange={(e) =>
-                      updateVariableCost(
-                        "production",
-                        "equipmentRepair",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="0"
+                  <NumericInput
+                    value={expenses.variableCosts.production.equipmentRepair}
+                    onChange={(v) => updateVariableCost("production", "equipmentRepair", v)}
                   />
                 </div>
                 {expenses.variableCosts.production.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Label className="min-w-[200px]">{category.name}</Label>
-                    <Input
-                      type="number"
-                      value={category.value || ""}
-                      onChange={(e) =>
-                        updateCustomCategory(
-                          "variable",
-                          category.id,
-                          parseFloat(e.target.value) || 0,
-                          "production"
-                        )
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={category.value}
+                      onChange={(v) => updateCustomCategory("variable", category.id, v, "production")}
                     />
                     <Button
                       variant="ghost"
@@ -881,25 +755,18 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label>Налоговая ставка (%)</Label>
-                  <Input
-                    type="number"
-                    value={expenses.taxRate || ""}
-                    onChange={(e) =>
-                      onChange({ ...expenses, taxRate: parseFloat(e.target.value) || 0 })
-                    }
+                  <NumericInput
+                    value={expenses.taxRate}
+                    onChange={updateTaxRate}
                     placeholder="15"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Сумма налогов ({currency})</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={expenses.taxes || ""}
-                      onChange={(e) =>
-                        onChange({ ...expenses, taxes: parseFloat(e.target.value) || 0 })
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={expenses.taxes}
+                      onChange={updateTaxes}
                     />
                     <Button variant="outline" size="sm" onClick={autoCalculateTaxes}>
                       <Calculator className="w-4 h-4 mr-1" />
@@ -910,18 +777,9 @@ export const DetailedExpensesForm = memo(({
                 {expenses.variableCosts.other.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Label className="min-w-[200px]">{category.name}</Label>
-                    <Input
-                      type="number"
-                      value={category.value || ""}
-                      onChange={(e) =>
-                        updateCustomCategory(
-                          "variable",
-                          category.id,
-                          parseFloat(e.target.value) || 0,
-                          "other"
-                        )
-                      }
-                      placeholder="0"
+                    <NumericInput
+                      value={category.value}
+                      onChange={(v) => updateCustomCategory("variable", category.id, v, "other")}
                     />
                     <Button
                       variant="ghost"
@@ -956,3 +814,5 @@ export const DetailedExpensesForm = memo(({
     </div>
   );
 });
+
+DetailedExpensesForm.displayName = "DetailedExpensesForm";
