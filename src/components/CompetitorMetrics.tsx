@@ -1,10 +1,10 @@
 import { memo, useCallback } from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, TrendingUp, DollarSign, Percent } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
+import { NumericInput } from "@/components/ui/numeric-input";
 import type { Metrics } from "@/hooks/useProject";
 
 interface DetailedExpenses {
@@ -73,12 +73,11 @@ interface CompetitorMetricsProps {
 }
 
 export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: CompetitorMetricsProps) => {
-  const handleMetricChange = useCallback((field: string, value: number) => {
+  const handleMetricChange = useCallback((field: string) => (value: number) => {
     onUpdate({ [field]: value });
   }, [onUpdate]);
 
   const handleDetailedExpensesChange = useCallback((detailedExpenses: DetailedExpenses) => {
-    // Пересчитываем общие суммы
     const fixedCostsTotal =
       detailedExpenses.fixedCosts.salaryOldClients +
       detailedExpenses.fixedCosts.salaryNewClients +
@@ -150,10 +149,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
                 <DollarSign className="w-3 h-3" />
                 Общая выручка ({currency})
               </Label>
-              <Input
-                type="number"
+              <NumericInput
                 value={competitor.revenue}
-                onChange={(e) => handleMetricChange("revenue", Number(e.target.value))}
+                onChange={handleMetricChange("revenue")}
                 className="text-sm"
               />
             </div>
@@ -163,10 +161,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
                 <Users className="w-3 h-3" />
                 Всего клиентов
               </Label>
-              <Input
-                type="number"
+              <NumericInput
                 value={competitor.totalClients || 0}
-                onChange={(e) => handleMetricChange("totalClients", Number(e.target.value))}
+                onChange={handleMetricChange("totalClients")}
                 className="text-sm"
               />
             </div>
@@ -176,10 +173,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
                 <TrendingUp className="w-3 h-3" />
                 Новых клиентов
               </Label>
-              <Input
-                type="number"
+              <NumericInput
                 value={competitor.newClients || 0}
-                onChange={(e) => handleMetricChange("newClients", Number(e.target.value))}
+                onChange={handleMetricChange("newClients")}
                 className="text-sm"
               />
             </div>
@@ -189,10 +185,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
                 <Users className="w-3 h-3" />
                 Повторных клиентов
               </Label>
-              <Input
-                type="number"
+              <NumericInput
                 value={competitor.returningClients || 0}
-                onChange={(e) => handleMetricChange("returningClients", Number(e.target.value))}
+                onChange={handleMetricChange("returningClients")}
                 className="text-sm"
               />
             </div>
@@ -202,10 +197,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
                 <Percent className="w-3 h-3" />
                 Конверсия (%)
               </Label>
-              <Input
-                type="number"
+              <NumericInput
                 value={competitor.conversionRate || 0}
-                onChange={(e) => handleMetricChange("conversionRate", Number(e.target.value))}
+                onChange={handleMetricChange("conversionRate")}
                 step="0.1"
                 className="text-sm"
               />
@@ -216,10 +210,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
                 <DollarSign className="w-3 h-3" />
                 Средний чек ({currency})
               </Label>
-              <Input
-                type="number"
+              <NumericInput
                 value={competitor.avgCheck || 0}
-                onChange={(e) => handleMetricChange("avgCheck", Number(e.target.value))}
+                onChange={handleMetricChange("avgCheck")}
                 className="text-sm"
               />
             </div>
@@ -242,3 +235,5 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
     </div>
   );
 });
+
+CompetitorMetrics.displayName = "CompetitorMetrics";
