@@ -286,6 +286,58 @@ export type Database = {
           },
         ]
       }
+      product_materials: {
+        Row: {
+          created_at: string
+          id: string
+          material_id: string
+          product_id: string
+          project_id: string
+          quantity_per_unit: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_id: string
+          product_id: string
+          project_id: string
+          quantity_per_unit?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_id?: string
+          product_id?: string
+          project_id?: string
+          quantity_per_unit?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "raw_materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_materials_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_materials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           cost: number
@@ -356,6 +408,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      raw_materials: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          price_per_unit: number
+          project_id: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          price_per_unit?: number
+          project_id: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          price_per_unit?: number
+          project_id?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raw_materials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scenario_summaries: {
         Row: {
