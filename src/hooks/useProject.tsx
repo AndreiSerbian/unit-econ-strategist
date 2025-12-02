@@ -595,19 +595,25 @@ export const useProject = (userId: string | undefined) => {
  
   const syncProductsToMetrics = (scenarioType: "current" | "scenarioA" | "scenarioB") => {
     const productsRevenue = calculateProductsRevenue();
-    const productsCosts = calculateProductsCosts();
-    
-    const setter = scenarioType === "current" ? setCurrentMetrics : 
-                   scenarioType === "scenarioA" ? setScenarioA : setScenarioB;
-    const current = scenarioType === "current" ? currentMetrics : 
-                    scenarioType === "scenarioA" ? scenarioA : scenarioB;
-    
-    setter({
+
+    const setter =
+      scenarioType === "current" ? setCurrentMetrics :
+      scenarioType === "scenarioA" ? setScenarioA : setScenarioB;
+    const current =
+      scenarioType === "current" ? currentMetrics :
+      scenarioType === "scenarioA" ? scenarioA : scenarioB;
+
+    const updatedMetrics: Metrics = {
       ...current,
       revenue: productsRevenue,
-      variableCosts: productsCosts,
-    });
-    
+    };
+
+    if (current.totalClients > 0 && productsRevenue > 0) {
+      updatedMetrics.avgCheck = productsRevenue / current.totalClients;
+    }
+
+    setter(updatedMetrics);
+
     toast.success("Метрики обновлены на основе продуктов");
   };
 

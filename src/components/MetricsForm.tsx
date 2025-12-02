@@ -152,9 +152,33 @@ export const MetricsForm = memo(({
 }: MetricsFormProps) => {
   const [showFunnel, setShowFunnel] = useState(true);
   
-  const handleMetricChange = useCallback((field: keyof Metrics) => (value: number) => {
-    onUpdateMetric(field, value);
-  }, [onUpdateMetric]);
+  const handleMetricChange = useCallback(
+    (field: keyof Metrics) =>
+      (value: number) => {
+        onUpdateMetric(field, value);
+
+        // Автоматический пересчет среднего чека
+        if (field === "revenue" || field === "totalClients") {
+          const revenue = field === "revenue" ? value : metrics.revenue;
+          const totalClients = field === "totalClients" ? value : metrics.totalClients;
+
+          if (revenue > 0 && totalClients > 0) {
+            const avg = revenue / totalClients;
+            onUpdateMetric("avgCheck", parseFloat(avg.toFixed(2)));
+          }
+        }
+
+        // Автоматический пересчет конверсии из воронки
+        if (field === "totalClients") {
+          const totalLeads = metrics.totalLeads ?? 0;
+          if (totalLeads > 0 && value > 0) {
+            const newConversion = (value / totalLeads) * 100;
+            onUpdateMetric("conversionRate", parseFloat(newConversion.toFixed(2)));
+          }
+        }
+      },
+    [onUpdateMetric, metrics.revenue, metrics.totalClients, metrics.totalLeads]
+  );
 
   const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
     onUpdateLeadSources(sources);
