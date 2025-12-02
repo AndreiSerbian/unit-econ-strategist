@@ -375,6 +375,8 @@ export const MetricsForm = memo(({
         leadSources={metrics.leadSources || []}
         onChange={handleLeadSourcesChange}
         currency={currency}
+        totalClients={metrics.totalClients}
+        totalRevenue={metrics.revenue}
       />
 
       {(metrics.totalLeads || 0) > 0 && (
