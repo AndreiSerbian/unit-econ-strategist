@@ -19,6 +19,8 @@ interface LeadSourcesFormProps {
   leadSources: LeadSource[];
   onChange: (sources: LeadSource[]) => void;
   currency: string;
+  totalClients?: number;
+  totalRevenue?: number;
 }
 
 const typeOptions = [
@@ -40,6 +42,8 @@ export const LeadSourcesForm = memo(({
   leadSources,
   onChange,
   currency,
+  totalClients,
+  totalRevenue,
 }: LeadSourcesFormProps) => {
   // Локальное состояние, чтобы список и итоги обновлялись мгновенно,
   // даже если родитель по какой-то причине задерживает обновление метрик
@@ -102,6 +106,10 @@ export const LeadSourcesForm = memo(({
   const totalLeads = localSources.reduce((sum, s) => sum + s.leads, 0);
   const totalCost = localSources.reduce((sum, s) => sum + s.cost, 0);
   const avgCPL = totalLeads > 0 ? totalCost / totalLeads : 0;
+  const totalClientsValue = totalClients ?? 0;
+  const totalRevenueValue = totalRevenue ?? 0;
+  const hasGlobalCAC = totalClientsValue > 0 && totalCost > 0;
+  const globalCAC = hasGlobalCAC ? totalCost / totalClientsValue : 0;
 
   return (
     <Card className="border-primary/20">
@@ -120,7 +128,7 @@ export const LeadSourcesForm = memo(({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Итоги */}
-        <div className="grid grid-cols-3 gap-2 p-3 bg-muted/50 rounded-lg">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-muted/50 rounded-lg">
           <div className="text-center">
             <p className="text-xs text-muted-foreground">Всего лидов</p>
             <p className="font-bold font-mono">{totalLeads.toLocaleString("ru-RU")}</p>
@@ -133,18 +141,35 @@ export const LeadSourcesForm = memo(({
             <p className="text-xs text-muted-foreground">Средний CPL</p>
             <p className="font-bold font-mono">{avgCPL.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</p>
           </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Оценочный CAC</p>
+            <p className="font-bold font-mono">
+              {hasGlobalCAC
+                ? `${globalCAC.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
+                : "—"}
+            </p>
+          </div>
         </div>
 
         {/* Список источников */}
         <div className="space-y-3">
           {localSources.map((source) => {
             const cpl = source.leads > 0 ? source.cost / source.leads : 0;
+            const leadShare = totalLeads > 0 ? source.leads / totalLeads : 0;
+            const estimatedClients = totalClientsValue > 0 ? totalClientsValue * leadShare : 0;
+            const estimatedRevenue = totalRevenueValue > 0 ? totalRevenueValue * leadShare : 0;
+            const hasCAC = estimatedClients > 0 && source.cost > 0;
+            const cac = hasCAC ? source.cost / estimatedClients : 0;
+            const hasROI = source.cost > 0 && estimatedRevenue > 0;
+            const roi = hasROI ? ((estimatedRevenue - source.cost) / source.cost) * 100 : 0;
+            const roiClass = roi > 0 ? "text-accent" : roi < 0 ? "text-destructive" : "text-muted-foreground";
+
             return (
               <div
                 key={source.id}
                 className="grid grid-cols-12 gap-2 items-center p-2 border rounded-lg"
               >
-                <div className="col-span-12 sm:col-span-3">
+                <div className="col-span-12 sm:col-span-4">
                   <Label className="text-xs text-muted-foreground">Источник</Label>
                   <Input
                     value={source.name}
@@ -178,7 +203,7 @@ export const LeadSourcesForm = memo(({
                     className="h-8 text-sm"
                   />
                 </div>
-                <div className="col-span-6 sm:col-span-2">
+                <div className="col-span-6 sm:col-span-3">
                   <Label className="text-xs text-muted-foreground">Затраты ({currency})</Label>
                   <NumericInput
                     value={source.cost}
@@ -186,13 +211,7 @@ export const LeadSourcesForm = memo(({
                     className="h-8 text-sm"
                   />
                 </div>
-                <div className="col-span-4 sm:col-span-2 text-center">
-                  <Label className="text-xs text-muted-foreground">CPL</Label>
-                  <p className="font-mono text-sm font-semibold">
-                    {cpl.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
-                  </p>
-                </div>
-                <div className="col-span-2 sm:col-span-1 flex justify-end">
+                <div className="col-span-6 sm:col-span-1 flex justify-end">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -201,6 +220,33 @@ export const LeadSourcesForm = memo(({
                   >
                     <X className="w-4 h-4" />
                   </Button>
+                </div>
+
+                <div className="col-span-12 grid grid-cols-3 gap-2 mt-2 pt-2 border-t">
+                  <div className="text-center">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">CPL</p>
+                    <p className="font-mono text-xs sm:text-sm font-semibold">
+                      {source.leads > 0 && source.cost > 0
+                        ? `${cpl.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
+                        : "—"}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Оценочный CAC</p>
+                    <p className="font-mono text-xs sm:text-sm font-semibold">
+                      {hasCAC
+                        ? `${cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
+                        : "—"}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">ROI канала</p>
+                    <p className={`font-mono text-xs sm:text-sm font-semibold ${hasROI ? roiClass : "text-muted-foreground"}`}>
+                      {hasROI
+                        ? `${roi.toLocaleString("ru-RU", { maximumFractionDigits: 0 })}%`
+                        : "—"}
+                    </p>
+                  </div>
                 </div>
               </div>
             );
