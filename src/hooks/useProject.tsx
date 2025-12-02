@@ -117,6 +117,20 @@ interface Product {
   salesChannels: string[];
 }
 
+export interface RawMaterial {
+  id: string;
+  name: string;
+  unit: string;
+  pricePerUnit: number;
+}
+
+export interface ProductMaterialUsage {
+  id: string;
+  productId: string;
+  materialId: string;
+  quantityPerUnit: number;
+}
+
 const initialDetailedExpenses: DetailedExpenses = {
   fixedCosts: {
     salaryOldClients: 0,
@@ -203,6 +217,8 @@ export const useProject = (userId: string | undefined) => {
   const [scenarioB, setScenarioB] = useState<Metrics>(initialMetrics);
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [materials, setMaterials] = useState<RawMaterial[]>([]);
+  const [productMaterials, setProductMaterials] = useState<ProductMaterialUsage[]>([]);
   const [currency, setCurrency] = useState<string>("RUB");
   const [loading, setLoading] = useState(false);
 
@@ -216,6 +232,8 @@ export const useProject = (userId: string | undefined) => {
         setScenarioB(stored.scenarioB || initialMetrics);
         setCompetitors(stored.competitors || []);
         setProducts(stored.products || []);
+        setMaterials(stored.materials || []);
+        setProductMaterials(stored.productMaterials || []);
         setCurrency(stored.currency || "RUB");
       }
     }
@@ -236,10 +254,12 @@ export const useProject = (userId: string | undefined) => {
         scenarioB,
         competitors,
         products,
+        materials,
+        productMaterials,
         currency,
       });
     }
-  }, [currentMetrics, scenarioA, scenarioB, competitors, products, currency, userId]);
+  }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, userId]);
 
   const loadProject = async () => {
     if (!userId) return;
@@ -551,11 +571,28 @@ export const useProject = (userId: string | undefined) => {
   const calculateProductsRevenue = () => {
     return products.reduce((sum, p) => sum + p.price * p.quantity, 0);
   };
-
+ 
   const calculateProductsCosts = () => {
     return products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
   };
-
+ 
+  const calculateMaterialCostPerUnit = (productId: string) => {
+    const usages = productMaterials.filter((u) => u.productId === productId);
+ 
+    return usages.reduce((sum, usage) => {
+      const material = materials.find((m) => m.id === usage.materialId);
+      if (!material) return sum;
+      return sum + (material.pricePerUnit || 0) * (usage.quantityPerUnit || 0);
+    }, 0);
+  };
+ 
+  const calculateTotalMaterialsCost = () => {
+    return products.reduce((total, product) => {
+      const costPerUnit = calculateMaterialCostPerUnit(product.id);
+      return total + costPerUnit * product.quantity;
+    }, 0);
+  };
+ 
   const syncProductsToMetrics = (scenarioType: "current" | "scenarioA" | "scenarioB") => {
     const productsRevenue = calculateProductsRevenue();
     const productsCosts = calculateProductsCosts();
@@ -586,6 +623,10 @@ export const useProject = (userId: string | undefined) => {
     setCompetitors,
     products,
     setProducts,
+    materials,
+    setMaterials,
+    productMaterials,
+    setProductMaterials,
     currency,
     loading,
     saveScenario,
@@ -596,6 +637,8 @@ export const useProject = (userId: string | undefined) => {
     updateCurrency,
     calculateProductsRevenue,
     calculateProductsCosts,
+    calculateMaterialCostPerUnit,
+    calculateTotalMaterialsCost,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
