@@ -246,28 +246,26 @@ export const MetricsForm = memo(({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor={`${scenario}-revenue`}>
-                Общая выручка ({currency})
-                {productsRevenue > 0 && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    (из продуктов: {productsRevenue.toLocaleString("ru-RU")} {currency})
-                  </span>
-                )}
-              </Label>
-              <NumericInput
-                id={`${scenario}-revenue`}
-                value={metrics.revenue}
-                onChange={handleMetricChange("revenue")}
-              />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">
+                Общая выручка формируется автоматически из продуктов
+              </p>
+              <p className="text-xl font-bold font-mono text-primary">
+                {metrics.revenue.toLocaleString("ru-RU")} {currency}
+              </p>
+              {productsRevenue > 0 && (
+                <p className="text-[11px] text-muted-foreground">
+                  Из продуктов: {productsRevenue.toLocaleString("ru-RU")} {currency}
+                </p>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${scenario}-avgCheck`}>Средний чек ({currency})</Label>
-              <NumericInput
-                id={`${scenario}-avgCheck`}
-                value={metrics.avgCheck}
-                onChange={handleMetricChange("avgCheck")}
-              />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">
+                Средний чек считается как выручка / количество клиентов
+              </p>
+              <p className="text-xl font-bold font-mono text-secondary">
+                {(metrics.avgCheck || 0).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -359,36 +357,29 @@ export const MetricsForm = memo(({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor={`${scenario}-fixedCosts`}>Постоянные расходы ({currency})</Label>
-              <NumericInput
-                id={`${scenario}-fixedCosts`}
-                value={metrics.fixedCosts}
-                onChange={handleMetricChange("fixedCosts")}
-              />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">
+                Постоянные расходы (из детализированных статей)
+              </p>
+              <p className="text-lg font-bold font-mono text-destructive">
+                {metrics.fixedCosts.toLocaleString("ru-RU")} {currency}
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${scenario}-variableCosts`}>
-                Переменные расходы ({currency})
-                {productsCosts > 0 && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    (из продуктов: {productsCosts.toLocaleString("ru-RU")} {currency})
-                  </span>
-                )}
-              </Label>
-              <NumericInput
-                id={`${scenario}-variableCosts`}
-                value={metrics.variableCosts}
-                onChange={handleMetricChange("variableCosts")}
-              />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">
+                Переменные расходы (из детализированных статей, включая материалы и налоги)
+              </p>
+              <p className="text-lg font-bold font-mono text-warning">
+                {metrics.variableCosts.toLocaleString("ru-RU")} {currency}
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${scenario}-marketingCosts`}>Маркетинг ({currency})</Label>
-              <NumericInput
-                id={`${scenario}-marketingCosts`}
-                value={metrics.marketingCosts}
-                onChange={handleMetricChange("marketingCosts")}
-              />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">
+                Маркетинг (из детализированных статей и/или источников трафика)
+              </p>
+              <p className="text-lg font-bold font-mono text-primary">
+                {metrics.marketingCosts.toLocaleString("ru-RU")} {currency}
+              </p>
             </div>
           </CardContent>
         </Card>
