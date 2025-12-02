@@ -1,10 +1,10 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X, Target, Megaphone } from "lucide-react";
+import { Plus, X, Megaphone } from "lucide-react";
 import { NumericInput } from "@/components/ui/numeric-input";
 
 export interface LeadSource {
@@ -41,20 +41,31 @@ export const LeadSourcesForm = memo(({
   onChange,
   currency,
 }: LeadSourcesFormProps) => {
+  // Локальное состояние, чтобы список и итоги обновлялись мгновенно,
+  // даже если родитель по какой-то причине задерживает обновление метрик
+  const [localSources, setLocalSources] = useState<LeadSource[]>(leadSources);
   const [newSourceName, setNewSourceName] = useState("");
   const [newSourceType, setNewSourceType] = useState<LeadSource["type"]>("paid");
 
-  const updateSource = useCallback((id: string, field: keyof LeadSource, value: string | number) => {
-    onChange(
-      leadSources.map((s) =>
+  // Синхронизация при изменении данных сверху (смена сценария, загрузка проекта и т.п.)
+  useEffect(() => {
+    setLocalSources(leadSources);
+  }, [leadSources]);
+
+  const updateSource = useCallback(
+    (id: string, field: keyof LeadSource, value: string | number) => {
+      const updated = localSources.map((s) =>
         s.id === id ? { ...s, [field]: value } : s
-      )
-    );
-  }, [leadSources, onChange]);
+      );
+      setLocalSources(updated);
+      onChange(updated);
+    },
+    [localSources, onChange]
+  );
 
   const addSource = useCallback(() => {
     if (!newSourceName.trim()) return;
-    
+
     const newSource: LeadSource = {
       id: Date.now().toString(),
       name: newSourceName.trim(),
@@ -62,25 +73,34 @@ export const LeadSourcesForm = memo(({
       leads: 0,
       cost: 0,
     };
-    
-    onChange([...leadSources, newSource]);
-    setNewSourceName("");
-  }, [newSourceName, newSourceType, leadSources, onChange]);
 
-  const removeSource = useCallback((id: string) => {
-    onChange(leadSources.filter((s) => s.id !== id));
-  }, [leadSources, onChange]);
+    const updated = [...localSources, newSource];
+    setLocalSources(updated);
+    onChange(updated);
+    setNewSourceName("");
+  }, [newSourceName, newSourceType, localSources, onChange]);
+
+  const removeSource = useCallback(
+    (id: string) => {
+      const updated = localSources.filter((s) => s.id !== id);
+      setLocalSources(updated);
+      onChange(updated);
+    },
+    [localSources, onChange]
+  );
 
   const addDefaultSources = useCallback(() => {
     const newSources: LeadSource[] = defaultSources.map((s, index) => ({
       ...s,
       id: `default-${Date.now()}-${index}`,
     }));
-    onChange([...leadSources, ...newSources]);
-  }, [leadSources, onChange]);
+    const updated = [...localSources, ...newSources];
+    setLocalSources(updated);
+    onChange(updated);
+  }, [localSources, onChange]);
 
-  const totalLeads = leadSources.reduce((sum, s) => sum + s.leads, 0);
-  const totalCost = leadSources.reduce((sum, s) => sum + s.cost, 0);
+  const totalLeads = localSources.reduce((sum, s) => sum + s.leads, 0);
+  const totalCost = localSources.reduce((sum, s) => sum + s.cost, 0);
   const avgCPL = totalLeads > 0 ? totalCost / totalLeads : 0;
 
   return (
@@ -91,7 +111,7 @@ export const LeadSourcesForm = memo(({
             <Megaphone className="w-4 h-4 text-primary" />
             Источники трафика
           </span>
-          {leadSources.length === 0 && (
+          {localSources.length === 0 && (
             <Button variant="outline" size="sm" onClick={addDefaultSources}>
               Добавить стандартные
             </Button>
@@ -117,7 +137,7 @@ export const LeadSourcesForm = memo(({
 
         {/* Список источников */}
         <div className="space-y-3">
-          {leadSources.map((source) => {
+          {localSources.map((source) => {
             const cpl = source.leads > 0 ? source.cost / source.leads : 0;
             return (
               <div
