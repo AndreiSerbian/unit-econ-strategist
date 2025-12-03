@@ -162,10 +162,8 @@ export const MetricsForm = memo(({
           const revenue = field === "revenue" ? value : metrics.revenue;
           const totalClients = field === "totalClients" ? value : metrics.totalClients;
 
-          if (revenue > 0 && totalClients > 0) {
-            const avg = revenue / totalClients;
-            onUpdateMetric("avgCheck", parseFloat(avg.toFixed(2)));
-          }
+          const avg = revenue > 0 && totalClients > 0 ? revenue / totalClients : 0;
+          onUpdateMetric("avgCheck", parseFloat(avg.toFixed(2)));
         }
 
         // Автоматический пересчет конверсии из воронки
