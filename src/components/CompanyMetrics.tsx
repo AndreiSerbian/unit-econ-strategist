@@ -105,20 +105,19 @@ export const CompanyMetrics = ({
   }, []);
 
   useEffect(() => {
-    setCurrentMetrics((prev) => {
-      const nextRevenue = productsRevenue;
-      const updated: Metrics = {
-        ...prev,
-        revenue: nextRevenue,
-      };
+    const nextRevenue = productsRevenue;
 
-      if (prev.totalClients > 0 && nextRevenue > 0) {
-        updated.avgCheck = nextRevenue / prev.totalClients;
-      }
+    const updated: Metrics = {
+      ...currentMetrics,
+      revenue: nextRevenue,
+    };
 
-      return updated;
-    });
-  }, [productsRevenue, setCurrentMetrics]);
+    if (currentMetrics.totalClients > 0 && nextRevenue > 0) {
+      updated.avgCheck = nextRevenue / currentMetrics.totalClients;
+    }
+
+    setCurrentMetrics(updated);
+  }, [productsRevenue, currentMetrics, setCurrentMetrics]);
 
   const updateDetailedExpenses = useCallback((
     scenario: "current" | "scenarioA" | "scenarioB",
