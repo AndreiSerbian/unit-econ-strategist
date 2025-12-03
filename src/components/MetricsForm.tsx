@@ -183,15 +183,14 @@ export const MetricsForm = memo(({
     // Автоматически пересчитываем общее количество лидов и затраты на маркетинг
     const totalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
     const totalMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
+
     onUpdateMetric("totalLeads", totalLeads);
-    if (totalMarketingCost > 0) {
-      onUpdateMetric("marketingCosts", totalMarketingCost);
-    }
-    // Автоматически пересчитываем конверсию
-    if (totalLeads > 0 && metrics.totalClients > 0) {
-      const newConversion = (metrics.totalClients / totalLeads) * 100;
-      onUpdateMetric("conversionRate", parseFloat(newConversion.toFixed(2)));
-    }
+    onUpdateMetric("marketingCosts", totalMarketingCost);
+
+    // Автоматически пересчитываем конверсию, при нулевых базовых значениях ставим 0
+    const hasData = totalLeads > 0 && metrics.totalClients > 0;
+    const newConversion = hasData ? (metrics.totalClients / totalLeads) * 100 : 0;
+    onUpdateMetric("conversionRate", parseFloat(newConversion.toFixed(2)));
   }, [onUpdateLeadSources, onUpdateMetric, metrics.totalClients]);
 
   return (
