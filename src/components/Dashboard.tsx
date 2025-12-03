@@ -86,6 +86,7 @@ export const Dashboard = () => {
     saveCompetitor,
     deleteCompetitor,
     saveProduct,
+    updateProduct,
     deleteProduct,
     updateCurrency,
     calculateProductsRevenue,
@@ -270,19 +271,20 @@ export const Dashboard = () => {
             </AnimatedCard>
 
             <AnimatedCard delay={0.1}>
-              <ProductsManagement
-                products={products}
-                saveProduct={saveProduct}
-                deleteProduct={deleteProduct}
-                isAuthenticated={!!user}
+              <RawMaterialsManager
+                materials={materials}
+                setMaterials={setMaterials}
                 currency={currency}
               />
             </AnimatedCard>
 
             <AnimatedCard delay={0.15}>
-              <RawMaterialsManager
-                materials={materials}
-                setMaterials={setMaterials}
+              <ProductsManagement
+                products={products}
+                saveProduct={saveProduct}
+                updateProduct={updateProduct}
+                deleteProduct={deleteProduct}
+                isAuthenticated={!!user}
                 currency={currency}
               />
             </AnimatedCard>

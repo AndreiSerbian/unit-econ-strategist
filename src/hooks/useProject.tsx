@@ -486,6 +486,39 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
+  const updateProduct = async (productId: string, updates: Partial<Product>) => {
+    if (!userId) {
+      setProducts(products.map((p) => (p.id === productId ? { ...p, ...updates } : p)));
+      toast.success("Продукт обновлён");
+      return;
+    }
+
+    if (!projectId) return;
+
+    try {
+      const updatePayload: Record<string, any> = {};
+      if (typeof updates.name !== "undefined") updatePayload.name = updates.name;
+      if (typeof updates.price !== "undefined") updatePayload.price = updates.price;
+      if (typeof updates.cost !== "undefined") updatePayload.cost = updates.cost;
+      if (typeof updates.quantity !== "undefined") updatePayload.quantity = updates.quantity;
+
+      if (Object.keys(updatePayload).length === 0) return;
+
+      const { error } = await supabase
+        .from("products")
+        .update(updatePayload)
+        .eq("id", productId);
+
+      if (error) throw error;
+
+      setProducts(products.map((p) => (p.id === productId ? { ...p, ...updates } : p)));
+      toast.success("Продукт обновлён");
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      toast.error("Ошибка обновления продукта");
+    }
+  };
+
   const deleteProduct = async (productId: string) => {
     if (!userId) {
       // Local storage mode
@@ -508,7 +541,6 @@ export const useProject = (userId: string | undefined) => {
       toast.error("Ошибка удаления");
     }
   };
-
   const addCompetitorProduct = async (
     competitorId: string,
     product: Omit<CompetitorProduct, "id" | "annualRevenue">
@@ -639,6 +671,7 @@ export const useProject = (userId: string | undefined) => {
     saveCompetitor,
     deleteCompetitor,
     saveProduct,
+    updateProduct,
     deleteProduct,
     updateCurrency,
     calculateProductsRevenue,
