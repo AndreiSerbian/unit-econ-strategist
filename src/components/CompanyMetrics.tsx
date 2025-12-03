@@ -110,11 +110,11 @@ export const CompanyMetrics = ({
     const updated: Metrics = {
       ...currentMetrics,
       revenue: nextRevenue,
+      avgCheck:
+        currentMetrics.totalClients > 0 && nextRevenue > 0
+          ? nextRevenue / currentMetrics.totalClients
+          : 0,
     };
-
-    if (currentMetrics.totalClients > 0 && nextRevenue > 0) {
-      updated.avgCheck = nextRevenue / currentMetrics.totalClients;
-    }
 
     setCurrentMetrics(updated);
   }, [productsRevenue, currentMetrics, setCurrentMetrics]);
