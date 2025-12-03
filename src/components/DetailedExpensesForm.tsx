@@ -9,8 +9,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Plus, X, Calculator } from "lucide-react";
+import { Plus, X, Calculator, Info } from "lucide-react";
 import { NumericInput } from "@/components/ui/numeric-input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ExpenseCategory {
   id: string;
@@ -358,13 +359,39 @@ export const DetailedExpensesForm = memo(({
         <CardContent>
           <Accordion type="multiple" className="w-full">
             <AccordionItem value="fot">
-              <AccordionTrigger>Оклады и ставки (постоянный ФОТ)</AccordionTrigger>
+              <AccordionTrigger>
+                <div className="flex items-center gap-2">
+                  <span>Оклады и ставки (постоянный ФОТ)</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                      Фиксированная зарплата сотрудников в штате, которую вы платите независимо от
+                      выручки: оклады отдела продаж, маркетинга, производства, руководства и других
+                      ролей.
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <p className="text-xs text-muted-foreground mb-2">
                   Фиксированная часть зарплаты, не зависящая от результатов
                 </p>
                 <div className="space-y-2">
-                  <Label>ЗП по старым клиентам</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>ЗП по старым клиентам</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Фиксированная часть зарплаты менеджеров по работе с текущими клиентами:
+                        сопровождение, продления, допродажи, удержание. Бонусы и KPI — в блоке
+                        «Бонусы и KPI (переменный ФОТ)».
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <div className="flex items-center gap-2">
                     <NumericInput
                       value={expenses.fixedCosts.salaryOldClients}
@@ -376,7 +403,19 @@ export const DetailedExpensesForm = memo(({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>ЗП по новым клиентам</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>ЗП по новым клиентам</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Фиксированная часть зарплаты менеджеров по привлечению новых клиентов:
+                        обработка лидов, первичные продажи, холодные контакты. Бонусы и премии — в
+                        переменном ФОТ.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <div className="flex items-center gap-2">
                     <NumericInput
                       value={expenses.fixedCosts.salaryNewClients}
@@ -388,7 +427,18 @@ export const DetailedExpensesForm = memo(({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Оклад руководящего состава</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Оклад руководящего состава</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Фиксированные оклады руководства и управленцев (директор, head of sales,
+                        head of marketing и т.п.), не зависящие от количества сделок.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <div className="flex items-center gap-2">
                     <NumericInput
                       value={expenses.fixedCosts.managementSalary}
@@ -400,7 +450,18 @@ export const DetailedExpensesForm = memo(({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Оклад отдела маркетинга</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Оклад отдела маркетинга</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Штатные маркетологи, SMM, аналитики и другие сотрудники маркетинга на окладе.
+                        Покупка трафика и подрядчики — в блоке «Маркетинг (Marketing Cost)».
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <div className="flex items-center gap-2">
                     <NumericInput
                       value={expenses.fixedCosts.marketingSalary}
@@ -412,7 +473,19 @@ export const DetailedExpensesForm = memo(({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Оклад отдела производства</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Оклад отдела производства</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Фиксированный ФОТ сотрудников, которые отвечают за исполнение обязательств
+                        перед клиентами: производство услуги/товара, обучение, кураторы на окладе и
+                        т.п.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <div className="flex items-center gap-2">
                     <NumericInput
                       value={expenses.fixedCosts.productionSalary}
@@ -544,7 +617,18 @@ export const DetailedExpensesForm = memo(({
             <AccordionItem value="marketing">
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
-                  <span>Маркетинг (Marketing Cost)</span>
+                  <div className="flex items-center gap-2">
+                    <span>Маркетинг (Marketing Cost)</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Переменные маркетинговые расходы, которые зависят от количества лидов и
+                        рекламной активности: реклама, подрядчики, CRM‑сервисы и другие инструменты.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <span className="text-sm font-mono text-muted-foreground">
                     {calculateMarketingTotal().toLocaleString("ru-RU")} {currency}
                   </span>
@@ -552,21 +636,54 @@ export const DetailedExpensesForm = memo(({
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>Закупка трафика</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Закупка трафика</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Прямые расходы на рекламу: контекст, таргет, баннеры и другие форматы, где вы
+                        покупаете показы, клики или лиды.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.marketing.trafficPurchase}
                     onChange={(v) => updateVariableCost("marketing", "trafficPurchase", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Оплата подрядчикам</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Оплата подрядчикам</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Агентства и внешние подрядчики по маркетингу: SMM, креатив, медиабаинг, SEO и
+                        другие услуги.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.marketing.contractorsPayment}
                     onChange={(v) => updateVariableCost("marketing", "contractorsPayment", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>CRM расходы</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>CRM расходы</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Подписки на CRM‑системы, рассылки, коллтрекинг и другие сервисы для работы с
+                        лидами и клиентами.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.marketing.crmCosts}
                     onChange={(v) => updateVariableCost("marketing", "crmCosts", v)}
@@ -610,7 +727,18 @@ export const DetailedExpensesForm = memo(({
             <AccordionItem value="sales">
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
-                  <span>Бонусы и KPI (переменный ФОТ)</span>
+                  <div className="flex items-center gap-2">
+                    <span>Бонусы и KPI (переменный ФОТ)</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Переменная часть ФОТ отдела продаж: бонусы и премии, зависящие от плана,
+                        выручки или количества сделок.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <span className="text-sm font-mono text-muted-foreground">
                     {calculateSalesTotal().toLocaleString("ru-RU")} {currency}
                   </span>
@@ -621,14 +749,36 @@ export const DetailedExpensesForm = memo(({
                   Переменная часть зарплаты, зависящая от результатов продаж
                 </p>
                 <div className="space-y-2">
-                  <Label>Бонусы по старым клиентам</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Бонусы по старым клиентам</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Бонусы менеджеров за работу с существующими клиентами: продления, повторные
+                        покупки, апселлы и удержание.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.salesPayroll.bonusOldClients}
                     onChange={(v) => updateVariableCost("salesPayroll", "bonusOldClients", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Бонусы по новым клиентам</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Бонусы по новым клиентам</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Бонусы за привлечение новых клиентов: закрытые сделки с новых лидов, первая
+                        покупка и т.п.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.salesPayroll.bonusNewClients}
                     onChange={(v) => updateVariableCost("salesPayroll", "bonusNewClients", v)}
@@ -672,7 +822,19 @@ export const DetailedExpensesForm = memo(({
             <AccordionItem value="production">
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
-                  <span>Исполнение обязательств (Production Cost)</span>
+                  <div className="flex items-center gap-2">
+                    <span>Исполнение обязательств (Production Cost)</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Переменные расходы на выполнение услуги или производства под конкретного
+                        клиента: материалы, кураторы, логистика, выплаты партнёрам, ремонт
+                        оборудования.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <span className="text-sm font-mono text-muted-foreground">
                     {calculateProductionTotal().toLocaleString("ru-RU")} {currency}
                   </span>
@@ -680,35 +842,90 @@ export const DetailedExpensesForm = memo(({
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>Материалы</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Материалы</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Себестоимость сырья и материалов, которые уходят на выполнение обязательств по
+                        продукту. Включая значения, автоматически рассчитанные из блока «Сырьё».
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.production.materials}
                     onChange={(v) => updateVariableCost("production", "materials", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Кураторы</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Кураторы</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Переменные выплаты кураторам/исполнителям за работу с клиентами, если зависят
+                        от объёма или количества клиентов. Фиксированную ставку относите в ФОТ
+                        производства.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.production.curators}
                     onChange={(v) => updateVariableCost("production", "curators", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Логистика</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Логистика</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Доставка товара или материалов, транспортные расходы, курьеры и прочая
+                        логистика, возникающая при обслуживании клиентов.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.production.logistics}
                     onChange={(v) => updateVariableCost("production", "logistics", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Процент партнёрам</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Процент партнёрам</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Выплаты партнёрам, франчайзи или аффилиатам в процентах от сделки или выручки.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.production.partnersPercent}
                     onChange={(v) => updateVariableCost("production", "partnersPercent", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Ремонт оборудования</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Ремонт оборудования</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Переменный ремонт и обслуживание оборудования, связанное с объёмом работы:
+                        чем больше производите, тем выше износ и расходы на сервис.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.variableCosts.production.equipmentRepair}
                     onChange={(v) => updateVariableCost("production", "equipmentRepair", v)}
