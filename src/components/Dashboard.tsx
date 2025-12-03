@@ -93,6 +93,8 @@ export const Dashboard = () => {
     calculateProductsCosts,
     calculateMaterialCostPerUnit,
     calculateTotalMaterialsCost,
+    calculateLogisticsCostPerUnit,
+    calculateTotalLogisticsCost,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
@@ -111,6 +113,8 @@ export const Dashboard = () => {
     if (!currentMetrics.detailedExpenses) return;
 
     const totalMaterialsCost = calculateTotalMaterialsCost();
+    const totalLogisticsCost = calculateTotalLogisticsCost();
+
     const detailedExpenses = {
       ...currentMetrics.detailedExpenses,
       variableCosts: {
@@ -118,6 +122,7 @@ export const Dashboard = () => {
         production: {
           ...currentMetrics.detailedExpenses.variableCosts.production,
           materials: totalMaterialsCost,
+          logistics: totalLogisticsCost,
         },
       },
     };

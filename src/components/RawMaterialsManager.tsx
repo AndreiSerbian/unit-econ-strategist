@@ -21,6 +21,7 @@ export const RawMaterialsManager = ({
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
   const [pricePerUnit, setPricePerUnit] = useState(0);
+  const [logisticsToProductionPerUnit, setLogisticsToProductionPerUnit] = useState(0);
 
   const handleAdd = () => {
     if (!name.trim()) return;
@@ -30,12 +31,14 @@ export const RawMaterialsManager = ({
       name: name.trim(),
       unit: unit.trim() || "шт.",
       pricePerUnit,
+      logisticsToProductionPerUnit,
     };
 
     setMaterials((prev) => [...prev, newMaterial]);
     setName("");
     setUnit("");
     setPricePerUnit(0);
+    setLogisticsToProductionPerUnit(0);
   };
 
   const handleUpdate = (id: string, field: keyof RawMaterial, value: string | number) => {
@@ -44,7 +47,9 @@ export const RawMaterialsManager = ({
         m.id === id
           ? {
               ...m,
-              [field]: field === "pricePerUnit" ? Number(value) || 0 : value,
+              [field]: field === "pricePerUnit" || field === "logisticsToProductionPerUnit"
+                ? Number(value) || 0
+                : value,
             }
           : m
       )
@@ -64,7 +69,7 @@ export const RawMaterialsManager = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
           <div className="space-y-1">
             <Label htmlFor="material-name">Название</Label>
             <Input
@@ -91,6 +96,17 @@ export const RawMaterialsManager = ({
               onChange={setPricePerUnit}
             />
           </div>
+          <div className="space-y-1">
+            <Label htmlFor="material-logistics">Логистика до производства ({currency})</Label>
+            <NumericInput
+              id="material-logistics"
+              value={logisticsToProductionPerUnit}
+              onChange={setLogisticsToProductionPerUnit}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              за 1 {unit || "ед."}
+            </p>
+          </div>
         </div>
         <Button className="w-full" onClick={handleAdd}>
           <Plus className="w-4 h-4 mr-2" />
@@ -104,7 +120,7 @@ export const RawMaterialsManager = ({
                 key={m.id}
                 className="flex flex-col md:flex-row md:items-center gap-3 p-3 border rounded-lg"
               >
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div>
                     <Label className="text-xs text-muted-foreground">Название</Label>
                     <Input
@@ -126,6 +142,17 @@ export const RawMaterialsManager = ({
                     <NumericInput
                       value={m.pricePerUnit}
                       onChange={(value) => handleUpdate(m.id, "pricePerUnit", value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">
+                      Логистика до производства за {m.unit || "ед."} ({currency})
+                    </Label>
+                    <NumericInput
+                      value={m.logisticsToProductionPerUnit || 0}
+                      onChange={(value) =>
+                        handleUpdate(m.id, "logisticsToProductionPerUnit", value)
+                      }
                     />
                   </div>
                 </div>

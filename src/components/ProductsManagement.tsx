@@ -15,6 +15,7 @@ export interface Product {
   cost: number;
   quantity: number;
   salesChannels: string[];
+  logisticsToClientPerUnit?: number;
 }
 
 interface ProductsManagementProps {
@@ -42,6 +43,7 @@ export const ProductsManagement = ({
     cost: 0,
     quantity: 0,
     salesChannels: [] as string[],
+    logisticsToClientPerUnit: 0,
   });
 
   const handleAddProduct = async () => {
@@ -51,7 +53,7 @@ export const ProductsManagement = ({
     }
 
     await saveProduct(newProduct);
-    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, salesChannels: [] });
+    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, salesChannels: [], logisticsToClientPerUnit: 0 });
   };
 
   const toggleChannel = (channel: string) => {
@@ -132,6 +134,27 @@ export const ProductsManagement = ({
                   }
                   placeholder="0"
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="md:col-span-2" />
+              <div className="md:col-span-3">
+                <Label htmlFor="product-logistics">Логистика до клиента за 1 шт. ({currency})</Label>
+                <NumericInput
+                  id="product-logistics"
+                  value={newProduct.logisticsToClientPerUnit}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      logisticsToClientPerUnit: value,
+                    }))
+                  }
+                  placeholder="0"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Учитывает доставку с вашего склада / точки сбыта до клиента
+                </p>
               </div>
             </div>
             <div className="space-y-2">
@@ -220,6 +243,22 @@ export const ProductsManagement = ({
                           onChange={(value) =>
                             updateProduct(product.id, {
                               quantity: Math.max(0, Math.round(value)),
+                            })
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                      <div className="md:col-span-2" />
+                      <div className="md:col-span-3">
+                        <Label>Логистика до клиента за 1 шт. ({currency})</Label>
+                        <NumericInput
+                          value={product.logisticsToClientPerUnit ?? 0}
+                          onChange={(value) =>
+                            updateProduct(product.id, {
+                              logisticsToClientPerUnit: value,
                             })
                           }
                           placeholder="0"
