@@ -20,6 +20,7 @@ interface ProductsManagementProps {
   products: Product[];
   saveProduct: (product: Omit<Product, "id">) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
+  updateProduct: (productId: string, updates: Partial<Product>) => Promise<void>;
   isAuthenticated: boolean;
   currency: string;
 }
@@ -30,6 +31,7 @@ export const ProductsManagement = ({
   products,
   saveProduct,
   deleteProduct,
+  updateProduct,
   isAuthenticated,
   currency,
 }: ProductsManagementProps) => {
@@ -179,37 +181,88 @@ export const ProductsManagement = ({
                   <div className="flex-1 space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                       <div className="md:col-span-2">
-                        <p className="font-medium">{product.name}</p>
+                        <Label>Название</Label>
+                        <Input
+                          value={product.name}
+                          onChange={(e) =>
+                            updateProduct(product.id, { name: e.target.value })
+                          }
+                          placeholder="Название продукта"
+                        />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Цена</p>
-                        <p className="font-mono">
-                          {product.price.toLocaleString("ru-RU")} {currency}
-                        </p>
+                        <Label>Цена ({currency})</Label>
+                        <Input
+                          type="number"
+                          value={product.price || 0}
+                          onChange={(e) =>
+                            updateProduct(product.id, {
+                              price: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          placeholder="0"
+                        />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Себестоимость</p>
-                        <p className="font-mono">
-                          {product.cost.toLocaleString("ru-RU")} {currency}
-                        </p>
+                        <Label>Себестоимость ({currency})</Label>
+                        <Input
+                          type="number"
+                          value={product.cost || 0}
+                          onChange={(e) =>
+                            updateProduct(product.id, {
+                              cost: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          placeholder="0"
+                        />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Количество</p>
-                        <p className="font-mono">{product.quantity}</p>
+                        <Label>Количество</Label>
+                        <Input
+                          type="number"
+                          value={product.quantity || 0}
+                          onChange={(e) =>
+                            updateProduct(product.id, {
+                              quantity: parseInt(e.target.value) || 0,
+                            })
+                          }
+                          placeholder="0"
+                        />
                       </div>
                     </div>
-                    {product.salesChannels && product.salesChannels.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {product.salesChannels.map((channel) => (
-                          <span
-                            key={channel}
-                            className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
-                          >
-                            {channel}
-                          </span>
-                        ))}
+                    <div className="space-y-2">
+                      <Label>Каналы продаж</Label>
+                      <div className="flex flex-wrap gap-3">
+                        {SALES_CHANNELS.map((channel) => {
+                          const checked = product.salesChannels.includes(channel);
+                          return (
+                            <div
+                              key={channel}
+                              className="flex items-center space-x-2"
+                            >
+                              <Checkbox
+                                id={`${product.id}-${channel}`}
+                                checked={checked}
+                                onCheckedChange={() => {
+                                  const nextChannels = checked
+                                    ? product.salesChannels.filter((c) => c !== channel)
+                                    : [...product.salesChannels, channel];
+                                  updateProduct(product.id, {
+                                    salesChannels: nextChannels,
+                                  });
+                                }}
+                              />
+                              <label
+                                htmlFor={`${product.id}-${channel}`}
+                                className="text-sm cursor-pointer"
+                              >
+                                {channel}
+                              </label>
+                            </div>
+                          );
+                        })}
                       </div>
-                    )}
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
