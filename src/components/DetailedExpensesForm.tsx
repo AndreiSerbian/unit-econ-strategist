@@ -880,14 +880,16 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Логистика</span>
+                    <span>Склад и точка сбыта / логистика</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Доставка товара или материалов, транспортные расходы, курьеры и прочая
-                        логистика, возникающая при обслуживании клиентов.
+                        Логистика от склада и точки сбыта до клиента, а также прочие логистические
+                        расходы, которые не попали в расчёты по сырью и продуктам. При нажатии кнопки
+                        в блоке "Сырьё по продуктам" сюда автоматически подставляются расчёты
+                        логистики.
                       </TooltipContent>
                     </Tooltip>
                   </Label>
