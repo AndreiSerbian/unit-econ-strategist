@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricsForm } from "./MetricsForm";
 import { LeadSource } from "./LeadSourcesForm";
@@ -103,6 +103,22 @@ export const CompanyMetrics = ({
   const calculateProfit = useCallback((metrics: Metrics) => {
     return metrics.revenue - metrics.fixedCosts - metrics.variableCosts - metrics.marketingCosts;
   }, []);
+
+  useEffect(() => {
+    setCurrentMetrics((prev) => {
+      const nextRevenue = productsRevenue;
+      const updated: Metrics = {
+        ...prev,
+        revenue: nextRevenue,
+      };
+
+      if (prev.totalClients > 0 && nextRevenue > 0) {
+        updated.avgCheck = nextRevenue / prev.totalClients;
+      }
+
+      return updated;
+    });
+  }, [productsRevenue, setCurrentMetrics]);
 
   const updateDetailedExpenses = useCallback((
     scenario: "current" | "scenarioA" | "scenarioB",
