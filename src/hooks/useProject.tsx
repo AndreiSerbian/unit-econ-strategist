@@ -115,6 +115,7 @@ interface Product {
   cost: number;
   quantity: number;
   salesChannels: string[];
+  logisticsToClientPerUnit?: number;
 }
 
 export interface RawMaterial {
@@ -122,6 +123,7 @@ export interface RawMaterial {
   name: string;
   unit: string;
   pricePerUnit: number;
+  logisticsToProductionPerUnit?: number;
 }
 
 export interface ProductMaterialUsage {
@@ -618,10 +620,32 @@ export const useProject = (userId: string | undefined) => {
     }, 0);
   };
  
+  const calculateLogisticsCostPerUnit = (productId: string) => {
+    const usages = productMaterials.filter((u) => u.productId === productId);
+
+    const materialsLogistics = usages.reduce((sum, usage) => {
+      const material = materials.find((m) => m.id === usage.materialId);
+      if (!material) return sum;
+      return sum + (material.logisticsToProductionPerUnit || 0) * (usage.quantityPerUnit || 0);
+    }, 0);
+
+    const product = products.find((p) => p.id === productId);
+    const productLogistics = product?.logisticsToClientPerUnit || 0;
+
+    return materialsLogistics + productLogistics;
+  };
+ 
   const calculateTotalMaterialsCost = () => {
     return products.reduce((total, product) => {
       const costPerUnit = calculateMaterialCostPerUnit(product.id);
       return total + costPerUnit * product.quantity;
+    }, 0);
+  };
+
+  const calculateTotalLogisticsCost = () => {
+    return products.reduce((total, product) => {
+      const logisticsPerUnit = calculateLogisticsCostPerUnit(product.id);
+      return total + logisticsPerUnit * product.quantity;
     }, 0);
   };
  
@@ -678,6 +702,8 @@ export const useProject = (userId: string | undefined) => {
     calculateProductsCosts,
     calculateMaterialCostPerUnit,
     calculateTotalMaterialsCost,
+    calculateLogisticsCostPerUnit,
+    calculateTotalLogisticsCost,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
