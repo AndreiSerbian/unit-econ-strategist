@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumericInput } from "@/components/ui/numeric-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Package } from "lucide-react";
@@ -106,30 +107,28 @@ export const ProductsManagement = ({
               </div>
               <div>
                 <Label htmlFor="product-cost">Себестоимость ({currency})</Label>
-                <Input
+                <NumericInput
                   id="product-cost"
-                  type="number"
-                  value={newProduct.cost || ""}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      cost: parseFloat(e.target.value) || 0,
-                    })
+                  value={newProduct.cost}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      cost: value,
+                    }))
                   }
                   placeholder="0"
                 />
               </div>
               <div>
                 <Label htmlFor="product-quantity">Количество</Label>
-                <Input
+                <NumericInput
                   id="product-quantity"
-                  type="number"
-                  value={newProduct.quantity || ""}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      quantity: parseInt(e.target.value) || 0,
-                    })
+                  value={newProduct.quantity}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      quantity: Math.max(0, Math.round(value)),
+                    }))
                   }
                   placeholder="0"
                 />
@@ -192,12 +191,11 @@ export const ProductsManagement = ({
                       </div>
                       <div>
                         <Label>Цена ({currency})</Label>
-                        <Input
-                          type="number"
-                          value={product.price || 0}
-                          onChange={(e) =>
+                        <NumericInput
+                          value={product.price ?? 0}
+                          onChange={(value) =>
                             updateProduct(product.id, {
-                              price: parseFloat(e.target.value) || 0,
+                              price: value,
                             })
                           }
                           placeholder="0"
@@ -205,12 +203,11 @@ export const ProductsManagement = ({
                       </div>
                       <div>
                         <Label>Себестоимость ({currency})</Label>
-                        <Input
-                          type="number"
-                          value={product.cost || 0}
-                          onChange={(e) =>
+                        <NumericInput
+                          value={product.cost ?? 0}
+                          onChange={(value) =>
                             updateProduct(product.id, {
-                              cost: parseFloat(e.target.value) || 0,
+                              cost: value,
                             })
                           }
                           placeholder="0"
@@ -218,12 +215,11 @@ export const ProductsManagement = ({
                       </div>
                       <div>
                         <Label>Количество</Label>
-                        <Input
-                          type="number"
-                          value={product.quantity || 0}
-                          onChange={(e) =>
+                        <NumericInput
+                          value={product.quantity ?? 0}
+                          onChange={(value) =>
                             updateProduct(product.id, {
-                              quantity: parseInt(e.target.value) || 0,
+                              quantity: Math.max(0, Math.round(value)),
                             })
                           }
                           placeholder="0"
