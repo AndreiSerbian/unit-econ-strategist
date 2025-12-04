@@ -649,6 +649,30 @@ export const useProject = (userId: string | undefined) => {
     }, 0);
   };
  
+  const calculateTotalMaterialLogistics = () => {
+    return products.reduce((total, product) => {
+      const usages = productMaterials.filter((u) => u.productId === product.id);
+ 
+      const materialsLogisticsPerUnit = usages.reduce((sum, usage) => {
+        const material = materials.find((m) => m.id === usage.materialId);
+        if (!material) return sum;
+        return (
+          sum +
+          (material.logisticsToProductionPerUnit || 0) * (usage.quantityPerUnit || 0)
+        );
+      }, 0);
+ 
+      return total + materialsLogisticsPerUnit * product.quantity;
+    }, 0);
+  };
+ 
+  const calculateTotalProductLogistics = () => {
+    return products.reduce((total, product) => {
+      const productLogisticsPerUnit = product.logisticsToClientPerUnit || 0;
+      return total + productLogisticsPerUnit * product.quantity;
+    }, 0);
+  };
+ 
   const syncProductsToMetrics = (scenarioType: "current" | "scenarioA" | "scenarioB") => {
     const productsRevenue = calculateProductsRevenue();
 
@@ -704,6 +728,8 @@ export const useProject = (userId: string | undefined) => {
     calculateTotalMaterialsCost,
     calculateLogisticsCostPerUnit,
     calculateTotalLogisticsCost,
+    calculateTotalMaterialLogistics,
+    calculateTotalProductLogistics,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
