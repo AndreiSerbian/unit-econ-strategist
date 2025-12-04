@@ -34,7 +34,7 @@ import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
-import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle } from "lucide-react";
+import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
@@ -95,11 +95,35 @@ export const Dashboard = () => {
     calculateTotalMaterialsCost,
     calculateLogisticsCostPerUnit,
     calculateTotalLogisticsCost,
+    calculateTotalMaterialLogistics,
+    calculateTotalProductLogistics,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
   } = useProject(user?.id);
-
+ 
+  const totalMaterialLogistics = calculateTotalMaterialLogistics();
+  const totalProductLogistics = calculateTotalProductLogistics();
+  const autoLogisticsTotal = totalMaterialLogistics + totalProductLogistics;
+ 
+  const productionLogisticsExpense =
+    currentMetrics.detailedExpenses?.variableCosts.production.logistics ?? 0;
+ 
+  const manualLogistics = Math.max(
+    0,
+    productionLogisticsExpense - autoLogisticsTotal
+  );
+ 
+  const logisticsSplitTotal = autoLogisticsTotal + manualLogistics;
+ 
+  const getLogisticsShare = (value: number) =>
+    logisticsSplitTotal > 0 ? (value / logisticsSplitTotal) * 100 : 0;
+ 
+  const logisticsVsRevenue =
+    currentMetrics.revenue > 0 && productionLogisticsExpense > 0
+      ? (productionLogisticsExpense / currentMetrics.revenue) * 100
+      : 0;
+ 
   const handleSyncProductCost = (productId: string) => {
     const costPerUnit = calculateMaterialCostPerUnit(productId);
     setProducts(
@@ -309,13 +333,92 @@ export const Dashboard = () => {
                 />
               </AnimatedCard>
             )}
-
+ 
+            {products.length > 0 && (
+              <AnimatedCard delay={0.23}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      Структура логистики
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+                      Автоматический расчёт логистики по сырью и продуктам плюс ручные расходы
+                      склада и доставки.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
+                          Итого логистика
+                        </p>
+                        <p className="text-lg sm:text-xl font-mono font-semibold">
+                          {(productionLogisticsExpense || autoLogisticsTotal).toLocaleString("ru-RU", {
+                            maximumFractionDigits: 0,
+                          })}{" "}
+                          {currency}
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                          {currentMetrics.revenue > 0 && (productionLogisticsExpense || autoLogisticsTotal) > 0
+                            ? `${logisticsVsRevenue.toFixed(1)}% от выручки`
+                            : "Доля в выручке будет показана после заполнения продаж"}
+                        </p>
+                      </div>
+ 
+                      <div className="space-y-1">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
+                          Сырьё → производство
+                        </p>
+                        <p className="text-base sm:text-lg font-mono font-semibold">
+                          {totalMaterialLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                          {logisticsSplitTotal > 0
+                            ? `${getLogisticsShare(totalMaterialLogistics).toFixed(1)}% общей логистики`
+                            : "0% общей логистики"}
+                        </p>
+                      </div>
+ 
+                      <div className="space-y-1">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
+                          Продукты → клиент
+                        </p>
+                        <p className="text-base sm:text-lg font-mono font-semibold">
+                          {totalProductLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                          {logisticsSplitTotal > 0
+                            ? `${getLogisticsShare(totalProductLogistics).toFixed(1)}% общей логистики`
+                            : "0% общей логистики"}
+                        </p>
+                      </div>
+ 
+                      <div className="space-y-1">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
+                          Ручные расходы склада и доставки
+                        </p>
+                        <p className="text-base sm:text-lg font-mono font-semibold">
+                          {manualLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                          {logisticsSplitTotal > 0
+                            ? `${getLogisticsShare(manualLogistics).toFixed(1)}% общей логистики`
+                            : "0% общей логистики"}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </AnimatedCard>
+            )}
+ 
             {products.length > 0 && (
               <AnimatedCard delay={0.25}>
                 <ProductsCharts products={products} currency={currency} />
               </AnimatedCard>
             )}
-
+ 
             {(products.length > 0 || competitors.some(c => (c.products || []).length > 0)) && (
               <AnimatedCard delay={0.3}>
                 <ProductComparison 

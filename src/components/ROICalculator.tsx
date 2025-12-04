@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
-import { TrendingUp, DollarSign, Calendar, Target } from "lucide-react";
+import { TrendingUp, DollarSign, Calendar, Target, Truck } from "lucide-react";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -162,6 +162,32 @@ export const ROICalculator = ({
       totalProfit: calculateMonthlyProfit(scenarioB) * timePeriod,
     },
   ];
+ 
+   const getLogisticsStats = (metrics: Metrics) => {
+     const logistics = metrics.detailedExpenses?.variableCosts.production.logistics ?? 0;
+     const revenue = metrics.revenue || 0;
+     const variableCosts = metrics.variableCosts || 0;
+ 
+     const logisticsVsRevenue = revenue > 0 ? (logistics / revenue) * 100 : 0;
+     const logisticsVsVariable = variableCosts > 0 ? (logistics / variableCosts) * 100 : 0;
+ 
+     return { logistics, logisticsVsRevenue, logisticsVsVariable };
+   };
+ 
+   const logisticsData = [
+     {
+       scenario: "Текущий",
+       ...getLogisticsStats(currentMetrics),
+     },
+     {
+       scenario: "Сценарий A",
+       ...getLogisticsStats(scenarioA),
+     },
+     {
+       scenario: "Сценарий B",
+       ...getLogisticsStats(scenarioB),
+     },
+   ];
 
   return (
     <div className="space-y-6">
@@ -236,14 +262,69 @@ export const ROICalculator = ({
           </div>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-            📈 Накопительный денежный поток
-          </CardTitle>
-        </CardHeader>
+ 
+       <Card>
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+             <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+             🚚 Вклад логистики в ROI
+           </CardTitle>
+         </CardHeader>
+         <CardContent className="space-y-4">
+           <p className="text-xs sm:text-sm text-muted-foreground">
+             Показывает, какую долю выручки и переменных расходов съедает логистика в каждом
+             сценарии.
+           </p>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+             {logisticsData.map((item) => (
+               <Card key={item.scenario} className="bg-muted/40">
+                 <CardContent className="pt-4 sm:pt-6 space-y-2">
+                   <h3 className="font-semibold text-sm sm:text-base">{item.scenario}</h3>
+                   <div className="space-y-1.5">
+                     <div>
+                       <p className="text-[10px] sm:text-xs text-muted-foreground">
+                         Логистика за период
+                       </p>
+                       <p className="text-base sm:text-lg font-mono font-semibold">
+                         {item.logistics.toLocaleString("ru-RU", {
+                           maximumFractionDigits: 0,
+                         })}{" "}
+                         {currency}
+                       </p>
+                     </div>
+                     <div className="flex items-center justify-between gap-2">
+                       <div>
+                         <p className="text-[10px] sm:text-xs text-muted-foreground">
+                           Доля в выручке
+                         </p>
+                         <p className="text-sm sm:text-base font-mono">
+                           {item.logisticsVsRevenue.toFixed(1)}%
+                         </p>
+                       </div>
+                       <div>
+                         <p className="text-[10px] sm:text-xs text-muted-foreground">
+                           Доля в переменных расходах
+                         </p>
+                         <p className="text-sm sm:text-base font-mono">
+                           {item.logisticsVsVariable.toFixed(1)}%
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                 </CardContent>
+               </Card>
+             ))}
+           </div>
+         </CardContent>
+       </Card>
+ 
+       <Card>
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+             <Target className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+             📈 Накопительный денежный поток
+           </CardTitle>
+         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
             <LineChart data={generateCashFlowData()}>
