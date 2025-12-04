@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricsForm } from "./MetricsForm";
 import { LeadSource } from "./LeadSourcesForm";
@@ -73,11 +74,11 @@ interface Metrics {
 
 interface CompanyMetricsProps {
   currentMetrics: Metrics;
-  setCurrentMetrics: (metrics: Metrics) => void;
+  setCurrentMetrics: Dispatch<SetStateAction<Metrics>>;
   scenarioA: Metrics;
-  setScenarioA: (metrics: Metrics) => void;
+  setScenarioA: Dispatch<SetStateAction<Metrics>>;
   scenarioB: Metrics;
-  setScenarioB: (metrics: Metrics) => void;
+  setScenarioB: Dispatch<SetStateAction<Metrics>>;
   saveScenario: (scenarioType: string, metrics: Metrics) => Promise<void>;
   isAuthenticated: boolean;
   currency: string;
@@ -177,48 +178,48 @@ export const CompanyMetrics = ({
 
   // Создаём стабильные колбеки для каждого сценария
   const handleCurrentMetricUpdate = useCallback((field: keyof Metrics, value: number) => {
-    setCurrentMetrics({ ...currentMetrics, [field]: value });
-  }, [currentMetrics, setCurrentMetrics]);
-
+    setCurrentMetrics((prev) => ({ ...prev, [field]: value }));
+  }, [setCurrentMetrics]);
+ 
   const handleScenarioAMetricUpdate = useCallback((field: keyof Metrics, value: number) => {
-    setScenarioA({ ...scenarioA, [field]: value });
-  }, [scenarioA, setScenarioA]);
-
+    setScenarioA((prev) => ({ ...prev, [field]: value }));
+  }, [setScenarioA]);
+ 
   const handleScenarioBMetricUpdate = useCallback((field: keyof Metrics, value: number) => {
-    setScenarioB({ ...scenarioB, [field]: value });
-  }, [scenarioB, setScenarioB]);
-
+    setScenarioB((prev) => ({ ...prev, [field]: value }));
+  }, [setScenarioB]);
+ 
   const handleCurrentExpensesUpdate = useCallback((expenses: DetailedExpenses) => {
     updateDetailedExpenses("current", expenses);
   }, [updateDetailedExpenses]);
-
+ 
   const handleScenarioAExpensesUpdate = useCallback((expenses: DetailedExpenses) => {
     updateDetailedExpenses("scenarioA", expenses);
   }, [updateDetailedExpenses]);
-
+ 
   const handleScenarioBExpensesUpdate = useCallback((expenses: DetailedExpenses) => {
     updateDetailedExpenses("scenarioB", expenses);
   }, [updateDetailedExpenses]);
-
+ 
   const handleCurrentSync = useCallback(() => syncProductsToMetrics("current"), [syncProductsToMetrics]);
   const handleScenarioASync = useCallback(() => syncProductsToMetrics("scenarioA"), [syncProductsToMetrics]);
   const handleScenarioBSync = useCallback(() => syncProductsToMetrics("scenarioB"), [syncProductsToMetrics]);
-
+ 
   const handleCurrentSave = useCallback(() => saveScenario("current", currentMetrics), [saveScenario, currentMetrics]);
   const handleScenarioASave = useCallback(() => saveScenario("scenarioA", scenarioA), [saveScenario, scenarioA]);
   const handleScenarioBSave = useCallback(() => saveScenario("scenarioB", scenarioB), [saveScenario, scenarioB]);
-
+ 
   const handleCurrentLeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
-    setCurrentMetrics({ ...currentMetrics, leadSources: sources });
-  }, [currentMetrics, setCurrentMetrics]);
-
+    setCurrentMetrics((prev) => ({ ...prev, leadSources: sources }));
+  }, [setCurrentMetrics]);
+ 
   const handleScenarioALeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
-    setScenarioA({ ...scenarioA, leadSources: sources });
-  }, [scenarioA, setScenarioA]);
-
+    setScenarioA((prev) => ({ ...prev, leadSources: sources }));
+  }, [setScenarioA]);
+ 
   const handleScenarioBLeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
-    setScenarioB({ ...scenarioB, leadSources: sources });
-  }, [scenarioB, setScenarioB]);
+    setScenarioB((prev) => ({ ...prev, leadSources: sources }));
+  }, [setScenarioB]);
 
   return (
     <div className="space-y-12">
