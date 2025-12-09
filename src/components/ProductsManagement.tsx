@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumericInput } from "@/components/ui/numeric-input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   Select,
   SelectContent,
@@ -23,7 +23,6 @@ export interface Product {
   price: number;
   cost: number;
   quantity: number;
-  salesChannels: string[];
   logisticsToClientPerUnit?: number;
   weightPerUnit?: number;
   volumePerUnit?: number;
@@ -47,7 +46,7 @@ interface ProductsManagementProps {
   tariffs?: LogisticsTariffsData;
 }
 
-const SALES_CHANNELS = ["Онлайн", "Розница", "Дистрибьюторы", "B2B"];
+
 
 export const ProductsManagement = ({
   products,
@@ -63,7 +62,6 @@ export const ProductsManagement = ({
     price: 0,
     cost: 0,
     quantity: 0,
-    salesChannels: [] as string[],
     logisticsToClientPerUnit: 0,
     weightPerUnit: 0,
     volumePerUnit: 0,
@@ -77,17 +75,9 @@ export const ProductsManagement = ({
     }
 
     await saveProduct(newProduct);
-    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, salesChannels: [], logisticsToClientPerUnit: 0, weightPerUnit: 0, volumePerUnit: 0, deliveryType: "courier" });
+    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, logisticsToClientPerUnit: 0, weightPerUnit: 0, volumePerUnit: 0, deliveryType: "courier" });
   };
 
-  const toggleChannel = (channel: string) => {
-    setNewProduct((prev) => ({
-      ...prev,
-      salesChannels: prev.salesChannels.includes(channel)
-        ? prev.salesChannels.filter((c) => c !== channel)
-        : [...prev.salesChannels, channel],
-    }));
-  };
 
   const totalRevenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
   const totalCost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
@@ -230,26 +220,7 @@ export const ProductsManagement = ({
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Каналы продаж</Label>
-              <div className="flex flex-wrap gap-3">
-                {SALES_CHANNELS.map((channel) => (
-                  <div key={channel} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`new-product-${channel}`}
-                      checked={newProduct.salesChannels.includes(channel)}
-                      onCheckedChange={() => toggleChannel(channel)}
-                    />
-                    <label
-                      htmlFor={`new-product-${channel}`}
-                      className="text-sm cursor-pointer"
-                    >
-                      {channel}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
+            
             <Button
               onClick={handleAddProduct}
               className="w-full"
@@ -383,39 +354,6 @@ export const ProductsManagement = ({
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Каналы продаж</Label>
-                      <div className="flex flex-wrap gap-3">
-                        {SALES_CHANNELS.map((channel) => {
-                          const checked = product.salesChannels.includes(channel);
-                          return (
-                            <div
-                              key={channel}
-                              className="flex items-center space-x-2"
-                            >
-                              <Checkbox
-                                id={`${product.id}-${channel}`}
-                                checked={checked}
-                                onCheckedChange={() => {
-                                  const nextChannels = checked
-                                    ? product.salesChannels.filter((c) => c !== channel)
-                                    : [...product.salesChannels, channel];
-                                  updateProduct(product.id, {
-                                    salesChannels: nextChannels,
-                                  });
-                                }}
-                              />
-                              <label
-                                htmlFor={`${product.id}-${channel}`}
-                                className="text-sm cursor-pointer"
-                              >
-                                {channel}
-                              </label>
-                            </div>
-                          );
-                        })}
                       </div>
                     </div>
                   </div>

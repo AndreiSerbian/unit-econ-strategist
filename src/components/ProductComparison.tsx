@@ -20,7 +20,6 @@ interface Product {
   price: number;
   cost: number;
   quantity: number;
-  salesChannels: string[];
 }
 
 interface CompetitorProduct {
@@ -128,28 +127,8 @@ export const ProductComparison = ({ products, competitors, currency }: ProductCo
     },
   ];
 
-  // 4. Сравнение каналов распределения
-  const ourChannels: { [key: string]: number } = {};
-  products.forEach((p) => {
-    (p.salesChannels || []).forEach((channel) => {
-      ourChannels[channel] = (ourChannels[channel] || 0) + 1;
-    });
-  });
-
-  const competitorChannels: { [key: string]: number } = {};
-  allCompetitorProducts.forEach((p) => {
-    (p.salesChannels || []).forEach((channel) => {
-      competitorChannels[channel] = (competitorChannels[channel] || 0) + 1;
-    });
-  });
-
-  const channelsComparisonData = Array.from(
-    new Set([...Object.keys(ourChannels), ...Object.keys(competitorChannels)])
-  ).map((channel) => ({
-    канал: channel,
-    наши: ourChannels[channel] || 0,
-    конкуренты: competitorChannels[channel] || 0,
-  }));
+  // Каналы продаж теперь управляются через ProductChannelAllocation
+  const channelsComparisonData: { канал: string; наши: number; конкуренты: number }[] = [];
 
   // 5. Распределение по ценовым сегментам
   const allPrices = [

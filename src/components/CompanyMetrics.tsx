@@ -106,19 +106,24 @@ export const CompanyMetrics = ({
   }, []);
 
   useEffect(() => {
-    const nextRevenue = productsRevenue;
-
-    const updated: Metrics = {
-      ...currentMetrics,
-      revenue: nextRevenue,
-      avgCheck:
-        currentMetrics.totalClients > 0 && nextRevenue > 0
-          ? nextRevenue / currentMetrics.totalClients
-          : 0,
-    };
-
-    setCurrentMetrics(updated);
-  }, [productsRevenue, currentMetrics, setCurrentMetrics]);
+    setCurrentMetrics(prev => {
+      const nextRevenue = productsRevenue;
+      const avgCheck = prev.totalClients > 0 && nextRevenue > 0
+        ? nextRevenue / prev.totalClients
+        : 0;
+      
+      // Only update if values actually changed to prevent infinite loops
+      if (prev.revenue === nextRevenue && prev.avgCheck === avgCheck) {
+        return prev;
+      }
+      
+      return {
+        ...prev,
+        revenue: nextRevenue,
+        avgCheck,
+      };
+    });
+  }, [productsRevenue, setCurrentMetrics]);
 
   const updateDetailedExpenses = useCallback((
     scenario: "current" | "scenarioA" | "scenarioB",

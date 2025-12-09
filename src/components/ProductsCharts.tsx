@@ -20,7 +20,6 @@ interface Product {
   price: number;
   cost: number;
   quantity: number;
-  salesChannels: string[];
 }
 
 interface ProductsChartsProps {
@@ -94,20 +93,8 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
     выручка: p.price * p.quantity,
   }));
 
-  // Каналы продаж
-  const channelsData: { [key: string]: number } = {};
-  products.forEach((p) => {
-    (p.salesChannels || []).forEach((channel) => {
-      channelsData[channel] = (channelsData[channel] || 0) + 1;
-    });
-  });
-
-  const channelsPieData = Object.entries(channelsData).map(([name, value]) => ({
-    name,
-    value,
-  }));
-
-  const hasChannels = channelsPieData.length > 0;
+  // Каналы продаж теперь управляются через ProductChannelAllocation
+  const hasChannels = false; // Deprecated - use ChannelAnalytics component
 
   const totalRevenue = revenueStructureData.reduce((sum, item) => sum + item.value, 0);
   const totalProfit = profitShareData.reduce((sum, item) => sum + item.value, 0);
@@ -275,61 +262,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Каналы продаж */}
-      {hasChannels && (
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Share2 className="w-5 h-5 text-success" />
-              Каналы распределения
-            </CardTitle>
-            <CardDescription>
-              Распределение продуктов по каналам продаж
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={350} className="text-xs sm:text-sm">
-              <PieChart>
-                <Pie
-                  data={channelsPieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={120}
-                  fill="hsl(var(--primary))"
-                  dataKey="value"
-                >
-                  {channelsPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-4 flex flex-wrap gap-3 justify-center">
-              {channelsPieData.map((entry, index) => (
-                <div key={entry.name} className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  />
-                  <span className="text-sm">
-                    {entry.name}: <span className="font-semibold">{entry.value}</span> продукт{entry.value > 1 ? 'ов' : ''}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Каналы продаж теперь отображаются в ChannelAnalytics */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Структура выручки */}

@@ -131,7 +131,6 @@ interface Product {
   price: number;
   cost: number;
   quantity: number;
-  salesChannels: string[];
   logisticsToClientPerUnit?: number;
   // Extended logistics fields
   weightPerUnit?: number;    // weight per unit (kg)
