@@ -14,6 +14,7 @@ import { ProductsCharts } from "./ProductsCharts";
 import { ProductComparison } from "./ProductComparison";
 import { RawMaterialsManager } from "./RawMaterialsManager";
 import { ProductMaterialsAllocation } from "./ProductMaterialsAllocation";
+import { LogisticsTariffs } from "./LogisticsTariffs";
 import { CurrencySelector } from "./CurrencySelector";
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
@@ -82,6 +83,8 @@ export const Dashboard = () => {
     setProductMaterials,
     currency,
     loading,
+    logisticsTariffs,
+    setLogisticsTariffs,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,
@@ -304,10 +307,19 @@ export const Dashboard = () => {
                 materials={materials}
                 setMaterials={setMaterials}
                 currency={currency}
+                tariffs={logisticsTariffs}
               />
             </AnimatedCard>
 
-            <AnimatedCard delay={0.15}>
+            <AnimatedCard delay={0.12}>
+              <LogisticsTariffs
+                tariffs={logisticsTariffs}
+                setTariffs={setLogisticsTariffs}
+                currency={currency}
+              />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.18}>
               <ProductsManagement
                 products={products}
                 saveProduct={saveProduct}
@@ -315,6 +327,7 @@ export const Dashboard = () => {
                 deleteProduct={deleteProduct}
                 isAuthenticated={!!user}
                 currency={currency}
+                tariffs={logisticsTariffs}
               />
             </AnimatedCard>
 
