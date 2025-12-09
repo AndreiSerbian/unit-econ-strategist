@@ -35,6 +35,7 @@ import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
+import AIAnalytics from "./AIAnalytics";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
@@ -766,6 +767,38 @@ export const Dashboard = () => {
                   cac: calculateCAC(currentMetrics),
                   breakEven: calculateBreakEvenDifference(currentMetrics)
                 } : undefined}
+              />
+            </AnimatedCard>
+
+            <AnimatedCard delay={0.7}>
+              <AIAnalytics
+                metrics={{
+                  revenue: currentMetrics.revenue,
+                  profit: calculateProfit(currentMetrics),
+                  profitMargin: calculateProfitMargin(currentMetrics),
+                  cac: calculateCAC(currentMetrics),
+                  ltv: currentMetrics.ltv || 0,
+                  ltvCacRatio: (currentMetrics.ltv && calculateCAC(currentMetrics)) ? currentMetrics.ltv / calculateCAC(currentMetrics) : 0,
+                  breakEvenPoint: calculateBreakEvenDifference(currentMetrics),
+                  conversionRate: currentMetrics.conversionRate,
+                  totalClients: currentMetrics.totalClients,
+                  avgCheck: currentMetrics.avgCheck,
+                  marketingCosts: currentMetrics.marketingCosts,
+                }}
+                competitors={competitors.map(c => ({
+                  id: c.id,
+                  name: c.name,
+                  revenue: c.revenue || 0,
+                  marketShare: c.marketShare || 0,
+                  quality: c.quality || 0,
+                }))}
+                products={products.map(p => ({
+                  id: p.id,
+                  name: p.name,
+                  price: p.price,
+                  cost: p.cost,
+                  quantity: p.quantity,
+                }))}
               />
             </AnimatedCard>
           </TabsContent>
