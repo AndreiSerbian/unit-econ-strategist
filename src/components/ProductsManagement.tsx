@@ -5,6 +5,13 @@ import { Input } from "@/components/ui/input";
 import { NumericInput } from "@/components/ui/numeric-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Trash2, Package } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,7 +23,17 @@ export interface Product {
   quantity: number;
   salesChannels: string[];
   logisticsToClientPerUnit?: number;
+  weightPerUnit?: number;
+  volumePerUnit?: number;
+  deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
 }
+
+const DELIVERY_TYPE_OPTIONS = [
+  { value: "courier", label: "Курьер" },
+  { value: "pickup", label: "Самовывоз" },
+  { value: "transport_company", label: "Транспортная компания" },
+  { value: "own_delivery", label: "Своя доставка" },
+];
 
 interface ProductsManagementProps {
   products: Product[];
@@ -44,6 +61,9 @@ export const ProductsManagement = ({
     quantity: 0,
     salesChannels: [] as string[],
     logisticsToClientPerUnit: 0,
+    weightPerUnit: 0,
+    volumePerUnit: 0,
+    deliveryType: "courier" as Product["deliveryType"],
   });
 
   const handleAddProduct = async () => {
@@ -53,7 +73,7 @@ export const ProductsManagement = ({
     }
 
     await saveProduct(newProduct);
-    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, salesChannels: [], logisticsToClientPerUnit: 0 });
+    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, salesChannels: [], logisticsToClientPerUnit: 0, weightPerUnit: 0, volumePerUnit: 0, deliveryType: "courier" });
   };
 
   const toggleChannel = (channel: string) => {
@@ -137,10 +157,10 @@ export const ProductsManagement = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className="md:col-span-2" />
-              <div className="md:col-span-3">
-                <Label htmlFor="product-logistics">Логистика до клиента за 1 шт. ({currency})</Label>
+            {/* Row 2: Logistics fields */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Label htmlFor="product-logistics">Логистика до клиента ({currency})</Label>
                 <NumericInput
                   id="product-logistics"
                   value={newProduct.logisticsToClientPerUnit}
@@ -152,9 +172,58 @@ export const ProductsManagement = ({
                   }
                   placeholder="0"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Учитывает доставку с вашего склада / точки сбыта до клиента
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">за 1 шт.</p>
+              </div>
+              <div>
+                <Label htmlFor="product-weight">Вес (кг)</Label>
+                <NumericInput
+                  id="product-weight"
+                  value={newProduct.weightPerUnit}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      weightPerUnit: value,
+                    }))
+                  }
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="product-volume">Объём (м³)</Label>
+                <NumericInput
+                  id="product-volume"
+                  value={newProduct.volumePerUnit}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      volumePerUnit: value,
+                    }))
+                  }
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="product-delivery">Тип доставки</Label>
+                <Select
+                  value={newProduct.deliveryType}
+                  onValueChange={(v) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      deliveryType: v as Product["deliveryType"],
+                    }))
+                  }
+                >
+                  <SelectTrigger id="product-delivery">
+                    <SelectValue placeholder="Выберите тип" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DELIVERY_TYPE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-2">
@@ -250,10 +319,10 @@ export const ProductsManagement = ({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                      <div className="md:col-span-2" />
-                      <div className="md:col-span-3">
-                        <Label>Логистика до клиента за 1 шт. ({currency})</Label>
+                    {/* Row 2: Logistics fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div>
+                        <Label>Логистика ({currency})</Label>
                         <NumericInput
                           value={product.logisticsToClientPerUnit ?? 0}
                           onChange={(value) =>
@@ -263,6 +332,53 @@ export const ProductsManagement = ({
                           }
                           placeholder="0"
                         />
+                        <p className="text-xs text-muted-foreground">за 1 шт.</p>
+                      </div>
+                      <div>
+                        <Label>Вес (кг)</Label>
+                        <NumericInput
+                          value={product.weightPerUnit ?? 0}
+                          onChange={(value) =>
+                            updateProduct(product.id, {
+                              weightPerUnit: value,
+                            })
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <Label>Объём (м³)</Label>
+                        <NumericInput
+                          value={product.volumePerUnit ?? 0}
+                          onChange={(value) =>
+                            updateProduct(product.id, {
+                              volumePerUnit: value,
+                            })
+                          }
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <Label>Тип доставки</Label>
+                        <Select
+                          value={product.deliveryType || "courier"}
+                          onValueChange={(v) =>
+                            updateProduct(product.id, {
+                              deliveryType: v as Product["deliveryType"],
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DELIVERY_TYPE_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     <div className="space-y-2">
