@@ -53,6 +53,14 @@ export interface DetailedExpenses {
   taxes: number;
 }
 
+interface LeadSource {
+  id: string;
+  name: string;
+  type: "paid" | "organic" | "referral" | "direct";
+  leads: number;
+  cost: number;
+}
+
 interface Metrics {
   revenue: number;
   totalClients: number;
@@ -70,9 +78,11 @@ interface Metrics {
   churnRate?: number;
   retentionRate?: number;
   paybackMonths?: number;
+  totalLeads?: number;
+  leadSources?: LeadSource[];
 }
 
-export type { Metrics, CompetitorProduct, Competitor, Product };
+export type { Metrics, CompetitorProduct, Competitor, Product, LeadSource };
 
 interface CompetitorProduct {
   id: string;
@@ -106,6 +116,13 @@ interface Competitor {
   churnRate?: number;
   retentionRate?: number;
   paybackMonths?: number;
+  // Lead sources
+  leadSources?: LeadSource[];
+  totalLeads?: number;
+  // Logistics
+  logisticsMaterials?: number;
+  logisticsProducts?: number;
+  logisticsWarehouse?: number;
 }
 
 interface Product {

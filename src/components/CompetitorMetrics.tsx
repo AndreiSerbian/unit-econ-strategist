@@ -1,10 +1,11 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, TrendingUp, DollarSign, Percent } from "lucide-react";
+import { Users, TrendingUp, DollarSign, Percent, Heart, Truck, Megaphone } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
 import { NumericInput } from "@/components/ui/numeric-input";
+import { LeadSourcesForm, LeadSource } from "./LeadSourcesForm";
 import type { Metrics } from "@/hooks/useProject";
 
 interface DetailedExpenses {
@@ -39,6 +40,9 @@ interface DetailedExpenses {
       materials: number;
       curators: number;
       logistics: number;
+      logisticsMaterials?: number;
+      logisticsProducts?: number;
+      logisticsWarehouse?: number;
       partnersPercent: number;
       equipmentRepair: number;
       customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
@@ -64,6 +68,16 @@ interface CompetitorData {
   variableCosts?: number;
   marketingSpend: number;
   detailedExpenses?: DetailedExpenses;
+  // LTV metrics (Этап 1)
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
+  // Lead sources (Этап 2)
+  leadSources?: LeadSource[];
+  totalLeads?: number;
+  // Logistics (Этап 5)
+  logisticsMaterials?: number;
+  logisticsProducts?: number;
+  logisticsWarehouse?: number;
 }
 
 interface CompetitorMetricsProps {
@@ -73,9 +87,91 @@ interface CompetitorMetricsProps {
 }
 
 export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: CompetitorMetricsProps) => {
+  // Этап 3: Авторасчёт среднего чека
+  const autoAvgCheck = 
+    competitor.revenue > 0 && (competitor.totalClients || 0) > 0
+      ? competitor.revenue / (competitor.totalClients || 1)
+      : 0;
+
+  // Этап 1: LTV расчёты
+  const ltv = 
+    autoAvgCheck * (competitor.purchaseFrequency || 1) * (competitor.customerLifetimeMonths || 1);
+  
+  const totalCosts = (competitor.fixedCosts || 0) + (competitor.variableCosts || 0) + competitor.marketingSpend;
+  const cac = (competitor.totalClients || 0) > 0 && competitor.marketingSpend > 0
+    ? competitor.marketingSpend / (competitor.totalClients || 1)
+    : 0;
+  
+  const ltvCacRatio = cac > 0 ? ltv / cac : 0;
+  const churnRate = (competitor.customerLifetimeMonths || 0) > 0 
+    ? (1 / (competitor.customerLifetimeMonths || 1)) * 100
+    : 0;
+  const retentionRate = 100 - churnRate;
+
+  // Этап 2: Авторасчёт конверсии из лидов
+  const totalLeads = competitor.totalLeads || 0;
+  const autoConversion = 
+    totalLeads > 0 && (competitor.totalClients || 0) > 0
+      ? ((competitor.totalClients || 0) / totalLeads) * 100
+      : 0;
+
+  const cpl = totalLeads > 0 && competitor.marketingSpend > 0
+    ? competitor.marketingSpend / totalLeads
+    : 0;
+
+  // Этап 5: Логистика
+  const totalLogistics = 
+    (competitor.logisticsMaterials || 0) + 
+    (competitor.logisticsProducts || 0) + 
+    (competitor.logisticsWarehouse || 0);
+
   const handleMetricChange = useCallback((field: string) => (value: number) => {
-    onUpdate({ [field]: value });
-  }, [onUpdate]);
+    const updates: Partial<CompetitorData> = { [field]: value };
+    
+    // Этап 3: Авторасчёт среднего чека при изменении выручки или клиентов
+    if (field === "revenue" || field === "totalClients") {
+      const revenue = field === "revenue" ? value : competitor.revenue;
+      const clients = field === "totalClients" ? value : (competitor.totalClients || 0);
+      if (revenue > 0 && clients > 0) {
+        updates.avgCheck = parseFloat((revenue / clients).toFixed(2));
+      } else {
+        updates.avgCheck = 0;
+      }
+    }
+
+    // Авторасчёт конверсии при изменении клиентов
+    if (field === "totalClients") {
+      const leads = competitor.totalLeads || 0;
+      if (leads > 0 && value > 0) {
+        updates.conversionRate = parseFloat(((value / leads) * 100).toFixed(2));
+      } else {
+        updates.conversionRate = 0;
+      }
+    }
+
+    onUpdate(updates);
+  }, [onUpdate, competitor.revenue, competitor.totalClients, competitor.totalLeads]);
+
+  // Этап 2: Обработка изменения источников трафика
+  const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
+    const newTotalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
+    const newMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
+    
+    const updates: Partial<CompetitorData> = {
+      leadSources: sources,
+      totalLeads: newTotalLeads,
+      marketingSpend: newMarketingCost,
+    };
+
+    // Авторасчёт конверсии
+    if (newTotalLeads > 0 && (competitor.totalClients || 0) > 0) {
+      updates.conversionRate = parseFloat((((competitor.totalClients || 0) / newTotalLeads) * 100).toFixed(2));
+    } else {
+      updates.conversionRate = 0;
+    }
+
+    onUpdate(updates);
+  }, [onUpdate, competitor.totalClients]);
 
   const handleDetailedExpensesChange = useCallback((detailedExpenses: DetailedExpenses) => {
     const fixedCostsTotal =
@@ -104,6 +200,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
       detailedExpenses.variableCosts.production.materials +
       detailedExpenses.variableCosts.production.curators +
       detailedExpenses.variableCosts.production.logistics +
+      (detailedExpenses.variableCosts.production.logisticsMaterials || 0) +
+      (detailedExpenses.variableCosts.production.logisticsProducts || 0) +
+      (detailedExpenses.variableCosts.production.logisticsWarehouse || 0) +
       detailedExpenses.variableCosts.production.partnersPercent +
       detailedExpenses.variableCosts.production.equipmentRepair +
       detailedExpenses.variableCosts.production.customCategories.reduce((sum, cat) => sum + cat.value, 0) +
@@ -120,6 +219,9 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
       fixedCosts: fixedCostsTotal,
       variableCosts: variableCostsTotal,
       marketingSpend: marketingCosts,
+      logisticsMaterials: detailedExpenses.variableCosts.production.logisticsMaterials || 0,
+      logisticsProducts: detailedExpenses.variableCosts.production.logisticsProducts || 0,
+      logisticsWarehouse: detailedExpenses.variableCosts.production.logisticsWarehouse || 0,
     });
   }, [onUpdate]);
 
@@ -128,16 +230,31 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
     totalClients: competitor.totalClients || 0,
     newClients: competitor.newClients || 0,
     returningClients: competitor.returningClients || 0,
-    conversionRate: competitor.conversionRate || 0,
-    avgCheck: competitor.avgCheck || 0,
+    conversionRate: autoConversion || competitor.conversionRate || 0,
+    avgCheck: autoAvgCheck || competitor.avgCheck || 0,
     fixedCosts: competitor.fixedCosts || 0,
     variableCosts: competitor.variableCosts || 0,
     marketingCosts: competitor.marketingSpend || 0,
     detailedExpenses: competitor.detailedExpenses,
+    customerLifetimeMonths: competitor.customerLifetimeMonths,
+    purchaseFrequency: competitor.purchaseFrequency,
+    totalLeads: competitor.totalLeads,
+    leadSources: competitor.leadSources,
   };
+
+  // Определение здоровья LTV/CAC
+  const getLtvCacHealth = () => {
+    if (ltvCacRatio === 0) return { label: "—", color: "text-muted-foreground" };
+    if (ltvCacRatio < 1) return { label: "Убыточно", color: "text-destructive" };
+    if (ltvCacRatio < 3) return { label: "Рискованно", color: "text-warning" };
+    return { label: "Здорово", color: "text-accent" };
+  };
+
+  const ltvHealth = getLtvCacHealth();
 
   return (
     <div className="space-y-4">
+      {/* Основные показатели */}
       <Card className="bg-gradient-to-br from-muted/30 to-background">
         <CardHeader>
           <CardTitle className="text-base sm:text-lg">📊 Основные показатели: {competitor.name}</CardTitle>
@@ -192,34 +309,210 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1 text-xs sm:text-sm">
-                <Percent className="w-3 h-3" />
-                Конверсия (%)
-              </Label>
-              <NumericInput
-                value={competitor.conversionRate || 0}
-                onChange={handleMetricChange("conversionRate")}
-                step="0.1"
-                className="text-sm"
-              />
-            </div>
-
+            {/* Этап 3: Авторасчёт среднего чека (только отображение) */}
             <div className="space-y-2">
               <Label className="flex items-center gap-1 text-xs sm:text-sm">
                 <DollarSign className="w-3 h-3" />
                 Средний чек ({currency})
               </Label>
-              <NumericInput
-                value={competitor.avgCheck || 0}
-                onChange={handleMetricChange("avgCheck")}
-                className="text-sm"
-              />
+              <div className="h-9 px-3 py-2 border rounded-md bg-muted/50 flex items-center">
+                <span className="font-mono text-sm">
+                  {autoAvgCheck.toLocaleString("ru-RU", { maximumFractionDigits: 0 })}
+                </span>
+                <span className="text-xs text-muted-foreground ml-2">(авто)</span>
+              </div>
+            </div>
+
+            {/* Конверсия - авторасчёт из лидов */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1 text-xs sm:text-sm">
+                <Percent className="w-3 h-3" />
+                Конверсия (%)
+              </Label>
+              <div className="h-9 px-3 py-2 border rounded-md bg-muted/50 flex items-center">
+                <span className="font-mono text-sm">
+                  {autoConversion.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}%
+                </span>
+                <span className="text-xs text-muted-foreground ml-2">(авто)</span>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Этап 1: LTV-метрики */}
+      <Card className="bg-gradient-to-br from-accent/5 to-primary/5">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Heart className="w-4 h-4 text-accent" />
+            LTV и удержание
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Срок жизни клиента (мес)</Label>
+              <NumericInput
+                value={competitor.customerLifetimeMonths || 0}
+                onChange={handleMetricChange("customerLifetimeMonths")}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Покупок в месяц</Label>
+              <NumericInput
+                value={competitor.purchaseFrequency || 0}
+                onChange={handleMetricChange("purchaseFrequency")}
+                step="0.1"
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          {/* LTV расчётные показатели */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-muted/50 rounded-lg">
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">LTV</p>
+              <p className="font-bold font-mono text-accent">
+                {ltv > 0 ? ltv.toLocaleString("ru-RU", { maximumFractionDigits: 0 }) : "—"} {ltv > 0 ? currency : ""}
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">CAC</p>
+              <p className="font-bold font-mono text-destructive">
+                {cac > 0 ? cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 }) : "—"} {cac > 0 ? currency : ""}
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">LTV/CAC</p>
+              <p className={`font-bold font-mono ${ltvHealth.color}`}>
+                {ltvCacRatio > 0 ? ltvCacRatio.toFixed(2) : "—"}
+              </p>
+              <p className={`text-[10px] ${ltvHealth.color}`}>{ltvHealth.label}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">Retention</p>
+              <p className="font-bold font-mono">
+                {retentionRate > 0 ? `${retentionRate.toFixed(1)}%` : "—"}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Этап 2: Источники трафика */}
+      <LeadSourcesForm
+        leadSources={competitor.leadSources || []}
+        onChange={handleLeadSourcesChange}
+        currency={currency}
+        totalClients={competitor.totalClients}
+        totalRevenue={competitor.revenue}
+      />
+
+      {/* Метрики источников */}
+      {totalLeads > 0 && (
+        <Card className="bg-gradient-to-br from-primary/5 to-secondary/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Megaphone className="w-4 h-4 text-primary" />
+              Метрики трафика
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Всего лидов</p>
+                <p className="font-bold font-mono">{totalLeads.toLocaleString("ru-RU")}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">CPL</p>
+                <p className="font-bold font-mono">
+                  {cpl > 0 ? `${cpl.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}` : "—"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Конверсия</p>
+                <p className="font-bold font-mono">
+                  {autoConversion > 0 ? `${autoConversion.toFixed(2)}%` : "—"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Этап 5: Логистика */}
+      <Card className="bg-gradient-to-br from-warning/5 to-accent/5">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Truck className="w-4 h-4 text-warning" />
+            Структура логистики
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Сырьё → производство ({currency})</Label>
+              <NumericInput
+                value={competitor.logisticsMaterials || 0}
+                onChange={handleMetricChange("logisticsMaterials")}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Продукты → клиент ({currency})</Label>
+              <NumericInput
+                value={competitor.logisticsProducts || 0}
+                onChange={handleMetricChange("logisticsProducts")}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Склад и точки ({currency})</Label>
+              <NumericInput
+                value={competitor.logisticsWarehouse || 0}
+                onChange={handleMetricChange("logisticsWarehouse")}
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          {totalLogistics > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Итого логистика</p>
+                <p className="font-bold font-mono">{totalLogistics.toLocaleString("ru-RU")} {currency}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">% от выручки</p>
+                <p className="font-bold font-mono">
+                  {competitor.revenue > 0 
+                    ? `${((totalLogistics / competitor.revenue) * 100).toFixed(1)}%`
+                    : "—"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">На клиента</p>
+                <p className="font-bold font-mono">
+                  {(competitor.totalClients || 0) > 0 
+                    ? `${(totalLogistics / (competitor.totalClients || 1)).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
+                    : "—"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">% перем. расходов</p>
+                <p className="font-bold font-mono">
+                  {(competitor.variableCosts || 0) > 0 
+                    ? `${((totalLogistics / (competitor.variableCosts || 1)) * 100).toFixed(1)}%`
+                    : "—"}
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Детализированные расходы и ключевые метрики */}
       {competitor.detailedExpenses && (
         <>
           <DetailedExpensesForm
