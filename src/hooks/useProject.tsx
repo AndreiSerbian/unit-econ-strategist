@@ -139,6 +139,28 @@ interface Product {
   deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
 }
 
+// Sales Channels types
+export interface SalesChannel {
+  id: string;
+  name: string;
+  type: 'website' | 'marketplace' | 'distributor' | 'retail' | 'agent' | 'direct_b2b' | 'franchise' | 'export';
+  commissionPercent: number;
+  fulfillmentCostPerUnit: number;
+  logisticsCostPerUnit: number;
+  returnRatePercent: number;
+  paymentDelayDays: number;
+  minOrderQuantity?: number;
+  discountPercent?: number;
+}
+
+export interface ProductChannelAllocation {
+  id: string;
+  productId: string;
+  channelId: string;
+  quantity: number;
+  priceOverride?: number;
+}
+
 export interface RawMaterial {
   id: string;
   name: string;
@@ -272,6 +294,8 @@ export const useProject = (userId: string | undefined) => {
     transport_company: { perKg: 30, perM3: 300, baseRate: 500 },
     own_delivery: { perKg: 20, perM3: 200, baseRate: 150 },
   });
+  const [salesChannels, setSalesChannels] = useState<SalesChannel[]>([]);
+  const [productChannelAllocations, setProductChannelAllocations] = useState<ProductChannelAllocation[]>([]);
 
 
   // Load from localStorage on mount if no userId
@@ -289,6 +313,12 @@ export const useProject = (userId: string | undefined) => {
         setCurrency(stored.currency || "RUB");
         if (stored.logisticsTariffs) {
           setLogisticsTariffs(stored.logisticsTariffs);
+        }
+        if (stored.salesChannels) {
+          setSalesChannels(stored.salesChannels);
+        }
+        if (stored.productChannelAllocations) {
+          setProductChannelAllocations(stored.productChannelAllocations);
         }
       }
     }
@@ -313,9 +343,11 @@ export const useProject = (userId: string | undefined) => {
         productMaterials,
         currency,
         logisticsTariffs,
+        salesChannels,
+        productChannelAllocations,
       });
     }
-  }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, userId]);
+  }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, salesChannels, productChannelAllocations, userId]);
 
   const loadProject = async () => {
     if (!userId) return;
@@ -771,6 +803,10 @@ export const useProject = (userId: string | undefined) => {
     loading,
     logisticsTariffs,
     setLogisticsTariffs,
+    salesChannels,
+    setSalesChannels,
+    productChannelAllocations,
+    setProductChannelAllocations,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,
