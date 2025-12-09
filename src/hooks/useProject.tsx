@@ -133,6 +133,10 @@ interface Product {
   quantity: number;
   salesChannels: string[];
   logisticsToClientPerUnit?: number;
+  // Extended logistics fields
+  weightPerUnit?: number;    // weight per unit (kg)
+  volumePerUnit?: number;    // volume per unit (m³)
+  deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
 }
 
 export interface RawMaterial {
@@ -141,6 +145,11 @@ export interface RawMaterial {
   unit: string;
   pricePerUnit: number;
   logisticsToProductionPerUnit?: number;
+  // Extended logistics fields
+  weight?: number;           // weight per unit (kg)
+  volume?: number;           // volume per unit (m³)
+  transportType?: 'auto' | 'rail' | 'air' | 'sea' | 'local';
+  distance?: number;         // distance (km)
 }
 
 export interface ProductMaterialUsage {
