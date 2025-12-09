@@ -159,6 +159,18 @@ export interface ProductMaterialUsage {
   quantityPerUnit: number;
 }
 
+export interface LogisticsTariffsData {
+  auto: { perKgKm: number; perM3Km: number; baseRate: number };
+  rail: { perKgKm: number; perM3Km: number; baseRate: number };
+  air: { perKgKm: number; perM3Km: number; baseRate: number };
+  sea: { perKgKm: number; perM3Km: number; baseRate: number };
+  local: { perKgKm: number; perM3Km: number; baseRate: number };
+  courier: { perKg: number; perM3: number; baseRate: number };
+  pickup: { perKg: number; perM3: number; baseRate: number };
+  transport_company: { perKg: number; perM3: number; baseRate: number };
+  own_delivery: { perKg: number; perM3: number; baseRate: number };
+}
+
 const initialDetailedExpenses: DetailedExpenses = {
   fixedCosts: {
     salaryOldClients: 0,
@@ -249,6 +261,18 @@ export const useProject = (userId: string | undefined) => {
   const [productMaterials, setProductMaterials] = useState<ProductMaterialUsage[]>([]);
   const [currency, setCurrency] = useState<string>("RUB");
   const [loading, setLoading] = useState(false);
+  const [logisticsTariffs, setLogisticsTariffs] = useState<LogisticsTariffsData>({
+    auto: { perKgKm: 0.05, perM3Km: 50, baseRate: 500 },
+    rail: { perKgKm: 0.02, perM3Km: 30, baseRate: 1000 },
+    air: { perKgKm: 0.5, perM3Km: 500, baseRate: 2000 },
+    sea: { perKgKm: 0.01, perM3Km: 20, baseRate: 3000 },
+    local: { perKgKm: 0.1, perM3Km: 100, baseRate: 200 },
+    courier: { perKg: 50, perM3: 500, baseRate: 300 },
+    pickup: { perKg: 0, perM3: 0, baseRate: 0 },
+    transport_company: { perKg: 30, perM3: 300, baseRate: 500 },
+    own_delivery: { perKg: 20, perM3: 200, baseRate: 150 },
+  });
+
 
   // Load from localStorage on mount if no userId
   useEffect(() => {
@@ -263,6 +287,9 @@ export const useProject = (userId: string | undefined) => {
         setMaterials(stored.materials || []);
         setProductMaterials(stored.productMaterials || []);
         setCurrency(stored.currency || "RUB");
+        if (stored.logisticsTariffs) {
+          setLogisticsTariffs(stored.logisticsTariffs);
+        }
       }
     }
   }, []);
@@ -285,9 +312,10 @@ export const useProject = (userId: string | undefined) => {
         materials,
         productMaterials,
         currency,
+        logisticsTariffs,
       });
     }
-  }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, userId]);
+  }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, userId]);
 
   const loadProject = async () => {
     if (!userId) return;
@@ -741,6 +769,8 @@ export const useProject = (userId: string | undefined) => {
     setProductMaterials,
     currency,
     loading,
+    logisticsTariffs,
+    setLogisticsTariffs,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,

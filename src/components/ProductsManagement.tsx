@@ -12,8 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Package } from "lucide-react";
+import { Plus, Trash2, Package, Calculator } from "lucide-react";
 import { toast } from "sonner";
+import { LogisticsTariffsData } from "@/hooks/useProject";
+import { calculateProductLogisticsCost } from "./LogisticsTariffs";
 
 export interface Product {
   id: string;
@@ -42,6 +44,7 @@ interface ProductsManagementProps {
   updateProduct: (productId: string, updates: Partial<Product>) => Promise<void>;
   isAuthenticated: boolean;
   currency: string;
+  tariffs?: LogisticsTariffsData;
 }
 
 const SALES_CHANNELS = ["Онлайн", "Розница", "Дистрибьюторы", "B2B"];
@@ -53,6 +56,7 @@ export const ProductsManagement = ({
   updateProduct,
   isAuthenticated,
   currency,
+  tariffs,
 }: ProductsManagementProps) => {
   const [newProduct, setNewProduct] = useState({
     name: "",

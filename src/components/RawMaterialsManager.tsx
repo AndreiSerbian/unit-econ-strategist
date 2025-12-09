@@ -11,13 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FlaskConical, Plus, Trash2 } from "lucide-react";
-import { RawMaterial } from "@/hooks/useProject";
+import { FlaskConical, Plus, Trash2, Calculator } from "lucide-react";
+import { RawMaterial, LogisticsTariffsData } from "@/hooks/useProject";
+import { calculateMaterialLogisticsCost } from "./LogisticsTariffs";
 
 interface RawMaterialsManagerProps {
   materials: RawMaterial[];
   setMaterials: React.Dispatch<React.SetStateAction<RawMaterial[]>>;
   currency: string;
+  tariffs?: LogisticsTariffsData;
 }
 
 const UNIT_OPTIONS = [
@@ -50,6 +52,7 @@ export const RawMaterialsManager = ({
   materials,
   setMaterials,
   currency,
+  tariffs,
 }: RawMaterialsManagerProps) => {
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("шт.");
