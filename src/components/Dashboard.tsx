@@ -15,6 +15,9 @@ import { ProductComparison } from "./ProductComparison";
 import { RawMaterialsManager } from "./RawMaterialsManager";
 import { ProductMaterialsAllocation } from "./ProductMaterialsAllocation";
 import { LogisticsTariffs } from "./LogisticsTariffs";
+import { SalesChannelsManager } from "./SalesChannelsManager";
+import { ProductChannelBreakdown } from "./ProductChannelBreakdown";
+import { ChannelAnalytics } from "./ChannelAnalytics";
 import { CurrencySelector } from "./CurrencySelector";
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
@@ -86,6 +89,10 @@ export const Dashboard = () => {
     loading,
     logisticsTariffs,
     setLogisticsTariffs,
+    salesChannels,
+    setSalesChannels,
+    productChannelAllocations,
+    setProductChannelAllocations,
     saveScenario,
     saveCompetitor,
     deleteCompetitor,
@@ -320,6 +327,14 @@ export const Dashboard = () => {
               />
             </AnimatedCard>
 
+            <AnimatedCard delay={0.14}>
+              <SalesChannelsManager
+                channels={salesChannels}
+                setChannels={setSalesChannels}
+                currency={currency}
+              />
+            </AnimatedCard>
+
             <AnimatedCard delay={0.18}>
               <ProductsManagement
                 products={products}
@@ -344,6 +359,29 @@ export const Dashboard = () => {
                   onApplyMaterialsExpenses={handleApplyMaterialsExpenses}
                   totalMaterialsCost={calculateTotalMaterialsCost()}
                   calculateMaterialCostPerUnit={calculateMaterialCostPerUnit}
+                />
+              </AnimatedCard>
+            )}
+
+            {products.length > 0 && salesChannels.length > 0 && (
+              <AnimatedCard delay={0.22}>
+                <ProductChannelBreakdown
+                  products={products}
+                  channels={salesChannels}
+                  allocations={productChannelAllocations}
+                  setAllocations={setProductChannelAllocations}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+
+            {products.length > 0 && salesChannels.length > 0 && productChannelAllocations.length > 0 && (
+              <AnimatedCard delay={0.24}>
+                <ChannelAnalytics
+                  products={products}
+                  channels={salesChannels}
+                  allocations={productChannelAllocations}
+                  currency={currency}
                 />
               </AnimatedCard>
             )}
