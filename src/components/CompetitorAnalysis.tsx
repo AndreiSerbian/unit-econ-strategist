@@ -62,6 +62,14 @@ interface CompetitorProduct {
   salesChannels: string[];
 }
 
+interface LeadSource {
+  id: string;
+  name: string;
+  type: "paid" | "organic" | "referral" | "direct";
+  leads: number;
+  cost: number;
+}
+
 interface Competitor {
   id: string;
   name: string;
@@ -79,6 +87,16 @@ interface Competitor {
   fixedCosts?: number;
   variableCosts?: number;
   detailedExpenses?: DetailedExpenses;
+  // LTV metrics
+  customerLifetimeMonths?: number;
+  purchaseFrequency?: number;
+  // Lead sources
+  leadSources?: LeadSource[];
+  totalLeads?: number;
+  // Logistics
+  logisticsMaterials?: number;
+  logisticsProducts?: number;
+  logisticsWarehouse?: number;
 }
 
 interface CompetitorAnalysisProps {
