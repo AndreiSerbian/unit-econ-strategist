@@ -577,12 +577,20 @@ export const Dashboard = () => {
 
           {/* COMPETITORS TAB */}
           <TabsContent value="competitors" className="space-y-6">
+            <AnimatedCard delay={0.05}>
+              <CurrencySelector
+                currency={currency}
+                onCurrencyChange={updateCurrency}
+                isAuthenticated={!!user}
+              />
+            </AnimatedCard>
+
             <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle>Анализ конкурентов</CardTitle>
                   <CardDescription>
-                    Добавьте информацию о конкурентах для сравнительного анализа
+                    Добавьте информацию о конкурентах для сравнительного анализа. Все данные вводятся в выбранной валюте.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
