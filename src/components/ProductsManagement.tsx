@@ -108,15 +108,14 @@ export const ProductsManagement = ({
               </div>
               <div>
                 <Label htmlFor="product-price">Цена ({currency})</Label>
-                <Input
+                <NumericInput
                   id="product-price"
-                  type="number"
-                  value={newProduct.price || ""}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      price: parseFloat(e.target.value) || 0,
-                    })
+                  value={newProduct.price}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      price: value,
+                    }))
                   }
                   placeholder="0"
                 />
