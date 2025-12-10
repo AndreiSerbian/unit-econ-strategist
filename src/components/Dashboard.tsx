@@ -609,7 +609,7 @@ export const Dashboard = () => {
 
             {competitors.length > 0 && (
               <AnimatedCard delay={0.2}>
-                <CompetitorCharts competitors={competitors} />
+                <CompetitorCharts competitors={competitors} currency={currency} />
               </AnimatedCard>
             )}
 

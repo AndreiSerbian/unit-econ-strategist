@@ -155,6 +155,16 @@ const initialDetailedExpenses: DetailedExpenses = {
   taxes: 0,
 };
 
+const getCurrencySymbol = (curr: string) => {
+  switch (curr) {
+    case "USD": return "$";
+    case "EUR": return "€";
+    case "MDL": return "L";
+    case "RUB":
+    default: return "₽";
+  }
+};
+
 export const CompetitorAnalysis = ({
   competitors,
   saveCompetitor,
@@ -164,6 +174,7 @@ export const CompetitorAnalysis = ({
   isAuthenticated,
   currency,
 }: CompetitorAnalysisProps) => {
+  const currencySymbol = getCurrencySymbol(currency);
   const [newCompetitor, setNewCompetitor] = useState<Omit<Competitor, "id">>({
     name: "",
     revenue: 0,
@@ -304,7 +315,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-revenue">Выручка (₽)</Label>
+              <Label htmlFor="competitor-revenue">Выручка ({currencySymbol})</Label>
               <Input
                 id="competitor-revenue"
                 type="number"
@@ -325,7 +336,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-pricing">Средняя цена (₽)</Label>
+              <Label htmlFor="competitor-pricing">Средняя цена ({currencySymbol})</Label>
               <Input
                 id="competitor-pricing"
                 type="number"
@@ -347,7 +358,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-marketing">Расходы на маркетинг (₽)</Label>
+              <Label htmlFor="competitor-marketing">Расходы на маркетинг ({currencySymbol})</Label>
               <Input
                 id="competitor-marketing"
                 type="number"
@@ -398,7 +409,7 @@ export const CompetitorAnalysis = ({
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Выручка:</span>
-                        <span className="font-semibold font-mono">{competitor.revenue.toLocaleString("ru-RU")} ₽</span>
+                        <span className="font-semibold font-mono">{competitor.revenue.toLocaleString("ru-RU")} {currencySymbol}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Доля рынка:</span>
@@ -406,7 +417,7 @@ export const CompetitorAnalysis = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Средняя цена:</span>
-                        <span className="font-semibold font-mono">{competitor.pricing.toLocaleString("ru-RU")} ₽</span>
+                        <span className="font-semibold font-mono">{competitor.pricing.toLocaleString("ru-RU")} {currencySymbol}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Качество:</span>
@@ -466,7 +477,7 @@ export const CompetitorAnalysis = ({
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor={`product-price-${competitor.id}`} className="text-xs">
-                                  Цена (₽)
+                                  Цена ({currencySymbol})
                                 </Label>
                                 <Input
                                   id={`product-price-${competitor.id}`}
@@ -540,13 +551,13 @@ export const CompetitorAnalysis = ({
                                       </div>
                                       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                         <div>
-                                          Цена: <span className="font-mono font-medium text-foreground">{product.price.toLocaleString("ru-RU")} ₽</span>
+                                          Цена: <span className="font-mono font-medium text-foreground">{product.price.toLocaleString("ru-RU")} {currencySymbol}</span>
                                         </div>
                                         <div>
                                           Продажи: <span className="font-mono font-medium text-foreground">{product.annualSales.toLocaleString("ru-RU")} шт/год</span>
                                         </div>
                                         <div>
-                                          Выручка: <span className="font-mono font-medium text-foreground">{product.annualRevenue.toLocaleString("ru-RU")} ₽</span>
+                                          Выручка: <span className="font-mono font-medium text-foreground">{product.annualRevenue.toLocaleString("ru-RU")} {currencySymbol}</span>
                                         </div>
                                       </div>
                                       {product.salesChannels.length > 0 && (
@@ -577,7 +588,7 @@ export const CompetitorAnalysis = ({
                             <div className="pt-2 border-t">
                               <div className="flex justify-between text-sm font-semibold">
                                 <span>Итого выручка по продуктам:</span>
-                                <span className="font-mono">{totalProductRevenue.toLocaleString("ru-RU")} ₽</span>
+                                <span className="font-mono">{totalProductRevenue.toLocaleString("ru-RU")} {currencySymbol}</span>
                               </div>
                             </div>
                           </div>
