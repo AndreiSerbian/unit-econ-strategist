@@ -24,9 +24,22 @@ interface Competitor {
 
 interface CompetitorChartsProps {
   competitors: Competitor[];
+  currency?: string;
 }
 
-export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
+const getCurrencySymbol = (curr: string) => {
+  switch (curr) {
+    case "USD": return "$";
+    case "EUR": return "€";
+    case "MDL": return "L";
+    case "RUB":
+    default: return "₽";
+  }
+};
+
+export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorChartsProps) => {
+  const currencySymbol = getCurrencySymbol(currency);
+
   if (competitors.length === 0) {
     return null;
   }
@@ -365,7 +378,7 @@ export const CompetitorCharts = ({ competitors }: CompetitorChartsProps) => {
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
-                      formatter={(value: number) => value.toLocaleString('ru-RU') + ' ₽'}
+                      formatter={(value: number) => value.toLocaleString('ru-RU') + ' ' + currencySymbol}
                     />
                     <Legend />
                     <Bar dataKey="выручка" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
