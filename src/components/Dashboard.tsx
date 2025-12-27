@@ -33,6 +33,7 @@ import { CompetitiveMap } from "./CompetitiveMap";
 import { StrategyDictionary } from "./StrategyDictionary";
 import { CompetitiveSimulator } from "./CompetitiveSimulator";
 import { CompetitiveRanking } from "./CompetitiveRanking";
+import { QualityComparison } from "./QualityComparison";
 import { ScenarioSummary } from "./ScenarioSummary";
 import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
@@ -673,6 +674,16 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
             
+            {competitors.length > 0 && (
+              <AnimatedCard delay={0.55}>
+                <QualityComparison
+                  products={products}
+                  competitors={competitors}
+                  companyName="Моя компания"
+                />
+              </AnimatedCard>
+            )}
+
             {competitors.length > 0 && (
               <AnimatedCard delay={0.6}>
                 <SWOTAnalysis
