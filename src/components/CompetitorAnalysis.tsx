@@ -346,7 +346,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-quality">Качество продукта (1-10)</Label>
+              <Label htmlFor="competitor-quality">Качество продукта (1-20)</Label>
               <Input
                 id="competitor-quality"
                 type="number"
@@ -354,7 +354,7 @@ export const CompetitorAnalysis = ({
                 onChange={(e) => updateNewCompetitor("quality", parseFloat(e.target.value) || 0)}
                 placeholder="0"
                 min="1"
-                max="10"
+                max="20"
               />
             </div>
             <div className="space-y-2">
@@ -421,7 +421,7 @@ export const CompetitorAnalysis = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Качество:</span>
-                        <span className="font-semibold font-mono">{competitor.quality}/10</span>
+                        <span className="font-semibold font-mono">{competitor.quality}/20</span>
                       </div>
                     </div>
 
