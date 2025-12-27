@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Package, Calculator } from "lucide-react";
+import { Plus, Trash2, Package, Calculator, Star } from "lucide-react";
 import { toast } from "sonner";
 import { LogisticsTariffsData } from "@/hooks/useProject";
 import { calculateProductLogisticsCost } from "./LogisticsTariffs";
@@ -23,6 +23,7 @@ export interface Product {
   price: number;
   cost: number;
   quantity: number;
+  quality?: number;
   logisticsToClientPerUnit?: number;
   weightPerUnit?: number;
   volumePerUnit?: number;
@@ -62,6 +63,7 @@ export const ProductsManagement = ({
     price: 0,
     cost: 0,
     quantity: 0,
+    quality: 10,
     logisticsToClientPerUnit: 0,
     weightPerUnit: 0,
     volumePerUnit: 0,
@@ -75,7 +77,7 @@ export const ProductsManagement = ({
     }
 
     await saveProduct(newProduct);
-    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, logisticsToClientPerUnit: 0, weightPerUnit: 0, volumePerUnit: 0, deliveryType: "courier" });
+    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, quality: 10, logisticsToClientPerUnit: 0, weightPerUnit: 0, volumePerUnit: 0, deliveryType: "courier" });
   };
 
 
@@ -94,7 +96,7 @@ export const ProductsManagement = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <div className="md:col-span-2">
                 <Label htmlFor="product-name">Название</Label>
                 <Input
@@ -146,6 +148,23 @@ export const ProductsManagement = ({
                     }))
                   }
                   placeholder="0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="product-quality" className="flex items-center gap-1">
+                  <Star className="w-3 h-3 text-yellow-500" />
+                  Качество (1-20)
+                </Label>
+                <NumericInput
+                  id="product-quality"
+                  value={newProduct.quality}
+                  onChange={(value) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      quality: Math.min(20, Math.max(1, Math.round(value))),
+                    }))
+                  }
+                  placeholder="10"
                 />
               </div>
             </div>
@@ -244,7 +263,7 @@ export const ProductsManagement = ({
                   className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                       <div className="md:col-span-2">
                         <Label>Название</Label>
                         <Input
@@ -289,6 +308,21 @@ export const ProductsManagement = ({
                             })
                           }
                           placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <Label className="flex items-center gap-1">
+                          <Star className="w-3 h-3 text-yellow-500" />
+                          Качество
+                        </Label>
+                        <NumericInput
+                          value={product.quality ?? 10}
+                          onChange={(value) =>
+                            updateProduct(product.id, {
+                              quality: Math.min(20, Math.max(1, Math.round(value))),
+                            })
+                          }
+                          placeholder="10"
                         />
                       </div>
                     </div>

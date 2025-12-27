@@ -346,6 +346,7 @@ export type Database = {
           name: string
           price: number
           project_id: string
+          quality: number | null
           quantity: number
           updated_at: string
         }
@@ -356,6 +357,7 @@ export type Database = {
           name: string
           price?: number
           project_id: string
+          quality?: number | null
           quantity?: number
           updated_at?: string
         }
@@ -366,6 +368,7 @@ export type Database = {
           name?: string
           price?: number
           project_id?: string
+          quality?: number | null
           quantity?: number
           updated_at?: string
         }
