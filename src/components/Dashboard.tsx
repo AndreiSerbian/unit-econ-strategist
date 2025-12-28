@@ -40,7 +40,7 @@ import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
 import AIAnalytics from "./AIAnalytics";
-import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck } from "lucide-react";
+import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
@@ -88,6 +88,7 @@ export const Dashboard = () => {
     setProductMaterials,
     currency,
     loading,
+    hasUnsavedChanges,
     logisticsTariffs,
     setLogisticsTariffs,
     salesChannels,
@@ -267,9 +268,22 @@ export const Dashboard = () => {
             </div>
           </div>
           {user && (
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-              Вход выполнен как {user.email}
-            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Вход выполнен как {user.email}
+              </p>
+              {hasUnsavedChanges ? (
+                <span className="flex items-center gap-1 text-xs text-amber-500">
+                  <CloudOff className="w-3 h-3" />
+                  Есть несохранённые изменения
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-xs text-green-500">
+                  <Cloud className="w-3 h-3" />
+                  Данные синхронизированы
+                </span>
+              )}
+            </div>
           )}
         </motion.header>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -249,11 +249,14 @@ const initialMetrics: Metrics = {
   detailedExpenses: initialDetailedExpenses,
 };
 
-const STORAGE_KEY = "unit-economics-project";
+const STORAGE_KEY_PREFIX = "unit-economics-project";
 
-const loadFromLocalStorage = () => {
+const getStorageKey = (userId?: string) => 
+  userId ? `${STORAGE_KEY_PREFIX}-${userId}` : STORAGE_KEY_PREFIX;
+
+const loadFromLocalStorage = (userId?: string) => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(getStorageKey(userId));
     if (stored) {
       return JSON.parse(stored);
     }
@@ -263,11 +266,29 @@ const loadFromLocalStorage = () => {
   return null;
 };
 
-const saveToLocalStorage = (data: any) => {
+const saveToLocalStorage = (data: any, userId?: string) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(getStorageKey(userId), JSON.stringify({
+      ...data,
+      lastModified: Date.now()
+    }));
   } catch (error) {
     console.error("Error saving to localStorage:", error);
+  }
+};
+
+// Очистка меток сохранения в localStorage после успешного сохранения в облако
+const markAsSavedToCloud = (userId?: string) => {
+  try {
+    const stored = loadFromLocalStorage(userId);
+    if (stored) {
+      saveToLocalStorage({
+        ...stored,
+        lastCloudSync: Date.now()
+      }, userId);
+    }
+  } catch (error) {
+    console.error("Error marking as saved:", error);
   }
 };
 
@@ -282,6 +303,8 @@ export const useProject = (userId: string | undefined) => {
   const [productMaterials, setProductMaterials] = useState<ProductMaterialUsage[]>([]);
   const [currency, setCurrency] = useState<string>("RUB");
   const [loading, setLoading] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const isInitialLoad = useRef(true);
   const [logisticsTariffs, setLogisticsTariffs] = useState<LogisticsTariffsData>({
     auto: { perKgKm: 0.05, perM3Km: 50, baseRate: 500 },
     rail: { perKgKm: 0.02, perM3Km: 30, baseRate: 1000 },
@@ -296,31 +319,45 @@ export const useProject = (userId: string | undefined) => {
   const [salesChannels, setSalesChannels] = useState<SalesChannel[]>([]);
   const [productChannelAllocations, setProductChannelAllocations] = useState<ProductChannelAllocation[]>([]);
 
-
-  // Load from localStorage on mount if no userId
+  // Предупреждение при закрытии страницы с несохранёнными изменениями
   useEffect(() => {
-    if (!userId) {
-      const stored = loadFromLocalStorage();
-      if (stored) {
-        setCurrentMetrics(stored.currentMetrics || initialMetrics);
-        setScenarioA(stored.scenarioA || initialMetrics);
-        setScenarioB(stored.scenarioB || initialMetrics);
-        setCompetitors(stored.competitors || []);
-        setProducts(stored.products || []);
-        setMaterials(stored.materials || []);
-        setProductMaterials(stored.productMaterials || []);
-        setCurrency(stored.currency || "RUB");
-        if (stored.logisticsTariffs) {
-          setLogisticsTariffs(stored.logisticsTariffs);
-        }
-        if (stored.salesChannels) {
-          setSalesChannels(stored.salesChannels);
-        }
-        if (stored.productChannelAllocations) {
-          setProductChannelAllocations(stored.productChannelAllocations);
-        }
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges && userId) {
+        e.preventDefault();
+        e.returnValue = 'У вас есть несохранённые изменения. Вы уверены, что хотите покинуть страницу?';
       }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges, userId]);
+
+  // Восстановление данных из localStorage при загрузке
+  const restoreFromLocalStorage = useCallback((stored: any) => {
+    if (stored) {
+      if (stored.currentMetrics) setCurrentMetrics(stored.currentMetrics);
+      if (stored.scenarioA) setScenarioA(stored.scenarioA);
+      if (stored.scenarioB) setScenarioB(stored.scenarioB);
+      if (stored.competitors) setCompetitors(stored.competitors);
+      if (stored.products) setProducts(stored.products);
+      if (stored.materials) setMaterials(stored.materials);
+      if (stored.productMaterials) setProductMaterials(stored.productMaterials);
+      if (stored.currency) setCurrency(stored.currency);
+      if (stored.logisticsTariffs) setLogisticsTariffs(stored.logisticsTariffs);
+      if (stored.salesChannels) setSalesChannels(stored.salesChannels);
+      if (stored.productChannelAllocations) setProductChannelAllocations(stored.productChannelAllocations);
     }
+  }, []);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const stored = loadFromLocalStorage(userId);
+    if (stored) {
+      restoreFromLocalStorage(stored);
+    }
+    // Помечаем что начальная загрузка завершена после небольшой задержки
+    setTimeout(() => {
+      isInitialLoad.current = false;
+    }, 100);
   }, []);
 
   useEffect(() => {
@@ -329,22 +366,28 @@ export const useProject = (userId: string | undefined) => {
     }
   }, [userId]);
 
-  // Auto-save to localStorage when data changes (only if no userId)
+  // Auto-save to localStorage when data changes (ВСЕГДА, независимо от авторизации)
   useEffect(() => {
-    if (!userId) {
-      saveToLocalStorage({
-        currentMetrics,
-        scenarioA,
-        scenarioB,
-        competitors,
-        products,
-        materials,
-        productMaterials,
-        currency,
-        logisticsTariffs,
-        salesChannels,
-        productChannelAllocations,
-      });
+    // Пропускаем автосохранение при начальной загрузке
+    if (isInitialLoad.current) return;
+    
+    saveToLocalStorage({
+      currentMetrics,
+      scenarioA,
+      scenarioB,
+      competitors,
+      products,
+      materials,
+      productMaterials,
+      currency,
+      logisticsTariffs,
+      salesChannels,
+      productChannelAllocations,
+    }, userId);
+    
+    // Отмечаем что есть несохранённые изменения (только для авторизованных)
+    if (userId) {
+      setHasUnsavedChanges(true);
     }
   }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, salesChannels, productChannelAllocations, userId]);
 
@@ -486,6 +529,8 @@ export const useProject = (userId: string | undefined) => {
       );
 
       if (error) throw error;
+      markAsSavedToCloud(userId);
+      setHasUnsavedChanges(false);
       toast.success("Сценарий сохранен");
     } catch (error: any) {
       console.error("Error saving scenario:", error);
@@ -803,6 +848,7 @@ export const useProject = (userId: string | undefined) => {
     setProductMaterials,
     currency,
     loading,
+    hasUnsavedChanges,
     logisticsTariffs,
     setLogisticsTariffs,
     salesChannels,
