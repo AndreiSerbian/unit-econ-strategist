@@ -2,7 +2,7 @@ import { memo, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target, Trash2 } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
 import { NumericInput } from "@/components/ui/numeric-input";
@@ -121,6 +121,24 @@ const defaultDetailedExpenses: DetailedExpenses = {
   taxes: 0,
 };
 
+// Экспортируем начальное состояние метрик для очистки сценариев
+export const initialMetricsState: Metrics = {
+  revenue: 0,
+  totalClients: 0,
+  newClients: 0,
+  returningClients: 0,
+  conversionRate: 0,
+  avgCheck: 0,
+  fixedCosts: 0,
+  variableCosts: 0,
+  marketingCosts: 0,
+  detailedExpenses: defaultDetailedExpenses,
+  customerLifetimeMonths: 0,
+  purchaseFrequency: 0,
+  totalLeads: 0,
+  leadSources: [],
+};
+
 interface MetricsFormProps {
   metrics: Metrics;
   scenario: "current" | "scenarioA" | "scenarioB";
@@ -132,6 +150,7 @@ interface MetricsFormProps {
   onUpdateLeadSources: (sources: LeadSource[]) => void;
   onSyncProducts: () => void;
   onSave: () => void;
+  onClear?: () => void;
   isAuthenticated: boolean;
   calculateProfit: (metrics: Metrics) => number;
 }
@@ -147,6 +166,7 @@ export const MetricsForm = memo(({
   onUpdateLeadSources,
   onSyncProducts,
   onSave,
+  onClear,
   isAuthenticated,
   calculateProfit,
 }: MetricsFormProps) => {
@@ -439,14 +459,26 @@ export const MetricsForm = memo(({
         </CardContent>
       </Card>
 
-      <Button 
-        onClick={onSave}
-        className="w-full"
-        disabled={!isAuthenticated}
-      >
-        <Save className="w-4 h-4 mr-2" />
-        {isAuthenticated ? "Сохранить сценарий" : "Войдите для сохранения"}
-      </Button>
+      <div className="flex gap-3">
+        {onClear && scenario !== "current" && (
+          <Button 
+            onClick={onClear}
+            variant="outline"
+            className="flex-1"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Очистить сценарий
+          </Button>
+        )}
+        <Button 
+          onClick={onSave}
+          className={onClear && scenario !== "current" ? "flex-1" : "w-full"}
+          disabled={!isAuthenticated}
+        >
+          <Save className="w-4 h-4 mr-2" />
+          {isAuthenticated ? "Сохранить сценарий" : "Войдите для сохранения"}
+        </Button>
+      </div>
     </div>
   );
 });

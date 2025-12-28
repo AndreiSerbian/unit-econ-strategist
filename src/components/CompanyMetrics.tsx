@@ -1,9 +1,8 @@
 import { useCallback, useEffect } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MetricsForm } from "./MetricsForm";
+import { MetricsForm, initialMetricsState } from "./MetricsForm";
 import { LeadSource } from "./LeadSourcesForm";
-
 interface ExpenseCategory {
   id: string;
   name: string;
@@ -226,6 +225,15 @@ export const CompanyMetrics = ({
     setScenarioB((prev) => ({ ...prev, leadSources: sources }));
   }, [setScenarioB]);
 
+  // Очистка сценариев
+  const handleClearScenarioA = useCallback(() => {
+    setScenarioA(initialMetricsState);
+  }, [setScenarioA]);
+
+  const handleClearScenarioB = useCallback(() => {
+    setScenarioB(initialMetricsState);
+  }, [setScenarioB]);
+
   return (
     <div className="space-y-12">
       <Tabs defaultValue="current" className="w-full">
@@ -264,6 +272,7 @@ export const CompanyMetrics = ({
             onUpdateLeadSources={handleScenarioALeadSourcesUpdate}
             onSyncProducts={handleScenarioASync}
             onSave={handleScenarioASave}
+            onClear={handleClearScenarioA}
             isAuthenticated={isAuthenticated}
             calculateProfit={calculateProfit}
           />
@@ -281,6 +290,7 @@ export const CompanyMetrics = ({
             onUpdateLeadSources={handleScenarioBLeadSourcesUpdate}
             onSyncProducts={handleScenarioBSync}
             onSave={handleScenarioBSave}
+            onClear={handleClearScenarioB}
             isAuthenticated={isAuthenticated}
             calculateProfit={calculateProfit}
           />
