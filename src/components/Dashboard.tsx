@@ -40,7 +40,7 @@ import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
 import AIAnalytics from "./AIAnalytics";
-import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud } from "lucide-react";
+import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
@@ -89,6 +89,8 @@ export const Dashboard = () => {
     currency,
     loading,
     hasUnsavedChanges,
+    lastSavedAt,
+    isSaving,
     logisticsTariffs,
     setLogisticsTariffs,
     salesChannels,
@@ -113,7 +115,19 @@ export const Dashboard = () => {
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
+    saveAllToCloud,
   } = useProject(user?.id);
+
+  const formatLastSaved = (date: Date | null) => {
+    if (!date) return null;
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diff < 60) return 'только что';
+    if (diff < 3600) return `${Math.floor(diff / 60)} мин. назад`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ч. назад`;
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  };
  
   const totalMaterialLogistics = calculateTotalMaterialLogistics();
   const totalProductLogistics = calculateTotalProductLogistics();
@@ -268,21 +282,42 @@ export const Dashboard = () => {
             </div>
           </div>
           {user && (
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Вход выполнен как {user.email}
               </p>
-              {hasUnsavedChanges ? (
-                <span className="flex items-center gap-1 text-xs text-amber-500">
-                  <CloudOff className="w-3 h-3" />
-                  Есть несохранённые изменения
-                </span>
-              ) : (
-                <span className="flex items-center gap-1 text-xs text-green-500">
-                  <Cloud className="w-3 h-3" />
-                  Данные синхронизированы
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {hasUnsavedChanges ? (
+                  <span className="flex items-center gap-1 text-xs text-amber-500">
+                    <CloudOff className="w-3 h-3" />
+                    Есть несохранённые изменения
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-xs text-green-500">
+                    <Cloud className="w-3 h-3" />
+                    Данные синхронизированы
+                  </span>
+                )}
+                {lastSavedAt && (
+                  <span className="text-xs text-muted-foreground">
+                    • Сохранено {formatLastSaved(lastSavedAt)}
+                  </span>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => saveAllToCloud()}
+                  disabled={isSaving || !hasUnsavedChanges}
+                  className="h-6 px-2 text-xs"
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Save className="w-3 h-3" />
+                  )}
+                  <span className="ml-1 hidden sm:inline">Сохранить</span>
+                </Button>
+              </div>
             </div>
           )}
         </motion.header>

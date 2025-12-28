@@ -304,6 +304,8 @@ export const useProject = (userId: string | undefined) => {
   const [currency, setCurrency] = useState<string>("RUB");
   const [loading, setLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const isInitialLoad = useRef(true);
   const [logisticsTariffs, setLogisticsTariffs] = useState<LogisticsTariffsData>({
     auto: { perKgKm: 0.05, perM3Km: 50, baseRate: 500 },
@@ -391,10 +393,11 @@ export const useProject = (userId: string | undefined) => {
     }
   }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, salesChannels, productChannelAllocations, userId]);
 
-  // Автосохранение в облако каждые 5 минут для авторизованных пользователей
-  const saveAllToCloud = useCallback(async () => {
+  // Сохранение в облако для авторизованных пользователей
+  const saveAllToCloud = useCallback(async (showToast = true) => {
     if (!projectId || !userId) return;
     
+    setIsSaving(true);
     try {
       // Сохраняем все три сценария
       const scenarios = [
@@ -424,10 +427,17 @@ export const useProject = (userId: string | undefined) => {
 
       markAsSavedToCloud(userId);
       setHasUnsavedChanges(false);
-      toast.success("Данные автоматически сохранены в облако");
+      setLastSavedAt(new Date());
+      if (showToast) {
+        toast.success("Данные сохранены в облако");
+      }
     } catch (error) {
-      console.error("Auto-save error:", error);
-      // Не показываем ошибку пользователю при автосохранении, чтобы не раздражать
+      console.error("Save error:", error);
+      if (showToast) {
+        toast.error("Ошибка сохранения в облако");
+      }
+    } finally {
+      setIsSaving(false);
     }
   }, [projectId, userId, currentMetrics, scenarioA, scenarioB]);
 
@@ -437,7 +447,7 @@ export const useProject = (userId: string | undefined) => {
     // Автосохранение каждые 5 минут (300000 мс)
     const autoSaveInterval = setInterval(() => {
       if (hasUnsavedChanges) {
-        saveAllToCloud();
+        saveAllToCloud(false); // Без тоста для автосохранения
       }
     }, 5 * 60 * 1000);
 
@@ -902,6 +912,8 @@ export const useProject = (userId: string | undefined) => {
     currency,
     loading,
     hasUnsavedChanges,
+    lastSavedAt,
+    isSaving,
     logisticsTariffs,
     setLogisticsTariffs,
     salesChannels,
