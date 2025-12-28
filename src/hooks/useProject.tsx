@@ -391,6 +391,59 @@ export const useProject = (userId: string | undefined) => {
     }
   }, [currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, salesChannels, productChannelAllocations, userId]);
 
+  // Автосохранение в облако каждые 5 минут для авторизованных пользователей
+  const saveAllToCloud = useCallback(async () => {
+    if (!projectId || !userId) return;
+    
+    try {
+      // Сохраняем все три сценария
+      const scenarios = [
+        { type: 'current', data: currentMetrics },
+        { type: 'scenarioA', data: scenarioA },
+        { type: 'scenarioB', data: scenarioB },
+      ];
+
+      for (const scenario of scenarios) {
+        await supabase.from("scenarios").upsert(
+          {
+            project_id: projectId,
+            scenario_type: scenario.type,
+            revenue: scenario.data.revenue,
+            total_clients: scenario.data.totalClients,
+            new_clients: scenario.data.newClients,
+            returning_clients: scenario.data.returningClients,
+            conversion_rate: scenario.data.conversionRate,
+            avg_check: scenario.data.avgCheck,
+            fixed_costs: scenario.data.fixedCosts,
+            variable_costs: scenario.data.variableCosts,
+            marketing_costs: scenario.data.marketingCosts,
+          },
+          { onConflict: 'project_id,scenario_type' }
+        );
+      }
+
+      markAsSavedToCloud(userId);
+      setHasUnsavedChanges(false);
+      toast.success("Данные автоматически сохранены в облако");
+    } catch (error) {
+      console.error("Auto-save error:", error);
+      // Не показываем ошибку пользователю при автосохранении, чтобы не раздражать
+    }
+  }, [projectId, userId, currentMetrics, scenarioA, scenarioB]);
+
+  useEffect(() => {
+    if (!userId || !projectId) return;
+
+    // Автосохранение каждые 5 минут (300000 мс)
+    const autoSaveInterval = setInterval(() => {
+      if (hasUnsavedChanges) {
+        saveAllToCloud();
+      }
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, [userId, projectId, hasUnsavedChanges, saveAllToCloud]);
+
   const loadProject = async () => {
     if (!userId) return;
 
@@ -873,5 +926,6 @@ export const useProject = (userId: string | undefined) => {
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
+    saveAllToCloud,
   };
 };
