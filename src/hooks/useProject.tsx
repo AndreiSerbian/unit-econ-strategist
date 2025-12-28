@@ -468,19 +468,22 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId || !userId) return;
 
     try {
-      const { error } = await supabase.from("scenarios").upsert({
-        project_id: projectId,
-        scenario_type: scenarioType,
-        revenue: metrics.revenue,
-        total_clients: metrics.totalClients,
-        new_clients: metrics.newClients,
-        returning_clients: metrics.returningClients,
-        conversion_rate: metrics.conversionRate,
-        avg_check: metrics.avgCheck,
-        fixed_costs: metrics.fixedCosts,
-        variable_costs: metrics.variableCosts,
-        marketing_costs: metrics.marketingCosts,
-      });
+      const { error } = await supabase.from("scenarios").upsert(
+        {
+          project_id: projectId,
+          scenario_type: scenarioType,
+          revenue: metrics.revenue,
+          total_clients: metrics.totalClients,
+          new_clients: metrics.newClients,
+          returning_clients: metrics.returningClients,
+          conversion_rate: metrics.conversionRate,
+          avg_check: metrics.avgCheck,
+          fixed_costs: metrics.fixedCosts,
+          variable_costs: metrics.variableCosts,
+          marketing_costs: metrics.marketingCosts,
+        },
+        { onConflict: 'project_id,scenario_type' }
+      );
 
       if (error) throw error;
       toast.success("Сценарий сохранен");
