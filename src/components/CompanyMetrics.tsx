@@ -146,11 +146,18 @@ export const CompanyMetrics = ({
       detailedExpenses.fixedCosts.utilities +
       detailedExpenses.fixedCosts.customCategories.reduce((sum, c) => sum + c.value, 0);
 
-    const marketingTotal =
+    // Маркетинговые расходы из детализированных статей
+    const detailedMarketingTotal =
       detailedExpenses.variableCosts.marketing.trafficPurchase +
       detailedExpenses.variableCosts.marketing.contractorsPayment +
       detailedExpenses.variableCosts.marketing.crmCosts +
       detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0);
+
+    // Маркетинговые расходы из источников трафика (leadSources)
+    const leadSourcesMarketingTotal = (current.leadSources || []).reduce((sum, s) => sum + s.cost, 0);
+
+    // Итоговые маркетинговые расходы = детализированные + источники трафика
+    const marketingTotal = detailedMarketingTotal + leadSourcesMarketingTotal;
 
     const salesTotal =
       detailedExpenses.variableCosts.salesPayroll.bonusOldClients +
