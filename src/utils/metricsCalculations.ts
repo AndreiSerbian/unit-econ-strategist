@@ -58,25 +58,38 @@ interface Metrics {
 }
 
 export const calculateCAC = (metrics: Metrics) => {
-  if (!metrics.detailedExpenses || metrics.newClients === 0) return 0;
+  // Используем newClients если есть, иначе totalClients
+  const clientsForCAC = metrics.newClients > 0 ? metrics.newClients : metrics.totalClients;
+  if (clientsForCAC === 0) return 0;
 
-  const marketing =
-    metrics.detailedExpenses.variableCosts.marketing.trafficPurchase +
-    metrics.detailedExpenses.variableCosts.marketing.contractorsPayment +
-    metrics.detailedExpenses.variableCosts.marketing.crmCosts +
-    metrics.detailedExpenses.variableCosts.marketing.customCategories.reduce(
-      (sum, c) => sum + c.value,
-      0
-    );
+  // Приоритет: детализированные расходы, иначе общий marketingCosts
+  let marketing = metrics.marketingCosts || 0;
+  let salesCost = 0;
 
-  const salesCost =
-    metrics.detailedExpenses.variableCosts.salesPayroll.bonusNewClients +
-    metrics.detailedExpenses.variableCosts.salesPayroll.customCategories.reduce(
-      (sum, c) => sum + c.value,
-      0
-    );
+  if (metrics.detailedExpenses) {
+    const detailedMarketing =
+      metrics.detailedExpenses.variableCosts.marketing.trafficPurchase +
+      metrics.detailedExpenses.variableCosts.marketing.contractorsPayment +
+      metrics.detailedExpenses.variableCosts.marketing.crmCosts +
+      metrics.detailedExpenses.variableCosts.marketing.customCategories.reduce(
+        (sum, c) => sum + c.value,
+        0
+      );
 
-  return (marketing + salesCost) / metrics.newClients;
+    salesCost =
+      metrics.detailedExpenses.variableCosts.salesPayroll.bonusNewClients +
+      metrics.detailedExpenses.variableCosts.salesPayroll.customCategories.reduce(
+        (sum, c) => sum + c.value,
+        0
+      );
+
+    // Используем детализированные если они заполнены, иначе общий marketingCosts
+    if (detailedMarketing > 0) {
+      marketing = detailedMarketing;
+    }
+  }
+
+  return (marketing + salesCost) / clientsForCAC;
 };
 
 export const calculateCPL = (metrics: Metrics) => {
