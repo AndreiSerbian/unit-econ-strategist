@@ -423,6 +423,48 @@ export const useProject = (userId: string | undefined) => {
           },
           { onConflict: 'project_id,scenario_type' }
         );
+        
+        // Сохраняем детализированные расходы и источники лидов
+        if (scenario.data.detailedExpenses || scenario.data.leadSources) {
+          await (supabase.from("detailed_expenses") as any).upsert(
+            {
+              project_id: projectId,
+              scenario_type: scenario.type,
+              expenses: scenario.data.detailedExpenses || {},
+              lead_sources: scenario.data.leadSources || [],
+            },
+            { onConflict: 'project_id,scenario_type' }
+          );
+        }
+      }
+
+      // Сохраняем тарифы логистики
+      await (supabase.from("logistics_tariffs") as any).upsert(
+        {
+          project_id: projectId,
+          tariffs: logisticsTariffs,
+        },
+        { onConflict: 'project_id' }
+      );
+
+      // Сохраняем каналы продаж
+      for (const channel of salesChannels) {
+        await (supabase.from("sales_channels") as any).upsert(
+          {
+            id: channel.id,
+            project_id: projectId,
+            name: channel.name,
+            type: channel.type,
+            commission_percent: channel.commissionPercent,
+            fulfillment_cost_per_unit: channel.fulfillmentCostPerUnit,
+            logistics_cost_per_unit: channel.logisticsCostPerUnit,
+            return_rate_percent: channel.returnRatePercent,
+            payment_delay_days: channel.paymentDelayDays,
+            min_order_quantity: channel.minOrderQuantity || 0,
+            discount_percent: channel.discountPercent || 0,
+          },
+          { onConflict: 'id' }
+        );
       }
 
       markAsSavedToCloud(userId);
@@ -439,7 +481,7 @@ export const useProject = (userId: string | undefined) => {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, userId, currentMetrics, scenarioA, scenarioB]);
+  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels]);
 
   useEffect(() => {
     if (!userId || !projectId) return;
@@ -499,8 +541,26 @@ export const useProject = (userId: string | undefined) => {
 
       if (scenariosError) throw scenariosError;
 
+      // Load detailed expenses
+      const { data: detailedExpensesData } = await (supabase
+        .from("detailed_expenses") as any)
+        .select("*")
+        .eq("project_id", currentProjectId);
+
+      // Create a map of detailed expenses by scenario type
+      const detailedExpensesMap: Record<string, any> = {};
+      if (detailedExpensesData) {
+        detailedExpensesData.forEach((de: any) => {
+          detailedExpensesMap[de.scenario_type] = {
+            expenses: de.expenses,
+            leadSources: de.lead_sources || [],
+          };
+        });
+      }
+
       if (scenarios) {
         scenarios.forEach((scenario) => {
+          const detailedData = detailedExpensesMap[scenario.scenario_type];
           const metrics: Metrics = {
             revenue: Number(scenario.revenue) || 0,
             totalClients: scenario.total_clients || 0,
@@ -511,12 +571,48 @@ export const useProject = (userId: string | undefined) => {
             fixedCosts: Number(scenario.fixed_costs) || 0,
             variableCosts: Number(scenario.variable_costs) || 0,
             marketingCosts: Number(scenario.marketing_costs) || 0,
+            detailedExpenses: detailedData?.expenses || initialDetailedExpenses,
+            leadSources: detailedData?.leadSources || [],
           };
 
           if (scenario.scenario_type === "current") setCurrentMetrics(metrics);
           else if (scenario.scenario_type === "scenarioA") setScenarioA(metrics);
           else if (scenario.scenario_type === "scenarioB") setScenarioB(metrics);
         });
+      }
+
+      // Load logistics tariffs
+      const { data: logisticsData } = await (supabase
+        .from("logistics_tariffs") as any)
+        .select("*")
+        .eq("project_id", currentProjectId)
+        .single();
+
+      if (logisticsData?.tariffs) {
+        setLogisticsTariffs(logisticsData.tariffs);
+      }
+
+      // Load sales channels
+      const { data: salesChannelsData } = await (supabase
+        .from("sales_channels") as any)
+        .select("*")
+        .eq("project_id", currentProjectId);
+
+      if (salesChannelsData) {
+        setSalesChannels(
+          salesChannelsData.map((ch: any) => ({
+            id: ch.id,
+            name: ch.name,
+            type: ch.type,
+            commissionPercent: Number(ch.commission_percent) || 0,
+            fulfillmentCostPerUnit: Number(ch.fulfillment_cost_per_unit) || 0,
+            logisticsCostPerUnit: Number(ch.logistics_cost_per_unit) || 0,
+            returnRatePercent: Number(ch.return_rate_percent) || 0,
+            paymentDelayDays: ch.payment_delay_days || 0,
+            minOrderQuantity: ch.min_order_quantity || 0,
+            discountPercent: Number(ch.discount_percent) || 0,
+          }))
+        );
       }
 
       // Load competitors
@@ -552,13 +648,16 @@ export const useProject = (userId: string | undefined) => {
 
       if (productsData) {
         setProducts(
-          productsData.map((p) => ({
+          productsData.map((p: any) => ({
             id: p.id,
             name: p.name,
             price: Number(p.price) || 0,
             cost: Number(p.cost) || 0,
             quantity: p.quantity || 0,
-            salesChannels: [],
+            weightPerUnit: Number(p.weight_per_unit) || 0,
+            volumePerUnit: Number(p.volume_per_unit) || 0,
+            deliveryType: p.delivery_type || 'courier',
+            logisticsToClientPerUnit: Number(p.logistics_to_client) || 0,
           }))
         );
       }
@@ -713,6 +812,10 @@ export const useProject = (userId: string | undefined) => {
         price: product.price,
         cost: product.cost,
         quantity: product.quantity,
+        weight_per_unit: product.weightPerUnit || 0,
+        volume_per_unit: product.volumePerUnit || 0,
+        delivery_type: product.deliveryType || 'courier',
+        logistics_to_client: product.logisticsToClientPerUnit || 0,
       });
 
       if (error) throw error;
@@ -739,6 +842,10 @@ export const useProject = (userId: string | undefined) => {
       if (typeof updates.price !== "undefined") updatePayload.price = updates.price;
       if (typeof updates.cost !== "undefined") updatePayload.cost = updates.cost;
       if (typeof updates.quantity !== "undefined") updatePayload.quantity = updates.quantity;
+      if (typeof updates.weightPerUnit !== "undefined") updatePayload.weight_per_unit = updates.weightPerUnit;
+      if (typeof updates.volumePerUnit !== "undefined") updatePayload.volume_per_unit = updates.volumePerUnit;
+      if (typeof updates.deliveryType !== "undefined") updatePayload.delivery_type = updates.deliveryType;
+      if (typeof updates.logisticsToClientPerUnit !== "undefined") updatePayload.logistics_to_client = updates.logisticsToClientPerUnit;
 
       if (Object.keys(updatePayload).length === 0) return;
 

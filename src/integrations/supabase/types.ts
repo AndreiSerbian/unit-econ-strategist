@@ -135,6 +135,44 @@ export type Database = {
           },
         ]
       }
+      detailed_expenses: {
+        Row: {
+          created_at: string | null
+          expenses: Json
+          id: string
+          lead_sources: Json | null
+          project_id: string
+          scenario_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expenses?: Json
+          id?: string
+          lead_sources?: Json | null
+          project_id: string
+          scenario_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expenses?: Json
+          id?: string
+          lead_sources?: Json | null
+          project_id?: string
+          scenario_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "detailed_expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_tools: {
         Row: {
           created_at: string
@@ -173,6 +211,38 @@ export type Database = {
             columns: ["tool_id"]
             isOneToOne: false
             referencedRelation: "business_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistics_tariffs: {
+        Row: {
+          created_at: string | null
+          id: string
+          project_id: string
+          tariffs: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          project_id: string
+          tariffs?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          project_id?: string
+          tariffs?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistics_tariffs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -286,6 +356,61 @@ export type Database = {
           },
         ]
       }
+      product_channel_allocations: {
+        Row: {
+          channel_id: string
+          created_at: string | null
+          id: string
+          price_override: number | null
+          product_id: string
+          project_id: string
+          quantity: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string | null
+          id?: string
+          price_override?: number | null
+          product_id: string
+          project_id: string
+          quantity?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string | null
+          id?: string
+          price_override?: number | null
+          product_id?: string
+          project_id?: string
+          quantity?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_channel_allocations_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "sales_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_channel_allocations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_channel_allocations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_materials: {
         Row: {
           created_at: string
@@ -342,35 +467,47 @@ export type Database = {
         Row: {
           cost: number
           created_at: string
+          delivery_type: string | null
           id: string
+          logistics_to_client: number | null
           name: string
           price: number
           project_id: string
           quality: number | null
           quantity: number
           updated_at: string
+          volume_per_unit: number | null
+          weight_per_unit: number | null
         }
         Insert: {
           cost?: number
           created_at?: string
+          delivery_type?: string | null
           id?: string
+          logistics_to_client?: number | null
           name: string
           price?: number
           project_id: string
           quality?: number | null
           quantity?: number
           updated_at?: string
+          volume_per_unit?: number | null
+          weight_per_unit?: number | null
         }
         Update: {
           cost?: number
           created_at?: string
+          delivery_type?: string | null
           id?: string
+          logistics_to_client?: number | null
           name?: string
           price?: number
           project_id?: string
           quality?: number | null
           quantity?: number
           updated_at?: string
+          volume_per_unit?: number | null
+          weight_per_unit?: number | null
         }
         Relationships: [
           {
@@ -415,34 +552,105 @@ export type Database = {
       raw_materials: {
         Row: {
           created_at: string
+          distance: number | null
           id: string
+          logistics_to_production: number | null
           name: string
           price_per_unit: number
           project_id: string
+          transport_type: string | null
           unit: string | null
           updated_at: string
+          volume: number | null
+          weight: number | null
         }
         Insert: {
           created_at?: string
+          distance?: number | null
           id?: string
+          logistics_to_production?: number | null
           name: string
           price_per_unit?: number
           project_id: string
+          transport_type?: string | null
           unit?: string | null
           updated_at?: string
+          volume?: number | null
+          weight?: number | null
         }
         Update: {
           created_at?: string
+          distance?: number | null
           id?: string
+          logistics_to_production?: number | null
           name?: string
           price_per_unit?: number
           project_id?: string
+          transport_type?: string | null
           unit?: string | null
           updated_at?: string
+          volume?: number | null
+          weight?: number | null
         }
         Relationships: [
           {
             foreignKeyName: "raw_materials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_channels: {
+        Row: {
+          commission_percent: number | null
+          created_at: string | null
+          discount_percent: number | null
+          fulfillment_cost_per_unit: number | null
+          id: string
+          logistics_cost_per_unit: number | null
+          min_order_quantity: number | null
+          name: string
+          payment_delay_days: number | null
+          project_id: string
+          return_rate_percent: number | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          commission_percent?: number | null
+          created_at?: string | null
+          discount_percent?: number | null
+          fulfillment_cost_per_unit?: number | null
+          id?: string
+          logistics_cost_per_unit?: number | null
+          min_order_quantity?: number | null
+          name: string
+          payment_delay_days?: number | null
+          project_id: string
+          return_rate_percent?: number | null
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          commission_percent?: number | null
+          created_at?: string | null
+          discount_percent?: number | null
+          fulfillment_cost_per_unit?: number | null
+          id?: string
+          logistics_cost_per_unit?: number | null
+          min_order_quantity?: number | null
+          name?: string
+          payment_delay_days?: number | null
+          project_id?: string
+          return_rate_percent?: number | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_channels_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
