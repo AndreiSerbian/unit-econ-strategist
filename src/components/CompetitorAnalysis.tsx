@@ -102,6 +102,7 @@ interface Competitor {
 interface CompetitorAnalysisProps {
   competitors: Competitor[];
   saveCompetitor: (competitor: Omit<Competitor, "id">) => Promise<void>;
+  updateCompetitor: (competitorId: string, updates: Partial<Competitor>) => Promise<void>;
   deleteCompetitor: (competitorId: string) => Promise<void>;
   addCompetitorProduct: (competitorId: string, product: Omit<CompetitorProduct, "id" | "annualRevenue">) => Promise<void>;
   deleteCompetitorProduct: (competitorId: string, productId: string) => Promise<void>;
@@ -168,6 +169,7 @@ const getCurrencySymbol = (curr: string) => {
 export const CompetitorAnalysis = ({
   competitors,
   saveCompetitor,
+  updateCompetitor,
   deleteCompetitor,
   addCompetitorProduct,
   deleteCompetitorProduct,
@@ -284,11 +286,7 @@ export const CompetitorAnalysis = ({
   };
 
   const handleUpdateCompetitor = async (competitorId: string, updates: Partial<Competitor>) => {
-    const competitor = competitors.find((c) => c.id === competitorId);
-    if (competitor) {
-      const { id, ...competitorData } = { ...competitor, ...updates };
-      await saveCompetitor(competitorData);
-    }
+    await updateCompetitor(competitorId, updates);
   };
 
   return (
