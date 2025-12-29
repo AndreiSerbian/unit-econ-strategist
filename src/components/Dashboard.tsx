@@ -99,6 +99,7 @@ export const Dashboard = () => {
     setProductChannelAllocations,
     saveScenario,
     saveCompetitor,
+    updateCompetitor,
     deleteCompetitor,
     saveProduct,
     updateProduct,
@@ -647,6 +648,7 @@ export const Dashboard = () => {
                   <CompetitorAnalysis
                     competitors={competitors}
                     saveCompetitor={saveCompetitor}
+                    updateCompetitor={updateCompetitor}
                     deleteCompetitor={deleteCompetitor}
                     addCompetitorProduct={addCompetitorProduct}
                     deleteCompetitorProduct={deleteCompetitorProduct}

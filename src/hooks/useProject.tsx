@@ -632,6 +632,46 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
+  const updateCompetitor = async (competitorId: string, updates: Partial<Competitor>) => {
+    if (!userId) {
+      // Local storage mode
+      setCompetitors(competitors.map((c) => (c.id === competitorId ? { ...c, ...updates } : c)));
+      toast.success("Конкурент обновлён");
+      return;
+    }
+
+    if (!projectId) return;
+
+    try {
+      const updatePayload: Record<string, any> = {};
+      if (typeof updates.name !== "undefined") updatePayload.name = updates.name;
+      if (typeof updates.revenue !== "undefined") updatePayload.revenue = updates.revenue;
+      if (typeof updates.marketShare !== "undefined") updatePayload.market_share = updates.marketShare;
+      if (typeof updates.pricing !== "undefined") updatePayload.pricing = updates.pricing;
+      if (typeof updates.quality !== "undefined") updatePayload.quality = updates.quality;
+      if (typeof updates.marketingSpend !== "undefined") updatePayload.marketing_spend = updates.marketingSpend;
+
+      if (Object.keys(updatePayload).length === 0) {
+        // Только локальные изменения (products и другие клиентские поля)
+        setCompetitors(competitors.map((c) => (c.id === competitorId ? { ...c, ...updates } : c)));
+        return;
+      }
+
+      const { error } = await supabase
+        .from("competitors")
+        .update(updatePayload)
+        .eq("id", competitorId);
+
+      if (error) throw error;
+
+      setCompetitors(competitors.map((c) => (c.id === competitorId ? { ...c, ...updates } : c)));
+      toast.success("Конкурент обновлён");
+    } catch (error: any) {
+      console.error("Error updating competitor:", error);
+      toast.error("Ошибка обновления конкурента");
+    }
+  };
+
   const deleteCompetitor = async (competitorId: string) => {
     if (!userId) {
       // Local storage mode
@@ -922,6 +962,7 @@ export const useProject = (userId: string | undefined) => {
     setProductChannelAllocations,
     saveScenario,
     saveCompetitor,
+    updateCompetitor,
     deleteCompetitor,
     saveProduct,
     updateProduct,
