@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Globe, BarChart3, PieChart, Save } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { TrendingUp, Globe, BarChart3, PieChart, Save, Calculator, Edit3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
@@ -35,12 +36,45 @@ export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, curre
     marketGrowthRate: 0,
   });
   const [loading, setLoading] = useState(false);
+  const [isAutoCalculated, setIsAutoCalculated] = useState(true);
+
+  // Автоматический расчёт объёма рынка на основе выручки и долей
+  const calculateMarketSize = () => {
+    // Собираем все компании с известной выручкой и долей рынка
+    const companiesWithData: { revenue: number; marketShare: number }[] = [];
+
+    // Добавляем конкурентов с данными
+    competitors.forEach(c => {
+      if (c.revenue > 0 && c.marketShare > 0) {
+        companiesWithData.push({ revenue: c.revenue, marketShare: c.marketShare });
+      }
+    });
+
+    if (companiesWithData.length === 0) {
+      return 0;
+    }
+
+    // Рассчитываем объём рынка как среднее от (выручка / доля) для каждой компании
+    const estimates = companiesWithData.map(c => c.revenue / (c.marketShare / 100));
+    const avgMarketSize = estimates.reduce((sum, e) => sum + e, 0) / estimates.length;
+
+    return Math.round(avgMarketSize);
+  };
+
+  const autoMarketSize = calculateMarketSize();
 
   useEffect(() => {
     if (projectId) {
       loadMarketOverview();
     }
   }, [projectId]);
+
+  // Автоматически обновляем объём рынка при изменении данных (если включен автоподсчёт)
+  useEffect(() => {
+    if (isAutoCalculated && autoMarketSize > 0) {
+      setMarketData(prev => ({ ...prev, marketSize: autoMarketSize }));
+    }
+  }, [autoMarketSize, isAutoCalculated]);
 
   const loadMarketOverview = async () => {
     if (!projectId) return;
@@ -56,10 +90,15 @@ export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, curre
       if (error) throw error;
 
       if (data) {
+        const savedMarketSize = Number(data.market_size) || 0;
         setMarketData({
-          marketSize: Number(data.market_size) || 0,
+          marketSize: savedMarketSize,
           marketGrowthRate: Number(data.market_growth_rate) || 0,
         });
+        // Если сохранённое значение отличается от авто-рассчитанного, выключаем авторасчёт
+        if (savedMarketSize > 0 && autoMarketSize > 0 && Math.abs(savedMarketSize - autoMarketSize) > autoMarketSize * 0.1) {
+          setIsAutoCalculated(false);
+        }
       }
     } catch (error: any) {
       console.error("Error loading market overview:", error);
@@ -80,7 +119,7 @@ export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, curre
         project_id: projectId,
         market_size: marketData.marketSize,
         market_growth_rate: marketData.marketGrowthRate,
-      });
+      }, { onConflict: 'project_id' });
 
       if (error) throw error;
       toast.success("Обзор рынка сохранен");
@@ -93,7 +132,17 @@ export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, curre
   };
 
   const updateField = (field: keyof MarketData, value: string) => {
+    if (field === 'marketSize') {
+      setIsAutoCalculated(false); // Отключаем авторасчёт при ручном вводе
+    }
     setMarketData({ ...marketData, [field]: parseFloat(value) || 0 });
+  };
+
+  const enableAutoCalculation = () => {
+    setIsAutoCalculated(true);
+    if (autoMarketSize > 0) {
+      setMarketData(prev => ({ ...prev, marketSize: autoMarketSize }));
+    }
   };
 
   // Calculate total analyzed revenue
@@ -154,10 +203,26 @@ export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, curre
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="market-size" className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Размер рынка ({currency})
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="market-size" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Размер рынка ({currency})
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Calculator className={`w-4 h-4 ${isAutoCalculated ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Switch
+                    checked={isAutoCalculated}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        enableAutoCalculation();
+                      } else {
+                        setIsAutoCalculated(false);
+                      }
+                    }}
+                  />
+                  <span className="text-xs text-muted-foreground">Авто</span>
+                </div>
+              </div>
               <Input
                 id="market-size"
                 type="number"
@@ -165,10 +230,26 @@ export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, curre
                 value={marketData.marketSize || ""}
                 onChange={(e) => updateField("marketSize", e.target.value)}
                 placeholder="Например: 1000000000"
+                disabled={isAutoCalculated}
+                className={isAutoCalculated ? "bg-muted" : ""}
               />
-              <p className="text-xs text-muted-foreground">
-                Общий объём рынка в денежном выражении
-              </p>
+              {isAutoCalculated ? (
+                <p className="text-xs text-primary flex items-center gap-1">
+                  <Calculator className="w-3 h-3" />
+                  Рассчитано автоматически на основе выручки и долей рынка конкурентов
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Edit3 className="w-3 h-3" />
+                  Введите вручную или включите автоподсчёт
+                </p>
+              )}
+              {autoMarketSize > 0 && !isAutoCalculated && (
+                <Button variant="outline" size="sm" onClick={enableAutoCalculation} className="text-xs">
+                  <Calculator className="w-3 h-3 mr-1" />
+                  Использовать авторасчёт: {autoMarketSize.toLocaleString("ru-RU")} {currency}
+                </Button>
+              )}
             </div>
 
             <div className="space-y-2">
