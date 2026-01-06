@@ -131,6 +131,7 @@ interface Product {
   price: number;
   cost: number;
   quantity: number;
+  quality?: number;          // quality rating (1-20)
   logisticsToClientPerUnit?: number;
   // Extended logistics fields
   weightPerUnit?: number;    // weight per unit (kg)
@@ -679,7 +680,7 @@ export const useProject = (userId: string | undefined) => {
 
       if (competitorsData) {
         setCompetitors(
-          competitorsData.map((c) => ({
+          competitorsData.map((c: any) => ({
             id: c.id,
             name: c.name,
             revenue: Number(c.revenue) || 0,
@@ -708,6 +709,7 @@ export const useProject = (userId: string | undefined) => {
             price: Number(p.price) || 0,
             cost: Number(p.cost) || 0,
             quantity: p.quantity || 0,
+            quality: p.quality ?? 10,
             weightPerUnit: Number(p.weight_per_unit) || 0,
             volumePerUnit: Number(p.volume_per_unit) || 0,
             deliveryType: p.delivery_type || 'courier',
@@ -917,6 +919,7 @@ export const useProject = (userId: string | undefined) => {
         price: product.price,
         cost: product.cost,
         quantity: product.quantity,
+        quality: product.quality ?? 10,
         weight_per_unit: product.weightPerUnit || 0,
         volume_per_unit: product.volumePerUnit || 0,
         delivery_type: product.deliveryType || 'courier',
@@ -932,6 +935,7 @@ export const useProject = (userId: string | undefined) => {
         price: Number(data.price) || 0,
         cost: Number(data.cost) || 0,
         quantity: data.quantity || 0,
+        quality: data.quality ?? 10,
         weightPerUnit: Number(data.weight_per_unit) || 0,
         volumePerUnit: Number(data.volume_per_unit) || 0,
         deliveryType: (data.delivery_type || 'courier') as 'courier' | 'own_delivery' | 'pickup' | 'transport_company',
@@ -960,6 +964,7 @@ export const useProject = (userId: string | undefined) => {
       if (typeof updates.price !== "undefined") updatePayload.price = updates.price;
       if (typeof updates.cost !== "undefined") updatePayload.cost = updates.cost;
       if (typeof updates.quantity !== "undefined") updatePayload.quantity = updates.quantity;
+      if (typeof updates.quality !== "undefined") updatePayload.quality = updates.quality;
       if (typeof updates.weightPerUnit !== "undefined") updatePayload.weight_per_unit = updates.weightPerUnit;
       if (typeof updates.volumePerUnit !== "undefined") updatePayload.volume_per_unit = updates.volumePerUnit;
       if (typeof updates.deliveryType !== "undefined") updatePayload.delivery_type = updates.deliveryType;

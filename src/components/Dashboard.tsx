@@ -829,7 +829,9 @@ export const Dashboard = () => {
                     revenue: currentMetrics.revenue,
                     marketShare: 0,
                     pricing: currentMetrics.avgCheck,
-                    quality: 8,
+                    quality: products.length > 0 
+                      ? Math.round(products.reduce((sum, p) => sum + (p.quality ?? 10), 0) / products.length)
+                      : 10,
                     marketingSpend: currentMetrics.marketingCosts,
                   }}
                   competitors={competitors}
