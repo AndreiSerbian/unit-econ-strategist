@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -525,18 +525,30 @@ export const useProject = (userId: string | undefined) => {
     }
   }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials]);
 
+  // Debounced автосохранение при изменении данных (2 секунды задержка)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
-    if (!userId || !projectId) return;
-
-    // Автосохранение каждые 5 минут (300000 мс)
-    const autoSaveInterval = setInterval(() => {
+    if (!userId || !projectId || isInitialLoad.current) return;
+    
+    // Очищаем предыдущий таймер
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    // Устанавливаем новый таймер для сохранения через 2 секунды после последнего изменения
+    debounceTimerRef.current = setTimeout(() => {
       if (hasUnsavedChanges) {
         saveAllToCloud(false); // Без тоста для автосохранения
       }
-    }, 5 * 60 * 1000);
-
-    return () => clearInterval(autoSaveInterval);
-  }, [userId, projectId, hasUnsavedChanges, saveAllToCloud]);
+    }, 2000);
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [userId, projectId, currentMetrics, scenarioA, scenarioB, competitors, products, materials, productMaterials, currency, logisticsTariffs, salesChannels, productChannelAllocations, hasUnsavedChanges, saveAllToCloud]);
 
   const loadProject = async () => {
     if (!userId) return;
