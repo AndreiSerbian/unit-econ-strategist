@@ -88,6 +88,50 @@ export type Database = {
         }
         Relationships: []
       }
+      competitor_products: {
+        Row: {
+          annual_revenue: number | null
+          annual_sales: number | null
+          competitor_id: string
+          created_at: string
+          id: string
+          name: string
+          price: number
+          sales_channels: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          annual_revenue?: number | null
+          annual_sales?: number | null
+          competitor_id: string
+          created_at?: string
+          id?: string
+          name: string
+          price?: number
+          sales_channels?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          annual_revenue?: number | null
+          annual_sales?: number | null
+          competitor_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          price?: number
+          sales_channels?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_products_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competitors: {
         Row: {
           created_at: string

@@ -678,6 +678,32 @@ export const useProject = (userId: string | undefined) => {
 
       if (competitorsError) throw competitorsError;
 
+      // Load competitor products
+      let competitorProductsMap: Record<string, CompetitorProduct[]> = {};
+      if (competitorsData && competitorsData.length > 0) {
+        const competitorIds = competitorsData.map((c: any) => c.id);
+        const { data: competitorProductsData } = await (supabase
+          .from("competitor_products") as any)
+          .select("*")
+          .in("competitor_id", competitorIds);
+        
+        if (competitorProductsData) {
+          competitorProductsData.forEach((p: any) => {
+            if (!competitorProductsMap[p.competitor_id]) {
+              competitorProductsMap[p.competitor_id] = [];
+            }
+            competitorProductsMap[p.competitor_id].push({
+              id: p.id,
+              name: p.name,
+              price: Number(p.price) || 0,
+              annualSales: p.annual_sales || 0,
+              annualRevenue: Number(p.annual_revenue) || 0,
+              salesChannels: p.sales_channels || [],
+            });
+          });
+        }
+      }
+
       if (competitorsData) {
         setCompetitors(
           competitorsData.map((c: any) => ({
@@ -688,7 +714,7 @@ export const useProject = (userId: string | undefined) => {
             pricing: Number(c.pricing) || 0,
             quality: Number(c.quality) || 0,
             marketingSpend: Number(c.marketing_spend) || 0,
-            products: [],
+            products: competitorProductsMap[c.id] || [],
           }))
         );
       }
@@ -1013,34 +1039,101 @@ export const useProject = (userId: string | undefined) => {
     competitorId: string,
     product: Omit<CompetitorProduct, "id" | "annualRevenue">
   ) => {
-    const newProduct: CompetitorProduct = {
-      ...product,
-      id: Date.now().toString(),
-      annualRevenue: product.price * product.annualSales,
-    };
+    const annualRevenue = product.price * product.annualSales;
+    
+    if (!userId || !projectId) {
+      // Local storage mode
+      const newProduct: CompetitorProduct = {
+        ...product,
+        id: Date.now().toString(),
+        annualRevenue,
+      };
 
-    const updatedCompetitors = competitors.map((c) =>
-      c.id === competitorId
-        ? { ...c, products: [...(c.products || []), newProduct] }
-        : c
-    );
+      const updatedCompetitors = competitors.map((c) =>
+        c.id === competitorId
+          ? { ...c, products: [...(c.products || []), newProduct] }
+          : c
+      );
 
-    setCompetitors(updatedCompetitors);
-    toast.success("Продукт конкурента добавлен");
+      setCompetitors(updatedCompetitors);
+      toast.success("Продукт конкурента добавлен");
+      return;
+    }
+
+    try {
+      const { data, error } = await (supabase.from("competitor_products") as any)
+        .insert({
+          competitor_id: competitorId,
+          name: product.name,
+          price: product.price,
+          annual_sales: product.annualSales,
+          annual_revenue: annualRevenue,
+          sales_channels: product.salesChannels || [],
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newProduct: CompetitorProduct = {
+        id: data.id,
+        name: data.name,
+        price: Number(data.price) || 0,
+        annualSales: data.annual_sales || 0,
+        annualRevenue: Number(data.annual_revenue) || 0,
+        salesChannels: data.sales_channels || [],
+      };
+
+      const updatedCompetitors = competitors.map((c) =>
+        c.id === competitorId
+          ? { ...c, products: [...(c.products || []), newProduct] }
+          : c
+      );
+
+      setCompetitors(updatedCompetitors);
+      toast.success("Продукт конкурента добавлен");
+    } catch (error: any) {
+      console.error("Error adding competitor product:", error);
+      toast.error("Ошибка добавления продукта конкурента");
+    }
   };
 
   const deleteCompetitorProduct = async (
     competitorId: string,
     productId: string
   ) => {
-    const updatedCompetitors = competitors.map((c) =>
-      c.id === competitorId
-        ? { ...c, products: (c.products || []).filter((p) => p.id !== productId) }
-        : c
-    );
+    if (!userId || !projectId) {
+      // Local storage mode
+      const updatedCompetitors = competitors.map((c) =>
+        c.id === competitorId
+          ? { ...c, products: (c.products || []).filter((p) => p.id !== productId) }
+          : c
+      );
 
-    setCompetitors(updatedCompetitors);
-    toast.success("Продукт конкурента удален");
+      setCompetitors(updatedCompetitors);
+      toast.success("Продукт конкурента удален");
+      return;
+    }
+
+    try {
+      const { error } = await (supabase.from("competitor_products") as any)
+        .delete()
+        .eq("id", productId);
+
+      if (error) throw error;
+
+      const updatedCompetitors = competitors.map((c) =>
+        c.id === competitorId
+          ? { ...c, products: (c.products || []).filter((p) => p.id !== productId) }
+          : c
+      );
+
+      setCompetitors(updatedCompetitors);
+      toast.success("Продукт конкурента удален");
+    } catch (error: any) {
+      console.error("Error deleting competitor product:", error);
+      toast.error("Ошибка удаления продукта конкурента");
+    }
   };
 
   const updateCurrency = async (newCurrency: string) => {
