@@ -132,6 +132,8 @@ export const Dashboard = () => {
     calculateTotalLogisticsCost,
     calculateTotalMaterialLogistics,
     calculateTotalProductLogistics,
+    calculateProductWeightFromMaterials,
+    calculateProductVolumeFromMaterials,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
@@ -179,12 +181,28 @@ export const Dashboard = () => {
       ? (productionLogisticsExpense / currentMetrics.revenue) * 100
       : 0;
  
-  const handleSyncProductCost = (productId: string) => {
-    const costPerUnit = calculateMaterialCostPerUnit(productId);
+  const handleSyncProductFromMaterials = (
+    productId: string,
+    options: { cost?: boolean; weight?: boolean; volume?: boolean }
+  ) => {
     setProducts(
-      products.map((product) =>
-        product.id === productId ? { ...product, cost: costPerUnit } : product
-      )
+      products.map((product) => {
+        if (product.id !== productId) return product;
+        
+        const updates: Partial<typeof product> = {};
+        
+        if (options.cost) {
+          updates.cost = calculateMaterialCostPerUnit(productId);
+        }
+        if (options.weight) {
+          updates.weightPerUnit = calculateProductWeightFromMaterials(productId);
+        }
+        if (options.volume) {
+          updates.volumePerUnit = calculateProductVolumeFromMaterials(productId);
+        }
+        
+        return { ...product, ...updates };
+      })
     );
   };
 
@@ -499,10 +517,12 @@ export const Dashboard = () => {
                   productMaterials={productMaterials}
                   setProductMaterials={setProductMaterials}
                   currency={currency}
-                  onSyncProductCost={handleSyncProductCost}
+                  onSyncProduct={handleSyncProductFromMaterials}
                   onApplyMaterialsExpenses={handleApplyMaterialsExpenses}
                   totalMaterialsCost={calculateTotalMaterialsCost()}
                   calculateMaterialCostPerUnit={calculateMaterialCostPerUnit}
+                  calculateProductWeightFromMaterials={calculateProductWeightFromMaterials}
+                  calculateProductVolumeFromMaterials={calculateProductVolumeFromMaterials}
                 />
               </AnimatedCard>
             )}
