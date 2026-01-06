@@ -1133,6 +1133,26 @@ export const useProject = (userId: string | undefined) => {
       return total + productLogisticsPerUnit * product.quantity;
     }, 0);
   };
+
+  // Расчёт веса продукта на основе сырья
+  const calculateProductWeightFromMaterials = (productId: string): number => {
+    const usages = productMaterials.filter((u) => u.productId === productId);
+    return usages.reduce((total, usage) => {
+      const material = materials.find((m) => m.id === usage.materialId);
+      if (!material) return total;
+      return total + (material.weight || 0) * (usage.quantityPerUnit || 0);
+    }, 0);
+  };
+
+  // Расчёт объёма продукта на основе сырья
+  const calculateProductVolumeFromMaterials = (productId: string): number => {
+    const usages = productMaterials.filter((u) => u.productId === productId);
+    return usages.reduce((total, usage) => {
+      const material = materials.find((m) => m.id === usage.materialId);
+      if (!material) return total;
+      return total + (material.volume || 0) * (usage.quantityPerUnit || 0);
+    }, 0);
+  };
  
   const syncProductsToMetrics = (scenarioType: "current" | "scenarioA" | "scenarioB") => {
     const productsRevenue = calculateProductsRevenue();
@@ -1343,6 +1363,8 @@ export const useProject = (userId: string | undefined) => {
     calculateTotalLogisticsCost,
     calculateTotalMaterialLogistics,
     calculateTotalProductLogistics,
+    calculateProductWeightFromMaterials,
+    calculateProductVolumeFromMaterials,
     syncProductsToMetrics,
     addCompetitorProduct,
     deleteCompetitorProduct,
