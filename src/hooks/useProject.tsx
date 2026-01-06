@@ -467,6 +467,48 @@ export const useProject = (userId: string | undefined) => {
         );
       }
 
+      // Сохраняем сырьё (raw_materials)
+      // Сначала удаляем старые записи
+      await supabase
+        .from("raw_materials")
+        .delete()
+        .eq("project_id", projectId);
+      
+      // Затем вставляем новые
+      if (materials.length > 0) {
+        for (const material of materials) {
+          await supabase.from("raw_materials").insert({
+            id: material.id,
+            project_id: projectId,
+            name: material.name,
+            price_per_unit: material.pricePerUnit,
+            unit: material.unit,
+            weight: material.weight || 0,
+            volume: material.volume || 0,
+            distance: material.distance || 0,
+            logistics_to_production: material.logisticsToProductionPerUnit || 0,
+            transport_type: material.transportType || 'auto',
+          });
+        }
+      }
+
+      // Сохраняем связи product_materials
+      await supabase
+        .from("product_materials")
+        .delete()
+        .eq("project_id", projectId);
+      
+      if (productMaterials.length > 0) {
+        for (const pm of productMaterials) {
+          await supabase.from("product_materials").insert({
+            project_id: projectId,
+            product_id: pm.productId,
+            material_id: pm.materialId,
+            quantity_per_unit: pm.quantityPerUnit,
+          });
+        }
+      }
+
       markAsSavedToCloud(userId);
       setHasUnsavedChanges(false);
       setLastSavedAt(new Date());
@@ -481,7 +523,7 @@ export const useProject = (userId: string | undefined) => {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels]);
+  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials]);
 
   useEffect(() => {
     if (!userId || !projectId) return;
@@ -658,6 +700,45 @@ export const useProject = (userId: string | undefined) => {
             volumePerUnit: Number(p.volume_per_unit) || 0,
             deliveryType: p.delivery_type || 'courier',
             logisticsToClientPerUnit: Number(p.logistics_to_client) || 0,
+          }))
+        );
+      }
+
+      // Load raw materials
+      const { data: materialsData } = await supabase
+        .from("raw_materials")
+        .select("*")
+        .eq("project_id", currentProjectId);
+
+      if (materialsData) {
+        setMaterials(
+          materialsData.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            unit: m.unit || '',
+            pricePerUnit: Number(m.price_per_unit) || 0,
+            logisticsToProductionPerUnit: Number(m.logistics_to_production) || 0,
+            weight: Number(m.weight) || 0,
+            volume: Number(m.volume) || 0,
+            transportType: m.transport_type || 'auto',
+            distance: Number(m.distance) || 0,
+          }))
+        );
+      }
+
+      // Load product materials
+      const { data: productMaterialsData } = await supabase
+        .from("product_materials")
+        .select("*")
+        .eq("project_id", currentProjectId);
+
+      if (productMaterialsData) {
+        setProductMaterials(
+          productMaterialsData.map((pm: any) => ({
+            id: pm.id,
+            productId: pm.product_id,
+            materialId: pm.material_id,
+            quantityPerUnit: Number(pm.quantity_per_unit) || 0,
           }))
         );
       }
@@ -1041,23 +1122,75 @@ export const useProject = (userId: string | undefined) => {
   };
 
   // Функции очистки данных
-  const clearProducts = useCallback(() => {
+  const clearProducts = useCallback(async () => {
+    // Удаляем из БД если авторизован
+    if (projectId && userId) {
+      try {
+        await supabase
+          .from("product_channel_allocations")
+          .delete()
+          .eq("project_id", projectId);
+        
+        await supabase
+          .from("product_materials")
+          .delete()
+          .eq("project_id", projectId);
+        
+        await supabase
+          .from("products")
+          .delete()
+          .eq("project_id", projectId);
+      } catch (error) {
+        console.error("Error clearing products from DB:", error);
+      }
+    }
+    
     setProducts([]);
     setProductMaterials([]);
     setProductChannelAllocations([]);
     toast.success("Продукты очищены");
-  }, []);
+  }, [projectId, userId]);
 
-  const clearMaterials = useCallback(() => {
+  const clearMaterials = useCallback(async () => {
+    // Удаляем из БД если авторизован
+    if (projectId && userId) {
+      try {
+        // Сначала удаляем связи product_materials
+        await supabase
+          .from("product_materials")
+          .delete()
+          .eq("project_id", projectId);
+        
+        // Затем удаляем сами материалы
+        await supabase
+          .from("raw_materials")
+          .delete()
+          .eq("project_id", projectId);
+      } catch (error) {
+        console.error("Error clearing materials from DB:", error);
+      }
+    }
+    
     setMaterials([]);
     setProductMaterials([]);
     toast.success("Сырьё очищено");
-  }, []);
+  }, [projectId, userId]);
 
-  const clearCompetitors = useCallback(() => {
+  const clearCompetitors = useCallback(async () => {
+    if (projectId && userId) {
+      try {
+        await supabase
+          .from("competitors")
+          .delete()
+          .eq("project_id", projectId);
+      } catch (error) {
+        console.error("Error clearing competitors from DB:", error);
+      }
+    }
+    
     setCompetitors([]);
     toast.success("Конкуренты очищены");
-  }, []);
+  }, [projectId, userId]);
 
   const clearMetrics = useCallback(() => {
     setCurrentMetrics(initialMetrics);
@@ -1066,13 +1199,43 @@ export const useProject = (userId: string | undefined) => {
     toast.success("Показатели очищены");
   }, []);
 
-  const clearSalesChannels = useCallback(() => {
+  const clearSalesChannels = useCallback(async () => {
+    if (projectId && userId) {
+      try {
+        await supabase
+          .from("product_channel_allocations")
+          .delete()
+          .eq("project_id", projectId);
+        
+        await supabase
+          .from("sales_channels")
+          .delete()
+          .eq("project_id", projectId);
+      } catch (error) {
+        console.error("Error clearing sales channels from DB:", error);
+      }
+    }
+    
     setSalesChannels([]);
     setProductChannelAllocations([]);
     toast.success("Каналы продаж очищены");
-  }, []);
+  }, [projectId, userId]);
 
   const clearAllData = useCallback(async () => {
+    // Удаляем из БД если авторизован
+    if (projectId && userId) {
+      try {
+        await supabase.from("product_channel_allocations").delete().eq("project_id", projectId);
+        await supabase.from("product_materials").delete().eq("project_id", projectId);
+        await supabase.from("raw_materials").delete().eq("project_id", projectId);
+        await supabase.from("products").delete().eq("project_id", projectId);
+        await supabase.from("competitors").delete().eq("project_id", projectId);
+        await supabase.from("sales_channels").delete().eq("project_id", projectId);
+      } catch (error) {
+        console.error("Error clearing all data from DB:", error);
+      }
+    }
+
     setProducts([]);
     setMaterials([]);
     setProductMaterials([]);
@@ -1098,7 +1261,7 @@ export const useProject = (userId: string | undefined) => {
     localStorage.removeItem(getStorageKey(userId));
     
     toast.success("Все данные очищены");
-  }, [userId]);
+  }, [userId, projectId]);
 
   return {
     projectId,
