@@ -199,31 +199,9 @@ export const MetricsForm = memo(({
   );
 
   const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
+    // Передаём источники наверх — CompanyMetrics сам пересчитает marketingCosts и totalLeads
     onUpdateLeadSources(sources);
-    // Автоматически пересчитываем общее количество лидов
-    const totalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
-    const leadSourcesMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
-
-    // Маркетинговые расходы из детализированных статей
-    const detailedExpenses = metrics.detailedExpenses;
-    const detailedMarketingCost = detailedExpenses ? (
-      detailedExpenses.variableCosts.marketing.trafficPurchase +
-      detailedExpenses.variableCosts.marketing.contractorsPayment +
-      detailedExpenses.variableCosts.marketing.crmCosts +
-      detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0)
-    ) : 0;
-
-    // Итоговые маркетинговые расходы = детализированные + источники трафика
-    const totalMarketingCost = detailedMarketingCost + leadSourcesMarketingCost;
-
-    onUpdateMetric("totalLeads", totalLeads);
-    onUpdateMetric("marketingCosts", totalMarketingCost);
-
-    // Автоматически пересчитываем конверсию, при нулевых базовых значениях ставим 0
-    const hasData = totalLeads > 0 && metrics.totalClients > 0;
-    const newConversion = hasData ? (metrics.totalClients / totalLeads) * 100 : 0;
-    onUpdateMetric("conversionRate", parseFloat(newConversion.toFixed(2)));
-  }, [onUpdateLeadSources, onUpdateMetric, metrics.totalClients, metrics.detailedExpenses]);
+  }, [onUpdateLeadSources]);
 
   return (
     <div className="space-y-6">
