@@ -887,7 +887,7 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
-      const { error } = await supabase.from("products").insert({
+      const { data, error } = await supabase.from("products").insert({
         project_id: projectId,
         name: product.name,
         price: product.price,
@@ -897,10 +897,23 @@ export const useProject = (userId: string | undefined) => {
         volume_per_unit: product.volumePerUnit || 0,
         delivery_type: product.deliveryType || 'courier',
         logistics_to_client: product.logisticsToClientPerUnit || 0,
-      });
+      }).select().single();
 
       if (error) throw error;
-      await loadProject();
+      
+      // Добавляем продукт в локальное состояние без перезагрузки всего проекта
+      const newProduct: Product = {
+        id: data.id,
+        name: data.name,
+        price: Number(data.price) || 0,
+        cost: Number(data.cost) || 0,
+        quantity: data.quantity || 0,
+        weightPerUnit: Number(data.weight_per_unit) || 0,
+        volumePerUnit: Number(data.volume_per_unit) || 0,
+        deliveryType: (data.delivery_type || 'courier') as 'courier' | 'own_delivery' | 'pickup' | 'transport_company',
+        logisticsToClientPerUnit: Number(data.logistics_to_client) || 0,
+      };
+      setProducts(prev => [...prev, newProduct]);
       toast.success("Продукт добавлен");
     } catch (error: any) {
       console.error("Error saving product:", error);
