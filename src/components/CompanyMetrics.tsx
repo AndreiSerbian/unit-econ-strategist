@@ -221,15 +221,72 @@ export const CompanyMetrics = ({
   const handleScenarioBSave = useCallback(() => saveScenario("scenarioB", scenarioB), [saveScenario, scenarioB]);
  
   const handleCurrentLeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
-    setCurrentMetrics((prev) => ({ ...prev, leadSources: sources }));
+    setCurrentMetrics((prev) => {
+      const leadSourcesMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
+      const detailedMarketingCost = prev.detailedExpenses ? (
+        prev.detailedExpenses.variableCosts.marketing.trafficPurchase +
+        prev.detailedExpenses.variableCosts.marketing.contractorsPayment +
+        prev.detailedExpenses.variableCosts.marketing.crmCosts +
+        prev.detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0)
+      ) : 0;
+      const totalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
+      const newConversion = totalLeads > 0 && prev.totalClients > 0 
+        ? (prev.totalClients / totalLeads) * 100 
+        : 0;
+      return { 
+        ...prev, 
+        leadSources: sources,
+        totalLeads,
+        marketingCosts: detailedMarketingCost + leadSourcesMarketingCost,
+        conversionRate: parseFloat(newConversion.toFixed(2)),
+      };
+    });
   }, [setCurrentMetrics]);
  
   const handleScenarioALeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
-    setScenarioA((prev) => ({ ...prev, leadSources: sources }));
+    setScenarioA((prev) => {
+      const leadSourcesMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
+      const detailedMarketingCost = prev.detailedExpenses ? (
+        prev.detailedExpenses.variableCosts.marketing.trafficPurchase +
+        prev.detailedExpenses.variableCosts.marketing.contractorsPayment +
+        prev.detailedExpenses.variableCosts.marketing.crmCosts +
+        prev.detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0)
+      ) : 0;
+      const totalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
+      const newConversion = totalLeads > 0 && prev.totalClients > 0 
+        ? (prev.totalClients / totalLeads) * 100 
+        : 0;
+      return { 
+        ...prev, 
+        leadSources: sources,
+        totalLeads,
+        marketingCosts: detailedMarketingCost + leadSourcesMarketingCost,
+        conversionRate: parseFloat(newConversion.toFixed(2)),
+      };
+    });
   }, [setScenarioA]);
  
   const handleScenarioBLeadSourcesUpdate = useCallback((sources: LeadSource[]) => {
-    setScenarioB((prev) => ({ ...prev, leadSources: sources }));
+    setScenarioB((prev) => {
+      const leadSourcesMarketingCost = sources.reduce((sum, s) => sum + s.cost, 0);
+      const detailedMarketingCost = prev.detailedExpenses ? (
+        prev.detailedExpenses.variableCosts.marketing.trafficPurchase +
+        prev.detailedExpenses.variableCosts.marketing.contractorsPayment +
+        prev.detailedExpenses.variableCosts.marketing.crmCosts +
+        prev.detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0)
+      ) : 0;
+      const totalLeads = sources.reduce((sum, s) => sum + s.leads, 0);
+      const newConversion = totalLeads > 0 && prev.totalClients > 0 
+        ? (prev.totalClients / totalLeads) * 100 
+        : 0;
+      return { 
+        ...prev, 
+        leadSources: sources,
+        totalLeads,
+        marketingCosts: detailedMarketingCost + leadSourcesMarketingCost,
+        conversionRate: parseFloat(newConversion.toFixed(2)),
+      };
+    });
   }, [setScenarioB]);
 
   // Очистка сценариев
