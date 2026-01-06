@@ -793,7 +793,7 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
-      const { error } = await supabase.from("competitors").insert({
+      const { data, error } = await supabase.from("competitors").insert({
         project_id: projectId,
         name: competitor.name,
         revenue: competitor.revenue,
@@ -801,10 +801,22 @@ export const useProject = (userId: string | undefined) => {
         pricing: competitor.pricing,
         quality: competitor.quality,
         marketing_spend: competitor.marketingSpend,
-      });
+      }).select().single();
 
       if (error) throw error;
-      await loadProject();
+      
+      // Добавляем конкурента в локальное состояние без перезагрузки всего проекта
+      const newCompetitor: Competitor = {
+        id: data.id,
+        name: data.name,
+        revenue: Number(data.revenue) || 0,
+        marketShare: Number(data.market_share) || 0,
+        pricing: Number(data.pricing) || 0,
+        quality: Number(data.quality) || 0,
+        marketingSpend: Number(data.marketing_spend) || 0,
+        products: [],
+      };
+      setCompetitors(prev => [...prev, newCompetitor]);
       toast.success("Конкурент добавлен");
     } catch (error: any) {
       console.error("Error saving competitor:", error);
