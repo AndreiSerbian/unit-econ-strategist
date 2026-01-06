@@ -272,7 +272,7 @@ export const CompetitiveScoreCalculator = ({
                           Интегральный показатель: <span className="font-bold">{data.score}</span>
                         </p>
                         <div className="text-xs space-y-1 mt-2 pt-2 border-t">
-                          <p>Качество: {data.quality} (факт: {data.rawData.quality}/10)</p>
+                          <p>Качество: {data.quality} (факт: {data.rawData.quality}/20)</p>
                           <p>Цена: {data.pricing} (факт: {data.rawData.pricing.toLocaleString()} {currency})</p>
                           <p>Маркетинг: {data.marketing} (факт: {data.rawData.marketingSpend.toLocaleString()} {currency})</p>
                           <p>Доля рынка: {data.marketShare} (факт: {data.rawData.marketShare}%)</p>
