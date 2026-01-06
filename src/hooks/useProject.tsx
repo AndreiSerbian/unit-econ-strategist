@@ -1040,6 +1040,66 @@ export const useProject = (userId: string | undefined) => {
     toast.success("Метрики обновлены на основе продуктов");
   };
 
+  // Функции очистки данных
+  const clearProducts = useCallback(() => {
+    setProducts([]);
+    setProductMaterials([]);
+    setProductChannelAllocations([]);
+    toast.success("Продукты очищены");
+  }, []);
+
+  const clearMaterials = useCallback(() => {
+    setMaterials([]);
+    setProductMaterials([]);
+    toast.success("Сырьё очищено");
+  }, []);
+
+  const clearCompetitors = useCallback(() => {
+    setCompetitors([]);
+    toast.success("Конкуренты очищены");
+  }, []);
+
+  const clearMetrics = useCallback(() => {
+    setCurrentMetrics(initialMetrics);
+    setScenarioA(initialMetrics);
+    setScenarioB(initialMetrics);
+    toast.success("Показатели очищены");
+  }, []);
+
+  const clearSalesChannels = useCallback(() => {
+    setSalesChannels([]);
+    setProductChannelAllocations([]);
+    toast.success("Каналы продаж очищены");
+  }, []);
+
+  const clearAllData = useCallback(async () => {
+    setProducts([]);
+    setMaterials([]);
+    setProductMaterials([]);
+    setCompetitors([]);
+    setCurrentMetrics(initialMetrics);
+    setScenarioA(initialMetrics);
+    setScenarioB(initialMetrics);
+    setSalesChannels([]);
+    setProductChannelAllocations([]);
+    setLogisticsTariffs({
+      auto: { perKgKm: 0.05, perM3Km: 50, baseRate: 500 },
+      rail: { perKgKm: 0.02, perM3Km: 30, baseRate: 1000 },
+      air: { perKgKm: 0.5, perM3Km: 500, baseRate: 2000 },
+      sea: { perKgKm: 0.01, perM3Km: 20, baseRate: 3000 },
+      local: { perKgKm: 0.1, perM3Km: 100, baseRate: 200 },
+      courier: { perKg: 50, perM3: 500, baseRate: 300 },
+      pickup: { perKg: 0, perM3: 0, baseRate: 0 },
+      transport_company: { perKg: 30, perM3: 300, baseRate: 500 },
+      own_delivery: { perKg: 20, perM3: 200, baseRate: 150 },
+    });
+    
+    // Очистка localStorage
+    localStorage.removeItem(getStorageKey(userId));
+    
+    toast.success("Все данные очищены");
+  }, [userId]);
+
   return {
     projectId,
     currentMetrics,
@@ -1087,5 +1147,12 @@ export const useProject = (userId: string | undefined) => {
     addCompetitorProduct,
     deleteCompetitorProduct,
     saveAllToCloud,
+    // Функции очистки
+    clearProducts,
+    clearMaterials,
+    clearCompetitors,
+    clearMetrics,
+    clearSalesChannels,
+    clearAllData,
   };
 };

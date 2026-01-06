@@ -40,7 +40,26 @@ import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
 import AIAnalytics from "./AIAnalytics";
-import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2 } from "lucide-react";
+import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
@@ -117,7 +136,15 @@ export const Dashboard = () => {
     addCompetitorProduct,
     deleteCompetitorProduct,
     saveAllToCloud,
+    clearProducts,
+    clearMaterials,
+    clearCompetitors,
+    clearMetrics,
+    clearSalesChannels,
+    clearAllData,
   } = useProject(user?.id);
+
+  const [showClearDialog, setShowClearDialog] = useState(false);
 
   const formatLastSaved = (date: Date | null) => {
     if (!date) return null;
@@ -318,6 +345,72 @@ export const Dashboard = () => {
                   )}
                   <span className="ml-1 hidden sm:inline">Сохранить</span>
                 </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span className="ml-1 hidden sm:inline">Очистить</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Очистить данные</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={clearProducts}>
+                      <Package className="w-4 h-4 mr-2" />
+                      Продукты
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearMaterials}>
+                      <Truck className="w-4 h-4 mr-2" />
+                      Сырьё
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearSalesChannels}>
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Каналы продаж
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearMetrics}>
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Показатели
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearCompetitors}>
+                      <Users className="w-4 h-4 mr-2" />
+                      Конкуренты
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem 
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Очистить всё
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Очистить все данные?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Это действие удалит все введённые данные: продукты, сырьё, показатели, конкурентов и каналы продаж. Данные в облаке не будут удалены до следующего сохранения.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Отмена</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={clearAllData}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Очистить всё
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           )}
