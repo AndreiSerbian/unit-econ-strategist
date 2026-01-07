@@ -448,7 +448,23 @@ export const useProject = (userId: string | undefined) => {
         { onConflict: 'project_id' }
       );
 
-      // Сохраняем каналы продаж
+      // Синхронизируем каналы продаж (включая удаление)
+      const { data: existingChannels } = await supabase
+        .from("sales_channels")
+        .select("id")
+        .eq("project_id", projectId);
+
+      const existingChannelIds = new Set(existingChannels?.map(c => c.id) || []);
+      const currentChannelIds = new Set(salesChannels.map(c => c.id));
+
+      // Удаляем каналы, которых больше нет
+      for (const existingId of existingChannelIds) {
+        if (!currentChannelIds.has(existingId)) {
+          await supabase.from("sales_channels").delete().eq("id", existingId);
+        }
+      }
+
+      // Обновляем или добавляем каналы
       for (const channel of salesChannels) {
         await (supabase.from("sales_channels") as any).upsert(
           {
@@ -468,14 +484,75 @@ export const useProject = (userId: string | undefined) => {
         );
       }
 
+      // Синхронизируем продукты (включая удаление)
+      const { data: existingProducts } = await supabase
+        .from("products")
+        .select("id")
+        .eq("project_id", projectId);
+
+      const existingProductIds = new Set(existingProducts?.map(p => p.id) || []);
+      const currentProductIds = new Set(products.map(p => p.id));
+
+      // Удаляем продукты, которых больше нет
+      for (const existingId of existingProductIds) {
+        if (!currentProductIds.has(existingId)) {
+          await supabase.from("products").delete().eq("id", existingId);
+        }
+      }
+
+      // Обновляем или добавляем продукты
+      for (const product of products) {
+        await supabase.from("products").upsert({
+          id: product.id,
+          project_id: projectId,
+          name: product.name,
+          price: product.price,
+          cost: product.cost,
+          quantity: product.quantity,
+          quality: product.quality ?? 10,
+          weight_per_unit: product.weightPerUnit || 0,
+          volume_per_unit: product.volumePerUnit || 0,
+          delivery_type: product.deliveryType || 'courier',
+          logistics_to_client: product.logisticsToClientPerUnit || 0,
+        }, { onConflict: 'id' });
+      }
+
+      // Синхронизируем конкурентов (включая удаление)
+      const { data: existingCompetitors } = await supabase
+        .from("competitors")
+        .select("id")
+        .eq("project_id", projectId);
+
+      const existingCompetitorIds = new Set(existingCompetitors?.map(c => c.id) || []);
+      const currentCompetitorIds = new Set(competitors.map(c => c.id));
+
+      // Удаляем конкурентов, которых больше нет
+      for (const existingId of existingCompetitorIds) {
+        if (!currentCompetitorIds.has(existingId)) {
+          await supabase.from("competitors").delete().eq("id", existingId);
+        }
+      }
+
+      // Обновляем или добавляем конкурентов
+      for (const competitor of competitors) {
+        await supabase.from("competitors").upsert({
+          id: competitor.id,
+          project_id: projectId,
+          name: competitor.name,
+          revenue: competitor.revenue,
+          market_share: competitor.marketShare,
+          pricing: competitor.pricing,
+          quality: competitor.quality,
+          marketing_spend: competitor.marketingSpend,
+        }, { onConflict: 'id' });
+      }
+
       // Сохраняем сырьё (raw_materials)
-      // Сначала удаляем старые записи
       await supabase
         .from("raw_materials")
         .delete()
         .eq("project_id", projectId);
       
-      // Затем вставляем новые
       if (materials.length > 0) {
         for (const material of materials) {
           await supabase.from("raw_materials").insert({
@@ -510,6 +587,24 @@ export const useProject = (userId: string | undefined) => {
         }
       }
 
+      // Синхронизируем распределения по каналам
+      await supabase
+        .from("product_channel_allocations")
+        .delete()
+        .eq("project_id", projectId);
+
+      if (productChannelAllocations.length > 0) {
+        for (const alloc of productChannelAllocations) {
+          await supabase.from("product_channel_allocations").insert({
+            project_id: projectId,
+            product_id: alloc.productId,
+            channel_id: alloc.channelId,
+            quantity: alloc.quantity,
+            price_override: alloc.priceOverride,
+          });
+        }
+      }
+
       markAsSavedToCloud(userId);
       setHasUnsavedChanges(false);
       setLastSavedAt(new Date());
@@ -524,7 +619,7 @@ export const useProject = (userId: string | undefined) => {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials]);
+  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials, products, competitors, productChannelAllocations]);
 
   // Debounced автосохранение при изменении данных (2 секунды задержка)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -779,6 +874,24 @@ export const useProject = (userId: string | undefined) => {
             productId: pm.product_id,
             materialId: pm.material_id,
             quantityPerUnit: Number(pm.quantity_per_unit) || 0,
+          }))
+        );
+      }
+
+      // Load product channel allocations
+      const { data: allocationsData } = await supabase
+        .from("product_channel_allocations")
+        .select("*")
+        .eq("project_id", currentProjectId);
+
+      if (allocationsData) {
+        setProductChannelAllocations(
+          allocationsData.map((a: any) => ({
+            id: a.id,
+            productId: a.product_id,
+            channelId: a.channel_id,
+            quantity: a.quantity || 0,
+            priceOverride: a.price_override,
           }))
         );
       }
