@@ -51,6 +51,14 @@ export interface DetailedExpenses {
   };
   taxRate: number;
   taxes: number;
+  duties?: {
+    customsDuty: number;
+    customsDutyRate: number;
+    exportDuty: number;
+    exportDutyRate: number;
+    vatInput: number;
+    vatOutput: number;
+  };
 }
 
 interface LeadSource {
@@ -305,6 +313,7 @@ export const useProject = (userId: string | undefined) => {
   const [materials, setMaterials] = useState<RawMaterial[]>([]);
   const [productMaterials, setProductMaterials] = useState<ProductMaterialUsage[]>([]);
   const [currency, setCurrency] = useState<string>("RUB");
+  const [businessType, setBusinessType] = useState<string>("ecommerce");
   const [loading, setLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -683,6 +692,7 @@ export const useProject = (userId: string | undefined) => {
       // Load project settings
       if (projects && projects.length > 0) {
         setCurrency(projects[0].currency || "RUB");
+        setBusinessType(projects[0].business_type || "ecommerce");
       }
 
       // Load scenarios
@@ -1276,6 +1286,31 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
+  const updateBusinessType = async (newType: string) => {
+    if (!userId) {
+      // Local storage mode
+      setBusinessType(newType);
+      toast.success("Тип бизнеса обновлён");
+      return;
+    }
+
+    if (!projectId) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({ business_type: newType })
+        .eq("id", projectId);
+
+      if (error) throw error;
+      setBusinessType(newType);
+      toast.success("Тип бизнеса обновлён");
+    } catch (error: any) {
+      console.error("Error updating business type:", error);
+      toast.error("Ошибка обновления типа бизнеса");
+    }
+  };
+
   const calculateProductsRevenue = () => {
     return products.reduce((sum, p) => sum + p.price * p.quantity, 0);
   };
@@ -1550,6 +1585,7 @@ export const useProject = (userId: string | undefined) => {
     productMaterials,
     setProductMaterials,
     currency,
+    businessType,
     loading,
     hasUnsavedChanges,
     lastSavedAt,
@@ -1568,6 +1604,7 @@ export const useProject = (userId: string | undefined) => {
     updateProduct,
     deleteProduct,
     updateCurrency,
+    updateBusinessType,
     calculateProductsRevenue,
     calculateProductsCosts,
     calculateMaterialCostPerUnit,

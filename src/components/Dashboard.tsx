@@ -70,33 +70,11 @@ import { useProject } from "@/hooks/useProject";
 import { useNavigate } from "react-router-dom";
 
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
-const BUSINESS_TYPE_KEY = "strategy-analysis-business-type";
 
 export const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [businessType, setBusinessType] = useState<BusinessType>(() => {
-    return (localStorage.getItem(BUSINESS_TYPE_KEY) as BusinessType) || 'ecommerce';
-  });
-
-  useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
-    if (!completed) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = (selectedType: BusinessType) => {
-    localStorage.setItem(ONBOARDING_KEY, "true");
-    localStorage.setItem(BUSINESS_TYPE_KEY, selectedType);
-    setBusinessType(selectedType);
-    setShowOnboarding(false);
-  };
-
-  const handleShowOnboarding = () => {
-    setShowOnboarding(true);
-  };
 
   const {
     projectId,
@@ -115,6 +93,7 @@ export const Dashboard = () => {
     productMaterials,
     setProductMaterials,
     currency,
+    businessType,
     loading,
     hasUnsavedChanges,
     lastSavedAt,
@@ -133,6 +112,7 @@ export const Dashboard = () => {
     updateProduct,
     deleteProduct,
     updateCurrency,
+    updateBusinessType,
     calculateProductsRevenue,
     calculateProductsCosts,
     calculateMaterialCostPerUnit,
@@ -155,7 +135,23 @@ export const Dashboard = () => {
     clearAllData,
   } = useProject(user?.id);
 
-  const [showClearDialog, setShowClearDialog] = useState(false);
+  useEffect(() => {
+    const completed = localStorage.getItem(ONBOARDING_KEY);
+    if (!completed) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = (selectedType: BusinessType) => {
+    localStorage.setItem(ONBOARDING_KEY, "true");
+    updateBusinessType(selectedType);
+    setShowOnboarding(false);
+  };
+
+  const handleShowOnboarding = () => {
+    setShowOnboarding(true);
+  };
+
 
   const formatLastSaved = (date: Date | null) => {
     if (!date) return null;

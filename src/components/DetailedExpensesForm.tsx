@@ -62,6 +62,14 @@ interface DetailedExpenses {
   };
   taxRate: number;
   taxes: number;
+  duties?: {
+    customsDuty: number;
+    customsDutyRate: number;
+    exportDuty: number;
+    exportDutyRate: number;
+    vatInput: number;
+    vatOutput: number;
+  };
 }
 
 interface DetailedExpensesFormProps {
@@ -964,6 +972,176 @@ export const DetailedExpensesForm = memo(({
                     <Plus className="w-4 h-4 mr-1" />
                     Добавить
                   </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="duties">
+              <AccordionTrigger>
+                <div className="flex items-center justify-between w-full pr-4">
+                  <div className="flex items-center gap-2">
+                    <span>🏛️ Пошлины и НДС</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Таможенные пошлины на импорт, экспортные пошлины, НДС к вычету и возмещению.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <span className="text-sm font-mono text-muted-foreground">
+                    {(
+                      (expenses.duties?.customsDuty || 0) +
+                      (expenses.duties?.exportDuty || 0) +
+                      Math.max(0, (expenses.duties?.vatOutput || 0) - (expenses.duties?.vatInput || 0))
+                    ).toLocaleString("ru-RU")} {currency}
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1">
+                      <span>Таможенные пошлины ({currency})</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                          Пошлины на импорт товаров и сырья. Рассчитываются от таможенной стоимости.
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      value={expenses.duties?.customsDuty || 0}
+                      onChange={(v) => onChange({
+                        ...expenses,
+                        duties: { ...expenses.duties, customsDuty: v }
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Ставка таможенной пошлины (%)</Label>
+                    <NumericInput
+                      value={expenses.duties?.customsDutyRate || 0}
+                      onChange={(v) => onChange({
+                        ...expenses,
+                        duties: { ...expenses.duties, customsDutyRate: v }
+                      })}
+                      placeholder="5-20"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1">
+                      <span>Экспортные пошлины ({currency})</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                          Пошлины на экспорт товаров (если применимо).
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      value={expenses.duties?.exportDuty || 0}
+                      onChange={(v) => onChange({
+                        ...expenses,
+                        duties: { ...expenses.duties, exportDuty: v }
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Ставка экспортной пошлины (%)</Label>
+                    <NumericInput
+                      value={expenses.duties?.exportDutyRate || 0}
+                      onChange={(v) => onChange({
+                        ...expenses,
+                        duties: { ...expenses.duties, exportDutyRate: v }
+                      })}
+                      placeholder="0-30"
+                    />
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t space-y-4">
+                  <h4 className="font-medium text-sm">НДС (налог на добавленную стоимость)</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1">
+                        <span>Входящий НДС ({currency})</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                            НДС, уплаченный поставщикам. Принимается к вычету.
+                          </TooltipContent>
+                        </Tooltip>
+                      </Label>
+                      <NumericInput
+                        value={expenses.duties?.vatInput || 0}
+                        onChange={(v) => onChange({
+                          ...expenses,
+                          duties: { ...expenses.duties, vatInput: v }
+                        })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1">
+                        <span>Исходящий НДС ({currency})</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                            НДС в составе выручки. Авто: Выручка × 20% / 120%
+                          </TooltipContent>
+                        </Tooltip>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <NumericInput
+                          value={expenses.duties?.vatOutput || 0}
+                          onChange={(v) => onChange({
+                            ...expenses,
+                            duties: { ...expenses.duties, vatOutput: v }
+                          })}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const vatOutput = Math.round(revenue * 0.2 / 1.2);
+                            onChange({
+                              ...expenses,
+                              duties: { ...expenses.duties, vatOutput }
+                            });
+                          }}
+                        >
+                          <Calculator className="w-4 h-4 mr-1" />
+                          Авто
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">
+                        {((expenses.duties?.vatOutput || 0) - (expenses.duties?.vatInput || 0)) >= 0 
+                          ? "НДС к уплате:" 
+                          : "НДС к возмещению:"}
+                      </span>
+                      <span className={`text-lg font-bold font-mono ${
+                        ((expenses.duties?.vatOutput || 0) - (expenses.duties?.vatInput || 0)) >= 0 
+                          ? "text-destructive" 
+                          : "text-green-600"
+                      }`}>
+                        {Math.abs((expenses.duties?.vatOutput || 0) - (expenses.duties?.vatInput || 0)).toLocaleString("ru-RU")} {currency}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
