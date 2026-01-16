@@ -971,7 +971,17 @@ export const DetailedExpensesForm = memo(({
             <AccordionItem value="taxes">
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
-                  <span>Налоги и другое</span>
+                  <div className="flex items-center gap-2">
+                    <span>Налоги и другое</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Налоги на прибыль, налоги на ФОТ (страховые взносы) и прочие обязательные платежи.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <span className="text-sm font-mono text-muted-foreground">
                     {calculateOtherTotal().toLocaleString("ru-RU")} {currency}
                   </span>
@@ -979,7 +989,17 @@ export const DetailedExpensesForm = memo(({
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>Налоговая ставка (%)</Label>
+                  <Label className="flex items-center gap-1">
+                    <span>Налоговая ставка (%)</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                        Ставка налога на прибыль или упрощённого налога (УСН). Используется для автоматического расчёта суммы налогов.
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <NumericInput
                     value={expenses.taxRate}
                     onChange={updateTaxRate}
@@ -998,6 +1018,22 @@ export const DetailedExpensesForm = memo(({
                       Авто
                     </Button>
                   </div>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">💡 Налоги на ФОТ (страховые взносы)</p>
+                  <p className="text-xs text-muted-foreground">
+                    В РФ работодатель платит ~30% от ФОТ в социальные фонды (ПФР, ФСС, ФОМС).
+                    Рассчитайте сумму: (ЗП по старым + ЗП по новым + Оклад руководства + Маркетинг + Производство) × 0.3
+                  </p>
+                  <p className="text-xs font-mono">
+                    Ориентировочно: {(
+                      (expenses.fixedCosts.salaryOldClients +
+                       expenses.fixedCosts.salaryNewClients +
+                       expenses.fixedCosts.managementSalary +
+                       expenses.fixedCosts.marketingSalary +
+                       expenses.fixedCosts.productionSalary) * 0.3
+                    ).toLocaleString("ru-RU")} {currency}
+                  </p>
                 </div>
                 {expenses.variableCosts.other.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">

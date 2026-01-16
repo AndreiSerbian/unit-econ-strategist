@@ -821,24 +821,34 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
             
-            {competitors.length > 0 && (
-              <AnimatedCard delay={0.5}>
-                <CompetitiveScoreCalculator
-                  myCompany={{
-                    name: "Моя компания",
-                    revenue: currentMetrics.revenue,
-                    marketShare: 0,
-                    pricing: currentMetrics.avgCheck,
-                    quality: products.length > 0 
-                      ? Math.round(products.reduce((sum, p) => sum + (p.quality ?? 10), 0) / products.length)
-                      : 10,
-                    marketingSpend: currentMetrics.marketingCosts,
-                  }}
-                  competitors={competitors}
-                  currency={currency}
-                />
-              </AnimatedCard>
-            )}
+            {competitors.length > 0 && (() => {
+              // Расчёт доли рынка на основе выручки
+              const totalRevenue = currentMetrics.revenue + competitors.reduce((sum, c) => sum + (c.revenue || 0), 0);
+              const myMarketShare = totalRevenue > 0 ? (currentMetrics.revenue / totalRevenue) * 100 : 0;
+              const competitorsWithCalculatedShare = competitors.map(c => ({
+                ...c,
+                marketShare: totalRevenue > 0 ? ((c.revenue || 0) / totalRevenue) * 100 : (c.marketShare || 0),
+              }));
+              
+              return (
+                <AnimatedCard delay={0.5}>
+                  <CompetitiveScoreCalculator
+                    myCompany={{
+                      name: "Моя компания",
+                      revenue: currentMetrics.revenue,
+                      marketShare: myMarketShare,
+                      pricing: currentMetrics.avgCheck,
+                      quality: products.length > 0 
+                        ? Math.round(products.reduce((sum, p) => sum + (p.quality ?? 10), 0) / products.length)
+                        : 10,
+                      marketingSpend: currentMetrics.marketingCosts,
+                    }}
+                    competitors={competitorsWithCalculatedShare}
+                    currency={currency}
+                  />
+                </AnimatedCard>
+              );
+            })()}
             
             {competitors.length > 0 && (
               <AnimatedCard delay={0.55}>
@@ -873,40 +883,63 @@ export const Dashboard = () => {
             </AnimatedCard>
 
             {competitors.some(c => c.detailedExpenses && c.customerLifetimeMonths && c.purchaseFrequency) && 
-             currentMetrics.detailedExpenses && currentMetrics.customerLifetimeMonths && currentMetrics.purchaseFrequency && (
-              <AnimatedCard delay={0.2}>
-                <CompetitiveMap
-                  myCompany={{
-                    name: "Моя компания",
-                    revenue: currentMetrics.revenue,
-                    marketShare: 0,
-                    totalClients: currentMetrics.totalClients,
-                    newClients: currentMetrics.newClients,
-                    returningClients: currentMetrics.returningClients,
-                    conversionRate: currentMetrics.conversionRate,
-                    avgCheck: currentMetrics.avgCheck,
-                    fixedCosts: currentMetrics.fixedCosts,
-                    variableCosts: currentMetrics.variableCosts,
-                    marketingCosts: currentMetrics.marketingCosts,
-                    detailedExpenses: currentMetrics.detailedExpenses,
-                    customerLifetimeMonths: currentMetrics.customerLifetimeMonths,
-                    purchaseFrequency: currentMetrics.purchaseFrequency,
-                  }}
-                  competitors={competitors}
-                  currency={currency}
-                />
-              </AnimatedCard>
-            )}
+             currentMetrics.detailedExpenses && currentMetrics.customerLifetimeMonths && currentMetrics.purchaseFrequency && (() => {
+              // Расчёт доли рынка на основе выручки для CompetitiveMap
+              const totalRevenue = currentMetrics.revenue + competitors.reduce((sum, c) => sum + (c.revenue || 0), 0);
+              const myMarketShare = totalRevenue > 0 ? (currentMetrics.revenue / totalRevenue) * 100 : 0;
+              const competitorsWithCalculatedShare = competitors.map(c => ({
+                ...c,
+                marketShare: totalRevenue > 0 ? ((c.revenue || 0) / totalRevenue) * 100 : (c.marketShare || 0),
+              }));
+              
+              return (
+                <AnimatedCard delay={0.2}>
+                  <CompetitiveMap
+                    myCompany={{
+                      name: "Моя компания",
+                      revenue: currentMetrics.revenue,
+                      marketShare: myMarketShare,
+                      totalClients: currentMetrics.totalClients,
+                      newClients: currentMetrics.newClients,
+                      returningClients: currentMetrics.returningClients,
+                      conversionRate: currentMetrics.conversionRate,
+                      avgCheck: currentMetrics.avgCheck,
+                      fixedCosts: currentMetrics.fixedCosts,
+                      variableCosts: currentMetrics.variableCosts,
+                      marketingCosts: currentMetrics.marketingCosts,
+                      detailedExpenses: currentMetrics.detailedExpenses,
+                      customerLifetimeMonths: currentMetrics.customerLifetimeMonths,
+                      purchaseFrequency: currentMetrics.purchaseFrequency,
+                    }}
+                    competitors={competitorsWithCalculatedShare}
+                    currency={currency}
+                  />
+                </AnimatedCard>
+              );
+            })()}
 
-            {competitors.length > 0 && (
-              <AnimatedCard delay={0.3}>
-                <CompetitiveRanking
-                  myCompany={currentMetrics}
-                  competitors={competitors}
-                  currency={currency}
-                />
-              </AnimatedCard>
-            )}
+            {competitors.length > 0 && (() => {
+              // Расчёт доли рынка на основе выручки для CompetitiveRanking
+              const totalRevenue = currentMetrics.revenue + competitors.reduce((sum, c) => sum + (c.revenue || 0), 0);
+              const myMarketShare = totalRevenue > 0 ? (currentMetrics.revenue / totalRevenue) * 100 : 0;
+              const competitorsWithCalculatedShare = competitors.map(c => ({
+                ...c,
+                marketShare: totalRevenue > 0 ? ((c.revenue || 0) / totalRevenue) * 100 : (c.marketShare || 0),
+              }));
+              
+              return (
+                <AnimatedCard delay={0.3}>
+                  <CompetitiveRanking
+                    myCompany={{
+                      ...currentMetrics,
+                      marketShare: myMarketShare,
+                    }}
+                    competitors={competitorsWithCalculatedShare}
+                    currency={currency}
+                  />
+                </AnimatedCard>
+              );
+            })()}
           </TabsContent>
 
           {/* ANALYTICS TAB */}
