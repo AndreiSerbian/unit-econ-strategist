@@ -163,16 +163,23 @@ export const ROICalculator = ({
     },
   ];
  
-   const getLogisticsStats = (metrics: Metrics) => {
-     const logistics = metrics.detailedExpenses?.variableCosts.production.logistics ?? 0;
-     const revenue = metrics.revenue || 0;
-     const variableCosts = metrics.variableCosts || 0;
- 
-     const logisticsVsRevenue = revenue > 0 ? (logistics / revenue) * 100 : 0;
-     const logisticsVsVariable = variableCosts > 0 ? (logistics / variableCosts) * 100 : 0;
- 
-     return { logistics, logisticsVsRevenue, logisticsVsVariable };
-   };
+  // Получение статистики по логистике с fallback на 0, если detailedExpenses отсутствует
+  const getLogisticsStats = (metrics: Metrics) => {
+    // Если detailedExpenses не указаны, возвращаем нули
+    const logistics = metrics.detailedExpenses?.variableCosts.production.logistics ?? 0;
+    const revenue = metrics.revenue || 0;
+    const variableCosts = metrics.variableCosts || 0;
+
+    const logisticsVsRevenue = revenue > 0 ? (logistics / revenue) * 100 : 0;
+    const logisticsVsVariable = variableCosts > 0 ? (logistics / variableCosts) * 100 : 0;
+
+    return { 
+      logistics, 
+      logisticsVsRevenue, 
+      logisticsVsVariable,
+      hasData: !!metrics.detailedExpenses 
+    };
+  };
  
    const logisticsData = [
      {
@@ -280,37 +287,43 @@ export const ROICalculator = ({
                <Card key={item.scenario} className="bg-muted/40">
                  <CardContent className="pt-4 sm:pt-6 space-y-2">
                    <h3 className="font-semibold text-sm sm:text-base">{item.scenario}</h3>
-                   <div className="space-y-1.5">
-                     <div>
-                       <p className="text-[10px] sm:text-xs text-muted-foreground">
-                         Логистика за период
-                       </p>
-                       <p className="text-base sm:text-lg font-mono font-semibold">
-                         {item.logistics.toLocaleString("ru-RU", {
-                           maximumFractionDigits: 0,
-                         })}{" "}
-                         {currency}
-                       </p>
-                     </div>
-                     <div className="flex items-center justify-between gap-2">
+                   {item.hasData ? (
+                     <div className="space-y-1.5">
                        <div>
                          <p className="text-[10px] sm:text-xs text-muted-foreground">
-                           Доля в выручке
+                           Логистика за период
                          </p>
-                         <p className="text-sm sm:text-base font-mono">
-                           {item.logisticsVsRevenue.toFixed(1)}%
+                         <p className="text-base sm:text-lg font-mono font-semibold">
+                           {item.logistics.toLocaleString("ru-RU", {
+                             maximumFractionDigits: 0,
+                           })}{" "}
+                           {currency}
                          </p>
                        </div>
-                       <div>
-                         <p className="text-[10px] sm:text-xs text-muted-foreground">
-                           Доля в переменных расходах
-                         </p>
-                         <p className="text-sm sm:text-base font-mono">
-                           {item.logisticsVsVariable.toFixed(1)}%
-                         </p>
+                       <div className="flex items-center justify-between gap-2">
+                         <div>
+                           <p className="text-[10px] sm:text-xs text-muted-foreground">
+                             Доля в выручке
+                           </p>
+                           <p className="text-sm sm:text-base font-mono">
+                             {item.logisticsVsRevenue.toFixed(1)}%
+                           </p>
+                         </div>
+                         <div>
+                           <p className="text-[10px] sm:text-xs text-muted-foreground">
+                             Доля в переменных расходах
+                           </p>
+                           <p className="text-sm sm:text-base font-mono">
+                             {item.logisticsVsVariable.toFixed(1)}%
+                           </p>
+                         </div>
                        </div>
                      </div>
-                   </div>
+                   ) : (
+                     <p className="text-sm text-muted-foreground italic">
+                       Детализированные расходы не заполнены
+                     </p>
+                   )}
                  </CardContent>
                </Card>
              ))}

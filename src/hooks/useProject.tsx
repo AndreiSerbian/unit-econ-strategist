@@ -80,6 +80,8 @@ interface Metrics {
   paybackMonths?: number;
   totalLeads?: number;
   leadSources?: LeadSource[];
+  marketShare?: number;
+  quality?: number;
 }
 
 export type { Metrics, CompetitorProduct, Competitor, Product, LeadSource };
