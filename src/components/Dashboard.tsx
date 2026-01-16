@@ -39,8 +39,11 @@ import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
+import { CustomerJourney } from "./CustomerJourney";
+import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
+import type { BusinessType } from "@/config/businessTypeMetrics";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,11 +70,15 @@ import { useProject } from "@/hooks/useProject";
 import { useNavigate } from "react-router-dom";
 
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
+const BUSINESS_TYPE_KEY = "strategy-analysis-business-type";
 
 export const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [businessType, setBusinessType] = useState<BusinessType>(() => {
+    return (localStorage.getItem(BUSINESS_TYPE_KEY) as BusinessType) || 'ecommerce';
+  });
 
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
@@ -80,8 +87,10 @@ export const Dashboard = () => {
     }
   }, []);
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = (selectedType: BusinessType) => {
     localStorage.setItem(ONBOARDING_KEY, "true");
+    localStorage.setItem(BUSINESS_TYPE_KEY, selectedType);
+    setBusinessType(selectedType);
     setShowOnboarding(false);
   };
 
@@ -944,7 +953,43 @@ export const Dashboard = () => {
 
           {/* ANALYTICS TAB */}
           <TabsContent value="analytics" className="space-y-6">
-            <AnimatedCard delay={0.1}>
+            {/* Customer Journey Sankey */}
+            {(currentMetrics.totalLeads || 0) > 0 && (
+              <AnimatedCard delay={0.05}>
+                <CustomerJourney
+                  leadSources={currentMetrics.leadSources || []}
+                  totalLeads={currentMetrics.totalLeads || 0}
+                  totalClients={currentMetrics.totalClients}
+                  newClients={currentMetrics.newClients}
+                  returningClients={currentMetrics.returningClients}
+                  conversionRate={currentMetrics.conversionRate}
+                  churnRate={currentMetrics.churnRate || 0}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+
+            {/* Marketing Metrics */}
+            {currentMetrics.detailedExpenses && (
+              <AnimatedCard delay={0.1}>
+                <MarketingMetrics
+                  marketingCosts={currentMetrics.marketingCosts}
+                  totalLeads={currentMetrics.totalLeads || 0}
+                  totalClients={currentMetrics.totalClients}
+                  newClients={currentMetrics.newClients}
+                  conversionRate={currentMetrics.conversionRate}
+                  revenue={currentMetrics.revenue}
+                  leadSources={currentMetrics.leadSources || []}
+                  currency={currency}
+                  trafficPurchase={currentMetrics.detailedExpenses.variableCosts.marketing.trafficPurchase}
+                  contractorsPayment={currentMetrics.detailedExpenses.variableCosts.marketing.contractorsPayment}
+                  crmCosts={currentMetrics.detailedExpenses.variableCosts.marketing.crmCosts}
+                  marketingSalary={currentMetrics.detailedExpenses.fixedCosts.marketingSalary}
+                />
+              </AnimatedCard>
+            )}
+
+            <AnimatedCard delay={0.15}>
               <MetricHistoryChart
                 projectId={projectId}
                 scenarioType="current"

@@ -565,6 +565,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          business_type: string | null
           created_at: string
           currency: string
           description: string | null
@@ -574,6 +575,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          business_type?: string | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -583,6 +585,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          business_type?: string | null
           created_at?: string
           currency?: string
           description?: string | null
