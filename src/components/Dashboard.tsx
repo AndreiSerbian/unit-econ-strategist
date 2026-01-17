@@ -677,6 +677,7 @@ export const Dashboard = () => {
                     productsRevenue={calculateProductsRevenue()}
                     productsCosts={calculateProductsCosts()}
                     syncProductsToMetrics={syncProductsToMetrics}
+                    businessType={businessType}
                   />
                 </CardContent>
               </Card>

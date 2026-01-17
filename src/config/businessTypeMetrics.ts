@@ -20,6 +20,15 @@ export interface ProductField {
   max?: number;
 }
 
+export interface MetricField {
+  key: string;
+  label: string;
+  description?: string;
+  suffix?: string;
+  category: 'revenue' | 'clients' | 'conversion' | 'retention' | 'custom';
+  calculatedFrom?: string[]; // If metric is auto-calculated
+}
+
 export interface BusinessTypeConfig {
   id: BusinessType;
   label: string;
@@ -37,6 +46,7 @@ export interface BusinessTypeConfig {
   productLabel: string;
   productLabelPlural: string;
   productFields: ProductField[];
+  metricFields: MetricField[];
 }
 
 const DELIVERY_TYPE_OPTIONS = [
@@ -70,6 +80,16 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'cost', label: 'Себестоимость', type: 'number', suffix: '/мес' },
       { key: 'churnRate', label: 'Churn Rate', type: 'number', suffix: '%', min: 0, max: 100 },
     ],
+    metricFields: [
+      { key: 'mrr', label: 'MRR', description: 'Месячная регулярная выручка', category: 'revenue', calculatedFrom: ['products'] },
+      { key: 'arr', label: 'ARR', description: 'Годовая регулярная выручка (MRR × 12)', category: 'revenue', calculatedFrom: ['mrr'] },
+      { key: 'churnRate', label: 'Churn Rate', description: 'Процент оттока подписчиков в месяц', suffix: '%', category: 'retention' },
+      { key: 'retentionRate', label: 'Retention Rate', description: 'Процент удержания подписчиков', suffix: '%', category: 'retention', calculatedFrom: ['churnRate'] },
+      { key: 'arpu', label: 'ARPU', description: 'Средний доход на пользователя', category: 'revenue', calculatedFrom: ['mrr', 'totalClients'] },
+      { key: 'trialConversion', label: 'Trial → Paid', description: 'Конверсия из пробного периода', suffix: '%', category: 'conversion' },
+      { key: 'expansionRevenue', label: 'Expansion Revenue', description: 'Допродажи и апгрейды', category: 'revenue' },
+      { key: 'nrr', label: 'NRR', description: 'Net Revenue Retention — чистое удержание выручки', suffix: '%', category: 'retention' },
+    ],
   },
   {
     id: 'ecommerce',
@@ -97,6 +117,15 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'weightPerUnit', label: 'Вес', type: 'number', suffix: 'кг' },
       { key: 'volumePerUnit', label: 'Объём', type: 'number', suffix: 'м³' },
       { key: 'deliveryType', label: 'Тип доставки', type: 'select', options: DELIVERY_TYPE_OPTIONS },
+    ],
+    metricFields: [
+      { key: 'aov', label: 'AOV', description: 'Average Order Value — средний чек', category: 'revenue', calculatedFrom: ['revenue', 'totalClients'] },
+      { key: 'repeatRate', label: 'Repeat Rate', description: 'Доля повторных покупателей', suffix: '%', category: 'retention' },
+      { key: 'cartAbandonment', label: 'Cart Abandonment', description: 'Процент брошенных корзин', suffix: '%', category: 'conversion' },
+      { key: 'roas', label: 'ROAS', description: 'Return on Ad Spend', category: 'custom', calculatedFrom: ['revenue', 'marketingCosts'] },
+      { key: 'cpa', label: 'CPA', description: 'Cost Per Acquisition', category: 'custom', calculatedFrom: ['marketingCosts', 'newClients'] },
+      { key: 'gmv', label: 'GMV', description: 'Gross Merchandise Value', category: 'revenue' },
+      { key: 'ordersPerCustomer', label: 'Заказов на клиента', description: 'Среднее кол-во заказов на клиента', category: 'retention' },
     ],
   },
   {
@@ -127,6 +156,14 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'volumePerUnit', label: 'Объём', type: 'number', suffix: 'м³' },
       { key: 'deliveryType', label: 'Тип доставки', type: 'select', options: DELIVERY_TYPE_OPTIONS },
     ],
+    metricFields: [
+      { key: 'productionCapacity', label: 'Мощности', description: 'Производственная мощность в месяц', category: 'custom' },
+      { key: 'utilization', label: 'Утилизация', description: 'Загрузка производственных мощностей', suffix: '%', category: 'custom' },
+      { key: 'defectRate', label: 'Брак', description: 'Процент бракованной продукции', suffix: '%', category: 'custom' },
+      { key: 'oee', label: 'OEE', description: 'Overall Equipment Effectiveness', suffix: '%', category: 'custom' },
+      { key: 'inventoryTurnover', label: 'Оборачиваемость', description: 'Оборачиваемость запасов', category: 'custom' },
+      { key: 'grossMargin', label: 'Маржа', description: 'Валовая маржа', suffix: '%', category: 'revenue', calculatedFrom: ['revenue', 'variableCosts'] },
+    ],
   },
   {
     id: 'services',
@@ -152,6 +189,14 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'hourlyRate', label: 'Часовая ставка', type: 'number' },
       { key: 'utilization', label: 'Загрузка', type: 'number', suffix: '%', min: 0, max: 100 },
     ],
+    metricFields: [
+      { key: 'hourlyRate', label: 'Часовая ставка', description: 'Средняя ставка за час работы', category: 'revenue' },
+      { key: 'utilizationRate', label: 'Utilization', description: 'Процент оплачиваемого времени', suffix: '%', category: 'custom' },
+      { key: 'billableHours', label: 'Billable Hours', description: 'Оплачиваемые часы в месяц', category: 'custom' },
+      { key: 'projectMargin', label: 'Проектная маржа', description: 'Средняя маржа на проект', suffix: '%', category: 'revenue' },
+      { key: 'clientRetention', label: 'Client Retention', description: 'Процент возвращающихся клиентов', suffix: '%', category: 'retention' },
+      { key: 'avgProjectValue', label: 'Средний проект', description: 'Средняя стоимость проекта', category: 'revenue', calculatedFrom: ['revenue', 'totalClients'] },
+    ],
   },
   {
     id: 'freemium',
@@ -175,6 +220,14 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'quantity', label: 'Пользователи', type: 'number' },
       { key: 'cost', label: 'Себестоимость', type: 'number' },
       { key: 'freeToPayConversion', label: 'Free → Paid', type: 'number', suffix: '%', min: 0, max: 100 },
+    ],
+    metricFields: [
+      { key: 'freeUsers', label: 'Бесплатные пользователи', description: 'Количество пользователей на Free плане', category: 'clients' },
+      { key: 'paidUsers', label: 'Платящие пользователи', description: 'Количество пользователей на платном плане', category: 'clients' },
+      { key: 'freeToPayConversion', label: 'Free → Paid', description: 'Конверсия из бесплатного в платный', suffix: '%', category: 'conversion' },
+      { key: 'arpu', label: 'ARPU', description: 'Средний доход на пользователя', category: 'revenue', calculatedFrom: ['revenue', 'paidUsers'] },
+      { key: 'dauMau', label: 'DAU/MAU', description: 'Отношение дневных к месячным пользователям', suffix: '%', category: 'retention' },
+      { key: 'activationRate', label: 'Activation Rate', description: 'Процент активированных пользователей', suffix: '%', category: 'conversion' },
     ],
   },
   {
@@ -201,6 +254,14 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'utilizationRate', label: 'Загрузка', type: 'number', suffix: '%', min: 0, max: 100 },
       { key: 'takeRate', label: 'Take Rate', type: 'number', suffix: '%', min: 0, max: 100 },
     ],
+    metricFields: [
+      { key: 'gmv', label: 'GMV', description: 'Gross Merchandise Value — объём транзакций', category: 'revenue' },
+      { key: 'takeRate', label: 'Take Rate', description: 'Процент комиссии платформы', suffix: '%', category: 'revenue' },
+      { key: 'utilizationRate', label: 'Utilization Rate', description: 'Загрузка ресурсов', suffix: '%', category: 'custom' },
+      { key: 'avgBookingValue', label: 'Средняя бронь', description: 'Средняя стоимость бронирования', category: 'revenue' },
+      { key: 'repeatUsage', label: 'Repeat Usage', description: 'Доля повторных бронирований', suffix: '%', category: 'retention' },
+      { key: 'supplyDemandBalance', label: 'Supply/Demand', description: 'Баланс спроса и предложения', suffix: '%', category: 'custom' },
+    ],
   },
   {
     id: 'marketplace',
@@ -225,6 +286,14 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'takeRate', label: 'Take Rate', type: 'number', suffix: '%', min: 0, max: 100 },
       { key: 'avgOrderValue', label: 'Средний чек', type: 'number' },
     ],
+    metricFields: [
+      { key: 'gmv', label: 'GMV', description: 'Gross Merchandise Value — общий объём продаж', category: 'revenue' },
+      { key: 'takeRate', label: 'Take Rate', description: 'Комиссия платформы', suffix: '%', category: 'revenue' },
+      { key: 'liquidity', label: 'Liquidity', description: 'Процент успешных транзакций', suffix: '%', category: 'custom' },
+      { key: 'activeSellers', label: 'Активные продавцы', description: 'Количество активных продавцов', category: 'clients' },
+      { key: 'activeBuyers', label: 'Активные покупатели', description: 'Количество активных покупателей', category: 'clients' },
+      { key: 'aov', label: 'AOV', description: 'Средний чек заказа', category: 'revenue', calculatedFrom: ['gmv', 'totalTransactions'] },
+    ],
   },
 ];
 
@@ -245,4 +314,9 @@ export const getProductFields = (type: BusinessType): ProductField[] => {
 export const getProductLabel = (type: BusinessType, plural = false): string => {
   const config = getBusinessTypeConfig(type);
   return plural ? config.productLabelPlural : config.productLabel;
+};
+
+export const getMetricFields = (type: BusinessType): MetricField[] => {
+  const config = getBusinessTypeConfig(type);
+  return config.metricFields;
 };

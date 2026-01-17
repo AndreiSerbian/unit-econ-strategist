@@ -2,12 +2,14 @@ import { memo, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target, Trash2 } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target, Trash2, Info } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
 import { NumericInput } from "@/components/ui/numeric-input";
 import { LeadSourcesForm, LeadSource } from "./LeadSourcesForm";
 import { SalesFunnel } from "./SalesFunnel";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { getBusinessTypeConfig, type BusinessType } from "@/config/businessTypeMetrics";
 
 interface ExpenseCategory {
   id: string;
@@ -145,6 +147,7 @@ interface MetricsFormProps {
   productsRevenue: number;
   productsCosts: number;
   currency: string;
+  businessType: BusinessType;
   onUpdateMetric: (field: keyof Metrics, value: number) => void;
   onUpdateDetailedExpenses: (expenses: DetailedExpenses) => void;
   onUpdateLeadSources: (sources: LeadSource[]) => void;
@@ -161,6 +164,7 @@ export const MetricsForm = memo(({
   productsRevenue,
   productsCosts,
   currency,
+  businessType,
   onUpdateMetric,
   onUpdateDetailedExpenses,
   onUpdateLeadSources,
@@ -171,6 +175,7 @@ export const MetricsForm = memo(({
   calculateProfit,
 }: MetricsFormProps) => {
   const [showFunnel, setShowFunnel] = useState(true);
+  const config = getBusinessTypeConfig(businessType);
   
   const handleMetricChange = useCallback(
     (field: keyof Metrics) =>
@@ -249,13 +254,13 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-primary" />
-              Выручка и доходы
+              {config.labels.revenue || 'Выручка и доходы'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">
-                Общая выручка формируется автоматически из продуктов
+                {businessType === 'saas' ? 'MRR формируется из тарифных планов' : 'Общая выручка формируется автоматически из продуктов'}
               </p>
               <p className="text-xl font-bold font-mono text-primary">
                 {metrics.revenue.toLocaleString("ru-RU")} {currency}
@@ -265,10 +270,23 @@ export const MetricsForm = memo(({
                   Из продуктов: {productsRevenue.toLocaleString("ru-RU")} {currency}
                 </p>
               )}
+              {businessType === 'saas' && (
+                <p className="text-sm text-muted-foreground">
+                  ARR: <span className="font-mono font-semibold">{(metrics.revenue * 12).toLocaleString("ru-RU")} {currency}</span>
+                </p>
+              )}
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">
-                Средний чек считается как выручка / количество клиентов
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                {config.labels.avgCheck || 'Средний чек'}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs text-xs">
+                    {businessType === 'saas' ? 'ARPU = MRR / кол-во подписчиков' : 'Средний чек = выручка / кол-во клиентов'}
+                  </TooltipContent>
+                </Tooltip>
               </p>
               <p className="text-xl font-bold font-mono text-secondary">
                 {(metrics.avgCheck || 0).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
@@ -281,12 +299,12 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="w-4 h-4 text-secondary" />
-              Клиенты
+              {config.labels.clients || 'Клиенты'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-totalClients`}>Всего клиентов</Label>
+              <Label htmlFor={`${scenario}-totalClients`}>{config.labels.clients || 'Всего клиентов'}</Label>
               <NumericInput
                 id={`${scenario}-totalClients`}
                 value={metrics.totalClients}
