@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricsForm, initialMetricsState } from "./MetricsForm";
 import { LeadSource } from "./LeadSourcesForm";
+import type { BusinessType } from "@/config/businessTypeMetrics";
 interface ExpenseCategory {
   id: string;
   name: string;
@@ -84,6 +85,7 @@ interface CompanyMetricsProps {
   productsRevenue: number;
   productsCosts: number;
   syncProductsToMetrics: (scenarioType: "current" | "scenarioA" | "scenarioB") => void;
+  businessType: BusinessType;
 }
 
 export const CompanyMetrics = ({
@@ -99,6 +101,7 @@ export const CompanyMetrics = ({
   productsRevenue,
   productsCosts,
   syncProductsToMetrics,
+  businessType,
 }: CompanyMetricsProps) => {
   const calculateProfit = useCallback((metrics: Metrics) => {
     return metrics.revenue - metrics.fixedCosts - metrics.variableCosts - metrics.marketingCosts;
@@ -318,6 +321,7 @@ export const CompanyMetrics = ({
             productsRevenue={productsRevenue}
             productsCosts={productsCosts}
             currency={currency}
+            businessType={businessType}
             onUpdateMetric={handleCurrentMetricUpdate}
             onUpdateDetailedExpenses={handleCurrentExpensesUpdate}
             onUpdateLeadSources={handleCurrentLeadSourcesUpdate}
@@ -335,6 +339,7 @@ export const CompanyMetrics = ({
             productsRevenue={productsRevenue}
             productsCosts={productsCosts}
             currency={currency}
+            businessType={businessType}
             onUpdateMetric={handleScenarioAMetricUpdate}
             onUpdateDetailedExpenses={handleScenarioAExpensesUpdate}
             onUpdateLeadSources={handleScenarioALeadSourcesUpdate}
@@ -353,6 +358,7 @@ export const CompanyMetrics = ({
             productsRevenue={productsRevenue}
             productsCosts={productsCosts}
             currency={currency}
+            businessType={businessType}
             onUpdateMetric={handleScenarioBMetricUpdate}
             onUpdateDetailedExpenses={handleScenarioBExpensesUpdate}
             onUpdateLeadSources={handleScenarioBLeadSourcesUpdate}
