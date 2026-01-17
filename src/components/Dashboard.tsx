@@ -42,6 +42,7 @@ import { OnboardingFlow } from "./OnboardingFlow";
 import { CustomerJourney } from "./CustomerJourney";
 import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
+import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
 import type { BusinessType } from "@/config/businessTypeMetrics";
 import {
@@ -310,6 +311,12 @@ export const Dashboard = () => {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <ProjectSettings
+                currentBusinessType={businessType}
+                onBusinessTypeChange={updateBusinessType}
+                currency={currency}
+                onCurrencyChange={updateCurrency}
+              />
               <Button 
                 variant="ghost" 
                 size="sm" 
