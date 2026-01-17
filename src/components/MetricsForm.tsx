@@ -417,6 +417,7 @@ export const MetricsForm = memo(({
         onChange={onUpdateDetailedExpenses}
         revenue={metrics.revenue}
         currency={currency}
+        hasLeadSources={(metrics.leadSources || []).length > 0}
       />
 
       <KeyMetrics metrics={metrics} currency={currency} />
