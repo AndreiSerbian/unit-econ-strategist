@@ -77,6 +77,7 @@ interface DetailedExpensesFormProps {
   onChange: (expenses: DetailedExpenses) => void;
   revenue: number;
   currency: string;
+  hasLeadSources?: boolean;
 }
 
 export const DetailedExpensesForm = memo(({
@@ -84,6 +85,7 @@ export const DetailedExpensesForm = memo(({
   onChange,
   revenue,
   currency,
+  hasLeadSources = false,
 }: DetailedExpensesFormProps) => {
   const [newCategoryName, setNewCategoryName] = useState("");
 
@@ -297,8 +299,10 @@ export const DetailedExpensesForm = memo(({
   };
 
   const calculateMarketingTotal = () => {
+    // Если есть leadSources, не учитываем trafficPurchase (он учтён там)
+    const trafficCost = hasLeadSources ? 0 : expenses.variableCosts.marketing.trafficPurchase;
     return (
-      expenses.variableCosts.marketing.trafficPurchase +
+      trafficCost +
       expenses.variableCosts.marketing.contractorsPayment +
       expenses.variableCosts.marketing.crmCosts +
       expenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0)
@@ -643,24 +647,33 @@ export const DetailedExpensesForm = memo(({
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-1">
-                    <span>Закупка трафика</span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Прямые расходы на рекламу: контекст, таргет, баннеры и другие форматы, где вы
-                        покупаете показы, клики или лиды.
-                      </TooltipContent>
-                    </Tooltip>
-                  </Label>
-                  <NumericInput
-                    value={expenses.variableCosts.marketing.trafficPurchase}
-                    onChange={(v) => updateVariableCost("marketing", "trafficPurchase", v)}
-                  />
-                </div>
+                {hasLeadSources ? (
+                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Info className="h-4 w-4 text-primary" />
+                      Расходы на трафик учитываются из блока "Источники трафика" выше
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1">
+                      <span>Закупка трафика</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+                          Прямые расходы на рекламу: контекст, таргет, баннеры и другие форматы, где вы
+                          покупаете показы, клики или лиды.
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      value={expenses.variableCosts.marketing.trafficPurchase}
+                      onChange={(v) => updateVariableCost("marketing", "trafficPurchase", v)}
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
                     <span>Оплата подрядчикам</span>
