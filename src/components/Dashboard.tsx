@@ -44,7 +44,7 @@ import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
 import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
-import type { BusinessType } from "@/config/businessTypeMetrics";
+import { type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -446,33 +446,39 @@ export const Dashboard = () => {
           )}
         </motion.header>
 
-        <Tabs defaultValue="products" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-6 h-auto p-1">
-            <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <Package className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Продукты</span>
-            </TabsTrigger>
-            <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Показатели</span>
-            </TabsTrigger>
-            <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <Users className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Конкуренты</span>
-            </TabsTrigger>
-            <TabsTrigger value="market" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <Map className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Рынок</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Аналитика</span>
-            </TabsTrigger>
-            <TabsTrigger value="game-theory" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-              <Brain className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-sm">Теория</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* Get business type config for conditional rendering */}
+        {(() => {
+          const businessConfig = getBusinessTypeConfig(businessType);
+          const { features } = businessConfig;
+          
+          return (
+            <Tabs defaultValue="products" className="space-y-4 sm:space-y-6">
+              <TabsList className="grid w-full grid-cols-6 h-auto p-1">
+                <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+                  <Package className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm">{businessConfig.productLabelPlural}</span>
+                </TabsTrigger>
+                <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+                  <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm">Показатели</span>
+                </TabsTrigger>
+                <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+                  <Users className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm">Конкуренты</span>
+                </TabsTrigger>
+                <TabsTrigger value="market" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+                  <Map className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm">Рынок</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+                  <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm">Аналитика</span>
+                </TabsTrigger>
+                <TabsTrigger value="game-theory" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
+                  <Brain className="w-4 h-4 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm">Теория</span>
+                </TabsTrigger>
+              </TabsList>
 
           {/* PRODUCTS TAB - First in order */}
           <TabsContent value="products" className="space-y-6">
@@ -484,30 +490,39 @@ export const Dashboard = () => {
               />
             </AnimatedCard>
 
-            <AnimatedCard delay={0.1}>
-              <RawMaterialsManager
-                materials={materials}
-                setMaterials={setMaterials}
-                currency={currency}
-                tariffs={logisticsTariffs}
-              />
-            </AnimatedCard>
+            {/* Сырьё — только если hasRawMaterials */}
+            {features.hasRawMaterials && (
+              <AnimatedCard delay={0.1}>
+                <RawMaterialsManager
+                  materials={materials}
+                  setMaterials={setMaterials}
+                  currency={currency}
+                  tariffs={logisticsTariffs}
+                />
+              </AnimatedCard>
+            )}
 
-            <AnimatedCard delay={0.12}>
-              <LogisticsTariffs
-                tariffs={logisticsTariffs}
-                setTariffs={setLogisticsTariffs}
-                currency={currency}
-              />
-            </AnimatedCard>
+            {/* Логистика — только если hasLogistics */}
+            {features.hasLogistics && (
+              <AnimatedCard delay={0.12}>
+                <LogisticsTariffs
+                  tariffs={logisticsTariffs}
+                  setTariffs={setLogisticsTariffs}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
 
-            <AnimatedCard delay={0.14}>
-              <SalesChannelsManager
-                channels={salesChannels}
-                setChannels={setSalesChannels}
-                currency={currency}
-              />
-            </AnimatedCard>
+            {/* Каналы продаж — только если hasSalesChannels */}
+            {features.hasSalesChannels && (
+              <AnimatedCard delay={0.14}>
+                <SalesChannelsManager
+                  channels={salesChannels}
+                  setChannels={setSalesChannels}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
 
             <AnimatedCard delay={0.18}>
               <ProductsManagement
@@ -522,7 +537,8 @@ export const Dashboard = () => {
               />
             </AnimatedCard>
 
-            {products.length > 0 && (
+            {/* Привязка сырья к продуктам — только если hasRawMaterials */}
+            {features.hasRawMaterials && products.length > 0 && (
               <AnimatedCard delay={0.2}>
                 <ProductMaterialsAllocation
                   products={products}
@@ -540,7 +556,8 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
 
-            {products.length > 0 && salesChannels.length > 0 && (
+            {/* Распределение по каналам — только если hasSalesChannels */}
+            {features.hasSalesChannels && products.length > 0 && salesChannels.length > 0 && (
               <AnimatedCard delay={0.22}>
                 <ProductChannelBreakdown
                   products={products}
@@ -552,7 +569,8 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
 
-            {products.length > 0 && salesChannels.length > 0 && productChannelAllocations.length > 0 && (
+            {/* Аналитика каналов — только если hasSalesChannels */}
+            {features.hasSalesChannels && products.length > 0 && salesChannels.length > 0 && productChannelAllocations.length > 0 && (
               <AnimatedCard delay={0.24}>
                 <ChannelAnalytics
                   products={products}
@@ -563,7 +581,8 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
  
-            {products.length > 0 && (
+            {/* Структура логистики — только если hasLogistics */}
+            {features.hasLogistics && products.length > 0 && (
               <AnimatedCard delay={0.23}>
                 <Card>
                   <CardHeader>
@@ -1127,7 +1146,9 @@ export const Dashboard = () => {
               />
             </AnimatedCard>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          );
+        })()}
       </div>
     </div>
   );

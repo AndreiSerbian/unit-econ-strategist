@@ -29,6 +29,14 @@ export interface MetricField {
   calculatedFrom?: string[]; // If metric is auto-calculated
 }
 
+export interface BusinessTypeFeatures {
+  hasRawMaterials: boolean;      // Сырьё и комплектующие
+  hasLogistics: boolean;         // Логистика и тарифы доставки
+  hasSalesChannels: boolean;     // Каналы продаж
+  hasPhysicalProducts: boolean;  // Физические продукты (вес, объём)
+  hasInventory: boolean;         // Складские остатки
+}
+
 export interface BusinessTypeConfig {
   id: BusinessType;
   label: string;
@@ -47,6 +55,7 @@ export interface BusinessTypeConfig {
   productLabelPlural: string;
   productFields: ProductField[];
   metricFields: MetricField[];
+  features: BusinessTypeFeatures;
 }
 
 const DELIVERY_TYPE_OPTIONS = [
@@ -90,6 +99,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'expansionRevenue', label: 'Expansion Revenue', description: 'Допродажи и апгрейды', category: 'revenue' },
       { key: 'nrr', label: 'NRR', description: 'Net Revenue Retention — чистое удержание выручки', suffix: '%', category: 'retention' },
     ],
+    features: {
+      hasRawMaterials: false,
+      hasLogistics: false,
+      hasSalesChannels: true,
+      hasPhysicalProducts: false,
+      hasInventory: false,
+    },
   },
   {
     id: 'ecommerce',
@@ -127,6 +143,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'gmv', label: 'GMV', description: 'Gross Merchandise Value', category: 'revenue' },
       { key: 'ordersPerCustomer', label: 'Заказов на клиента', description: 'Среднее кол-во заказов на клиента', category: 'retention' },
     ],
+    features: {
+      hasRawMaterials: true,
+      hasLogistics: true,
+      hasSalesChannels: true,
+      hasPhysicalProducts: true,
+      hasInventory: true,
+    },
   },
   {
     id: 'production',
@@ -164,6 +187,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'inventoryTurnover', label: 'Оборачиваемость', description: 'Оборачиваемость запасов', category: 'custom' },
       { key: 'grossMargin', label: 'Маржа', description: 'Валовая маржа', suffix: '%', category: 'revenue', calculatedFrom: ['revenue', 'variableCosts'] },
     ],
+    features: {
+      hasRawMaterials: true,
+      hasLogistics: true,
+      hasSalesChannels: true,
+      hasPhysicalProducts: true,
+      hasInventory: true,
+    },
   },
   {
     id: 'services',
@@ -197,6 +227,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'clientRetention', label: 'Client Retention', description: 'Процент возвращающихся клиентов', suffix: '%', category: 'retention' },
       { key: 'avgProjectValue', label: 'Средний проект', description: 'Средняя стоимость проекта', category: 'revenue', calculatedFrom: ['revenue', 'totalClients'] },
     ],
+    features: {
+      hasRawMaterials: false,
+      hasLogistics: false,
+      hasSalesChannels: false,
+      hasPhysicalProducts: false,
+      hasInventory: false,
+    },
   },
   {
     id: 'freemium',
@@ -229,6 +266,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'dauMau', label: 'DAU/MAU', description: 'Отношение дневных к месячным пользователям', suffix: '%', category: 'retention' },
       { key: 'activationRate', label: 'Activation Rate', description: 'Процент активированных пользователей', suffix: '%', category: 'conversion' },
     ],
+    features: {
+      hasRawMaterials: false,
+      hasLogistics: false,
+      hasSalesChannels: true,
+      hasPhysicalProducts: false,
+      hasInventory: false,
+    },
   },
   {
     id: 'sharing',
@@ -262,6 +306,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'repeatUsage', label: 'Repeat Usage', description: 'Доля повторных бронирований', suffix: '%', category: 'retention' },
       { key: 'supplyDemandBalance', label: 'Supply/Demand', description: 'Баланс спроса и предложения', suffix: '%', category: 'custom' },
     ],
+    features: {
+      hasRawMaterials: false,
+      hasLogistics: true,
+      hasSalesChannels: true,
+      hasPhysicalProducts: false,
+      hasInventory: true,
+    },
   },
   {
     id: 'marketplace',
@@ -294,6 +345,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'activeBuyers', label: 'Активные покупатели', description: 'Количество активных покупателей', category: 'clients' },
       { key: 'aov', label: 'AOV', description: 'Средний чек заказа', category: 'revenue', calculatedFrom: ['gmv', 'totalTransactions'] },
     ],
+    features: {
+      hasRawMaterials: false,
+      hasLogistics: true,
+      hasSalesChannels: true,
+      hasPhysicalProducts: false,
+      hasInventory: false,
+    },
   },
 ];
 
@@ -319,4 +377,9 @@ export const getProductLabel = (type: BusinessType, plural = false): string => {
 export const getMetricFields = (type: BusinessType): MetricField[] => {
   const config = getBusinessTypeConfig(type);
   return config.metricFields;
+};
+
+export const getBusinessFeatures = (type: BusinessType): BusinessTypeFeatures => {
+  const config = getBusinessTypeConfig(type);
+  return config.features;
 };
