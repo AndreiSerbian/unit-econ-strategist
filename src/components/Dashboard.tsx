@@ -311,13 +311,27 @@ export const Dashboard = () => {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Business type indicator */}
+              {/* Business type & currency indicators */}
               {(() => {
                 const config = getBusinessTypeConfig(businessType);
+                const currencySymbols: Record<string, string> = {
+                  RUB: "₽",
+                  USD: "$",
+                  EUR: "€",
+                  KZT: "₸",
+                  BYN: "Br",
+                  UAH: "₴",
+                };
                 return (
-                  <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent">
-                    <span>{config.icon}</span>
-                    <span className="font-medium">{config.label}</span>
+                  <div className="hidden sm:flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent">
+                      <span>{config.icon}</span>
+                      <span className="font-medium">{config.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium">
+                      <span>{currencySymbols[currency] || currency}</span>
+                      <span>{currency}</span>
+                    </div>
                   </div>
                 );
               })()}
