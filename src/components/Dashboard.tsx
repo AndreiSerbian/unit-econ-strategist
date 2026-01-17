@@ -18,7 +18,7 @@ import { LogisticsTariffs } from "./LogisticsTariffs";
 import { SalesChannelsManager } from "./SalesChannelsManager";
 import { ProductChannelBreakdown } from "./ProductChannelBreakdown";
 import { ChannelAnalytics } from "./ChannelAnalytics";
-import { CurrencySelector } from "./CurrencySelector";
+
 import { ExpensesBreakdownCharts } from "./ExpensesBreakdownCharts";
 import { KeyMetricsComparison } from "./KeyMetricsComparison";
 import { ROICalculator } from "./ROICalculator";
@@ -492,13 +492,6 @@ export const Dashboard = () => {
 
           {/* PRODUCTS TAB - First in order */}
           <TabsContent value="products" className="space-y-6">
-            <AnimatedCard delay={0.05}>
-              <CurrencySelector
-                currency={currency}
-                onCurrencyChange={updateCurrency}
-                isAuthenticated={!!user}
-              />
-            </AnimatedCard>
 
             {/* Сырьё — только если hasRawMaterials */}
             {features.hasRawMaterials && (
@@ -784,13 +777,6 @@ export const Dashboard = () => {
 
           {/* COMPETITORS TAB */}
           <TabsContent value="competitors" className="space-y-6">
-            <AnimatedCard delay={0.05}>
-              <CurrencySelector
-                currency={currency}
-                onCurrencyChange={updateCurrency}
-                isAuthenticated={!!user}
-              />
-            </AnimatedCard>
 
             <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">

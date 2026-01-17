@@ -21,10 +21,12 @@ export const CurrencySelector = ({
   isAuthenticated,
 }: CurrencySelectorProps) => {
   const currencies = [
-    { value: "RUB", label: "₽ Российский рубль" },
-    { value: "USD", label: "$ Доллар США" },
-    { value: "EUR", label: "€ Евро" },
-    { value: "MDL", label: "L Молдавский лей" },
+    { value: "RUB", label: "₽ Рубль (RUB)" },
+    { value: "USD", label: "$ Доллар (USD)" },
+    { value: "EUR", label: "€ Евро (EUR)" },
+    { value: "KZT", label: "₸ Тенге (KZT)" },
+    { value: "BYN", label: "Br Белорусский рубль (BYN)" },
+    { value: "UAH", label: "₴ Гривна (UAH)" },
   ];
 
   return (
