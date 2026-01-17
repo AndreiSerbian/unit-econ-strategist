@@ -44,8 +44,12 @@ export const CompetitiveScoreCalculator = ({
     setWeights((prev) => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * Normalizes a value to 0-100 scale.
+   * Returns 50 when all values are equal (fair middle ground).
+   */
   const normalizeValue = (value: number, min: number, max: number) => {
-    if (max === min) return 0;
+    if (max === min) return 50; // All equal = everyone gets average score
     return ((value - min) / (max - min)) * 100;
   };
 
@@ -153,8 +157,17 @@ export const CompetitiveScoreCalculator = ({
     "hsl(280 70% 50%)",
   ];
 
+  const hasIncompleteData = myCompany.revenue === 0 && myCompany.marketingSpend === 0 && myCompany.pricing === 0;
+
   return (
     <div className="space-y-6">
+      {hasIncompleteData && (
+        <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+            ⚠️ Данные вашей компании неполные. Заполните метрики (выручка, средний чек, маркетинговые расходы) во вкладке "Метрики" для корректного расчёта.
+          </p>
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">

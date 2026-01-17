@@ -840,13 +840,13 @@ export const Dashboard = () => {
                   <CompetitiveScoreCalculator
                     myCompany={{
                       name: "Моя компания",
-                      revenue: currentMetrics.revenue,
+                      revenue: currentMetrics.revenue || 0,
                       marketShare: myMarketShare,
-                      pricing: currentMetrics.avgCheck,
+                      pricing: currentMetrics.avgCheck || 0,
                       quality: products.length > 0 
                         ? Math.round(products.reduce((sum, p) => sum + (p.quality ?? 10), 0) / products.length)
                         : 10,
-                      marketingSpend: currentMetrics.marketingCosts,
+                      marketingSpend: currentMetrics.marketingCosts || 0,
                     }}
                     competitors={competitorsWithCalculatedShare}
                     currency={currency}
