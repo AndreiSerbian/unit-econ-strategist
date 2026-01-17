@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { BusinessType } from "@/config/businessTypeMetrics";
 
 export interface ExpenseCategory {
   id: string;
@@ -313,7 +314,7 @@ export const useProject = (userId: string | undefined) => {
   const [materials, setMaterials] = useState<RawMaterial[]>([]);
   const [productMaterials, setProductMaterials] = useState<ProductMaterialUsage[]>([]);
   const [currency, setCurrency] = useState<string>("RUB");
-  const [businessType, setBusinessType] = useState<string>("ecommerce");
+  const [businessType, setBusinessType] = useState<BusinessType>("ecommerce");
   const [loading, setLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -692,7 +693,7 @@ export const useProject = (userId: string | undefined) => {
       // Load project settings
       if (projects && projects.length > 0) {
         setCurrency(projects[0].currency || "RUB");
-        setBusinessType(projects[0].business_type || "ecommerce");
+        setBusinessType((projects[0].business_type as BusinessType) || "ecommerce");
       }
 
       // Load scenarios
@@ -1286,7 +1287,7 @@ export const useProject = (userId: string | undefined) => {
     }
   };
 
-  const updateBusinessType = async (newType: string) => {
+  const updateBusinessType = async (newType: BusinessType) => {
     if (!userId) {
       // Local storage mode
       setBusinessType(newType);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Package, Calculator, Star } from "lucide-react";
+import { Plus, Trash2, Package, Star } from "lucide-react";
 import { toast } from "sonner";
 import { LogisticsTariffsData } from "@/hooks/useProject";
-import { calculateProductLogisticsCost } from "./LogisticsTariffs";
+import { 
+  BusinessType, 
+  getBusinessTypeConfig, 
+  getProductLabel,
+  ProductField 
+} from "@/config/businessTypeMetrics";
 
 export interface Product {
   id: string;
@@ -23,19 +28,28 @@ export interface Product {
   price: number;
   cost: number;
   quantity: number;
+  // E-commerce / Production specific
   quality?: number;
   logisticsToClientPerUnit?: number;
   weightPerUnit?: number;
   volumePerUnit?: number;
   deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
+  defectRate?: number;
+  // SaaS / Freemium specific
+  churnRate?: number;
+  freeToPayConversion?: number;
+  // Services specific
+  hourlyRate?: number;
+  utilization?: number;
+  // Sharing Economy specific
+  utilizationRate?: number;
+  takeRate?: number;
+  // Marketplace specific
+  gmv?: number;
+  avgOrderValue?: number;
+  // Generic
+  [key: string]: any;
 }
-
-const DELIVERY_TYPE_OPTIONS = [
-  { value: "courier", label: "Курьер" },
-  { value: "pickup", label: "Самовывоз" },
-  { value: "transport_company", label: "Транспортная компания" },
-  { value: "own_delivery", label: "Своя доставка" },
-];
 
 interface ProductsManagementProps {
   products: Product[];
@@ -45,9 +59,34 @@ interface ProductsManagementProps {
   isAuthenticated: boolean;
   currency: string;
   tariffs?: LogisticsTariffsData;
+  businessType: BusinessType;
 }
 
+const getDefaultProductValues = (businessType: BusinessType): Omit<Product, 'id'> => {
+  const base = {
+    name: "",
+    price: 0,
+    cost: 0,
+    quantity: 0,
+  };
 
+  switch (businessType) {
+    case 'saas':
+    case 'freemium':
+      return { ...base, churnRate: 5, freeToPayConversion: 3 };
+    case 'ecommerce':
+    case 'production':
+      return { ...base, quality: 10, weightPerUnit: 0, volumePerUnit: 0, deliveryType: 'courier' as const, logisticsToClientPerUnit: 0, defectRate: 0 };
+    case 'services':
+      return { ...base, hourlyRate: 0, utilization: 80 };
+    case 'sharing':
+      return { ...base, utilizationRate: 60, takeRate: 15 };
+    case 'marketplace':
+      return { ...base, gmv: 0, takeRate: 10, avgOrderValue: 0 };
+    default:
+      return base;
+  }
+};
 
 export const ProductsManagement = ({
   products,
@@ -57,33 +96,194 @@ export const ProductsManagement = ({
   isAuthenticated,
   currency,
   tariffs,
+  businessType,
 }: ProductsManagementProps) => {
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: 0,
-    cost: 0,
-    quantity: 0,
-    quality: 10,
-    logisticsToClientPerUnit: 0,
-    weightPerUnit: 0,
-    volumePerUnit: 0,
-    deliveryType: "courier" as Product["deliveryType"],
-  });
+  const config = useMemo(() => getBusinessTypeConfig(businessType), [businessType]);
+  const fields = config.productFields;
+  const productLabel = getProductLabel(businessType);
+  const productLabelPlural = getProductLabel(businessType, true);
+
+  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>(() => 
+    getDefaultProductValues(businessType)
+  );
+
+  // Reset form when business type changes
+  useMemo(() => {
+    setNewProduct(getDefaultProductValues(businessType));
+  }, [businessType]);
 
   const handleAddProduct = async () => {
     if (!newProduct.name.trim()) {
-      toast.error("Введите название продукта");
+      toast.error(`Введите название ${productLabel.toLowerCase()}а`);
       return;
     }
 
     await saveProduct(newProduct);
-    setNewProduct({ name: "", price: 0, cost: 0, quantity: 0, quality: 10, logisticsToClientPerUnit: 0, weightPerUnit: 0, volumePerUnit: 0, deliveryType: "courier" });
+    setNewProduct(getDefaultProductValues(businessType));
   };
 
+  const handleFieldChange = (key: string, value: any) => {
+    setNewProduct(prev => ({ ...prev, [key]: value }));
+  };
 
-  const totalRevenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
-  const totalCost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
-  const totalProfit = totalRevenue - totalCost;
+  const handleProductFieldChange = (productId: string, key: string, value: any) => {
+    updateProduct(productId, { [key]: value });
+  };
+
+  const renderField = (
+    field: ProductField, 
+    value: any, 
+    onChange: (key: string, value: any) => void,
+    idPrefix: string
+  ) => {
+    const fieldId = `${idPrefix}-${field.key}`;
+    
+    switch (field.type) {
+      case 'text':
+        return (
+          <div key={field.key}>
+            <Label htmlFor={fieldId}>{field.label}</Label>
+            <Input
+              id={fieldId}
+              value={value ?? ''}
+              onChange={(e) => onChange(field.key, e.target.value)}
+              placeholder={field.label}
+            />
+          </div>
+        );
+      
+      case 'number':
+        return (
+          <div key={field.key}>
+            <Label htmlFor={fieldId} className="flex items-center gap-1">
+              {field.key === 'quality' && <Star className="w-3 h-3 text-yellow-500" />}
+              {field.label}
+              {field.suffix && ` (${field.suffix})`}
+              {!field.suffix && field.key !== 'name' && field.key !== 'quantity' && 
+               !field.key.includes('Rate') && !field.key.includes('utilization') && 
+               !field.key.includes('conversion') && ` (${currency})`}
+            </Label>
+            <NumericInput
+              id={fieldId}
+              value={value ?? 0}
+              onChange={(v) => {
+                let newValue = v;
+                if (field.min !== undefined) newValue = Math.max(field.min, newValue);
+                if (field.max !== undefined) newValue = Math.min(field.max, newValue);
+                onChange(field.key, newValue);
+              }}
+              placeholder="0"
+            />
+          </div>
+        );
+      
+      case 'select':
+        return (
+          <div key={field.key}>
+            <Label htmlFor={fieldId}>{field.label}</Label>
+            <Select
+              value={value ?? field.options?.[0]?.value ?? ''}
+              onValueChange={(v) => onChange(field.key, v)}
+            >
+              <SelectTrigger id={fieldId}>
+                <SelectValue placeholder={`Выберите ${field.label.toLowerCase()}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options?.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  // Calculate totals based on business type
+  const { totalRevenue, totalCost, totalProfit, additionalMetrics } = useMemo(() => {
+    let revenue = 0;
+    let cost = 0;
+    const metrics: { label: string; value: string; color?: string }[] = [];
+
+    switch (businessType) {
+      case 'saas':
+      case 'freemium':
+        revenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+        cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
+        metrics.push(
+          { label: 'MRR', value: `${revenue.toLocaleString("ru-RU")} ${currency}` },
+          { label: 'ARR', value: `${(revenue * 12).toLocaleString("ru-RU")} ${currency}` },
+        );
+        if (products.length > 0) {
+          const avgChurn = products.reduce((sum, p) => sum + (p.churnRate ?? 0), 0) / products.length;
+          metrics.push({ label: 'Avg Churn', value: `${avgChurn.toFixed(1)}%` });
+        }
+        break;
+
+      case 'services':
+        revenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+        cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
+        if (products.length > 0) {
+          const avgUtil = products.reduce((sum, p) => sum + (p.utilization ?? 0), 0) / products.length;
+          metrics.push({ label: 'Средняя загрузка', value: `${avgUtil.toFixed(0)}%` });
+        }
+        break;
+
+      case 'marketplace':
+        const totalGMV = products.reduce((sum, p) => sum + (p.gmv ?? 0), 0);
+        const avgTakeRate = products.length > 0 
+          ? products.reduce((sum, p) => sum + (p.takeRate ?? 0), 0) / products.length 
+          : 0;
+        revenue = totalGMV * (avgTakeRate / 100);
+        cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
+        metrics.push(
+          { label: 'GMV', value: `${totalGMV.toLocaleString("ru-RU")} ${currency}` },
+          { label: 'Avg Take Rate', value: `${avgTakeRate.toFixed(1)}%` },
+        );
+        break;
+
+      case 'sharing':
+        revenue = products.reduce((sum, p) => {
+          const hourlyRevenue = p.price * (p.utilizationRate ?? 0) / 100 * 720; // ~hours/month
+          return sum + hourlyRevenue * p.quantity;
+        }, 0);
+        cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
+        if (products.length > 0) {
+          const avgUtil = products.reduce((sum, p) => sum + (p.utilizationRate ?? 0), 0) / products.length;
+          metrics.push({ label: 'Средняя загрузка', value: `${avgUtil.toFixed(0)}%` });
+        }
+        break;
+
+      default: // ecommerce, production
+        revenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+        cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
+        break;
+    }
+
+    return {
+      totalRevenue: revenue,
+      totalCost: cost,
+      totalProfit: revenue - cost,
+      additionalMetrics: metrics,
+    };
+  }, [products, businessType, currency]);
+
+  // Group fields into rows for better layout
+  const fieldRows = useMemo(() => {
+    const rows: ProductField[][] = [];
+    const fieldsPerRow = 6;
+    
+    for (let i = 0; i < fields.length; i += fieldsPerRow) {
+      rows.push(fields.slice(i, i + fieldsPerRow));
+    }
+    
+    return rows;
+  }, [fields]);
 
   return (
     <div className="space-y-6">
@@ -91,160 +291,28 @@ export const ProductsManagement = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="w-5 h-5 text-primary" />
-            Продукты
+            {productLabelPlural}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-              <div className="md:col-span-2">
-                <Label htmlFor="product-name">Название</Label>
-                <Input
-                  id="product-name"
-                  value={newProduct.name}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, name: e.target.value })
-                  }
-                  placeholder="Название продукта"
-                />
+            {fieldRows.map((row, rowIndex) => (
+              <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                {row.map((field) => {
+                  // First field (name) gets 2 columns
+                  const isNameField = field.key === 'name';
+                  return (
+                    <div key={field.key} className={isNameField ? 'md:col-span-2' : ''}>
+                      {renderField(field, newProduct[field.key], handleFieldChange, 'new')}
+                    </div>
+                  );
+                })}
               </div>
-              <div>
-                <Label htmlFor="product-price">Цена ({currency})</Label>
-                <NumericInput
-                  id="product-price"
-                  value={newProduct.price}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      price: value,
-                    }))
-                  }
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="product-cost">Себестоимость ({currency})</Label>
-                <NumericInput
-                  id="product-cost"
-                  value={newProduct.cost}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      cost: value,
-                    }))
-                  }
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="product-quantity">Количество</Label>
-                <NumericInput
-                  id="product-quantity"
-                  value={newProduct.quantity}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      quantity: Math.max(0, Math.round(value)),
-                    }))
-                  }
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="product-quality" className="flex items-center gap-1">
-                  <Star className="w-3 h-3 text-yellow-500" />
-                  Качество (1-20)
-                </Label>
-                <NumericInput
-                  id="product-quality"
-                  value={newProduct.quality}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      quality: Math.min(20, Math.max(1, Math.round(value))),
-                    }))
-                  }
-                  placeholder="10"
-                />
-              </div>
-            </div>
-
-            {/* Row 2: Logistics fields */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <Label htmlFor="product-logistics">Логистика до клиента ({currency})</Label>
-                <NumericInput
-                  id="product-logistics"
-                  value={newProduct.logisticsToClientPerUnit}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      logisticsToClientPerUnit: value,
-                    }))
-                  }
-                  placeholder="0"
-                />
-                <p className="text-xs text-muted-foreground mt-1">за 1 шт.</p>
-              </div>
-              <div>
-                <Label htmlFor="product-weight">Вес (кг)</Label>
-                <NumericInput
-                  id="product-weight"
-                  value={newProduct.weightPerUnit}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      weightPerUnit: value,
-                    }))
-                  }
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="product-volume">Объём (м³)</Label>
-                <NumericInput
-                  id="product-volume"
-                  value={newProduct.volumePerUnit}
-                  onChange={(value) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      volumePerUnit: value,
-                    }))
-                  }
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="product-delivery">Тип доставки</Label>
-                <Select
-                  value={newProduct.deliveryType}
-                  onValueChange={(v) =>
-                    setNewProduct((prev) => ({
-                      ...prev,
-                      deliveryType: v as Product["deliveryType"],
-                    }))
-                  }
-                >
-                  <SelectTrigger id="product-delivery">
-                    <SelectValue placeholder="Выберите тип" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DELIVERY_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            ))}
             
-            <Button
-              onClick={handleAddProduct}
-              className="w-full"
-            >
+            <Button onClick={handleAddProduct} className="w-full">
               <Plus className="w-4 h-4 mr-2" />
-              Добавить продукт
+              Добавить {productLabel.toLowerCase()}
             </Button>
           </div>
         </CardContent>
@@ -253,7 +321,7 @@ export const ProductsManagement = ({
       {products.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Список продуктов</CardTitle>
+            <CardTitle>Список {productLabelPlural.toLowerCase()}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -263,132 +331,23 @@ export const ProductsManagement = ({
                   className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                      <div className="md:col-span-2">
-                        <Label>Название</Label>
-                        <Input
-                          value={product.name}
-                          onChange={(e) =>
-                            updateProduct(product.id, { name: e.target.value })
-                          }
-                          placeholder="Название продукта"
-                        />
+                    {fieldRows.map((row, rowIndex) => (
+                      <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                        {row.map((field) => {
+                          const isNameField = field.key === 'name';
+                          return (
+                            <div key={field.key} className={isNameField ? 'md:col-span-2' : ''}>
+                              {renderField(
+                                field, 
+                                product[field.key], 
+                                (key, value) => handleProductFieldChange(product.id, key, value),
+                                product.id
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div>
-                        <Label>Цена ({currency})</Label>
-                        <NumericInput
-                          value={product.price ?? 0}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              price: value,
-                            })
-                          }
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <Label>Себестоимость ({currency})</Label>
-                        <NumericInput
-                          value={product.cost ?? 0}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              cost: value,
-                            })
-                          }
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <Label>Количество</Label>
-                        <NumericInput
-                          value={product.quantity ?? 0}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              quantity: Math.max(0, Math.round(value)),
-                            })
-                          }
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <Label className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-yellow-500" />
-                          Качество
-                        </Label>
-                        <NumericInput
-                          value={product.quality ?? 10}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              quality: Math.min(20, Math.max(1, Math.round(value))),
-                            })
-                          }
-                          placeholder="10"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Row 2: Logistics fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div>
-                        <Label>Логистика ({currency})</Label>
-                        <NumericInput
-                          value={product.logisticsToClientPerUnit ?? 0}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              logisticsToClientPerUnit: value,
-                            })
-                          }
-                          placeholder="0"
-                        />
-                        <p className="text-xs text-muted-foreground">за 1 шт.</p>
-                      </div>
-                      <div>
-                        <Label>Вес (кг)</Label>
-                        <NumericInput
-                          value={product.weightPerUnit ?? 0}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              weightPerUnit: value,
-                            })
-                          }
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <Label>Объём (м³)</Label>
-                        <NumericInput
-                          value={product.volumePerUnit ?? 0}
-                          onChange={(value) =>
-                            updateProduct(product.id, {
-                              volumePerUnit: value,
-                            })
-                          }
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <Label>Тип доставки</Label>
-                        <Select
-                          value={product.deliveryType || "courier"}
-                          onValueChange={(v) =>
-                            updateProduct(product.id, {
-                              deliveryType: v as Product["deliveryType"],
-                            })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {DELIVERY_TYPE_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                   <Button
                     variant="ghost"
@@ -404,9 +363,22 @@ export const ProductsManagement = ({
 
             <div className="mt-6 p-4 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg">
               <h3 className="font-semibold mb-3">Итоговые показатели</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {/* Additional metrics specific to business type */}
+                {additionalMetrics.map((metric, idx) => (
+                  <div key={idx}>
+                    <p className="text-sm text-muted-foreground">{metric.label}</p>
+                    <p className={`text-xl font-bold font-mono ${metric.color || 'text-primary'}`}>
+                      {metric.value}
+                    </p>
+                  </div>
+                ))}
+                
+                {/* Standard revenue/cost/profit for all types */}
                 <div>
-                  <p className="text-sm text-muted-foreground">Выручка от продуктов</p>
+                  <p className="text-sm text-muted-foreground">
+                    {businessType === 'saas' || businessType === 'freemium' ? 'Выручка (MRR)' : 'Выручка'}
+                  </p>
                   <p className="text-xl font-bold text-primary font-mono">
                     {totalRevenue.toLocaleString("ru-RU")} {currency}
                   </p>

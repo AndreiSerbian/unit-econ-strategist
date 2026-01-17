@@ -511,6 +511,7 @@ export const Dashboard = () => {
                 isAuthenticated={!!user}
                 currency={currency}
                 tariffs={logisticsTariffs}
+                businessType={businessType}
               />
             </AnimatedCard>
 
