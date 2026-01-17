@@ -214,8 +214,22 @@ export const MetricsForm = memo(({
             onUpdateMetric("conversionRate", parseFloat(newConversion.toFixed(2)));
           }
         }
+
+        // SaaS: Автоматический расчёт NRR на основе Churn Rate и Expansion Revenue
+        // NRR = (1 - Churn Rate) + (Expansion Revenue / MRR) * 100
+        if (businessType === 'saas' && (field === "churnRate" || field === "expansionRevenue" || field === "revenue")) {
+          const churnRate = field === "churnRate" ? value : (metrics.churnRate ?? 0);
+          const expansionRevenue = field === "expansionRevenue" ? value : (metrics.expansionRevenue ?? 0);
+          const mrr = field === "revenue" ? value : metrics.revenue;
+          
+          if (mrr > 0) {
+            // NRR = (100 - Churn%) + (Expansion / MRR * 100)
+            const calculatedNRR = (100 - churnRate) + (expansionRevenue / mrr * 100);
+            onUpdateMetric("nrr", parseFloat(calculatedNRR.toFixed(1)));
+          }
+        }
       },
-    [onUpdateMetric, metrics.revenue, metrics.totalClients, metrics.totalLeads]
+    [onUpdateMetric, metrics.revenue, metrics.totalClients, metrics.totalLeads, metrics.churnRate, metrics.expansionRevenue, businessType]
   );
 
   const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
