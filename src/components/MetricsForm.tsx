@@ -2,7 +2,7 @@ import { memo, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target, Trash2, Info } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Percent, Save, Package, Target, Trash2, Info, Activity } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
 import { NumericInput } from "@/components/ui/numeric-input";
@@ -77,6 +77,21 @@ interface Metrics {
   purchaseFrequency?: number;
   totalLeads?: number;
   leadSources?: LeadSource[];
+  // Business-type specific metrics
+  churnRate?: number;           // SaaS: monthly churn rate %
+  nrr?: number;                 // SaaS: Net Revenue Retention %
+  expansionRevenue?: number;    // SaaS: Expansion/upsell revenue
+  repeatRate?: number;          // E-commerce: repeat purchase rate %
+  cartAbandonmentRate?: number; // E-commerce: cart abandonment %
+  aov?: number;                 // E-commerce: Average Order Value
+  utilizationRate?: number;     // Services: billable hours %
+  billableHours?: number;       // Services: total billable hours
+  projectMargin?: number;       // Services: average project margin %
+  freeToPayConversion?: number; // Freemium: free to paid conversion %
+  dauMau?: number;              // Freemium: DAU/MAU ratio %
+  gmv?: number;                 // Marketplace/Sharing: Gross Merchandise Value
+  takeRate?: number;            // Marketplace/Sharing: platform commission %
+  liquidity?: number;           // Marketplace: successful transaction rate %
 }
 
 const defaultDetailedExpenses: DetailedExpenses = {
@@ -409,6 +424,407 @@ export const MetricsForm = memo(({
           </CardContent>
         </Card>
       </div>
+
+      {/* Business-type specific metrics */}
+      {(businessType === 'saas' || businessType === 'ecommerce' || businessType === 'services' || 
+        businessType === 'freemium' || businessType === 'sharing' || businessType === 'marketplace') && (
+        <Card className="border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Activity className="w-4 h-4 text-accent" />
+              {businessType === 'saas' && 'SaaS-метрики'}
+              {businessType === 'ecommerce' && 'E-commerce метрики'}
+              {businessType === 'services' && 'Метрики услуг'}
+              {businessType === 'freemium' && 'Freemium-метрики'}
+              {businessType === 'sharing' && 'Sharing-метрики'}
+              {businessType === 'marketplace' && 'Маркетплейс-метрики'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {/* SaaS specific */}
+              {businessType === 'saas' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-churnRate`} className="flex items-center gap-1">
+                      Churn Rate (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Процент подписчиков, которые отменяют подписку ежемесячно
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-churnRate`}
+                      value={metrics.churnRate || 0}
+                      onChange={handleMetricChange("churnRate")}
+                      step="0.1"
+                    />
+                    {(metrics.churnRate ?? 0) > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        Retention: {(100 - (metrics.churnRate || 0)).toFixed(1)}%
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-nrr`} className="flex items-center gap-1">
+                      NRR (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Net Revenue Retention — чистое удержание выручки с учётом апгрейдов и оттока
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-nrr`}
+                      value={metrics.nrr || 0}
+                      onChange={handleMetricChange("nrr")}
+                      step="0.1"
+                    />
+                    {(metrics.nrr ?? 0) > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {(metrics.nrr || 0) >= 100 ? '✅ Положительный рост' : '⚠️ Негативный рост'}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-expansionRevenue`} className="flex items-center gap-1">
+                      Expansion Revenue
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Дополнительная выручка от апгрейдов и допродаж существующим клиентам
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-expansionRevenue`}
+                      value={metrics.expansionRevenue || 0}
+                      onChange={handleMetricChange("expansionRevenue")}
+                    />
+                    {metrics.revenue > 0 && (metrics.expansionRevenue || 0) > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {((metrics.expansionRevenue || 0) / metrics.revenue * 100).toFixed(1)}% от MRR
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* E-commerce specific */}
+              {businessType === 'ecommerce' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-repeatRate`} className="flex items-center gap-1">
+                      Repeat Rate (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Доля клиентов, совершивших повторную покупку
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-repeatRate`}
+                      value={metrics.repeatRate || 0}
+                      onChange={handleMetricChange("repeatRate")}
+                      step="0.1"
+                    />
+                    {metrics.totalClients > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        Расч.: {metrics.returningClients > 0 ? ((metrics.returningClients / metrics.totalClients) * 100).toFixed(1) : 0}%
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-cartAbandonmentRate`} className="flex items-center gap-1">
+                      Cart Abandonment (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Процент пользователей, бросивших корзину без оформления заказа
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-cartAbandonmentRate`}
+                      value={metrics.cartAbandonmentRate || 0}
+                      onChange={handleMetricChange("cartAbandonmentRate")}
+                      step="0.1"
+                    />
+                    {(metrics.cartAbandonmentRate ?? 0) > 70 && (
+                      <p className="text-xs text-amber-500">⚠️ Выше среднего (70%)</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-aov`} className="flex items-center gap-1">
+                      AOV ({currency})
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Average Order Value — средняя стоимость заказа
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-aov`}
+                      value={metrics.aov || metrics.avgCheck || 0}
+                      onChange={handleMetricChange("aov")}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Services specific */}
+              {businessType === 'services' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-utilizationRate`} className="flex items-center gap-1">
+                      Utilization Rate (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Процент оплачиваемого времени от общего рабочего времени
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-utilizationRate`}
+                      value={metrics.utilizationRate || 0}
+                      onChange={handleMetricChange("utilizationRate")}
+                      step="1"
+                    />
+                    {(metrics.utilizationRate ?? 0) > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {(metrics.utilizationRate || 0) >= 75 ? '✅ Хорошая загрузка' : '⚠️ Низкая загрузка'}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-billableHours`} className="flex items-center gap-1">
+                      Billable Hours
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Общее количество оплачиваемых часов в месяц
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-billableHours`}
+                      value={metrics.billableHours || 0}
+                      onChange={handleMetricChange("billableHours")}
+                    />
+                    {(metrics.billableHours ?? 0) > 0 && metrics.revenue > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        ~{(metrics.revenue / (metrics.billableHours || 1)).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}/час
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-projectMargin`} className="flex items-center gap-1">
+                      Проектная маржа (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Средняя маржинальность проектов после вычета прямых затрат
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-projectMargin`}
+                      value={metrics.projectMargin || 0}
+                      onChange={handleMetricChange("projectMargin")}
+                      step="1"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Freemium specific */}
+              {businessType === 'freemium' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-freeToPayConversion`} className="flex items-center gap-1">
+                      Free → Paid (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Конверсия из бесплатного плана в платный
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-freeToPayConversion`}
+                      value={metrics.freeToPayConversion || 0}
+                      onChange={handleMetricChange("freeToPayConversion")}
+                      step="0.1"
+                    />
+                    {(metrics.freeToPayConversion ?? 0) >= 2 && (
+                      <p className="text-xs text-green-500">✅ Отличная конверсия</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-dauMau`} className="flex items-center gap-1">
+                      DAU/MAU (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Отношение дневных активных пользователей к месячным — показатель стикинесса
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-dauMau`}
+                      value={metrics.dauMau || 0}
+                      onChange={handleMetricChange("dauMau")}
+                      step="0.1"
+                    />
+                    {(metrics.dauMau ?? 0) > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {(metrics.dauMau || 0) >= 20 ? '✅ Хорошая вовлечённость' : '⚠️ Низкая вовлечённость'}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-churnRate`} className="flex items-center gap-1">
+                      Churn Rate (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Процент платящих пользователей, отменяющих подписку
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-churnRate`}
+                      value={metrics.churnRate || 0}
+                      onChange={handleMetricChange("churnRate")}
+                      step="0.1"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Sharing / Marketplace specific */}
+              {(businessType === 'sharing' || businessType === 'marketplace') && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-gmv`} className="flex items-center gap-1">
+                      GMV ({currency})
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Gross Merchandise Value — общий объём транзакций на платформе
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-gmv`}
+                      value={metrics.gmv || 0}
+                      onChange={handleMetricChange("gmv")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${scenario}-takeRate`} className="flex items-center gap-1">
+                      Take Rate (%)
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Процент комиссии платформы от GMV
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <NumericInput
+                      id={`${scenario}-takeRate`}
+                      value={metrics.takeRate || 0}
+                      onChange={handleMetricChange("takeRate")}
+                      step="0.1"
+                    />
+                    {(metrics.gmv ?? 0) > 0 && (metrics.takeRate ?? 0) > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        Комиссия: {((metrics.gmv || 0) * (metrics.takeRate || 0) / 100).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                      </p>
+                    )}
+                  </div>
+                  {businessType === 'marketplace' && (
+                    <div className="space-y-2">
+                      <Label htmlFor={`${scenario}-liquidity`} className="flex items-center gap-1">
+                        Liquidity (%)
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs">
+                            Процент успешно завершённых транзакций от общего числа листингов
+                          </TooltipContent>
+                        </Tooltip>
+                      </Label>
+                      <NumericInput
+                        id={`${scenario}-liquidity`}
+                        value={metrics.liquidity || 0}
+                        onChange={handleMetricChange("liquidity")}
+                        step="1"
+                      />
+                    </div>
+                  )}
+                  {businessType === 'sharing' && (
+                    <div className="space-y-2">
+                      <Label htmlFor={`${scenario}-utilizationRate`} className="flex items-center gap-1">
+                        Utilization Rate (%)
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs">
+                            Загрузка ресурсов — процент времени использования
+                          </TooltipContent>
+                        </Tooltip>
+                      </Label>
+                      <NumericInput
+                        id={`${scenario}-utilizationRate`}
+                        value={metrics.utilizationRate || 0}
+                        onChange={handleMetricChange("utilizationRate")}
+                        step="1"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Воронка продаж и источники трафика */}
       <LeadSourcesForm
