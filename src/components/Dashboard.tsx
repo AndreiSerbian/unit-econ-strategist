@@ -311,6 +311,16 @@ export const Dashboard = () => {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Business type indicator */}
+              {(() => {
+                const config = getBusinessTypeConfig(businessType);
+                return (
+                  <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent">
+                    <span>{config.icon}</span>
+                    <span className="font-medium">{config.label}</span>
+                  </div>
+                );
+              })()}
               <ProjectSettings
                 currentBusinessType={businessType}
                 onBusinessTypeChange={updateBusinessType}
