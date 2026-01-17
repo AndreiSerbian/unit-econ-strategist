@@ -146,18 +146,22 @@ export const CompanyMetrics = ({
       detailedExpenses.fixedCosts.utilities +
       detailedExpenses.fixedCosts.customCategories.reduce((sum, c) => sum + c.value, 0);
 
-    // Маркетинговые расходы из детализированных статей
-    const detailedMarketingTotal =
-      detailedExpenses.variableCosts.marketing.trafficPurchase +
+    // Маркетинговые расходы из источников трафика (leadSources) - PRIMARY SOURCE для трафика
+    const leadSourcesMarketingTotal = (current.leadSources || []).reduce((sum, s) => sum + s.cost, 0);
+
+    // trafficPurchase добавляем ТОЛЬКО если leadSources пустые (fallback)
+    const trafficCosts = leadSourcesMarketingTotal > 0 
+      ? leadSourcesMarketingTotal 
+      : detailedExpenses.variableCosts.marketing.trafficPurchase;
+
+    // Остальные маркетинговые статьи всегда добавляются отдельно
+    const otherMarketingCosts =
       detailedExpenses.variableCosts.marketing.contractorsPayment +
       detailedExpenses.variableCosts.marketing.crmCosts +
       detailedExpenses.variableCosts.marketing.customCategories.reduce((sum, c) => sum + c.value, 0);
 
-    // Маркетинговые расходы из источников трафика (leadSources)
-    const leadSourcesMarketingTotal = (current.leadSources || []).reduce((sum, s) => sum + s.cost, 0);
-
-    // Итоговые маркетинговые расходы = детализированные + источники трафика
-    const marketingTotal = detailedMarketingTotal + leadSourcesMarketingTotal;
+    // Итоговые маркетинговые расходы = трафик + остальные статьи
+    const marketingTotal = trafficCosts + otherMarketingCosts;
 
     const salesTotal =
       detailedExpenses.variableCosts.salesPayroll.bonusOldClients +
