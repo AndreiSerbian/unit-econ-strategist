@@ -97,6 +97,14 @@ interface Competitor {
   logisticsMaterials?: number;
   logisticsProducts?: number;
   logisticsWarehouse?: number;
+  // Business-type specific metrics
+  churnRate?: number;
+  nrr?: number;
+  repeatRate?: number;
+  utilizationRate?: number;
+  projectMargin?: number;
+  takeRate?: number;
+  freeToPayConversion?: number;
 }
 
 interface CompetitorAnalysisProps {
@@ -108,6 +116,7 @@ interface CompetitorAnalysisProps {
   deleteCompetitorProduct: (competitorId: string, productId: string) => Promise<void>;
   isAuthenticated: boolean;
   currency: string;
+  businessType?: string;
 }
 
 const SALES_CHANNELS = ["Онлайн", "Розница", "Дистрибьюторы", "B2B"];
@@ -175,6 +184,7 @@ export const CompetitorAnalysis = ({
   deleteCompetitorProduct,
   isAuthenticated,
   currency,
+  businessType,
 }: CompetitorAnalysisProps) => {
   const currencySymbol = getCurrencySymbol(currency);
   const [newCompetitor, setNewCompetitor] = useState<Omit<Competitor, "id">>({
@@ -436,6 +446,7 @@ export const CompetitorAnalysis = ({
                           competitor={competitor}
                           onUpdate={(updates) => handleUpdateCompetitor(competitor.id, updates)}
                           currency={currency}
+                          businessType={businessType}
                         />
                         
                         {competitor.detailedExpenses && (

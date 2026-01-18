@@ -27,6 +27,7 @@ interface CompetitorData {
   billableHours?: number;
   takeRate?: number;
   freeToPayConversion?: number;
+  projectMargin?: number;
 }
 
 interface MyCompanyData {

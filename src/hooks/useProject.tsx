@@ -91,6 +91,14 @@ interface Metrics {
   leadSources?: LeadSource[];
   marketShare?: number;
   quality?: number;
+  // Business-type specific metrics
+  nrr?: number;
+  expansionRevenue?: number;
+  repeatRate?: number;
+  utilizationRate?: number;
+  projectMargin?: number;
+  takeRate?: number;
+  freeToPayConversion?: number;
 }
 
 export type { Metrics, CompetitorProduct, Competitor, Product, LeadSource };
@@ -134,6 +142,13 @@ interface Competitor {
   logisticsMaterials?: number;
   logisticsProducts?: number;
   logisticsWarehouse?: number;
+  // Business-type specific metrics
+  nrr?: number;
+  repeatRate?: number;
+  utilizationRate?: number;
+  projectMargin?: number;
+  takeRate?: number;
+  freeToPayConversion?: number;
 }
 
 interface Product {

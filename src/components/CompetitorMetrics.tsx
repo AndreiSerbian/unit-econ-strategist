@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, TrendingUp, DollarSign, Percent, Heart, Truck, Megaphone } from "lucide-react";
+import { Users, TrendingUp, DollarSign, Percent, Heart, Truck, Megaphone, BarChart3 } from "lucide-react";
 import { DetailedExpensesForm } from "./DetailedExpensesForm";
 import { KeyMetrics } from "./KeyMetrics";
 import { NumericInput } from "@/components/ui/numeric-input";
@@ -78,15 +78,24 @@ interface CompetitorData {
   logisticsMaterials?: number;
   logisticsProducts?: number;
   logisticsWarehouse?: number;
+  // Business-type specific metrics
+  churnRate?: number;
+  nrr?: number;
+  repeatRate?: number;
+  utilizationRate?: number;
+  projectMargin?: number;
+  takeRate?: number;
+  freeToPayConversion?: number;
 }
 
 interface CompetitorMetricsProps {
   competitor: CompetitorData;
   onUpdate: (updates: Partial<CompetitorData>) => void;
   currency: string;
+  businessType?: string;
 }
 
-export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: CompetitorMetricsProps) => {
+export const CompetitorMetrics = memo(({ competitor, onUpdate, currency, businessType }: CompetitorMetricsProps) => {
   // Этап 3: Авторасчёт среднего чека
   const autoAvgCheck = 
     competitor.revenue > 0 && (competitor.totalClients || 0) > 0
@@ -399,6 +408,158 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency }: Compe
           </div>
         </CardContent>
       </Card>
+
+      {/* Метрики, специфичные для типа бизнеса */}
+      {businessType && (
+        <Card className="bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              {businessType === 'saas' && "SaaS-метрики"}
+              {businessType === 'ecommerce' && "E-commerce метрики"}
+              {businessType === 'services' && "Метрики услуг"}
+              {businessType === 'freemium' && "Freemium-метрики"}
+              {(businessType === 'sharing' || businessType === 'marketplace') && "Платформенные метрики"}
+              {businessType === 'production' && "Производственные метрики"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* SaaS: Churn Rate, NRR */}
+              {businessType === 'saas' && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Churn Rate (%)</Label>
+                    <NumericInput
+                      value={competitor.churnRate || 0}
+                      onChange={handleMetricChange("churnRate")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Процент оттока клиентов в месяц</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">NRR - Net Revenue Retention (%)</Label>
+                    <NumericInput
+                      value={competitor.nrr || 0}
+                      onChange={handleMetricChange("nrr")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Чистое удержание выручки ({">"} 100% = рост)</p>
+                  </div>
+                </>
+              )}
+
+              {/* E-commerce: Repeat Rate */}
+              {businessType === 'ecommerce' && (
+                <div className="space-y-2">
+                  <Label className="text-xs sm:text-sm">Repeat Rate (%)</Label>
+                  <NumericInput
+                    value={competitor.repeatRate || 0}
+                    onChange={handleMetricChange("repeatRate")}
+                    step="0.1"
+                    className="text-sm"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Доля повторных покупателей</p>
+                </div>
+              )}
+
+              {/* Services: Utilization Rate, Project Margin */}
+              {businessType === 'services' && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Utilization Rate (%)</Label>
+                    <NumericInput
+                      value={competitor.utilizationRate || 0}
+                      onChange={handleMetricChange("utilizationRate")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Загрузка специалистов</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Project Margin (%)</Label>
+                    <NumericInput
+                      value={competitor.projectMargin || 0}
+                      onChange={handleMetricChange("projectMargin")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Средняя маржа проектов</p>
+                  </div>
+                </>
+              )}
+
+              {/* Freemium: Free→Paid Conversion, Churn Rate */}
+              {businessType === 'freemium' && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Free → Paid (%)</Label>
+                    <NumericInput
+                      value={competitor.freeToPayConversion || 0}
+                      onChange={handleMetricChange("freeToPayConversion")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Конверсия из бесплатного в платный</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Churn Rate (%)</Label>
+                    <NumericInput
+                      value={competitor.churnRate || 0}
+                      onChange={handleMetricChange("churnRate")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Процент оттока платящих</p>
+                  </div>
+                </>
+              )}
+
+              {/* Sharing / Marketplace: Take Rate, Utilization */}
+              {(businessType === 'sharing' || businessType === 'marketplace') && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Take Rate (%)</Label>
+                    <NumericInput
+                      value={competitor.takeRate || 0}
+                      onChange={handleMetricChange("takeRate")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Комиссия платформы</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm">Utilization (%)</Label>
+                    <NumericInput
+                      value={competitor.utilizationRate || 0}
+                      onChange={handleMetricChange("utilizationRate")}
+                      step="0.1"
+                      className="text-sm"
+                    />
+                    <p className="text-[10px] text-muted-foreground">Загрузка ресурсов</p>
+                  </div>
+                </>
+              )}
+
+              {/* Production: Repeat Rate */}
+              {businessType === 'production' && (
+                <div className="space-y-2">
+                  <Label className="text-xs sm:text-sm">Repeat Rate (%)</Label>
+                  <NumericInput
+                    value={competitor.repeatRate || 0}
+                    onChange={handleMetricChange("repeatRate")}
+                    step="0.1"
+                    className="text-sm"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Доля повторных заказов</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Этап 2: Источники трафика */}
       <LeadSourcesForm

@@ -811,6 +811,7 @@ export const Dashboard = () => {
                     deleteCompetitorProduct={deleteCompetitorProduct}
                     isAuthenticated={!!user}
                     currency={currency}
+                    businessType={businessType}
                   />
                 </CardContent>
               </Card>
