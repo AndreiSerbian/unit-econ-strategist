@@ -42,6 +42,7 @@ import { OnboardingFlow } from "./OnboardingFlow";
 import { CustomerJourney } from "./CustomerJourney";
 import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
+import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
 import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
 import { type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
@@ -859,6 +860,35 @@ export const Dashboard = () => {
                     marketingCosts: currentMetrics.marketingCosts,
                   }}
                   competitors={competitors.filter(c => c.detailedExpenses)}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+
+            {/* Business-type specific metrics comparison */}
+            {competitors.length > 0 && (
+              <AnimatedCard delay={0.45}>
+                <BusinessTypeMetricsComparison
+                  myCompany={{
+                    name: "Моя компания",
+                    revenue: currentMetrics.revenue,
+                    totalClients: currentMetrics.totalClients,
+                    newClients: currentMetrics.newClients,
+                    returningClients: currentMetrics.returningClients,
+                    churnRate: (currentMetrics as any).churnRate,
+                    nrr: (currentMetrics as any).nrr,
+                    expansionRevenue: (currentMetrics as any).expansionRevenue,
+                    repeatRate: (currentMetrics as any).repeatRate,
+                    utilizationRate: (currentMetrics as any).utilizationRate,
+                    billableHours: (currentMetrics as any).billableHours,
+                    projectMargin: (currentMetrics as any).projectMargin,
+                    takeRate: (currentMetrics as any).takeRate,
+                    freeToPayConversion: (currentMetrics as any).freeToPayConversion,
+                    customerLifetimeMonths: currentMetrics.customerLifetimeMonths,
+                    purchaseFrequency: currentMetrics.purchaseFrequency,
+                  }}
+                  competitors={competitors}
+                  businessType={businessType}
                   currency={currency}
                 />
               </AnimatedCard>
