@@ -70,6 +70,21 @@ interface Metrics {
   purchaseFrequency?: number;
   totalLeads?: number;
   leadSources?: LeadSource[];
+  // Business-type specific metrics
+  churnRate?: number;
+  nrr?: number;
+  expansionRevenue?: number;
+  repeatRate?: number;
+  cartAbandonmentRate?: number;
+  aov?: number;
+  utilizationRate?: number;
+  billableHours?: number;
+  projectMargin?: number;
+  freeToPayConversion?: number;
+  dauMau?: number;
+  gmv?: number;
+  takeRate?: number;
+  liquidity?: number;
 }
 
 interface CompanyMetricsProps {
