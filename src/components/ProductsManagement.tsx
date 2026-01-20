@@ -43,13 +43,7 @@ export interface Product {
   // Services specific
   hourlyRate?: number;
   utilization?: number;
-  // Services: детализация рабочих часов (в неделю)
-  totalWeeklyHours?: number;
-  clientWorkHours?: number;
-  meetingsHours?: number;
-  adminHours?: number;
-  presalesHours?: number;
-  trainingHours?: number;
+  hoursPerWeek?: number;
   // Sharing Economy specific
   utilizationRate?: number;
   takeRate?: number;
@@ -90,12 +84,7 @@ const getDefaultProductValues = (businessType: BusinessType): Omit<Product, 'id'
       return { 
         ...base, 
         hourlyRate: 0, 
-        totalWeeklyHours: 40,
-        clientWorkHours: 0,
-        meetingsHours: 0,
-        adminHours: 0,
-        presalesHours: 0,
-        trainingHours: 0,
+        hoursPerWeek: 40,
         utilization: 0 
       };
     case 'sharing':
@@ -149,12 +138,11 @@ export const ProductsManagement = ({
     updateProduct(productId, { [key]: value });
   };
 
-  // Helper для расчёта utilization для услуги
-  const calculateServiceUtilization = (product: Product) => {
-    const billable = (product.clientWorkHours ?? 0) + (product.meetingsHours ?? 0) + 
-                    (product.adminHours ?? 0) + (product.presalesHours ?? 0) + (product.trainingHours ?? 0);
-    const available = product.totalWeeklyHours ?? 40;
-    const rate = available > 0 ? (billable / available) * 100 : 0;
+  // Helper для расчёта utilization для услуги (упрощённый вариант)
+  const getServiceUtilizationInfo = (product: Product) => {
+    const rate = product.utilization ?? 0;
+    const hours = product.hoursPerWeek ?? 40;
+    const billable = (hours * rate) / 100;
     
     let status = 'Низкая';
     let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'destructive';
@@ -170,7 +158,7 @@ export const ProductsManagement = ({
       variant = 'secondary';
     }
     
-    return { billable, rate, status, variant };
+    return { billable, rate, status, variant, hours };
   };
 
   const renderField = (
@@ -272,21 +260,17 @@ export const ProductsManagement = ({
         revenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
         cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
         if (products.length > 0) {
-          // Расчёт billable hours и utilization rate для каждой услуги
-          let totalBillableHours = 0;
-          let totalAvailableHours = 0;
+          let totalHours = 0;
+          let totalBillable = 0;
           
           products.forEach(p => {
-            const billable = (p.clientWorkHours ?? 0) + (p.meetingsHours ?? 0) + 
-                            (p.adminHours ?? 0) + (p.presalesHours ?? 0) + (p.trainingHours ?? 0);
-            const available = p.totalWeeklyHours ?? 40;
-            totalBillableHours += billable;
-            totalAvailableHours += available;
+            const hours = p.hoursPerWeek ?? 40;
+            const util = p.utilization ?? 0;
+            totalHours += hours;
+            totalBillable += (hours * util) / 100;
           });
           
-          const avgUtil = totalAvailableHours > 0 
-            ? (totalBillableHours / totalAvailableHours) * 100 
-            : 0;
+          const avgUtil = totalHours > 0 ? (totalBillable / totalHours) * 100 : 0;
           
           // Цветовой индикатор
           let utilColor = 'text-destructive';
@@ -303,7 +287,8 @@ export const ProductsManagement = ({
           }
           
           metrics.push(
-            { label: 'Billable Hours/нед', value: `${totalBillableHours.toFixed(0)} ч` },
+            { label: 'Часов/нед', value: `${totalHours.toFixed(0)} ч` },
+            { label: 'Billable', value: `${totalBillable.toFixed(0)} ч` },
             { label: 'Загрузка', value: `${avgUtil.toFixed(0)}% (${utilStatus})`, color: utilColor }
           );
         }
@@ -402,7 +387,7 @@ export const ProductsManagement = ({
             <div className="space-y-3">
               {products.map((product) => {
                 // Расчёт utilization для Services
-                const serviceUtil = businessType === 'services' ? calculateServiceUtilization(product) : null;
+                const serviceUtil = businessType === 'services' ? getServiceUtilizationInfo(product) : null;
                 
                 return (
                   <div
@@ -428,12 +413,14 @@ export const ProductsManagement = ({
                         </div>
                       ))}
                       
-                      {/* Индикатор загрузки для Services */}
                       {serviceUtil && (
                         <div className="flex items-center gap-4 pt-2 border-t mt-2">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Clock className="w-4 h-4" />
-                            <span>Billable: <strong>{serviceUtil.billable} ч/нед</strong></span>
+                            <span>Часов/нед: <strong>{serviceUtil.hours}</strong></span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Billable: <strong>{serviceUtil.billable.toFixed(0)} ч</strong></span>
                           </div>
                           <div className="flex items-center gap-2">
                             <TrendingUp className="w-4 h-4" />
