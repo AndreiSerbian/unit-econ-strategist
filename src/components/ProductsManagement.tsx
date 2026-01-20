@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumericInput } from "@/components/ui/numeric-input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 import {
   Select,
@@ -12,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Package, Star } from "lucide-react";
+import { Plus, Trash2, Package, Star, Clock, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { LogisticsTariffsData } from "@/hooks/useProject";
 import { 
   BusinessType, 
@@ -41,6 +43,13 @@ export interface Product {
   // Services specific
   hourlyRate?: number;
   utilization?: number;
+  // Services: детализация рабочих часов (в неделю)
+  totalWeeklyHours?: number;
+  clientWorkHours?: number;
+  meetingsHours?: number;
+  adminHours?: number;
+  presalesHours?: number;
+  trainingHours?: number;
   // Sharing Economy specific
   utilizationRate?: number;
   takeRate?: number;
@@ -78,7 +87,17 @@ const getDefaultProductValues = (businessType: BusinessType): Omit<Product, 'id'
     case 'production':
       return { ...base, quality: 10, weightPerUnit: 0, volumePerUnit: 0, deliveryType: 'courier' as const, logisticsToClientPerUnit: 0, defectRate: 0 };
     case 'services':
-      return { ...base, hourlyRate: 0, utilization: 80 };
+      return { 
+        ...base, 
+        hourlyRate: 0, 
+        totalWeeklyHours: 40,
+        clientWorkHours: 0,
+        meetingsHours: 0,
+        adminHours: 0,
+        presalesHours: 0,
+        trainingHours: 0,
+        utilization: 0 
+      };
     case 'sharing':
       return { ...base, utilizationRate: 60, takeRate: 15 };
     case 'marketplace':
@@ -130,6 +149,30 @@ export const ProductsManagement = ({
     updateProduct(productId, { [key]: value });
   };
 
+  // Helper для расчёта utilization для услуги
+  const calculateServiceUtilization = (product: Product) => {
+    const billable = (product.clientWorkHours ?? 0) + (product.meetingsHours ?? 0) + 
+                    (product.adminHours ?? 0) + (product.presalesHours ?? 0) + (product.trainingHours ?? 0);
+    const available = product.totalWeeklyHours ?? 40;
+    const rate = available > 0 ? (billable / available) * 100 : 0;
+    
+    let status = 'Низкая';
+    let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'destructive';
+    
+    if (rate >= 85) {
+      status = 'Отличная';
+      variant = 'default';
+    } else if (rate >= 70) {
+      status = 'Хорошая';
+      variant = 'default';
+    } else if (rate >= 60) {
+      status = 'Нормальная';
+      variant = 'secondary';
+    }
+    
+    return { billable, rate, status, variant };
+  };
+
   const renderField = (
     field: ProductField, 
     value: any, 
@@ -156,7 +199,7 @@ export const ProductsManagement = ({
         return (
           <div key={field.key}>
             <Label htmlFor={fieldId} className="flex items-center gap-1">
-              {field.key === 'quality' && <Star className="w-3 h-3 text-yellow-500" />}
+              {field.key === 'quality' && <Star className="w-3 h-3 text-warning" />}
               {field.label}
               {field.suffix && ` (${field.suffix})`}
               {!field.suffix && field.key !== 'name' && field.key !== 'quantity' && 
@@ -229,8 +272,40 @@ export const ProductsManagement = ({
         revenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
         cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
         if (products.length > 0) {
-          const avgUtil = products.reduce((sum, p) => sum + (p.utilization ?? 0), 0) / products.length;
-          metrics.push({ label: 'Средняя загрузка', value: `${avgUtil.toFixed(0)}%` });
+          // Расчёт billable hours и utilization rate для каждой услуги
+          let totalBillableHours = 0;
+          let totalAvailableHours = 0;
+          
+          products.forEach(p => {
+            const billable = (p.clientWorkHours ?? 0) + (p.meetingsHours ?? 0) + 
+                            (p.adminHours ?? 0) + (p.presalesHours ?? 0) + (p.trainingHours ?? 0);
+            const available = p.totalWeeklyHours ?? 40;
+            totalBillableHours += billable;
+            totalAvailableHours += available;
+          });
+          
+          const avgUtil = totalAvailableHours > 0 
+            ? (totalBillableHours / totalAvailableHours) * 100 
+            : 0;
+          
+          // Цветовой индикатор
+          let utilColor = 'text-destructive';
+          let utilStatus = 'Низкая';
+          if (avgUtil >= 85) {
+            utilColor = 'text-success';
+            utilStatus = 'Отличная';
+          } else if (avgUtil >= 70) {
+            utilColor = 'text-success';
+            utilStatus = 'Хорошая';
+          } else if (avgUtil >= 60) {
+            utilColor = 'text-warning';
+            utilStatus = 'Нормальная';
+          }
+          
+          metrics.push(
+            { label: 'Billable Hours/нед', value: `${totalBillableHours.toFixed(0)} ч` },
+            { label: 'Загрузка', value: `${avgUtil.toFixed(0)}% (${utilStatus})`, color: utilColor }
+          );
         }
         break;
 
@@ -325,40 +400,60 @@ export const ProductsManagement = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex-1 space-y-3">
-                    {fieldRows.map((row, rowIndex) => (
-                      <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        {row.map((field) => {
-                          const isNameField = field.key === 'name';
-                          return (
-                            <div key={field.key} className={isNameField ? 'md:col-span-2' : ''}>
-                              {renderField(
-                                field, 
-                                product[field.key], 
-                                (key, value) => handleProductFieldChange(product.id, key, value),
-                                product.id
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteProduct(product.id)}
-                    className="ml-4"
+              {products.map((product) => {
+                // Расчёт utilization для Services
+                const serviceUtil = businessType === 'services' ? calculateServiceUtilization(product) : null;
+                
+                return (
+                  <div
+                    key={product.id}
+                    className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex-1 space-y-3">
+                      {fieldRows.map((row, rowIndex) => (
+                        <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                          {row.map((field) => {
+                            const isNameField = field.key === 'name';
+                            return (
+                              <div key={field.key} className={isNameField ? 'md:col-span-2' : ''}>
+                                {renderField(
+                                  field, 
+                                  product[field.key], 
+                                  (key, value) => handleProductFieldChange(product.id, key, value),
+                                  product.id
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                      
+                      {/* Индикатор загрузки для Services */}
+                      {serviceUtil && (
+                        <div className="flex items-center gap-4 pt-2 border-t mt-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            <span>Billable: <strong>{serviceUtil.billable} ч/нед</strong></span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="text-sm">Загрузка: <strong>{serviceUtil.rate.toFixed(0)}%</strong></span>
+                            <Badge variant={serviceUtil.variant}>{serviceUtil.status}</Badge>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteProduct(product.id)}
+                      className="ml-4"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="mt-6 p-4 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg">
