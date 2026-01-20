@@ -217,7 +217,13 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'cost', label: 'Себестоимость', type: 'number' },
       { key: 'quantity', label: 'Кол-во проектов', type: 'number' },
       { key: 'hourlyRate', label: 'Часовая ставка', type: 'number' },
-      { key: 'utilization', label: 'Загрузка', type: 'number', suffix: '%', min: 0, max: 100 },
+      // Детализация рабочих часов в неделю
+      { key: 'totalWeeklyHours', label: 'Рабочих часов/нед', type: 'number', suffix: 'ч', min: 1, max: 80 },
+      { key: 'clientWorkHours', label: 'Клиентская работа', type: 'number', suffix: 'ч/нед' },
+      { key: 'meetingsHours', label: 'Совещания', type: 'number', suffix: 'ч/нед' },
+      { key: 'adminHours', label: 'Админ. работа', type: 'number', suffix: 'ч/нед' },
+      { key: 'presalesHours', label: 'Пресейл', type: 'number', suffix: 'ч/нед' },
+      { key: 'trainingHours', label: 'Обучение', type: 'number', suffix: 'ч/нед' },
     ],
     metricFields: [
       { key: 'hourlyRate', label: 'Часовая ставка', description: 'Средняя ставка за час работы', category: 'revenue' },
