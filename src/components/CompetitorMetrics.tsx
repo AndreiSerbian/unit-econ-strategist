@@ -158,8 +158,17 @@ export const CompetitorMetrics = memo(({ competitor, onUpdate, currency, busines
       }
     }
 
+    // Авторасчёт Repeat Rate из соотношения повторных и общих клиентов
+    if (field === "returningClients" || field === "totalClients") {
+      const returningClients = field === "returningClients" ? value : (competitor.returningClients || 0);
+      const totalClients = field === "totalClients" ? value : (competitor.totalClients || 0);
+      
+      const repeatRate = totalClients > 0 ? (returningClients / totalClients) * 100 : 0;
+      updates.repeatRate = parseFloat(repeatRate.toFixed(1));
+    }
+
     onUpdate(updates);
-  }, [onUpdate, competitor.revenue, competitor.totalClients, competitor.totalLeads]);
+  }, [onUpdate, competitor.revenue, competitor.totalClients, competitor.returningClients, competitor.totalLeads]);
 
   // Этап 2: Обработка изменения источников трафика
   const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
