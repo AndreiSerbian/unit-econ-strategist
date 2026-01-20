@@ -215,6 +215,15 @@ export const MetricsForm = memo(({
           }
         }
 
+        // Авторасчёт Repeat Rate из соотношения повторных и общих клиентов
+        if (field === "returningClients" || field === "totalClients") {
+          const returningClients = field === "returningClients" ? value : metrics.returningClients;
+          const totalClients = field === "totalClients" ? value : metrics.totalClients;
+          
+          const repeatRate = totalClients > 0 ? (returningClients / totalClients) * 100 : 0;
+          onUpdateMetric("repeatRate", parseFloat(repeatRate.toFixed(1)));
+        }
+
         // SaaS: Автоматический расчёт NRR на основе Churn Rate и Expansion Revenue
         // NRR = (1 - Churn Rate) + (Expansion Revenue / MRR) * 100
         if (businessType === 'saas' && (field === "churnRate" || field === "expansionRevenue" || field === "revenue")) {
@@ -229,7 +238,7 @@ export const MetricsForm = memo(({
           }
         }
       },
-    [onUpdateMetric, metrics.revenue, metrics.totalClients, metrics.totalLeads, metrics.churnRate, metrics.expansionRevenue, businessType]
+    [onUpdateMetric, metrics.revenue, metrics.totalClients, metrics.returningClients, metrics.totalLeads, metrics.churnRate, metrics.expansionRevenue, businessType]
   );
 
   const handleLeadSourcesChange = useCallback((sources: LeadSource[]) => {
