@@ -40,6 +40,7 @@ import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
 import { OnboardingFlow } from "./OnboardingFlow";
 import { CustomerJourney } from "./CustomerJourney";
+import { CashFlowDiagram } from "./CashFlowDiagram";
 import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
@@ -1034,7 +1035,24 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
 
-            {/* Marketing Metrics */}
+            {/* Cash Flow Diagram */}
+            {currentMetrics.revenue > 0 && (
+              <AnimatedCard delay={0.07}>
+                <CashFlowDiagram
+                  revenue={currentMetrics.revenue}
+                  totalClients={currentMetrics.totalClients}
+                  newClients={currentMetrics.newClients}
+                  returningClients={currentMetrics.returningClients}
+                  leadSources={currentMetrics.leadSources || []}
+                  detailedExpenses={currentMetrics.detailedExpenses}
+                  fixedCosts={currentMetrics.fixedCosts}
+                  variableCosts={currentMetrics.variableCosts}
+                  marketingCosts={currentMetrics.marketingCosts}
+                  currency={currency}
+                />
+              </AnimatedCard>
+            )}
+
             {currentMetrics.detailedExpenses && (
               <AnimatedCard delay={0.1}>
                 <MarketingMetrics
