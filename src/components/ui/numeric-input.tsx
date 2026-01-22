@@ -3,11 +3,12 @@ import { Input } from "./input";
 
 interface NumericInputProps {
   id?: string;
-  value: number;
-  onChange: (value: number) => void;
+  value: number | null;
+  onChange: (value: number | null) => void;
   placeholder?: string;
   step?: string;
   className?: string;
+  allowNull?: boolean;
 }
 
 export const NumericInput = memo(({ 
@@ -16,16 +17,17 @@ export const NumericInput = memo(({
   onChange, 
   placeholder = "0",
   step,
-  className
+  className,
+  allowNull = false
 }: NumericInputProps) => {
-  const [localValue, setLocalValue] = useState(value?.toString() || "");
+  const [localValue, setLocalValue] = useState(value?.toString() ?? "");
   const inputRef = useRef<HTMLInputElement>(null);
   const isFocused = useRef(false);
   
   // Синхронизируем локальное значение с внешним только когда input не в фокусе
   useEffect(() => {
     if (!isFocused.current) {
-      setLocalValue(value?.toString() || "");
+      setLocalValue(value?.toString() ?? "");
     }
   }, [value]);
 
@@ -35,9 +37,18 @@ export const NumericInput = memo(({
 
   const handleBlur = useCallback(() => {
     isFocused.current = false;
-    const numValue = parseFloat(localValue) || 0;
-    onChange(numValue);
-  }, [localValue, onChange]);
+    
+    if (localValue === '' || localValue === null) {
+      onChange(allowNull ? null : 0);
+    } else {
+      const numValue = parseFloat(localValue);
+      if (isNaN(numValue)) {
+        onChange(allowNull ? null : 0);
+      } else {
+        onChange(numValue);
+      }
+    }
+  }, [localValue, onChange, allowNull]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalValue(e.target.value);

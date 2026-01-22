@@ -163,6 +163,20 @@ interface Product {
   weightPerUnit?: number;    // weight per unit (kg)
   volumePerUnit?: number;    // volume per unit (m³)
   deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
+  // Services fields
+  hourlyRate?: number | null;
+  hoursPerWeek?: number | null;
+  utilization?: number | null;
+  // SaaS / Freemium fields
+  churnRate?: number | null;
+  freeToPayConversion?: number | null;
+  // Sharing / Marketplace fields
+  utilizationRate?: number | null;
+  takeRate?: number | null;
+  gmv?: number | null;
+  avgOrderValue?: number | null;
+  // Production field
+  defectRate?: number | null;
 }
 
 // Sales Channels types
@@ -850,6 +864,10 @@ export const useProject = (userId: string | undefined) => {
 
       if (productsError) throw productsError;
 
+      // Helper for null-safe number mapping
+      const mapNum = (v: any): number | null => 
+        (v === null || v === undefined) ? null : Number(v);
+
       if (productsData) {
         setProducts(
           productsData.map((p: any) => ({
@@ -863,6 +881,20 @@ export const useProject = (userId: string | undefined) => {
             volumePerUnit: Number(p.volume_per_unit) || 0,
             deliveryType: p.delivery_type || 'courier',
             logisticsToClientPerUnit: Number(p.logistics_to_client) || 0,
+            // Services fields
+            hourlyRate: mapNum(p.hourly_rate),
+            hoursPerWeek: mapNum(p.hours_per_week),
+            utilization: mapNum(p.utilization),
+            // SaaS / Freemium fields
+            churnRate: mapNum(p.churn_rate),
+            freeToPayConversion: mapNum(p.free_to_pay_conversion),
+            // Sharing / Marketplace fields
+            utilizationRate: mapNum(p.utilization_rate),
+            takeRate: mapNum(p.take_rate),
+            gmv: mapNum(p.gmv),
+            avgOrderValue: mapNum(p.avg_order_value),
+            // Production field
+            defectRate: mapNum(p.defect_rate),
           }))
         );
       }
@@ -1080,20 +1112,44 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
-      const { data, error } = await supabase.from("products").insert({
+      const payload: Record<string, any> = {
         project_id: projectId,
         name: product.name,
         price: product.price,
         cost: product.cost,
         quantity: product.quantity,
         quality: product.quality ?? 10,
-        weight_per_unit: product.weightPerUnit || 0,
-        volume_per_unit: product.volumePerUnit || 0,
-        delivery_type: product.deliveryType || 'courier',
-        logistics_to_client: product.logisticsToClientPerUnit || 0,
-      }).select().single();
+        weight_per_unit: product.weightPerUnit ?? null,
+        volume_per_unit: product.volumePerUnit ?? null,
+        delivery_type: product.deliveryType ?? 'courier',
+        logistics_to_client: product.logisticsToClientPerUnit ?? null,
+      };
+
+      // Services fields (only if provided)
+      if (product.hourlyRate != null)      payload.hourly_rate = product.hourlyRate;
+      if (product.hoursPerWeek != null)    payload.hours_per_week = product.hoursPerWeek;
+      if (product.utilization != null)     payload.utilization = product.utilization;
+
+      // SaaS / Freemium fields
+      if (product.churnRate != null)           payload.churn_rate = product.churnRate;
+      if (product.freeToPayConversion != null) payload.free_to_pay_conversion = product.freeToPayConversion;
+
+      // Sharing / Marketplace fields
+      if (product.utilizationRate != null) payload.utilization_rate = product.utilizationRate;
+      if (product.takeRate != null)        payload.take_rate = product.takeRate;
+      if (product.gmv != null)             payload.gmv = product.gmv;
+      if (product.avgOrderValue != null)   payload.avg_order_value = product.avgOrderValue;
+
+      // Production field
+      if (product.defectRate != null)      payload.defect_rate = product.defectRate;
+
+      const { data, error } = await (supabase.from("products") as any).insert(payload).select().single();
 
       if (error) throw error;
+      
+      // Helper for null-safe number mapping
+      const mapNum = (v: any): number | null => 
+        (v === null || v === undefined) ? null : Number(v);
       
       // Добавляем продукт в локальное состояние без перезагрузки всего проекта
       const newProduct: Product = {
@@ -1107,6 +1163,20 @@ export const useProject = (userId: string | undefined) => {
         volumePerUnit: Number(data.volume_per_unit) || 0,
         deliveryType: (data.delivery_type || 'courier') as 'courier' | 'own_delivery' | 'pickup' | 'transport_company',
         logisticsToClientPerUnit: Number(data.logistics_to_client) || 0,
+        // Services fields
+        hourlyRate: mapNum(data.hourly_rate),
+        hoursPerWeek: mapNum(data.hours_per_week),
+        utilization: mapNum(data.utilization),
+        // SaaS / Freemium fields
+        churnRate: mapNum(data.churn_rate),
+        freeToPayConversion: mapNum(data.free_to_pay_conversion),
+        // Sharing / Marketplace fields
+        utilizationRate: mapNum(data.utilization_rate),
+        takeRate: mapNum(data.take_rate),
+        gmv: mapNum(data.gmv),
+        avgOrderValue: mapNum(data.avg_order_value),
+        // Production field
+        defectRate: mapNum(data.defect_rate),
       };
       setProducts(prev => [...prev, newProduct]);
       toast.success("Продукт добавлен");
@@ -1136,6 +1206,24 @@ export const useProject = (userId: string | undefined) => {
       if (typeof updates.volumePerUnit !== "undefined") updatePayload.volume_per_unit = updates.volumePerUnit;
       if (typeof updates.deliveryType !== "undefined") updatePayload.delivery_type = updates.deliveryType;
       if (typeof updates.logisticsToClientPerUnit !== "undefined") updatePayload.logistics_to_client = updates.logisticsToClientPerUnit;
+      
+      // Services fields
+      if (updates.hourlyRate !== undefined)    updatePayload.hourly_rate = updates.hourlyRate;
+      if (updates.hoursPerWeek !== undefined)  updatePayload.hours_per_week = updates.hoursPerWeek;
+      if (updates.utilization !== undefined)   updatePayload.utilization = updates.utilization;
+
+      // SaaS / Freemium fields
+      if (updates.churnRate !== undefined)           updatePayload.churn_rate = updates.churnRate;
+      if (updates.freeToPayConversion !== undefined) updatePayload.free_to_pay_conversion = updates.freeToPayConversion;
+
+      // Sharing / Marketplace fields
+      if (updates.utilizationRate !== undefined) updatePayload.utilization_rate = updates.utilizationRate;
+      if (updates.takeRate !== undefined)        updatePayload.take_rate = updates.takeRate;
+      if (updates.gmv !== undefined)             updatePayload.gmv = updates.gmv;
+      if (updates.avgOrderValue !== undefined)   updatePayload.avg_order_value = updates.avgOrderValue;
+
+      // Production field
+      if (updates.defectRate !== undefined)      updatePayload.defect_rate = updates.defectRate;
 
       if (Object.keys(updatePayload).length === 0) return;
 

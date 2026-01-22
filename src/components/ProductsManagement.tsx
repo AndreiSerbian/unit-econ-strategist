@@ -36,20 +36,20 @@ export interface Product {
   weightPerUnit?: number;
   volumePerUnit?: number;
   deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
-  defectRate?: number;
+  defectRate?: number | null;
   // SaaS / Freemium specific
-  churnRate?: number;
-  freeToPayConversion?: number;
+  churnRate?: number | null;
+  freeToPayConversion?: number | null;
   // Services specific
-  hourlyRate?: number;
-  utilization?: number;
-  hoursPerWeek?: number;
+  hourlyRate?: number | null;
+  utilization?: number | null;
+  hoursPerWeek?: number | null;
   // Sharing Economy specific
-  utilizationRate?: number;
-  takeRate?: number;
+  utilizationRate?: number | null;
+  takeRate?: number | null;
   // Marketplace specific
-  gmv?: number;
-  avgOrderValue?: number;
+  gmv?: number | null;
+  avgOrderValue?: number | null;
   // Generic
   [key: string]: any;
 }
@@ -184,6 +184,15 @@ export const ProductsManagement = ({
         );
       
       case 'number':
+        // Fields that can be null (business-type specific)
+        const nullableFields = [
+          'hourlyRate', 'hoursPerWeek', 'utilization',
+          'churnRate', 'freeToPayConversion',
+          'utilizationRate', 'takeRate', 'gmv', 'avgOrderValue',
+          'defectRate'
+        ];
+        const allowNull = nullableFields.includes(field.key);
+        
         return (
           <div key={field.key}>
             <Label htmlFor={fieldId} className="flex items-center gap-1">
@@ -196,11 +205,14 @@ export const ProductsManagement = ({
             </Label>
             <NumericInput
               id={fieldId}
-              value={value ?? 0}
+              value={value ?? (allowNull ? null : 0)}
+              allowNull={allowNull}
               onChange={(v) => {
                 let newValue = v;
-                if (field.min !== undefined) newValue = Math.max(field.min, newValue);
-                if (field.max !== undefined) newValue = Math.min(field.max, newValue);
+                if (newValue !== null) {
+                  if (field.min !== undefined) newValue = Math.max(field.min, newValue);
+                  if (field.max !== undefined) newValue = Math.min(field.max, newValue);
+                }
                 onChange(field.key, newValue);
               }}
               placeholder="0"
