@@ -509,9 +509,16 @@ export type Database = {
       }
       products: {
         Row: {
+          avg_order_value: number | null
+          churn_rate: number | null
           cost: number
           created_at: string
+          defect_rate: number | null
           delivery_type: string | null
+          free_to_pay_conversion: number | null
+          gmv: number | null
+          hourly_rate: number | null
+          hours_per_week: number | null
           id: string
           logistics_to_client: number | null
           name: string
@@ -519,14 +526,24 @@ export type Database = {
           project_id: string
           quality: number | null
           quantity: number
+          take_rate: number | null
           updated_at: string
+          utilization: number | null
+          utilization_rate: number | null
           volume_per_unit: number | null
           weight_per_unit: number | null
         }
         Insert: {
+          avg_order_value?: number | null
+          churn_rate?: number | null
           cost?: number
           created_at?: string
+          defect_rate?: number | null
           delivery_type?: string | null
+          free_to_pay_conversion?: number | null
+          gmv?: number | null
+          hourly_rate?: number | null
+          hours_per_week?: number | null
           id?: string
           logistics_to_client?: number | null
           name: string
@@ -534,14 +551,24 @@ export type Database = {
           project_id: string
           quality?: number | null
           quantity?: number
+          take_rate?: number | null
           updated_at?: string
+          utilization?: number | null
+          utilization_rate?: number | null
           volume_per_unit?: number | null
           weight_per_unit?: number | null
         }
         Update: {
+          avg_order_value?: number | null
+          churn_rate?: number | null
           cost?: number
           created_at?: string
+          defect_rate?: number | null
           delivery_type?: string | null
+          free_to_pay_conversion?: number | null
+          gmv?: number | null
+          hourly_rate?: number | null
+          hours_per_week?: number | null
           id?: string
           logistics_to_client?: number | null
           name?: string
@@ -549,7 +576,10 @@ export type Database = {
           project_id?: string
           quality?: number | null
           quantity?: number
+          take_rate?: number | null
           updated_at?: string
+          utilization?: number | null
+          utilization_rate?: number | null
           volume_per_unit?: number | null
           weight_per_unit?: number | null
         }
