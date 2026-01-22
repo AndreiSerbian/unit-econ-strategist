@@ -44,6 +44,7 @@ import { CashFlowDiagram } from "./CashFlowDiagram";
 import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
+import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
 import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
 import { type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
@@ -1019,6 +1020,16 @@ export const Dashboard = () => {
 
           {/* ANALYTICS TAB */}
           <TabsContent value="analytics" className="space-y-6">
+            {/* Metric Relationship Analyzer */}
+            <AnimatedCard delay={0.03}>
+              <MetricRelationshipAnalyzer
+                metrics={currentMetrics}
+                competitors={competitors}
+                businessType={businessType}
+                currency={currency}
+              />
+            </AnimatedCard>
+
             {/* Customer Journey Sankey */}
             {(currentMetrics.totalLeads || 0) > 0 && (
               <AnimatedCard delay={0.05}>
