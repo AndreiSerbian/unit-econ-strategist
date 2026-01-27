@@ -86,6 +86,7 @@ export const businessTypes: BusinessTypeConfig[] = [
       { key: 'name', label: 'Название плана', type: 'text', required: true },
       { key: 'price', label: 'Цена подписки', type: 'number', suffix: '/мес' },
       { key: 'quantity', label: 'Подписчики', type: 'number' },
+      { key: 'newSubscribers', label: 'Новые подп.', type: 'number', suffix: '/мес' },
       { key: 'cost', label: 'Себестоимость', type: 'number', suffix: '/мес' },
       { key: 'churnRate', label: 'Churn Rate', type: 'number', suffix: '%', min: 0, max: 100 },
     ],
