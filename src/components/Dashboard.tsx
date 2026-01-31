@@ -480,30 +480,30 @@ export const Dashboard = () => {
           
           return (
             <Tabs defaultValue="products" className="space-y-4 sm:space-y-6">
-              <TabsList className="grid w-full grid-cols-6 h-auto p-1">
-                <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-                  <Package className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm">{businessConfig.productLabelPlural}</span>
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto p-1 gap-1">
+                <TabsTrigger value="products" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <Package className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center break-words">{businessConfig.productLabelPlural}</span>
                 </TabsTrigger>
-                <TabsTrigger value="metrics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-                  <BarChart3 className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm">Показатели</span>
+                <TabsTrigger value="metrics" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <BarChart3 className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">Показатели</span>
                 </TabsTrigger>
-                <TabsTrigger value="competitors" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-                  <Users className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm">Конкуренты</span>
+                <TabsTrigger value="competitors" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">Конкуренты</span>
                 </TabsTrigger>
-                <TabsTrigger value="market" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-                  <Map className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm">Рынок</span>
+                <TabsTrigger value="market" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <Map className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">Рынок</span>
                 </TabsTrigger>
-                <TabsTrigger value="analytics" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-                  <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm">Аналитика</span>
+                <TabsTrigger value="analytics" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <TrendingUp className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">Аналитика</span>
                 </TabsTrigger>
-                <TabsTrigger value="game-theory" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 text-xs sm:text-sm">
-                  <Brain className="w-4 h-4 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm">Теория</span>
+                <TabsTrigger value="game-theory" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <Brain className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">Теория</span>
                 </TabsTrigger>
               </TabsList>
 

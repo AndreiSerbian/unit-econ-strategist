@@ -312,7 +312,7 @@ export const CompetitorAnalysis = ({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
               <Label htmlFor="competitor-name">Название компании</Label>
               <Input
@@ -414,20 +414,20 @@ export const CompetitorAnalysis = ({
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="flex justify-between">
+                    <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
                         <span className="text-muted-foreground">Выручка:</span>
                         <span className="font-semibold font-mono">{competitor.revenue.toLocaleString("ru-RU")} {currencySymbol}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
                         <span className="text-muted-foreground">Доля рынка:</span>
                         <span className="font-semibold font-mono">{competitor.marketShare}%</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Средняя цена:</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
+                        <span className="text-muted-foreground">Ср. цена:</span>
                         <span className="font-semibold font-mono">{competitor.pricing.toLocaleString("ru-RU")} {currencySymbol}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
                         <span className="text-muted-foreground">Качество:</span>
                         <span className="font-semibold font-mono">{competitor.quality}/20</span>
                       </div>

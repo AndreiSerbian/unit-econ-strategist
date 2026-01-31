@@ -370,12 +370,12 @@ export const ProductsManagement = ({
         <CardContent>
           <div className="space-y-4">
             {fieldRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <div key={rowIndex} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
                 {row.map((field) => {
-                  // First field (name) gets 2 columns
+                  // First field (name) gets 2 columns on md+
                   const isNameField = field.key === 'name';
                   return (
-                    <div key={field.key} className={isNameField ? 'md:col-span-2' : ''}>
+                    <div key={field.key} className={isNameField ? 'col-span-2 md:col-span-2' : ''}>
                       {renderField(field, newProduct[field.key], handleFieldChange, 'new')}
                     </div>
                   );
@@ -405,15 +405,26 @@ export const ProductsManagement = ({
                 return (
                   <div
                     key={product.id}
-                    className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    className="p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex-1 space-y-3">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <h4 className="font-medium text-sm sm:text-base truncate">{product.name || 'Без названия'}</h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteProduct(product.id)}
+                        className="shrink-0 h-8 w-8 p-0"
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="space-y-3">
                       {fieldRows.map((row, rowIndex) => (
-                        <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                        <div key={rowIndex} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                           {row.map((field) => {
                             const isNameField = field.key === 'name';
                             return (
-                              <div key={field.key} className={isNameField ? 'md:col-span-2' : ''}>
+                              <div key={field.key} className={isNameField ? 'col-span-2 md:col-span-2' : ''}>
                                 {renderField(
                                   field, 
                                   product[field.key], 
@@ -427,43 +438,35 @@ export const ProductsManagement = ({
                       ))}
                       
                       {serviceUtil && (
-                        <div className="flex items-center gap-4 pt-2 border-t mt-2">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="w-4 h-4" />
-                            <span>Часов/нед: <strong>{serviceUtil.hours}</strong></span>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 pt-2 border-t mt-2 text-xs sm:text-sm">
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>Часов: <strong>{serviceUtil.hours}</strong></span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1 text-muted-foreground">
                             <span>Billable: <strong>{serviceUtil.billable.toFixed(0)} ч</strong></span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="w-4 h-4" />
-                            <span className="text-sm">Загрузка: <strong>{serviceUtil.rate.toFixed(0)}%</strong></span>
-                            <Badge variant={serviceUtil.variant}>{serviceUtil.status}</Badge>
+                          <div className="flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>Загрузка: <strong>{serviceUtil.rate.toFixed(0)}%</strong></span>
+                            <Badge variant={serviceUtil.variant} className="text-[10px] sm:text-xs">{serviceUtil.status}</Badge>
                           </div>
                         </div>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteProduct(product.id)}
-                      className="ml-4"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
                   </div>
                 );
               })}
             </div>
 
-            <div className="mt-6 p-4 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg">
-              <h3 className="font-semibold mb-3">Итоговые показатели</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="mt-6 p-3 sm:p-4 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg">
+              <h3 className="font-semibold mb-3 text-sm sm:text-base">Итоговые показатели</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {/* Additional metrics specific to business type */}
                 {additionalMetrics.map((metric, idx) => (
                   <div key={idx}>
-                    <p className="text-sm text-muted-foreground">{metric.label}</p>
-                    <p className={`text-xl font-bold font-mono ${metric.color || 'text-primary'}`}>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{metric.label}</p>
+                    <p className={`text-base sm:text-xl font-bold font-mono ${metric.color || 'text-primary'}`}>
                       {metric.value}
                     </p>
                   </div>
@@ -471,10 +474,10 @@ export const ProductsManagement = ({
                 
                 {/* Standard revenue/cost/profit for all types */}
                 <div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {businessType === 'saas' || businessType === 'freemium' ? 'Выручка (MRR)' : 'Выручка'}
                   </p>
-                  <p className="text-xl font-bold text-primary font-mono">
+                  <p className="text-base sm:text-xl font-bold text-primary font-mono">
                     {totalRevenue.toLocaleString("ru-RU")} {currency}
                   </p>
                 </div>
