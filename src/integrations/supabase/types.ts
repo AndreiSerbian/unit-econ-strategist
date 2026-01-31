@@ -447,6 +447,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "product_channel_allocations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_full"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "product_channel_allocations_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -496,6 +503,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_materials_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_full"
             referencedColumns: ["id"]
           },
           {
@@ -592,6 +606,213 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_marketplace: {
+        Row: {
+          avg_order_value: number | null
+          created_at: string
+          gmv: number | null
+          product_id: string
+          take_rate: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_order_value?: number | null
+          created_at?: string
+          gmv?: number | null
+          product_id: string
+          take_rate?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_order_value?: number | null
+          created_at?: string
+          gmv?: number | null
+          product_id?: string
+          take_rate?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_marketplace_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_marketplace_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products_full"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_production: {
+        Row: {
+          created_at: string
+          defect_rate: number | null
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          defect_rate?: number | null
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          defect_rate?: number | null
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_production_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_production_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products_full"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_saas: {
+        Row: {
+          arpu: number | null
+          churn_rate: number | null
+          created_at: string
+          free_to_pay_conversion: number | null
+          mrr: number | null
+          new_subscribers: number | null
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          arpu?: number | null
+          churn_rate?: number | null
+          created_at?: string
+          free_to_pay_conversion?: number | null
+          mrr?: number | null
+          new_subscribers?: number | null
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          arpu?: number | null
+          churn_rate?: number | null
+          created_at?: string
+          free_to_pay_conversion?: number | null
+          mrr?: number | null
+          new_subscribers?: number | null
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_saas_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_saas_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products_full"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_services: {
+        Row: {
+          created_at: string
+          hourly_rate: number | null
+          hours_per_week: number | null
+          product_id: string
+          updated_at: string
+          utilization: number | null
+        }
+        Insert: {
+          created_at?: string
+          hourly_rate?: number | null
+          hours_per_week?: number | null
+          product_id: string
+          updated_at?: string
+          utilization?: number | null
+        }
+        Update: {
+          created_at?: string
+          hourly_rate?: number | null
+          hours_per_week?: number | null
+          product_id?: string
+          updated_at?: string
+          utilization?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_services_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_services_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products_full"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_sharing: {
+        Row: {
+          created_at: string
+          product_id: string
+          take_rate: number | null
+          updated_at: string
+          utilization_rate: number | null
+        }
+        Insert: {
+          created_at?: string
+          product_id: string
+          take_rate?: number | null
+          updated_at?: string
+          utilization_rate?: number | null
+        }
+        Update: {
+          created_at?: string
+          product_id?: string
+          take_rate?: number | null
+          updated_at?: string
+          utilization_rate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_sharing_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_sharing_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products_full"
             referencedColumns: ["id"]
           },
         ]
@@ -887,7 +1108,46 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      products_full: {
+        Row: {
+          avg_order_value: number | null
+          churn_rate: number | null
+          cost: number | null
+          created_at: string | null
+          defect_rate: number | null
+          delivery_type: string | null
+          free_to_pay_conversion: number | null
+          gmv: number | null
+          hourly_rate: number | null
+          hours_per_week: number | null
+          id: string | null
+          logistics_to_client: number | null
+          marketplace_take_rate: number | null
+          name: string | null
+          new_subscribers: number | null
+          price: number | null
+          project_id: string | null
+          quality: number | null
+          quantity: number | null
+          saas_arpu: number | null
+          saas_mrr: number | null
+          sharing_take_rate: number | null
+          updated_at: string | null
+          utilization: number | null
+          utilization_rate: number | null
+          volume_per_unit: number | null
+          weight_per_unit: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
