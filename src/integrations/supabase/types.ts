@@ -522,6 +522,7 @@ export type Database = {
           id: string
           logistics_to_client: number | null
           name: string
+          new_subscribers: number | null
           price: number
           project_id: string
           quality: number | null
@@ -547,6 +548,7 @@ export type Database = {
           id?: string
           logistics_to_client?: number | null
           name: string
+          new_subscribers?: number | null
           price?: number
           project_id: string
           quality?: number | null
@@ -572,6 +574,7 @@ export type Database = {
           id?: string
           logistics_to_client?: number | null
           name?: string
+          new_subscribers?: number | null
           price?: number
           project_id?: string
           quality?: number | null
