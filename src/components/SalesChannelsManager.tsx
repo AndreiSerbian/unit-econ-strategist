@@ -11,21 +11,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Store, Globe, Truck, Users, Building2, Handshake, ShoppingBag, Ship } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Plus, Trash2, Store, Globe, Truck, Users, Building2, Handshake, ShoppingBag, Ship, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 
-export interface SalesChannel {
-  id: string;
-  name: string;
-  type: 'website' | 'marketplace' | 'distributor' | 'retail' | 'agent' | 'direct_b2b' | 'franchise' | 'export';
-  commissionPercent: number;
-  fulfillmentCostPerUnit: number;
-  logisticsCostPerUnit: number;
-  returnRatePercent: number;
-  paymentDelayDays: number;
-  minOrderQuantity?: number;
-  discountPercent?: number;
-}
+/**
+ * SaaS Sales Channel = payment route / merchant-of-record / reseller route
+ * NOT acquisition channels (SEO, Ads, etc.)
+ * 
+ * Key fields:
+ * - commissionPercent: revenue share / partner cut / platform fee
+ * - discountPercent: typical discount for channel (promo/annual/enterprise)
+ * - returnRatePercent: refunds/chargebacks (NOT churn)
+ * - paymentDelayDays: payout delay or invoice terms (net-30/60)
+ * 
+ * Deprecated for SaaS (kept for backward compatibility):
+ * - fulfillmentCostPerUnit
+ * - logisticsCostPerUnit
+ */
+// Re-export from useProject for type consistency
+export type { SalesChannel } from "@/hooks/useProject";
+import type { SalesChannel } from "@/hooks/useProject";
 
 export interface ProductChannelAllocation {
   id: string;
@@ -35,39 +46,133 @@ export interface ProductChannelAllocation {
   priceOverride?: number;
 }
 
-const CHANNEL_TYPES = [
-  { value: "website", label: "Свой сайт", icon: Globe },
-  { value: "marketplace", label: "Маркетплейс", icon: ShoppingBag },
-  { value: "distributor", label: "Дистрибьютор", icon: Truck },
-  { value: "retail", label: "Розница B2B", icon: Store },
-  { value: "agent", label: "Агенты/Партнёры", icon: Handshake },
-  { value: "direct_b2b", label: "Прямые B2B продажи", icon: Building2 },
-  { value: "franchise", label: "Франшиза", icon: Users },
-  { value: "export", label: "Экспорт", icon: Ship },
-] as const;
+// Channel type definition for UI
+interface ChannelTypeOption {
+  value: SalesChannel["type"];
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+  legacy?: boolean;
+}
 
+// SaaS-relevant channel types
+// "Enterprise" replaces old "Розница B2B" for SaaS context
+const CHANNEL_TYPES: ChannelTypeOption[] = [
+  { value: "website", label: "Свой сайт", icon: Globe, description: "Прямые продажи через свой сайт (Stripe, Paddle и др.)" },
+  { value: "marketplace", label: "Маркетплейс", icon: ShoppingBag, description: "Продажи через SaaS-маркетплейсы (AppSumo, G2 и др.)" },
+  { value: "distributor", label: "Дистрибьютор", icon: Truck, description: "Реселлеры и дистрибьюторы" },
+  { value: "enterprise", label: "Enterprise", icon: Building2, description: "Корпоративные контракты с отсрочкой оплаты" },
+  { value: "retail", label: "Розница B2B", icon: Store, description: "Розничные B2B продажи", legacy: true }, // Kept for backward compatibility
+  { value: "agent", label: "Агенты/Партнёры", icon: Handshake, description: "Affiliate и партнёрские программы" },
+  { value: "direct_b2b", label: "Прямые B2B продажи", icon: Users, description: "Прямые контракты с бизнесами" },
+  // Legacy channels - hidden by default for SaaS but kept for backward compatibility
+  { value: "franchise", label: "Франшиза", icon: Store, description: "Legacy: франчайзинговая модель", legacy: true },
+  { value: "export", label: "Экспорт", icon: Ship, description: "Legacy: экспортные продажи", legacy: true },
+];
+
+// SaaS-specific templates (no fulfillment/logistics costs)
 const CHANNEL_TEMPLATES: Record<string, Partial<SalesChannel>> = {
-  website: { commissionPercent: 0, fulfillmentCostPerUnit: 0, returnRatePercent: 2, paymentDelayDays: 0 },
-  marketplace: { commissionPercent: 20, fulfillmentCostPerUnit: 100, returnRatePercent: 7, paymentDelayDays: 14 },
-  distributor: { commissionPercent: 0, fulfillmentCostPerUnit: 0, returnRatePercent: 1, paymentDelayDays: 30, discountPercent: 30 },
-  retail: { commissionPercent: 0, fulfillmentCostPerUnit: 0, returnRatePercent: 2, paymentDelayDays: 45, discountPercent: 15 },
-  agent: { commissionPercent: 15, fulfillmentCostPerUnit: 0, returnRatePercent: 3, paymentDelayDays: 7 },
-  direct_b2b: { commissionPercent: 0, fulfillmentCostPerUnit: 0, returnRatePercent: 0.5, paymentDelayDays: 30, discountPercent: 10 },
-  franchise: { commissionPercent: 5, fulfillmentCostPerUnit: 0, returnRatePercent: 1, paymentDelayDays: 14 },
-  export: { commissionPercent: 0, fulfillmentCostPerUnit: 200, returnRatePercent: 1, paymentDelayDays: 60, logisticsCostPerUnit: 500 },
+  website: { 
+    commissionPercent: 3, // Payment processor fee (Stripe ~2.9%)
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 2, 
+    paymentDelayDays: 2, // Stripe payout delay
+    discountPercent: 0 
+  },
+  marketplace: { 
+    commissionPercent: 30, // AppSumo-style marketplace cut
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 10, // Higher refund rate on marketplaces
+    paymentDelayDays: 30,
+    discountPercent: 0 
+  },
+  distributor: { 
+    commissionPercent: 0, 
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 2, 
+    paymentDelayDays: 30, 
+    discountPercent: 40 // Reseller discount
+  },
+  enterprise: { 
+    commissionPercent: 0, 
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 1, // Low refund rate for enterprise
+    paymentDelayDays: 45, // Net-45 terms
+    discountPercent: 20 // Enterprise volume discount
+  },
+  agent: { 
+    commissionPercent: 20, // Partner/affiliate commission
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 3, 
+    paymentDelayDays: 7,
+    discountPercent: 0 
+  },
+  direct_b2b: { 
+    commissionPercent: 0, 
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 1, 
+    paymentDelayDays: 30, 
+    discountPercent: 15 
+  },
+  franchise: { 
+    commissionPercent: 5, 
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 1, 
+    paymentDelayDays: 14,
+    discountPercent: 0 
+  },
+  export: { 
+    commissionPercent: 5, 
+    fulfillmentCostPerUnit: 0, 
+    logisticsCostPerUnit: 0, 
+    returnRatePercent: 2, 
+    paymentDelayDays: 60,
+    discountPercent: 0 
+  },
+  // Legacy retail template - kept for backward compatibility
+  retail: { 
+    commissionPercent: 0, 
+    fulfillmentCostPerUnit: 0, 
+    returnRatePercent: 2, 
+    paymentDelayDays: 45, 
+    discountPercent: 15 
+  },
 };
 
 interface SalesChannelsManagerProps {
   channels: SalesChannel[];
   setChannels: React.Dispatch<React.SetStateAction<SalesChannel[]>>;
   currency: string;
+  businessType?: string; // To conditionally show/hide e-commerce fields
 }
+
+// Tooltip component for field explanations
+const FieldTooltip = ({ content }: { content: string }) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground cursor-help inline-block ml-1" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <p className="text-xs">{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
 
 export const SalesChannelsManager = ({
   channels,
   setChannels,
   currency,
+  businessType = 'saas',
 }: SalesChannelsManagerProps) => {
+  const isSaaS = businessType === 'saas' || businessType === 'freemium';
+  
+  // Filter channel types based on business type
+  const availableChannelTypes = isSaaS 
+    ? CHANNEL_TYPES.filter(t => !t.legacy) 
+    : CHANNEL_TYPES;
+
   const [newChannel, setNewChannel] = useState<Omit<SalesChannel, "id">>({
     name: "",
     type: "website",
@@ -89,6 +194,15 @@ export const SalesChannelsManager = ({
     });
   };
 
+  // Validation helpers
+  const validatePercent = (value: number): number => {
+    return Math.max(0, Math.min(100, value));
+  };
+
+  const validateDelayDays = (value: number): number => {
+    return Math.max(0, Math.min(365, Math.round(value)));
+  };
+
   const handleAddChannel = () => {
     if (!newChannel.name.trim()) {
       toast.error("Введите название канала");
@@ -98,6 +212,10 @@ export const SalesChannelsManager = ({
     const channel: SalesChannel = {
       ...newChannel,
       id: Date.now().toString(),
+      commissionPercent: validatePercent(newChannel.commissionPercent),
+      returnRatePercent: validatePercent(newChannel.returnRatePercent),
+      discountPercent: validatePercent(newChannel.discountPercent || 0),
+      paymentDelayDays: validateDelayDays(newChannel.paymentDelayDays),
     };
 
     setChannels([...channels, channel]);
@@ -140,7 +258,10 @@ export const SalesChannelsManager = ({
           Каналы продаж
         </CardTitle>
         <CardDescription>
-          Настройте параметры каналов: комиссии, фулфилмент, логистика, возвраты
+          {isSaaS 
+            ? "Настройте параметры каналов: комиссии, скидки, возвраты, условия оплаты"
+            : "Настройте параметры каналов: комиссии, фулфилмент, логистика, возвраты"
+          }
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -153,7 +274,7 @@ export const SalesChannelsManager = ({
               <Input
                 value={newChannel.name}
                 onChange={(e) => setNewChannel({ ...newChannel, name: e.target.value })}
-                placeholder="Например: Wildberries"
+                placeholder={isSaaS ? "Например: Stripe Direct" : "Например: Wildberries"}
               />
             </div>
             <div>
@@ -163,7 +284,7 @@ export const SalesChannelsManager = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CHANNEL_TYPES.map((type) => (
+                  {availableChannelTypes.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       <div className="flex items-center gap-2">
                         <type.icon className="w-4 h-4" />
@@ -175,52 +296,71 @@ export const SalesChannelsManager = ({
               </Select>
             </div>
             <div>
-              <Label>Комиссия (%)</Label>
+              <Label className="flex items-center">
+                Комиссия (%)
+                <FieldTooltip content="Доля платформы/партнёра/реселлера от выручки" />
+              </Label>
               <NumericInput
                 value={newChannel.commissionPercent}
-                onChange={(value) => setNewChannel({ ...newChannel, commissionPercent: value })}
+                onChange={(value) => setNewChannel({ ...newChannel, commissionPercent: validatePercent(value || 0) })}
                 placeholder="0"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          
+          {/* SaaS-specific fields */}
+          <div className={`grid grid-cols-2 ${isSaaS ? 'md:grid-cols-4' : 'md:grid-cols-5'} gap-4`}>
+            {/* Hide fulfillment/logistics for SaaS */}
+            {!isSaaS && (
+              <>
+                <div>
+                  <Label>Фулфилмент ({currency})</Label>
+                  <NumericInput
+                    value={newChannel.fulfillmentCostPerUnit}
+                    onChange={(value) => setNewChannel({ ...newChannel, fulfillmentCostPerUnit: value || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label>Логистика ({currency})</Label>
+                  <NumericInput
+                    value={newChannel.logisticsCostPerUnit}
+                    onChange={(value) => setNewChannel({ ...newChannel, logisticsCostPerUnit: value || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+              </>
+            )}
             <div>
-              <Label>Фулфилмент ({currency})</Label>
-              <NumericInput
-                value={newChannel.fulfillmentCostPerUnit}
-                onChange={(value) => setNewChannel({ ...newChannel, fulfillmentCostPerUnit: value })}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label>Логистика ({currency})</Label>
-              <NumericInput
-                value={newChannel.logisticsCostPerUnit}
-                onChange={(value) => setNewChannel({ ...newChannel, logisticsCostPerUnit: value })}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label>Возвраты (%)</Label>
+              <Label className="flex items-center">
+                Возвраты (%)
+                <FieldTooltip content="Refunds и chargebacks, НЕ churn. Процент возвратов платежей." />
+              </Label>
               <NumericInput
                 value={newChannel.returnRatePercent}
-                onChange={(value) => setNewChannel({ ...newChannel, returnRatePercent: value })}
+                onChange={(value) => setNewChannel({ ...newChannel, returnRatePercent: validatePercent(value || 0) })}
                 placeholder="0"
               />
             </div>
             <div>
-              <Label>Отсрочка (дни)</Label>
+              <Label className="flex items-center">
+                Отсрочка (дни)
+                <FieldTooltip content="Задержка выплаты или условия net-30/60. Влияет на cash flow." />
+              </Label>
               <NumericInput
                 value={newChannel.paymentDelayDays}
-                onChange={(value) => setNewChannel({ ...newChannel, paymentDelayDays: Math.round(value) })}
+                onChange={(value) => setNewChannel({ ...newChannel, paymentDelayDays: validateDelayDays(value || 0) })}
                 placeholder="0"
               />
             </div>
             <div>
-              <Label>Скидка (%)</Label>
+              <Label className="flex items-center">
+                Скидка (%)
+                <FieldTooltip content="Типичная скидка для канала (промо, годовая подписка, enterprise)" />
+              </Label>
               <NumericInput
                 value={newChannel.discountPercent || 0}
-                onChange={(value) => setNewChannel({ ...newChannel, discountPercent: value })}
+                onChange={(value) => setNewChannel({ ...newChannel, discountPercent: validatePercent(value || 0) })}
                 placeholder="0"
               />
             </div>
@@ -265,44 +405,49 @@ export const SalesChannelsManager = ({
                     </Button>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mt-4">
+                  <div className={`grid grid-cols-2 ${isSaaS ? 'md:grid-cols-4' : 'md:grid-cols-6'} gap-3 mt-4`}>
                     <div>
                       <Label className="text-xs">Комиссия (%)</Label>
                       <NumericInput
                         value={channel.commissionPercent}
-                        onChange={(value) => handleUpdateChannel(channel.id, { commissionPercent: value })}
+                        onChange={(value) => handleUpdateChannel(channel.id, { commissionPercent: validatePercent(value || 0) })}
                         className="h-8 text-sm"
                       />
                     </div>
-                    <div>
-                      <Label className="text-xs">Фулфилмент</Label>
-                      <NumericInput
-                        value={channel.fulfillmentCostPerUnit}
-                        onChange={(value) => handleUpdateChannel(channel.id, { fulfillmentCostPerUnit: value })}
-                        className="h-8 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Логистика</Label>
-                      <NumericInput
-                        value={channel.logisticsCostPerUnit}
-                        onChange={(value) => handleUpdateChannel(channel.id, { logisticsCostPerUnit: value })}
-                        className="h-8 text-sm"
-                      />
-                    </div>
+                    {/* Hide fulfillment/logistics for SaaS */}
+                    {!isSaaS && (
+                      <>
+                        <div>
+                          <Label className="text-xs">Фулфилмент</Label>
+                          <NumericInput
+                            value={channel.fulfillmentCostPerUnit}
+                            onChange={(value) => handleUpdateChannel(channel.id, { fulfillmentCostPerUnit: value || 0 })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Логистика</Label>
+                          <NumericInput
+                            value={channel.logisticsCostPerUnit}
+                            onChange={(value) => handleUpdateChannel(channel.id, { logisticsCostPerUnit: value || 0 })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                      </>
+                    )}
                     <div>
                       <Label className="text-xs">Возвраты (%)</Label>
                       <NumericInput
                         value={channel.returnRatePercent}
-                        onChange={(value) => handleUpdateChannel(channel.id, { returnRatePercent: value })}
+                        onChange={(value) => handleUpdateChannel(channel.id, { returnRatePercent: validatePercent(value || 0) })}
                         className="h-8 text-sm"
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Отсрочка</Label>
+                      <Label className="text-xs">Отсрочка (дни)</Label>
                       <NumericInput
                         value={channel.paymentDelayDays}
-                        onChange={(value) => handleUpdateChannel(channel.id, { paymentDelayDays: Math.round(value) })}
+                        onChange={(value) => handleUpdateChannel(channel.id, { paymentDelayDays: validateDelayDays(value || 0) })}
                         className="h-8 text-sm"
                       />
                     </div>
@@ -310,7 +455,7 @@ export const SalesChannelsManager = ({
                       <Label className="text-xs">Скидка (%)</Label>
                       <NumericInput
                         value={channel.discountPercent || 0}
-                        onChange={(value) => handleUpdateChannel(channel.id, { discountPercent: value })}
+                        onChange={(value) => handleUpdateChannel(channel.id, { discountPercent: validatePercent(value || 0) })}
                         className="h-8 text-sm"
                       />
                     </div>
@@ -325,10 +470,40 @@ export const SalesChannelsManager = ({
           <div className="text-center py-8 text-muted-foreground">
             <Store className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>Нет настроенных каналов</p>
-            <p className="text-sm">Добавьте каналы продаж для анализа маржинальности</p>
+            <p className="text-sm">
+              {isSaaS 
+                ? "Добавьте каналы продаж для анализа unit-экономики"
+                : "Добавьте каналы продаж для анализа маржинальности"
+              }
+            </p>
           </div>
         )}
       </CardContent>
     </Card>
   );
+};
+
+/**
+ * Calculate net revenue multiplier for a sales channel (SaaS model)
+ * net = gross * (1 - commission%) * (1 - discount%) * (1 - refund%)
+ * 
+ * Note: paymentDelayDays affects cashflow timing, not revenue amount
+ */
+export const calculateChannelNetMultiplier = (channel: SalesChannel): number => {
+  const commissionMultiplier = 1 - (channel.commissionPercent / 100);
+  const discountMultiplier = 1 - ((channel.discountPercent || 0) / 100);
+  const refundMultiplier = 1 - (channel.returnRatePercent / 100);
+  
+  return commissionMultiplier * discountMultiplier * refundMultiplier;
+};
+
+/**
+ * Migrate old channel type values to new ones
+ * "retail" -> "enterprise" for backward compatibility
+ */
+export const migrateChannelType = (type: string): SalesChannel["type"] => {
+  if (type === 'retail') {
+    return 'enterprise';
+  }
+  return type as SalesChannel["type"];
 };
