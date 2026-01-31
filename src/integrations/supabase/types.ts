@@ -88,6 +88,45 @@ export type Database = {
         }
         Relationships: []
       }
+      competitor_metrics: {
+        Row: {
+          competitor_id: string
+          created_at: string
+          id: string
+          metrics: Json
+          updated_at: string
+        }
+        Insert: {
+          competitor_id: string
+          created_at?: string
+          id?: string
+          metrics?: Json
+          updated_at?: string
+        }
+        Update: {
+          competitor_id?: string
+          created_at?: string
+          id?: string
+          metrics?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_metrics_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: true
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_metrics_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: true
+            referencedRelation: "competitors_full"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competitor_products: {
         Row: {
           annual_revenue: number | null
@@ -128,6 +167,13 @@ export type Database = {
             columns: ["competitor_id"]
             isOneToOne: false
             referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_products_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors_full"
             referencedColumns: ["id"]
           },
         ]
@@ -1108,6 +1154,30 @@ export type Database = {
       }
     }
     Views: {
+      competitors_full: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          market_share: number | null
+          marketing_spend: number | null
+          metrics: Json | null
+          name: string | null
+          pricing: number | null
+          project_id: string | null
+          quality: number | null
+          revenue: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products_full: {
         Row: {
           avg_order_value: number | null

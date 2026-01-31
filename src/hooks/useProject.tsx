@@ -335,6 +335,82 @@ const markAsSavedToCloud = (userId?: string) => {
   }
 };
 
+// Helper: Build JSONB payload for competitor_metrics table
+// Includes all non-base fields that should be persisted
+const buildCompetitorMetricsPayload = (competitor: Partial<Competitor>): Record<string, any> => {
+  const metrics: Record<string, any> = {};
+  
+  // General metrics
+  if (competitor.totalClients !== undefined) metrics.totalClients = competitor.totalClients;
+  if (competitor.newClients !== undefined) metrics.newClients = competitor.newClients;
+  if (competitor.returningClients !== undefined) metrics.returningClients = competitor.returningClients;
+  if (competitor.conversionRate !== undefined) metrics.conversionRate = competitor.conversionRate;
+  if (competitor.avgCheck !== undefined) metrics.avgCheck = competitor.avgCheck;
+  if (competitor.fixedCosts !== undefined) metrics.fixedCosts = competitor.fixedCosts;
+  if (competitor.variableCosts !== undefined) metrics.variableCosts = competitor.variableCosts;
+  
+  // LTV metrics
+  if (competitor.customerLifetimeMonths !== undefined) metrics.customerLifetimeMonths = competitor.customerLifetimeMonths;
+  if (competitor.purchaseFrequency !== undefined) metrics.purchaseFrequency = competitor.purchaseFrequency;
+  if (competitor.ltv !== undefined) metrics.ltv = competitor.ltv;
+  if (competitor.churnRate !== undefined) metrics.churnRate = competitor.churnRate;
+  if (competitor.retentionRate !== undefined) metrics.retentionRate = competitor.retentionRate;
+  if (competitor.paybackMonths !== undefined) metrics.paybackMonths = competitor.paybackMonths;
+  
+  // Lead sources
+  if (competitor.totalLeads !== undefined) metrics.totalLeads = competitor.totalLeads;
+  if (competitor.leadSources !== undefined) metrics.leadSources = competitor.leadSources;
+  
+  // Logistics
+  if (competitor.logisticsMaterials !== undefined) metrics.logisticsMaterials = competitor.logisticsMaterials;
+  if (competitor.logisticsProducts !== undefined) metrics.logisticsProducts = competitor.logisticsProducts;
+  if (competitor.logisticsWarehouse !== undefined) metrics.logisticsWarehouse = competitor.logisticsWarehouse;
+  
+  // Business-type specific
+  if (competitor.nrr !== undefined) metrics.nrr = competitor.nrr;
+  if (competitor.repeatRate !== undefined) metrics.repeatRate = competitor.repeatRate;
+  if (competitor.utilizationRate !== undefined) metrics.utilizationRate = competitor.utilizationRate;
+  if (competitor.projectMargin !== undefined) metrics.projectMargin = competitor.projectMargin;
+  if (competitor.takeRate !== undefined) metrics.takeRate = competitor.takeRate;
+  if (competitor.freeToPayConversion !== undefined) metrics.freeToPayConversion = competitor.freeToPayConversion;
+  
+  // Detailed expenses (complex object)
+  if (competitor.detailedExpenses !== undefined) metrics.detailedExpenses = competitor.detailedExpenses;
+  
+  return metrics;
+};
+
+// Helper: Extract non-base metrics from competitor for local state
+const extractCompetitorMetrics = (competitor: Partial<Competitor>): Partial<Competitor> => {
+  return {
+    totalClients: competitor.totalClients,
+    newClients: competitor.newClients,
+    returningClients: competitor.returningClients,
+    conversionRate: competitor.conversionRate,
+    avgCheck: competitor.avgCheck,
+    fixedCosts: competitor.fixedCosts,
+    variableCosts: competitor.variableCosts,
+    customerLifetimeMonths: competitor.customerLifetimeMonths,
+    purchaseFrequency: competitor.purchaseFrequency,
+    ltv: competitor.ltv,
+    churnRate: competitor.churnRate,
+    retentionRate: competitor.retentionRate,
+    paybackMonths: competitor.paybackMonths,
+    totalLeads: competitor.totalLeads,
+    leadSources: competitor.leadSources,
+    logisticsMaterials: competitor.logisticsMaterials,
+    logisticsProducts: competitor.logisticsProducts,
+    logisticsWarehouse: competitor.logisticsWarehouse,
+    nrr: competitor.nrr,
+    repeatRate: competitor.repeatRate,
+    utilizationRate: competitor.utilizationRate,
+    projectMargin: competitor.projectMargin,
+    takeRate: competitor.takeRate,
+    freeToPayConversion: competitor.freeToPayConversion,
+    detailedExpenses: competitor.detailedExpenses,
+  };
+};
+
 export const useProject = (userId: string | undefined) => {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [currentMetrics, setCurrentMetrics] = useState<Metrics>(initialMetrics);
@@ -576,8 +652,9 @@ export const useProject = (userId: string | undefined) => {
         }
       }
 
-      // Обновляем или добавляем конкурентов
+      // Обновляем или добавляем конкурентов (base + metrics)
       for (const competitor of competitors) {
+        // Step 1: Upsert base competitor data
         await supabase.from("competitors").upsert({
           id: competitor.id,
           project_id: projectId,
@@ -588,6 +665,16 @@ export const useProject = (userId: string | undefined) => {
           quality: competitor.quality,
           marketing_spend: competitor.marketingSpend,
         }, { onConflict: 'id' });
+        
+        // Step 2: Upsert metrics into competitor_metrics (JSONB)
+        const metricsPayload = buildCompetitorMetricsPayload(competitor);
+        await (supabase.from("competitor_metrics") as any).upsert(
+          {
+            competitor_id: competitor.id,
+            metrics: metricsPayload,
+          },
+          { onConflict: 'competitor_id' }
+        );
       }
 
       // Сохраняем сырьё (raw_materials)
@@ -809,11 +896,11 @@ export const useProject = (userId: string | undefined) => {
         );
       }
 
-      // Load competitors
-      const { data: competitorsData, error: competitorsError } = await supabase
-        .from("competitors")
+      // Load competitors from competitors_full view (includes persisted metrics)
+      const { data: competitorsData, error: competitorsError } = await (supabase
+        .from("competitors_full" as any)
         .select("*")
-        .eq("project_id", currentProjectId);
+        .eq("project_id", currentProjectId));
 
       if (competitorsError) throw competitorsError;
 
@@ -845,16 +932,47 @@ export const useProject = (userId: string | undefined) => {
 
       if (competitorsData) {
         setCompetitors(
-          competitorsData.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            revenue: Number(c.revenue) || 0,
-            marketShare: Number(c.market_share) || 0,
-            pricing: Number(c.pricing) || 0,
-            quality: Number(c.quality) || 0,
-            marketingSpend: Number(c.marketing_spend) || 0,
-            products: competitorProductsMap[c.id] || [],
-          }))
+          competitorsData.map((c: any) => {
+            // Extract metrics from JSONB
+            const metrics = c.metrics || {};
+            return {
+              id: c.id,
+              name: c.name,
+              revenue: Number(c.revenue) || 0,
+              marketShare: Number(c.market_share) || 0,
+              pricing: Number(c.pricing) || 0,
+              quality: Number(c.quality) || 0,
+              marketingSpend: Number(c.marketing_spend) || 0,
+              products: competitorProductsMap[c.id] || [],
+              // Persisted business-type metrics from JSONB
+              totalClients: mapNum(metrics.totalClients) ?? undefined,
+              newClients: mapNum(metrics.newClients) ?? undefined,
+              returningClients: mapNum(metrics.returningClients) ?? undefined,
+              conversionRate: mapNum(metrics.conversionRate) ?? undefined,
+              avgCheck: mapNum(metrics.avgCheck) ?? undefined,
+              fixedCosts: mapNum(metrics.fixedCosts) ?? undefined,
+              variableCosts: mapNum(metrics.variableCosts) ?? undefined,
+              customerLifetimeMonths: mapNum(metrics.customerLifetimeMonths) ?? undefined,
+              purchaseFrequency: mapNum(metrics.purchaseFrequency) ?? undefined,
+              ltv: mapNum(metrics.ltv) ?? undefined,
+              churnRate: mapNum(metrics.churnRate) ?? undefined,
+              retentionRate: mapNum(metrics.retentionRate) ?? undefined,
+              paybackMonths: mapNum(metrics.paybackMonths) ?? undefined,
+              totalLeads: mapNum(metrics.totalLeads) ?? undefined,
+              leadSources: metrics.leadSources || undefined,
+              logisticsMaterials: mapNum(metrics.logisticsMaterials) ?? undefined,
+              logisticsProducts: mapNum(metrics.logisticsProducts) ?? undefined,
+              logisticsWarehouse: mapNum(metrics.logisticsWarehouse) ?? undefined,
+              // Business-type specific
+              nrr: mapNum(metrics.nrr) ?? undefined,
+              repeatRate: mapNum(metrics.repeatRate) ?? undefined,
+              utilizationRate: mapNum(metrics.utilizationRate) ?? undefined,
+              projectMargin: mapNum(metrics.projectMargin) ?? undefined,
+              takeRate: mapNum(metrics.takeRate) ?? undefined,
+              freeToPayConversion: mapNum(metrics.freeToPayConversion) ?? undefined,
+              detailedExpenses: metrics.detailedExpenses || undefined,
+            };
+          })
         );
       }
 
@@ -1010,6 +1128,7 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
+      // Step 1: Insert base competitor data
       const { data, error } = await supabase.from("competitors").insert({
         project_id: projectId,
         name: competitor.name,
@@ -1022,6 +1141,13 @@ export const useProject = (userId: string | undefined) => {
 
       if (error) throw error;
       
+      // Step 2: Insert metrics into competitor_metrics (JSONB)
+      const metricsPayload = buildCompetitorMetricsPayload(competitor);
+      await (supabase.from("competitor_metrics") as any).insert({
+        competitor_id: data.id,
+        metrics: metricsPayload,
+      });
+      
       // Добавляем конкурента в локальное состояние без перезагрузки всего проекта
       const newCompetitor: Competitor = {
         id: data.id,
@@ -1032,6 +1158,8 @@ export const useProject = (userId: string | undefined) => {
         quality: Number(data.quality) || 0,
         marketingSpend: Number(data.marketing_spend) || 0,
         products: [],
+        // Include all metrics from the original competitor object
+        ...extractCompetitorMetrics(competitor),
       };
       setCompetitors(prev => [...prev, newCompetitor]);
       toast.success("Конкурент добавлен");
@@ -1052,29 +1180,39 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
-      const updatePayload: Record<string, any> = {};
-      if (typeof updates.name !== "undefined") updatePayload.name = updates.name;
-      if (typeof updates.revenue !== "undefined") updatePayload.revenue = updates.revenue;
-      if (typeof updates.marketShare !== "undefined") updatePayload.market_share = updates.marketShare;
-      if (typeof updates.pricing !== "undefined") updatePayload.pricing = updates.pricing;
-      if (typeof updates.quality !== "undefined") updatePayload.quality = updates.quality;
-      if (typeof updates.marketingSpend !== "undefined") updatePayload.marketing_spend = updates.marketingSpend;
+      // Step 1: Update base fields in competitors table
+      const baseUpdatePayload: Record<string, any> = {};
+      if (typeof updates.name !== "undefined") baseUpdatePayload.name = updates.name;
+      if (typeof updates.revenue !== "undefined") baseUpdatePayload.revenue = updates.revenue;
+      if (typeof updates.marketShare !== "undefined") baseUpdatePayload.market_share = updates.marketShare;
+      if (typeof updates.pricing !== "undefined") baseUpdatePayload.pricing = updates.pricing;
+      if (typeof updates.quality !== "undefined") baseUpdatePayload.quality = updates.quality;
+      if (typeof updates.marketingSpend !== "undefined") baseUpdatePayload.marketing_spend = updates.marketingSpend;
 
-      if (Object.keys(updatePayload).length === 0) {
-        // Только локальные изменения (products и другие клиентские поля)
-        setCompetitors(competitors.map((c) => (c.id === competitorId ? { ...c, ...updates } : c)));
-        return;
+      if (Object.keys(baseUpdatePayload).length > 0) {
+        const { error } = await supabase
+          .from("competitors")
+          .update(baseUpdatePayload)
+          .eq("id", competitorId);
+        if (error) throw error;
       }
 
-      const { error } = await supabase
-        .from("competitors")
-        .update(updatePayload)
-        .eq("id", competitorId);
-
-      if (error) throw error;
+      // Step 2: Upsert metrics into competitor_metrics (JSONB)
+      // Get current competitor to merge with updates
+      const currentCompetitor = competitors.find(c => c.id === competitorId);
+      const mergedCompetitor = { ...currentCompetitor, ...updates };
+      const metricsPayload = buildCompetitorMetricsPayload(mergedCompetitor);
+      
+      await (supabase.from("competitor_metrics") as any).upsert(
+        {
+          competitor_id: competitorId,
+          metrics: metricsPayload,
+        },
+        { onConflict: 'competitor_id' }
+      );
 
       setCompetitors(competitors.map((c) => (c.id === competitorId ? { ...c, ...updates } : c)));
-      toast.success("Конкурент обновлён");
+      // Don't show toast for every update (too noisy)
     } catch (error: any) {
       console.error("Error updating competitor:", error);
       toast.error("Ошибка обновления конкурента");

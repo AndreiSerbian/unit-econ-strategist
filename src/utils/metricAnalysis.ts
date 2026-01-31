@@ -687,6 +687,39 @@ export function validateMetricConsistency(
 // COMPETITOR COMPARISON
 // ============================================================
 
+/**
+ * Get metric value from competitor, checking both base columns and metrics JSONB
+ * Base columns: revenue, marketShare, pricing, quality, marketingSpend
+ * All other fields come from the persisted JSONB metrics
+ */
+function getCompetitorMetricValue(
+  competitor: Competitor,
+  key: MetricKey
+): MetricValue {
+  // Base columns in competitors table
+  const baseColumns = ['revenue', 'marketShare', 'pricing', 'quality', 'marketingSpend'];
+  
+  let value: number | null | undefined;
+  
+  if (baseColumns.includes(key)) {
+    // Read from base competitor columns
+    value = (competitor as any)[key];
+  } else {
+    // Read from competitor object (which is populated from JSONB metrics)
+    value = (competitor as any)[key];
+  }
+  
+  if (value === undefined || value === null) {
+    return { value: null, missing: true, reason: `${key} не указан` };
+  }
+  
+  if (typeof value === 'number') {
+    return { value, missing: false };
+  }
+  
+  return { value: null, missing: true, reason: `${key} имеет некорректный тип` };
+}
+
 export function compareWithCompetitors(
   myMetrics: Partial<Metrics>,
   competitors: Competitor[],
@@ -698,18 +731,27 @@ export function compareWithCompetitors(
   // Add business-specific metrics
   if (businessType === 'saas') {
     metricsToCompare.push('churnRate', 'nrr');
+  } else if (businessType === 'freemium') {
+    metricsToCompare.push('freeToPayConversion', 'churnRate');
   } else if (businessType === 'ecommerce') {
     metricsToCompare.push('repeatRate');
   } else if (businessType === 'services') {
     metricsToCompare.push('utilizationRate', 'projectMargin');
+  } else if (businessType === 'marketplace' || businessType === 'sharing') {
+    metricsToCompare.push('takeRate', 'utilizationRate');
+  } else if (businessType === 'production') {
+    metricsToCompare.push('repeatRate');
   }
   
   for (const competitor of competitors) {
     for (const key of metricsToCompare) {
       const myValue = getMetricNumber(myMetrics, key as BaseMetricKey);
-      const competitorValue = getMetricNumber(competitor as unknown as Partial<Metrics>, key as BaseMetricKey);
+      const competitorValue = getCompetitorMetricValue(competitor, key);
       
+      // Skip if either value is missing
       if (myValue.missing || competitorValue.missing) continue;
+      
+      // Avoid division by zero
       if (competitorValue.value === 0) continue;
       
       const gap = ((myValue.value! - competitorValue.value!) / competitorValue.value!) * 100;
