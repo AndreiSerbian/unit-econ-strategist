@@ -180,15 +180,16 @@ interface Product {
 }
 
 // Sales Channels types
+// 'enterprise' replaces 'retail' for SaaS context, 'retail' kept for backward compatibility
 export interface SalesChannel {
   id: string;
   name: string;
-  type: 'website' | 'marketplace' | 'distributor' | 'retail' | 'agent' | 'direct_b2b' | 'franchise' | 'export';
+  type: 'website' | 'marketplace' | 'distributor' | 'retail' | 'enterprise' | 'agent' | 'direct_b2b' | 'franchise' | 'export';
   commissionPercent: number;
-  fulfillmentCostPerUnit: number;
-  logisticsCostPerUnit: number;
-  returnRatePercent: number;
-  paymentDelayDays: number;
+  fulfillmentCostPerUnit: number; // Deprecated for SaaS, kept for e-commerce
+  logisticsCostPerUnit: number; // Deprecated for SaaS, kept for e-commerce
+  returnRatePercent: number; // For SaaS: refunds/chargebacks, NOT churn
+  paymentDelayDays: number; // For SaaS: payout delay / net-30/60 terms
   minOrderQuantity?: number;
   discountPercent?: number;
 }
