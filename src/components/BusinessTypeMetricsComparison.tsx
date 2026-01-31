@@ -283,8 +283,56 @@ export const BusinessTypeMetricsComparison = ({
               </BarChart>
             </ResponsiveContainer>
 
-            {/* Detailed table with status indicators */}
-            <div className="overflow-x-auto -mx-2 sm:mx-0">
+            {/* Mobile: Card-based layout */}
+            <div className="block sm:hidden space-y-3">
+              {comparisonData.map((item, idx) => {
+                const primaryMetricKey = config.metrics[0].key;
+                const primaryValue = (item as any)[config.metrics[0].label] || 0;
+                const status = getMetricStatus(primaryValue, primaryMetricKey);
+                
+                return (
+                  <div 
+                    key={idx}
+                    className={`p-3 border rounded-lg ${item.isMyCompany ? "bg-primary/5 border-primary/20" : ""}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-sm">
+                        {item.isMyCompany && "🏠 "}
+                        {item.company}
+                      </span>
+                      {primaryValue > 0 && (
+                        <Badge 
+                          variant={status === "good" ? "default" : status === "warning" ? "secondary" : "destructive"}
+                          className="text-xs"
+                        >
+                          {status === "good" ? "✓" : status === "warning" ? "⚠" : "✗"}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {config.metrics.map((metric) => {
+                        const value = (item as any)[metric.label] || 0;
+                        const metricStatus = getMetricStatus(value, metric.key);
+                        return (
+                          <div key={metric.key} className="text-xs">
+                            <span className="text-muted-foreground">{metric.label}: </span>
+                            <span 
+                              className="font-mono font-semibold"
+                              style={{ color: value > 0 ? getStatusColor(metricStatus) : undefined }}
+                            >
+                              {value > 0 ? `${value}${metric.suffix}` : "—"}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop: Table layout */}
+            <div className="hidden sm:block overflow-x-auto -mx-2 sm:mx-0">
               <table className="w-full text-xs sm:text-sm min-w-[400px]">
                 <thead>
                   <tr className="border-b">
@@ -299,7 +347,6 @@ export const BusinessTypeMetricsComparison = ({
                 </thead>
                 <tbody>
                   {comparisonData.map((item, idx) => {
-                    // Calculate overall status based on primary metric
                     const primaryMetricKey = config.metrics[0].key;
                     const primaryValue = (item as any)[config.metrics[0].label] || 0;
                     const status = getMetricStatus(primaryValue, primaryMetricKey);

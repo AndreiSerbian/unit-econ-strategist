@@ -127,21 +127,22 @@ export const RawMaterialsManager = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Row 1: Name, Unit, Price, Logistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-          <div className="space-y-1">
-            <Label htmlFor="material-name">Название</Label>
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
+          <div className="space-y-1 col-span-2 sm:col-span-1">
+            <Label htmlFor="material-name" className="text-xs sm:text-sm">Название</Label>
             <Input
               id="material-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Например, мука, ткань, сталь"
+              placeholder="Мука, ткань..."
+              className="text-sm"
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-unit">Единица измерения</Label>
+            <Label htmlFor="material-unit" className="text-xs sm:text-sm">Ед. измерения</Label>
             <Select value={unit} onValueChange={setUnit}>
-              <SelectTrigger id="material-unit">
-                <SelectValue placeholder="Выберите единицу" />
+              <SelectTrigger id="material-unit" className="text-sm">
+                <SelectValue placeholder="Ед." />
               </SelectTrigger>
               <SelectContent>
                 {UNIT_OPTIONS.map((opt) => (
@@ -153,7 +154,7 @@ export const RawMaterialsManager = ({
             </Select>
             {unit === "other" && (
               <Input
-                className="mt-2"
+                className="mt-2 text-sm"
                 value={customUnit}
                 onChange={(e) => setCustomUnit(e.target.value)}
                 placeholder="Введите единицу"
@@ -161,54 +162,58 @@ export const RawMaterialsManager = ({
             )}
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-price">Цена за единицу ({currency})</Label>
+            <Label htmlFor="material-price" className="text-xs sm:text-sm">Цена ({currency})</Label>
             <NumericInput
               id="material-price"
               value={pricePerUnit}
               onChange={setPricePerUnit}
+              className="text-sm"
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-logistics">Логистика до производства ({currency})</Label>
+            <Label htmlFor="material-logistics" className="text-xs sm:text-sm">Логистика ({currency})</Label>
             <NumericInput
               id="material-logistics"
               value={logisticsToProductionPerUnit}
               onChange={setLogisticsToProductionPerUnit}
+              className="text-sm"
             />
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground">
               за 1 {unit === "other" ? customUnit || "ед." : unit || "ед."}
             </p>
           </div>
         </div>
 
         {/* Row 2: Weight, Volume, Transport Type, Distance */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-end">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
           <div className="space-y-1">
-            <Label htmlFor="material-weight">Вес единицы (кг)</Label>
+            <Label htmlFor="material-weight" className="text-xs sm:text-sm">Вес (кг)</Label>
             <NumericInput
               id="material-weight"
               value={weight}
               onChange={setWeight}
               placeholder="0"
+              className="text-sm"
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-volume">Объём единицы (м³)</Label>
+            <Label htmlFor="material-volume" className="text-xs sm:text-sm">Объём (м³)</Label>
             <NumericInput
               id="material-volume"
               value={volume}
               onChange={setVolume}
               placeholder="0"
+              className="text-sm"
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-transport">Тип транспортировки</Label>
+            <Label htmlFor="material-transport" className="text-xs sm:text-sm">Тип транспорта</Label>
             <Select
               value={transportType}
               onValueChange={(v) => setTransportType(v as RawMaterial["transportType"])}
             >
-              <SelectTrigger id="material-transport">
-                <SelectValue placeholder="Тип транспорта" />
+              <SelectTrigger id="material-transport" className="text-sm">
+                <SelectValue placeholder="Транспорт" />
               </SelectTrigger>
               <SelectContent>
                 {TRANSPORT_TYPE_OPTIONS.map((opt) => (
@@ -220,12 +225,13 @@ export const RawMaterialsManager = ({
             </Select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-distance">Расстояние (км)</Label>
+            <Label htmlFor="material-distance" className="text-xs sm:text-sm">Расстояние (км)</Label>
             <NumericInput
               id="material-distance"
               value={distance}
               onChange={setDistance}
               placeholder="0"
+              className="text-sm"
             />
           </div>
         </div>
@@ -243,12 +249,13 @@ export const RawMaterialsManager = ({
                 className="flex flex-col gap-3 p-3 border rounded-lg"
               >
                 {/* Row 1: Basic fields */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <div>
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="col-span-2 sm:col-span-1">
                     <Label className="text-xs text-muted-foreground">Название</Label>
                     <Input
                       value={m.name}
                       onChange={(e) => handleUpdate(m.id, "name", e.target.value)}
+                      className="text-sm"
                     />
                   </div>
                   <div>
@@ -261,7 +268,7 @@ export const RawMaterialsManager = ({
                         }
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -274,7 +281,7 @@ export const RawMaterialsManager = ({
                     </Select>
                     {!UNIT_OPTIONS.some((o) => o.value === m.unit && o.value !== "other") && (
                       <Input
-                        className="mt-2"
+                        className="mt-2 text-sm"
                         value={m.unit}
                         onChange={(e) => handleUpdate(m.id, "unit", e.target.value)}
                         placeholder="Введите единицу"
@@ -283,33 +290,36 @@ export const RawMaterialsManager = ({
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">
-                      Цена за {m.unit || "ед."} ({currency})
+                      Цена ({currency})
                     </Label>
                     <NumericInput
                       value={m.pricePerUnit}
                       onChange={(value) => handleUpdate(m.id, "pricePerUnit", value)}
+                      className="text-sm"
                     />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">
-                      Логистика за {m.unit || "ед."} ({currency})
+                      Логистика ({currency})
                     </Label>
                     <NumericInput
                       value={m.logisticsToProductionPerUnit || 0}
                       onChange={(value) =>
                         handleUpdate(m.id, "logisticsToProductionPerUnit", value)
                       }
+                      className="text-sm"
                     />
                   </div>
                 </div>
 
                 {/* Row 2: Extended logistics fields */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 items-end">
                   <div>
                     <Label className="text-xs text-muted-foreground">Вес (кг)</Label>
                     <NumericInput
                       value={m.weight || 0}
                       onChange={(value) => handleUpdate(m.id, "weight", value)}
+                      className="text-sm"
                     />
                   </div>
                   <div>
@@ -317,6 +327,7 @@ export const RawMaterialsManager = ({
                     <NumericInput
                       value={m.volume || 0}
                       onChange={(value) => handleUpdate(m.id, "volume", value)}
+                      className="text-sm"
                     />
                   </div>
                   <div>
@@ -327,7 +338,7 @@ export const RawMaterialsManager = ({
                         handleUpdate(m.id, "transportType", v)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -340,17 +351,19 @@ export const RawMaterialsManager = ({
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Расстояние (км)</Label>
+                    <Label className="text-xs text-muted-foreground">Расст. (км)</Label>
                     <NumericInput
                       value={m.distance || 0}
                       onChange={(value) => handleUpdate(m.id, "distance", value)}
+                      className="text-sm"
                     />
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end col-span-2 sm:col-span-1">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(m.id)}
+                      className="h-9 w-9"
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>

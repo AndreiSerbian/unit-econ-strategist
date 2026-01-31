@@ -70,62 +70,97 @@ export function ChecksTable({ checks, showOnlyProblems = false }: ChecksTablePro
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center justify-between">
+        <CardTitle className="text-base flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <span>Результаты проверок</span>
-          <div className="flex gap-2">
-            <Badge variant="outline" className="bg-green-500/10 text-green-700">
+          <div className="flex gap-2 flex-wrap">
+            <Badge variant="outline" className="bg-green-500/10 text-green-700 text-xs">
               {checks.filter(c => c.status === 'ok').length} ОК
             </Badge>
-            <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">
+            <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 text-xs">
               {checks.filter(c => c.status === 'warning').length} ⚠
             </Badge>
-            <Badge variant="outline" className="bg-red-500/10 text-red-700">
+            <Badge variant="outline" className="bg-red-500/10 text-red-700 text-xs">
               {checks.filter(c => c.status === 'contradiction').length} ✗
             </Badge>
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Статус</TableHead>
-              <TableHead className="w-[180px]">Проверка</TableHead>
-              <TableHead>Результат</TableHead>
-              <TableHead className="w-[100px] text-right">Значение</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedChecks.map((check) => {
-              const config = statusConfig[check.status];
-              return (
-                <TableRow key={check.relationshipId}>
-                  <TableCell>
-                    <Badge 
-                      variant={config.variant}
-                      className={`gap-1 ${config.className}`}
-                    >
-                      {config.icon}
-                      {config.label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {check.relationshipId.replace(/_/g, ' ')}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {check.message}
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-sm">
+        {/* Mobile: Card-based layout */}
+        <div className="block sm:hidden space-y-3">
+          {sortedChecks.map((check) => {
+            const config = statusConfig[check.status];
+            return (
+              <div key={check.relationshipId} className="p-3 border rounded-lg space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Badge 
+                    variant={config.variant}
+                    className={`gap-1 text-xs ${config.className}`}
+                  >
+                    {config.icon}
+                    {config.label}
+                  </Badge>
+                  <span className="font-mono text-sm">
                     {check.currentValue !== undefined 
                       ? check.currentValue.toFixed(1)
                       : '—'
                     }
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  </span>
+                </div>
+                <p className="font-mono text-xs text-muted-foreground break-words">
+                  {check.relationshipId.replace(/_/g, ' ')}
+                </p>
+                <p className="text-sm">
+                  {check.message}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop: Table layout */}
+        <div className="hidden sm:block overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Статус</TableHead>
+                <TableHead className="w-[180px]">Проверка</TableHead>
+                <TableHead>Результат</TableHead>
+                <TableHead className="w-[100px] text-right">Значение</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedChecks.map((check) => {
+                const config = statusConfig[check.status];
+                return (
+                  <TableRow key={check.relationshipId}>
+                    <TableCell>
+                      <Badge 
+                        variant={config.variant}
+                        className={`gap-1 ${config.className}`}
+                      >
+                        {config.icon}
+                        {config.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {check.relationshipId.replace(/_/g, ' ')}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {check.message}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-sm">
+                      {check.currentValue !== undefined 
+                        ? check.currentValue.toFixed(1)
+                        : '—'
+                      }
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
