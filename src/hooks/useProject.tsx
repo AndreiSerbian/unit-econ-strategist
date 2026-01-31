@@ -170,6 +170,7 @@ interface Product {
   // SaaS / Freemium fields
   churnRate?: number | null;
   freeToPayConversion?: number | null;
+  newSubscribers?: number | null;
   // Sharing / Marketplace fields
   utilizationRate?: number | null;
   takeRate?: number | null;
@@ -857,11 +858,11 @@ export const useProject = (userId: string | undefined) => {
         );
       }
 
-      // Load products
-      const { data: productsData, error: productsError } = await supabase
-        .from("products")
+      // Load products from compatibility view (products_full)
+      const { data: productsData, error: productsError } = await (supabase
+        .from("products_full" as any)
         .select("*")
-        .eq("project_id", currentProjectId);
+        .eq("project_id", currentProjectId));
 
       if (productsError) throw productsError;
 
@@ -882,19 +883,21 @@ export const useProject = (userId: string | undefined) => {
             volumePerUnit: Number(p.volume_per_unit) || 0,
             deliveryType: p.delivery_type || 'courier',
             logisticsToClientPerUnit: Number(p.logistics_to_client) || 0,
-            // Services fields
+            // Services fields (from products_services subtype)
             hourlyRate: mapNum(p.hourly_rate),
             hoursPerWeek: mapNum(p.hours_per_week),
             utilization: mapNum(p.utilization),
-            // SaaS / Freemium fields
+            // SaaS / Freemium fields (from products_saas subtype)
             churnRate: mapNum(p.churn_rate),
             freeToPayConversion: mapNum(p.free_to_pay_conversion),
-            // Sharing / Marketplace fields
+            newSubscribers: mapNum(p.new_subscribers),
+            // Sharing fields (from products_sharing subtype)
             utilizationRate: mapNum(p.utilization_rate),
-            takeRate: mapNum(p.take_rate),
+            takeRate: mapNum(p.sharing_take_rate ?? p.marketplace_take_rate),
+            // Marketplace fields (from products_marketplace subtype)
             gmv: mapNum(p.gmv),
             avgOrderValue: mapNum(p.avg_order_value),
-            // Production field
+            // Production field (from products_production subtype)
             defectRate: mapNum(p.defect_rate),
           }))
         );
@@ -1113,7 +1116,8 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
-      const payload: Record<string, any> = {
+      // 1. Insert base product data
+      const basePayload: Record<string, any> = {
         project_id: projectId,
         name: product.name,
         price: product.price,
@@ -1126,33 +1130,67 @@ export const useProject = (userId: string | undefined) => {
         logistics_to_client: product.logisticsToClientPerUnit ?? null,
       };
 
-      // Services fields (only if provided)
-      if (product.hourlyRate != null)      payload.hourly_rate = product.hourlyRate;
-      if (product.hoursPerWeek != null)    payload.hours_per_week = product.hoursPerWeek;
-      if (product.utilization != null)     payload.utilization = product.utilization;
-
-      // SaaS / Freemium fields
-      if (product.churnRate != null)           payload.churn_rate = product.churnRate;
-      if (product.freeToPayConversion != null) payload.free_to_pay_conversion = product.freeToPayConversion;
-
-      // Sharing / Marketplace fields
-      if (product.utilizationRate != null) payload.utilization_rate = product.utilizationRate;
-      if (product.takeRate != null)        payload.take_rate = product.takeRate;
-      if (product.gmv != null)             payload.gmv = product.gmv;
-      if (product.avgOrderValue != null)   payload.avg_order_value = product.avgOrderValue;
-
-      // Production field
-      if (product.defectRate != null)      payload.defect_rate = product.defectRate;
-
-      const { data, error } = await (supabase.from("products") as any).insert(payload).select().single();
+      const { data, error } = await (supabase.from("products") as any).insert(basePayload).select().single();
 
       if (error) throw error;
+      
+      const productId = data.id;
+
+      // 2. Insert subtype data based on business type
+      if (businessType === 'saas' || businessType === 'freemium') {
+        const hasSaasData = product.churnRate != null || product.freeToPayConversion != null || product.newSubscribers != null;
+        if (hasSaasData) {
+          await supabase.from("products_saas" as any).insert({
+            product_id: productId,
+            churn_rate: product.churnRate,
+            free_to_pay_conversion: product.freeToPayConversion,
+            new_subscribers: product.newSubscribers,
+          });
+        }
+      } else if (businessType === 'services') {
+        const hasServicesData = product.hourlyRate != null || product.hoursPerWeek != null || product.utilization != null;
+        if (hasServicesData) {
+          await supabase.from("products_services" as any).insert({
+            product_id: productId,
+            hourly_rate: product.hourlyRate,
+            hours_per_week: product.hoursPerWeek,
+            utilization: product.utilization,
+          });
+        }
+      } else if (businessType === 'marketplace') {
+        const hasMarketplaceData = product.takeRate != null || product.gmv != null || product.avgOrderValue != null;
+        if (hasMarketplaceData) {
+          await supabase.from("products_marketplace" as any).insert({
+            product_id: productId,
+            take_rate: product.takeRate,
+            gmv: product.gmv,
+            avg_order_value: product.avgOrderValue,
+          });
+        }
+      } else if (businessType === 'sharing') {
+        const hasSharingData = product.utilizationRate != null || product.takeRate != null;
+        if (hasSharingData) {
+          await supabase.from("products_sharing" as any).insert({
+            product_id: productId,
+            utilization_rate: product.utilizationRate,
+            take_rate: product.takeRate,
+          });
+        }
+      } else if (businessType === 'production') {
+        const hasProductionData = product.defectRate != null;
+        if (hasProductionData) {
+          await supabase.from("products_production" as any).insert({
+            product_id: productId,
+            defect_rate: product.defectRate,
+          });
+        }
+      }
       
       // Helper for null-safe number mapping
       const mapNum = (v: any): number | null => 
         (v === null || v === undefined) ? null : Number(v);
       
-      // Добавляем продукт в локальное состояние без перезагрузки всего проекта
+      // Add product to local state
       const newProduct: Product = {
         id: data.id,
         name: data.name,
@@ -1165,19 +1203,20 @@ export const useProject = (userId: string | undefined) => {
         deliveryType: (data.delivery_type || 'courier') as 'courier' | 'own_delivery' | 'pickup' | 'transport_company',
         logisticsToClientPerUnit: Number(data.logistics_to_client) || 0,
         // Services fields
-        hourlyRate: mapNum(data.hourly_rate),
-        hoursPerWeek: mapNum(data.hours_per_week),
-        utilization: mapNum(data.utilization),
+        hourlyRate: mapNum(product.hourlyRate),
+        hoursPerWeek: mapNum(product.hoursPerWeek),
+        utilization: mapNum(product.utilization),
         // SaaS / Freemium fields
-        churnRate: mapNum(data.churn_rate),
-        freeToPayConversion: mapNum(data.free_to_pay_conversion),
+        churnRate: mapNum(product.churnRate),
+        freeToPayConversion: mapNum(product.freeToPayConversion),
+        newSubscribers: mapNum(product.newSubscribers),
         // Sharing / Marketplace fields
-        utilizationRate: mapNum(data.utilization_rate),
-        takeRate: mapNum(data.take_rate),
-        gmv: mapNum(data.gmv),
-        avgOrderValue: mapNum(data.avg_order_value),
+        utilizationRate: mapNum(product.utilizationRate),
+        takeRate: mapNum(product.takeRate),
+        gmv: mapNum(product.gmv),
+        avgOrderValue: mapNum(product.avgOrderValue),
         // Production field
-        defectRate: mapNum(data.defect_rate),
+        defectRate: mapNum(product.defectRate),
       };
       setProducts(prev => [...prev, newProduct]);
       toast.success("Продукт добавлен");
@@ -1197,43 +1236,75 @@ export const useProject = (userId: string | undefined) => {
     if (!projectId) return;
 
     try {
-      const updatePayload: Record<string, any> = {};
-      if (typeof updates.name !== "undefined") updatePayload.name = updates.name;
-      if (typeof updates.price !== "undefined") updatePayload.price = updates.price;
-      if (typeof updates.cost !== "undefined") updatePayload.cost = updates.cost;
-      if (typeof updates.quantity !== "undefined") updatePayload.quantity = updates.quantity;
-      if (typeof updates.quality !== "undefined") updatePayload.quality = updates.quality;
-      if (typeof updates.weightPerUnit !== "undefined") updatePayload.weight_per_unit = updates.weightPerUnit;
-      if (typeof updates.volumePerUnit !== "undefined") updatePayload.volume_per_unit = updates.volumePerUnit;
-      if (typeof updates.deliveryType !== "undefined") updatePayload.delivery_type = updates.deliveryType;
-      if (typeof updates.logisticsToClientPerUnit !== "undefined") updatePayload.logistics_to_client = updates.logisticsToClientPerUnit;
-      
-      // Services fields
-      if (updates.hourlyRate !== undefined)    updatePayload.hourly_rate = updates.hourlyRate;
-      if (updates.hoursPerWeek !== undefined)  updatePayload.hours_per_week = updates.hoursPerWeek;
-      if (updates.utilization !== undefined)   updatePayload.utilization = updates.utilization;
+      // 1. Update base product fields
+      const baseUpdatePayload: Record<string, any> = {};
+      if (typeof updates.name !== "undefined") baseUpdatePayload.name = updates.name;
+      if (typeof updates.price !== "undefined") baseUpdatePayload.price = updates.price;
+      if (typeof updates.cost !== "undefined") baseUpdatePayload.cost = updates.cost;
+      if (typeof updates.quantity !== "undefined") baseUpdatePayload.quantity = updates.quantity;
+      if (typeof updates.quality !== "undefined") baseUpdatePayload.quality = updates.quality;
+      if (typeof updates.weightPerUnit !== "undefined") baseUpdatePayload.weight_per_unit = updates.weightPerUnit;
+      if (typeof updates.volumePerUnit !== "undefined") baseUpdatePayload.volume_per_unit = updates.volumePerUnit;
+      if (typeof updates.deliveryType !== "undefined") baseUpdatePayload.delivery_type = updates.deliveryType;
+      if (typeof updates.logisticsToClientPerUnit !== "undefined") baseUpdatePayload.logistics_to_client = updates.logisticsToClientPerUnit;
 
-      // SaaS / Freemium fields
-      if (updates.churnRate !== undefined)           updatePayload.churn_rate = updates.churnRate;
-      if (updates.freeToPayConversion !== undefined) updatePayload.free_to_pay_conversion = updates.freeToPayConversion;
+      if (Object.keys(baseUpdatePayload).length > 0) {
+        const { error } = await supabase
+          .from("products")
+          .update(baseUpdatePayload)
+          .eq("id", productId);
+        if (error) throw error;
+      }
 
-      // Sharing / Marketplace fields
-      if (updates.utilizationRate !== undefined) updatePayload.utilization_rate = updates.utilizationRate;
-      if (updates.takeRate !== undefined)        updatePayload.take_rate = updates.takeRate;
-      if (updates.gmv !== undefined)             updatePayload.gmv = updates.gmv;
-      if (updates.avgOrderValue !== undefined)   updatePayload.avg_order_value = updates.avgOrderValue;
-
-      // Production field
-      if (updates.defectRate !== undefined)      updatePayload.defect_rate = updates.defectRate;
-
-      if (Object.keys(updatePayload).length === 0) return;
-
-      const { error } = await supabase
-        .from("products")
-        .update(updatePayload)
-        .eq("id", productId);
-
-      if (error) throw error;
+      // 2. Upsert subtype data based on business type
+      if (businessType === 'saas' || businessType === 'freemium') {
+        const hasSaasUpdates = updates.churnRate !== undefined || updates.freeToPayConversion !== undefined || updates.newSubscribers !== undefined;
+        if (hasSaasUpdates) {
+          await supabase.from("products_saas" as any).upsert({
+            product_id: productId,
+            churn_rate: updates.churnRate,
+            free_to_pay_conversion: updates.freeToPayConversion,
+            new_subscribers: updates.newSubscribers,
+          }, { onConflict: 'product_id' });
+        }
+      } else if (businessType === 'services') {
+        const hasServicesUpdates = updates.hourlyRate !== undefined || updates.hoursPerWeek !== undefined || updates.utilization !== undefined;
+        if (hasServicesUpdates) {
+          await supabase.from("products_services" as any).upsert({
+            product_id: productId,
+            hourly_rate: updates.hourlyRate,
+            hours_per_week: updates.hoursPerWeek,
+            utilization: updates.utilization,
+          }, { onConflict: 'product_id' });
+        }
+      } else if (businessType === 'marketplace') {
+        const hasMarketplaceUpdates = updates.takeRate !== undefined || updates.gmv !== undefined || updates.avgOrderValue !== undefined;
+        if (hasMarketplaceUpdates) {
+          await supabase.from("products_marketplace" as any).upsert({
+            product_id: productId,
+            take_rate: updates.takeRate,
+            gmv: updates.gmv,
+            avg_order_value: updates.avgOrderValue,
+          }, { onConflict: 'product_id' });
+        }
+      } else if (businessType === 'sharing') {
+        const hasSharingUpdates = updates.utilizationRate !== undefined || updates.takeRate !== undefined;
+        if (hasSharingUpdates) {
+          await supabase.from("products_sharing" as any).upsert({
+            product_id: productId,
+            utilization_rate: updates.utilizationRate,
+            take_rate: updates.takeRate,
+          }, { onConflict: 'product_id' });
+        }
+      } else if (businessType === 'production') {
+        const hasProductionUpdates = updates.defectRate !== undefined;
+        if (hasProductionUpdates) {
+          await supabase.from("products_production" as any).upsert({
+            product_id: productId,
+            defect_rate: updates.defectRate,
+          }, { onConflict: 'product_id' });
+        }
+      }
 
       setProducts(products.map((p) => (p.id === productId ? { ...p, ...updates } : p)));
       toast.success("Продукт обновлён");

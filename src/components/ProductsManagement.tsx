@@ -40,6 +40,7 @@ export interface Product {
   // SaaS / Freemium specific
   churnRate?: number | null;
   freeToPayConversion?: number | null;
+  newSubscribers?: number | null;
   // Services specific
   hourlyRate?: number | null;
   utilization?: number | null;
@@ -76,7 +77,7 @@ const getDefaultProductValues = (businessType: BusinessType): Omit<Product, 'id'
   switch (businessType) {
     case 'saas':
     case 'freemium':
-      return { ...base, churnRate: 5, freeToPayConversion: 3 };
+      return { ...base, churnRate: 5, freeToPayConversion: 3, newSubscribers: null };
     case 'ecommerce':
     case 'production':
       return { ...base, quality: 10, weightPerUnit: 0, volumePerUnit: 0, deliveryType: 'courier' as const, logisticsToClientPerUnit: 0, defectRate: 0 };
