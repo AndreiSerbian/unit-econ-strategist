@@ -169,6 +169,8 @@ export const ProjectSettings = ({
                   <SelectItem value="KZT">₸ Тенге (KZT)</SelectItem>
                   <SelectItem value="BYN">Br Белорусский рубль (BYN)</SelectItem>
                   <SelectItem value="UAH">₴ Гривна (UAH)</SelectItem>
+                  <SelectItem value="MDL">L Молдавский лей (MDL)</SelectItem>
+                  <SelectItem value="RON">lei Румынский лей (RON)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

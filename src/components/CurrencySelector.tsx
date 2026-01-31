@@ -27,6 +27,8 @@ export const CurrencySelector = ({
     { value: "KZT", label: "₸ Тенге (KZT)" },
     { value: "BYN", label: "Br Белорусский рубль (BYN)" },
     { value: "UAH", label: "₴ Гривна (UAH)" },
+    { value: "MDL", label: "L Молдавский лей (MDL)" },
+    { value: "RON", label: "lei Румынский лей (RON)" },
   ];
 
   return (
