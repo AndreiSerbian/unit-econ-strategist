@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import logoImage from "@/assets/logo.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -305,13 +306,20 @@ export const Dashboard = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent leading-tight">
-                Стратегический Анализ
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg mt-1">
-                Платформа для анализа юнит-экономики и теории игр
-              </p>
+            <div className="flex-1 min-w-0 flex items-center gap-3">
+              <img 
+                src={logoImage} 
+                alt="Стратегический Анализ" 
+                className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto"
+              />
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent leading-tight">
+                  Стратегический Анализ
+                </h1>
+                <p className="text-muted-foreground text-xs sm:text-sm lg:text-base mt-0.5">
+                  Платформа для анализа юнит-экономики и теории игр
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Business type & currency indicators */}
