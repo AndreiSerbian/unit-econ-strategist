@@ -394,6 +394,65 @@ export type Database = {
           },
         ]
       }
+      delivery_tariffs: {
+        Row: {
+          avg_distance_km: number | null
+          base_cost: number
+          cost_per_kg: number | null
+          cost_per_m3: number | null
+          created_at: string
+          currency: string
+          delivery_type: string
+          id: string
+          min_charge: number | null
+          name: string
+          notes: string | null
+          pricing_model: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          avg_distance_km?: number | null
+          base_cost?: number
+          cost_per_kg?: number | null
+          cost_per_m3?: number | null
+          created_at?: string
+          currency?: string
+          delivery_type?: string
+          id?: string
+          min_charge?: number | null
+          name: string
+          notes?: string | null
+          pricing_model?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          avg_distance_km?: number | null
+          base_cost?: number
+          cost_per_kg?: number | null
+          cost_per_m3?: number | null
+          created_at?: string
+          currency?: string
+          delivery_type?: string
+          id?: string
+          min_charge?: number | null
+          name?: string
+          notes?: string | null
+          pricing_model?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_tariffs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       detailed_expenses: {
         Row: {
           created_at: string | null
@@ -795,6 +854,61 @@ export type Database = {
           },
         ]
       }
+      product_channels: {
+        Row: {
+          channel_id: string
+          channel_share_percent: number | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          price_override: number | null
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          channel_share_percent?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          price_override?: number | null
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          channel_share_percent?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          price_override?: number | null
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_channels_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "sales_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_channels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_channels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_full"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_materials: {
         Row: {
           created_at: string
@@ -861,6 +975,7 @@ export type Database = {
           cost: number
           created_at: string
           defect_rate: number | null
+          delivery_tariff_id: string | null
           delivery_type: string | null
           free_to_pay_conversion: number | null
           gmv: number | null
@@ -868,6 +983,8 @@ export type Database = {
           hours_per_week: number | null
           id: string
           logistics_to_client: number | null
+          manual_delivery_cost: number | null
+          manual_delivery_override: boolean | null
           name: string
           new_subscribers: number | null
           price: number
@@ -878,7 +995,9 @@ export type Database = {
           updated_at: string
           utilization: number | null
           utilization_rate: number | null
+          volume_m3: number | null
           volume_per_unit: number | null
+          weight_kg: number | null
           weight_per_unit: number | null
         }
         Insert: {
@@ -887,6 +1006,7 @@ export type Database = {
           cost?: number
           created_at?: string
           defect_rate?: number | null
+          delivery_tariff_id?: string | null
           delivery_type?: string | null
           free_to_pay_conversion?: number | null
           gmv?: number | null
@@ -894,6 +1014,8 @@ export type Database = {
           hours_per_week?: number | null
           id?: string
           logistics_to_client?: number | null
+          manual_delivery_cost?: number | null
+          manual_delivery_override?: boolean | null
           name: string
           new_subscribers?: number | null
           price?: number
@@ -904,7 +1026,9 @@ export type Database = {
           updated_at?: string
           utilization?: number | null
           utilization_rate?: number | null
+          volume_m3?: number | null
           volume_per_unit?: number | null
+          weight_kg?: number | null
           weight_per_unit?: number | null
         }
         Update: {
@@ -913,6 +1037,7 @@ export type Database = {
           cost?: number
           created_at?: string
           defect_rate?: number | null
+          delivery_tariff_id?: string | null
           delivery_type?: string | null
           free_to_pay_conversion?: number | null
           gmv?: number | null
@@ -920,6 +1045,8 @@ export type Database = {
           hours_per_week?: number | null
           id?: string
           logistics_to_client?: number | null
+          manual_delivery_cost?: number | null
+          manual_delivery_override?: boolean | null
           name?: string
           new_subscribers?: number | null
           price?: number
@@ -930,10 +1057,19 @@ export type Database = {
           updated_at?: string
           utilization?: number | null
           utilization_rate?: number | null
+          volume_m3?: number | null
           volume_per_unit?: number | null
+          weight_kg?: number | null
           weight_per_unit?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "products_delivery_tariff_id_fkey"
+            columns: ["delivery_tariff_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_tariffs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_project_id_fkey"
             columns: ["project_id"]
@@ -1182,6 +1318,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          planning_period: string | null
           updated_at: string
           user_id: string
         }
@@ -1192,6 +1329,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          planning_period?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1202,10 +1340,50 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          planning_period?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      raw_material_logistics: {
+        Row: {
+          created_at: string
+          distance_km: number | null
+          id: string
+          logistics_tariff_id: string
+          raw_material_id: string
+        }
+        Insert: {
+          created_at?: string
+          distance_km?: number | null
+          id?: string
+          logistics_tariff_id: string
+          raw_material_id: string
+        }
+        Update: {
+          created_at?: string
+          distance_km?: number | null
+          id?: string
+          logistics_tariff_id?: string
+          raw_material_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raw_material_logistics_logistics_tariff_id_fkey"
+            columns: ["logistics_tariff_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_tariffs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raw_material_logistics_raw_material_id_fkey"
+            columns: ["raw_material_id"]
+            isOneToOne: false
+            referencedRelation: "raw_materials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       raw_materials: {
         Row: {
