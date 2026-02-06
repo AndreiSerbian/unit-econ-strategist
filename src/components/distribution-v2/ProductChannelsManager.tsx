@@ -219,7 +219,7 @@ export const ProductChannelsManager = ({
                   </div>
                 </div>
               </div>
-            ))
+            ))}
           </div>
         )}
       </CardContent>
