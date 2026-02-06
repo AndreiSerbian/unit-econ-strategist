@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Settings, Server, Zap, Package, Layers, BarChart3 } from 'lucide-react';
+import { Settings, Server, Zap, Package, Layers, BarChart3, Calculator } from 'lucide-react';
 import { useTokenSaas } from '@/hooks/useTokenSaas';
 import { TokenEconomicsConfigCard } from './TokenEconomicsConfigCard';
 import { ApiProvidersManager } from './ApiProvidersManager';
@@ -8,6 +8,7 @@ import { OperationsCatalog } from './OperationsCatalog';
 import { TokenPackagesManager } from './TokenPackagesManager';
 import { CompositeOperationsManager } from './CompositeOperationsManager';
 import { TokenEconomicsDashboard } from './TokenEconomicsDashboard';
+import { ApiPricingTable } from './ApiPricingTable';
 
 interface TokenSaasManagerProps {
   projectId: string;
@@ -65,10 +66,14 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
   return (
     <div className="space-y-6">
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 h-auto">
           <TabsTrigger value="dashboard" className="flex items-center gap-1 text-xs sm:text-sm py-2">
             <BarChart3 className="w-4 h-4" />
             <span className="hidden sm:inline">Dashboard</span>
+          </TabsTrigger>
+          <TabsTrigger value="api_pricing" className="flex items-center gap-1 text-xs sm:text-sm py-2">
+            <Calculator className="w-4 h-4" />
+            <span className="hidden sm:inline">API Тарифы</span>
           </TabsTrigger>
           <TabsTrigger value="config" className="flex items-center gap-1 text-xs sm:text-sm py-2">
             <Settings className="w-4 h-4" />
@@ -103,6 +108,10 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
             calculateScenarioMetrics={calculateScenarioMetrics}
             calculateOperationMetrics={calculateOperationMetrics}
           />
+        </TabsContent>
+
+        <TabsContent value="api_pricing" className="mt-6">
+          <ApiPricingTable />
         </TabsContent>
 
         <TabsContent value="config" className="mt-6">

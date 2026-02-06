@@ -7,3 +7,4 @@ export { OperationsCatalog } from './OperationsCatalog';
 export { CompositeOperationsManager } from './CompositeOperationsManager';
 export { TokenPackagesManager } from './TokenPackagesManager';
 export { TokenEconomicsDashboard } from './TokenEconomicsDashboard';
+export { ApiPricingTable } from './ApiPricingTable';
