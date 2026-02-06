@@ -784,26 +784,50 @@ export type Database = {
       }
       products_services: {
         Row: {
+          allocation_percent: number | null
+          billable_percent: number | null
+          billing_model: string | null
+          clients_count: number | null
           created_at: string
+          estimated_hours_per_project: number | null
           hourly_rate: number | null
           hours_per_week: number | null
+          planned_billable_hours_per_period: number | null
+          planning_period: string | null
           product_id: string
+          retainer_fee: number | null
           updated_at: string
           utilization: number | null
         }
         Insert: {
+          allocation_percent?: number | null
+          billable_percent?: number | null
+          billing_model?: string | null
+          clients_count?: number | null
           created_at?: string
+          estimated_hours_per_project?: number | null
           hourly_rate?: number | null
           hours_per_week?: number | null
+          planned_billable_hours_per_period?: number | null
+          planning_period?: string | null
           product_id: string
+          retainer_fee?: number | null
           updated_at?: string
           utilization?: number | null
         }
         Update: {
+          allocation_percent?: number | null
+          billable_percent?: number | null
+          billing_model?: string | null
+          clients_count?: number | null
           created_at?: string
+          estimated_hours_per_project?: number | null
           hourly_rate?: number | null
           hours_per_week?: number | null
+          planned_billable_hours_per_period?: number | null
+          planning_period?: string | null
           product_id?: string
+          retainer_fee?: number | null
           updated_at?: string
           utilization?: number | null
         }
@@ -1180,12 +1204,16 @@ export type Database = {
       }
       products_full: {
         Row: {
+          allocation_percent: number | null
           avg_order_value: number | null
+          billable_percent: number | null
+          billing_model: string | null
           churn_rate: number | null
           cost: number | null
           created_at: string | null
           defect_rate: number | null
           delivery_type: string | null
+          estimated_hours_per_project: number | null
           free_to_pay_conversion: number | null
           gmv: number | null
           hourly_rate: number | null
@@ -1195,12 +1223,16 @@ export type Database = {
           marketplace_take_rate: number | null
           name: string | null
           new_subscribers: number | null
+          planned_billable_hours_per_period: number | null
+          planning_period: string | null
           price: number | null
           project_id: string | null
           quality: number | null
           quantity: number | null
+          retainer_fee: number | null
           saas_arpu: number | null
           saas_mrr: number | null
+          services_clients_count: number | null
           sharing_take_rate: number | null
           updated_at: string | null
           utilization: number | null

@@ -212,14 +212,23 @@ export const businessTypes: BusinessTypeConfig[] = [
     },
     productLabel: 'Услуга',
     productLabelPlural: 'Услуги',
+    // Services v2: minimal fields for add form, full editing in ServicesProductCard
     productFields: [
       { key: 'name', label: 'Название услуги', type: 'text', required: true },
-      { key: 'price', label: 'Стоимость', type: 'number' },
-      { key: 'cost', label: 'Себестоимость', type: 'number' },
-      { key: 'quantity', label: 'Кол-во проектов', type: 'number' },
-      { key: 'hourlyRate', label: 'Часовая ставка', type: 'number' },
-      { key: 'hoursPerWeek', label: 'Часов в неделю', type: 'number', suffix: 'ч', min: 1, max: 168 },
-      { key: 'utilization', label: 'Загрузка', type: 'number', suffix: '%', min: 0, max: 100 },
+      { key: 'billingModel', label: 'Модель оплаты', type: 'select', options: [
+        { value: 'fixed_project', label: 'Фикс проект' },
+        { value: 'hourly', label: 'Почасовая' },
+        { value: 'retainer', label: 'Ретейнер' },
+      ]},
+      { key: 'planningPeriod', label: 'Период', type: 'select', options: [
+        { value: 'week', label: 'Неделя' },
+        { value: 'month', label: 'Месяц' },
+        { value: 'quarter', label: 'Квартал' },
+        { value: 'year', label: 'Год' },
+      ]},
+      { key: 'price', label: 'Цена проекта', type: 'number' },
+      { key: 'hoursPerWeek', label: 'Часов/нед', type: 'number', suffix: 'ч', min: 0, max: 168 },
+      { key: 'billablePercent', label: 'Billable %', type: 'number', suffix: '%', min: 0, max: 100 },
     ],
     metricFields: [
       { key: 'hourlyRate', label: 'Часовая ставка', description: 'Средняя ставка за час работы', category: 'revenue' },

@@ -163,10 +163,19 @@ interface Product {
   weightPerUnit?: number;    // weight per unit (kg)
   volumePerUnit?: number;    // volume per unit (m³)
   deliveryType?: 'courier' | 'pickup' | 'transport_company' | 'own_delivery';
-  // Services fields
+  // Services fields (legacy)
   hourlyRate?: number | null;
   hoursPerWeek?: number | null;
   utilization?: number | null;
+  // Services v2 fields
+  billingModel?: 'fixed_project' | 'hourly' | 'retainer';
+  planningPeriod?: 'week' | 'month' | 'quarter' | 'year';
+  estimatedHoursPerProject?: number | null;
+  plannedBillableHoursPerPeriod?: number | null;
+  billablePercent?: number | null;
+  allocationPercent?: number | null;
+  retainerFee?: number | null;
+  clientsCount?: number | null;
   // SaaS / Freemium fields
   churnRate?: number | null;
   freeToPayConversion?: number | null;
@@ -1005,6 +1014,15 @@ export const useProject = (userId: string | undefined) => {
             hourlyRate: mapNum(p.hourly_rate),
             hoursPerWeek: mapNum(p.hours_per_week),
             utilization: mapNum(p.utilization),
+            // Services v2 fields
+            billingModel: p.billing_model || 'fixed_project',
+            planningPeriod: p.planning_period || 'month',
+            estimatedHoursPerProject: mapNum(p.estimated_hours_per_project),
+            plannedBillableHoursPerPeriod: mapNum(p.planned_billable_hours_per_period),
+            billablePercent: mapNum(p.billable_percent),
+            allocationPercent: mapNum(p.allocation_percent),
+            retainerFee: mapNum(p.retainer_fee),
+            clientsCount: mapNum(p.services_clients_count),
             // SaaS / Freemium fields (from products_saas subtype)
             churnRate: mapNum(p.churn_rate),
             freeToPayConversion: mapNum(p.free_to_pay_conversion),
@@ -1286,15 +1304,21 @@ export const useProject = (userId: string | undefined) => {
           });
         }
       } else if (businessType === 'services') {
-        const hasServicesData = product.hourlyRate != null || product.hoursPerWeek != null || product.utilization != null;
-        if (hasServicesData) {
-          await supabase.from("products_services" as any).insert({
-            product_id: productId,
-            hourly_rate: product.hourlyRate,
-            hours_per_week: product.hoursPerWeek,
-            utilization: product.utilization,
-          });
-        }
+        // Services v2: include all new fields
+        await supabase.from("products_services" as any).insert({
+          product_id: productId,
+          hourly_rate: product.hourlyRate,
+          hours_per_week: product.hoursPerWeek,
+          utilization: product.utilization,
+          billing_model: product.billingModel || 'fixed_project',
+          planning_period: product.planningPeriod || 'month',
+          estimated_hours_per_project: product.estimatedHoursPerProject,
+          planned_billable_hours_per_period: product.plannedBillableHoursPerPeriod,
+          billable_percent: product.billablePercent ?? product.utilization ?? 100,
+          allocation_percent: product.allocationPercent ?? 100,
+          retainer_fee: product.retainerFee,
+          clients_count: product.clientsCount ?? 0,
+        });
       } else if (businessType === 'marketplace') {
         const hasMarketplaceData = product.takeRate != null || product.gmv != null || product.avgOrderValue != null;
         if (hasMarketplaceData) {
@@ -1344,6 +1368,15 @@ export const useProject = (userId: string | undefined) => {
         hourlyRate: mapNum(product.hourlyRate),
         hoursPerWeek: mapNum(product.hoursPerWeek),
         utilization: mapNum(product.utilization),
+        // Services v2 fields
+        billingModel: product.billingModel || 'fixed_project',
+        planningPeriod: product.planningPeriod || 'month',
+        estimatedHoursPerProject: mapNum(product.estimatedHoursPerProject),
+        plannedBillableHoursPerPeriod: mapNum(product.plannedBillableHoursPerPeriod),
+        billablePercent: mapNum(product.billablePercent),
+        allocationPercent: mapNum(product.allocationPercent),
+        retainerFee: mapNum(product.retainerFee),
+        clientsCount: mapNum(product.clientsCount),
         // SaaS / Freemium fields
         churnRate: mapNum(product.churnRate),
         freeToPayConversion: mapNum(product.freeToPayConversion),
@@ -1406,13 +1439,30 @@ export const useProject = (userId: string | undefined) => {
           }, { onConflict: 'product_id' });
         }
       } else if (businessType === 'services') {
-        const hasServicesUpdates = updates.hourlyRate !== undefined || updates.hoursPerWeek !== undefined || updates.utilization !== undefined;
+        // Services v2: include all fields in upsert
+        const servicesFields = [
+          'hourlyRate', 'hoursPerWeek', 'utilization',
+          'billingModel', 'planningPeriod', 'estimatedHoursPerProject',
+          'plannedBillableHoursPerPeriod', 'billablePercent', 'allocationPercent',
+          'retainerFee', 'clientsCount'
+        ];
+        const hasServicesUpdates = servicesFields.some(f => (updates as any)[f] !== undefined);
         if (hasServicesUpdates) {
+          // Fetch current product to merge values
+          const currentProduct = products.find(p => p.id === productId);
           await supabase.from("products_services" as any).upsert({
             product_id: productId,
-            hourly_rate: updates.hourlyRate,
-            hours_per_week: updates.hoursPerWeek,
-            utilization: updates.utilization,
+            hourly_rate: updates.hourlyRate ?? currentProduct?.hourlyRate,
+            hours_per_week: updates.hoursPerWeek ?? currentProduct?.hoursPerWeek,
+            utilization: updates.utilization ?? currentProduct?.utilization,
+            billing_model: updates.billingModel ?? currentProduct?.billingModel ?? 'fixed_project',
+            planning_period: updates.planningPeriod ?? currentProduct?.planningPeriod ?? 'month',
+            estimated_hours_per_project: updates.estimatedHoursPerProject ?? currentProduct?.estimatedHoursPerProject,
+            planned_billable_hours_per_period: updates.plannedBillableHoursPerPeriod ?? currentProduct?.plannedBillableHoursPerPeriod,
+            billable_percent: updates.billablePercent ?? currentProduct?.billablePercent,
+            allocation_percent: updates.allocationPercent ?? currentProduct?.allocationPercent,
+            retainer_fee: updates.retainerFee ?? currentProduct?.retainerFee,
+            clients_count: updates.clientsCount ?? currentProduct?.clientsCount,
           }, { onConflict: 'product_id' });
         }
       } else if (businessType === 'marketplace') {

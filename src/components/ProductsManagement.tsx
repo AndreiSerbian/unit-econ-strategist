@@ -23,6 +23,7 @@ import {
   getProductLabel,
   ProductField 
 } from "@/config/businessTypeMetrics";
+import { ServicesProductCard, ServiceProduct } from "@/components/services";
 
 export interface Product {
   id: string;
@@ -41,10 +42,19 @@ export interface Product {
   churnRate?: number | null;
   freeToPayConversion?: number | null;
   newSubscribers?: number | null;
-  // Services specific
+  // Services specific (v1 legacy)
   hourlyRate?: number | null;
   utilization?: number | null;
   hoursPerWeek?: number | null;
+  // Services v2 fields
+  billingModel?: 'fixed_project' | 'hourly' | 'retainer';
+  planningPeriod?: 'week' | 'month' | 'quarter' | 'year';
+  estimatedHoursPerProject?: number | null;
+  plannedBillableHoursPerPeriod?: number | null;
+  billablePercent?: number | null;
+  allocationPercent?: number | null;
+  retainerFee?: number | null;
+  clientsCount?: number | null;
   // Sharing Economy specific
   utilizationRate?: number | null;
   takeRate?: number | null;
@@ -86,7 +96,16 @@ const getDefaultProductValues = (businessType: BusinessType): Omit<Product, 'id'
         ...base, 
         hourlyRate: 0, 
         hoursPerWeek: 40,
-        utilization: 0 
+        utilization: 100,
+        // Services v2 defaults
+        billingModel: 'fixed_project' as const,
+        planningPeriod: 'month' as const,
+        billablePercent: 100,
+        allocationPercent: 100,
+        estimatedHoursPerProject: null,
+        plannedBillableHoursPerPeriod: null,
+        retainerFee: null,
+        clientsCount: 0,
       };
     case 'sharing':
       return { ...base, utilizationRate: 60, takeRate: 15 };
@@ -399,8 +418,21 @@ export const ProductsManagement = ({
           <CardContent>
             <div className="space-y-3">
               {products.map((product) => {
-                // Расчёт utilization для Services
-                const serviceUtil = businessType === 'services' ? getServiceUtilizationInfo(product) : null;
+                // Use ServicesProductCard for services business type
+                if (businessType === 'services') {
+                  return (
+                    <ServicesProductCard
+                      key={product.id}
+                      product={product as ServiceProduct}
+                      onUpdate={(productId, updates) => updateProduct(productId, updates)}
+                      onDelete={deleteProduct}
+                      currency={currency}
+                    />
+                  );
+                }
+                
+                // Default rendering for other business types
+                const serviceUtil = null; // Services now uses dedicated component
                 
                 return (
                   <div
@@ -436,23 +468,6 @@ export const ProductsManagement = ({
                           })}
                         </div>
                       ))}
-                      
-                      {serviceUtil && (
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 pt-2 border-t mt-2 text-xs sm:text-sm">
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span>Часов: <strong>{serviceUtil.hours}</strong></span>
-                          </div>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <span>Billable: <strong>{serviceUtil.billable.toFixed(0)} ч</strong></span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span>Загрузка: <strong>{serviceUtil.rate.toFixed(0)}%</strong></span>
-                            <Badge variant={serviceUtil.variant} className="text-[10px] sm:text-xs">{serviceUtil.status}</Badge>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
