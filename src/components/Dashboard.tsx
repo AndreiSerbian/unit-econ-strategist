@@ -45,6 +45,7 @@ import { CashFlowDiagram } from "./CashFlowDiagram";
 import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
+import { TokenSaasManager } from "./token-saas";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
 import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
@@ -547,18 +548,28 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
 
-            <AnimatedCard delay={0.18}>
-              <ProductsManagement
-                products={products}
-                saveProduct={saveProduct}
-                updateProduct={updateProduct}
-                deleteProduct={deleteProduct}
-                isAuthenticated={!!user}
-                currency={currency}
-                tariffs={logisticsTariffs}
-                businessType={businessType}
-              />
-            </AnimatedCard>
+            {/* Token SaaS uses dedicated manager */}
+            {businessType === 'token_saas' ? (
+              <AnimatedCard delay={0.18}>
+                <TokenSaasManager
+                  projectId={projectId || ''}
+                  scenarioType="current"
+                />
+              </AnimatedCard>
+            ) : (
+              <AnimatedCard delay={0.18}>
+                <ProductsManagement
+                  products={products}
+                  saveProduct={saveProduct}
+                  updateProduct={updateProduct}
+                  deleteProduct={deleteProduct}
+                  isAuthenticated={!!user}
+                  currency={currency}
+                  tariffs={logisticsTariffs}
+                  businessType={businessType}
+                />
+              </AnimatedCard>
+            )}
 
             {/* Привязка сырья к продуктам — только если hasRawMaterials */}
             {features.hasRawMaterials && products.length > 0 && (

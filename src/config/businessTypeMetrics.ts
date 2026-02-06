@@ -7,7 +7,8 @@ export type BusinessType =
   | 'services' 
   | 'freemium' 
   | 'sharing' 
-  | 'marketplace';
+  | 'marketplace'
+  | 'token_saas';
 
 export interface ProductField {
   key: string;
@@ -360,6 +361,44 @@ export const businessTypes: BusinessTypeConfig[] = [
       hasRawMaterials: false,
       hasLogistics: true,
       hasSalesChannels: true,
+      hasPhysicalProducts: false,
+      hasInventory: false,
+    },
+  },
+  {
+    id: 'token_saas',
+    label: 'Token SaaS',
+    description: 'Платформа с токен-экономикой (API, AI, кредиты)',
+    icon: '🪙',
+    primaryMetrics: ['IT Price', 'Package Revenue', 'API Margin', 'IT Utilization'],
+    additionalMetrics: ['Platform Profit', 'Avg IT Cost', 'Markup %'],
+    labels: {
+      revenue: 'Выручка от пакетов',
+      clients: 'Покупатели пакетов',
+      avgCheck: 'Средний пакет',
+      conversion: 'Конверсия в покупку',
+      retention: 'Повторные покупки',
+    },
+    productLabel: 'Пакет токенов',
+    productLabelPlural: 'Пакеты токенов',
+    productFields: [
+      // Token SaaS uses custom UI, minimal fields for compatibility
+      { key: 'name', label: 'Название пакета', type: 'text', required: true },
+      { key: 'price', label: 'Цена пакета ($)', type: 'number' },
+      { key: 'quantity', label: 'Ожидаемые продажи', type: 'number' },
+    ],
+    metricFields: [
+      { key: 'itValueUsd', label: 'IT Value', description: 'Стоимость 1 Internal Token в USD', category: 'custom' },
+      { key: 'packageRevenue', label: 'Package Revenue', description: 'Выручка от продаж пакетов', category: 'revenue' },
+      { key: 'apiCosts', label: 'API Costs', description: 'Затраты на API-вызовы', category: 'custom' },
+      { key: 'platformProfit', label: 'Platform Profit', description: 'Прибыль платформы', category: 'revenue' },
+      { key: 'itUtilization', label: 'IT Utilization', description: 'Процент использования проданных токенов', suffix: '%', category: 'retention' },
+      { key: 'avgMarkup', label: 'Avg Markup', description: 'Средняя наценка на операции', suffix: '%', category: 'custom' },
+    ],
+    features: {
+      hasRawMaterials: false,
+      hasLogistics: false,
+      hasSalesChannels: false,
       hasPhysicalProducts: false,
       hasInventory: false,
     },

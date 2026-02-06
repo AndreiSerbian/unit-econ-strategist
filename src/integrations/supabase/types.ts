@@ -64,6 +64,98 @@ export type Database = {
           },
         ]
       }
+      api_models: {
+        Row: {
+          active: boolean
+          api_cost_usd: number
+          created_at: string
+          description: string | null
+          id: string
+          model_code: string
+          model_name: string
+          project_id: string
+          provider_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          api_cost_usd?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          model_code: string
+          model_name: string
+          project_id: string
+          provider_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          api_cost_usd?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          model_code?: string
+          model_name?: string
+          project_id?: string
+          provider_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_models_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_models_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "api_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_providers: {
+        Row: {
+          base_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_providers_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_tools: {
         Row: {
           category: string
@@ -218,6 +310,83 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "competitors_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      composite_operation_items: {
+        Row: {
+          composite_id: string
+          created_at: string
+          id: string
+          operation_id: string
+          quantity: number
+        }
+        Insert: {
+          composite_id: string
+          created_at?: string
+          id?: string
+          operation_id: string
+          quantity?: number
+        }
+        Update: {
+          composite_id?: string
+          created_at?: string
+          id?: string
+          operation_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "composite_operation_items_composite_id_fkey"
+            columns: ["composite_id"]
+            isOneToOne: false
+            referencedRelation: "composite_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "composite_operation_items_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      composite_operations: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "composite_operations_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -439,6 +608,124 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "metric_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operation_usage_forecast: {
+        Row: {
+          composite_id: string | null
+          created_at: string
+          expected_usage: number
+          id: string
+          operation_id: string | null
+          project_id: string
+          scenario_type: string
+          updated_at: string
+        }
+        Insert: {
+          composite_id?: string | null
+          created_at?: string
+          expected_usage?: number
+          id?: string
+          operation_id?: string | null
+          project_id: string
+          scenario_type?: string
+          updated_at?: string
+        }
+        Update: {
+          composite_id?: string | null
+          created_at?: string
+          expected_usage?: number
+          id?: string
+          operation_id?: string | null
+          project_id?: string
+          scenario_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operation_usage_forecast_composite_id_fkey"
+            columns: ["composite_id"]
+            isOneToOne: false
+            referencedRelation: "composite_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operation_usage_forecast_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operation_usage_forecast_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operations_catalog: {
+        Row: {
+          active: boolean
+          api_cost_usd: number
+          api_model_id: string | null
+          base_it_cost: number | null
+          created_at: string
+          description: string | null
+          id: string
+          markup_multiplier: number
+          name: string
+          operation_code: string
+          operation_type: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          api_cost_usd?: number
+          api_model_id?: string | null
+          base_it_cost?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          markup_multiplier?: number
+          name: string
+          operation_code: string
+          operation_type?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          api_cost_usd?: number
+          api_model_id?: string | null
+          base_it_cost?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          markup_multiplier?: number
+          name?: string
+          operation_code?: string
+          operation_type?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operations_catalog_api_model_id_fkey"
+            columns: ["api_model_id"]
+            isOneToOne: false
+            referencedRelation: "api_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operations_catalog_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -1169,6 +1456,100 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "swot_analyses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_economics_config: {
+        Row: {
+          created_at: string
+          default_image_markup: number
+          default_premium_markup: number
+          default_text_markup: number
+          id: string
+          it_value_usd: number
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_image_markup?: number
+          default_premium_markup?: number
+          default_text_markup?: number
+          id?: string
+          it_value_usd?: number
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_image_markup?: number
+          default_premium_markup?: number
+          default_text_markup?: number
+          id?: string
+          it_value_usd?: number
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_economics_config_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_packages: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          expected_sales: number
+          id: string
+          it_amount: number
+          name: string
+          price_usd: number
+          project_id: string
+          scenario_type: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          expected_sales?: number
+          id?: string
+          it_amount: number
+          name: string
+          price_usd: number
+          project_id: string
+          scenario_type?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          expected_sales?: number
+          id?: string
+          it_amount?: number
+          name?: string
+          price_usd?: number
+          project_id?: string
+          scenario_type?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_packages_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
