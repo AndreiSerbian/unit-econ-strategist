@@ -189,6 +189,57 @@ export type Database = {
         }
         Relationships: []
       }
+      category_channel_stats: {
+        Row: {
+          category_id: string
+          channel_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          share_percent: number | null
+          take_rate_override_percent: number | null
+          transactions_per_period: number | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          channel_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          share_percent?: number | null
+          take_rate_override_percent?: number | null
+          transactions_per_period?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          channel_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          share_percent?: number | null
+          take_rate_override_percent?: number | null
+          transactions_per_period?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_channel_stats_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "category_channel_stats_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "sales_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competitor_metrics: {
         Row: {
           competitor_id: string
@@ -604,6 +655,62 @@ export type Database = {
             foreignKeyName: "market_overview_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_categories: {
+        Row: {
+          avg_check: number
+          created_at: string
+          description: string | null
+          gmv_computed: number | null
+          gmv_override: number | null
+          id: string
+          is_active: boolean
+          name: string
+          project_id: string
+          sort_order: number
+          take_rate_percent: number
+          transactions_count: number
+          updated_at: string
+        }
+        Insert: {
+          avg_check?: number
+          created_at?: string
+          description?: string | null
+          gmv_computed?: number | null
+          gmv_override?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          project_id: string
+          sort_order?: number
+          take_rate_percent?: number
+          transactions_count?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_check?: number
+          created_at?: string
+          description?: string | null
+          gmv_computed?: number | null
+          gmv_override?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          project_id?: string
+          sort_order?: number
+          take_rate_percent?: number
+          transactions_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_categories_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
@@ -1573,6 +1680,7 @@ export type Database = {
       }
       sales_channels: {
         Row: {
+          commission_fixed: number | null
           commission_percent: number | null
           created_at: string | null
           discount_percent: number | null
@@ -1588,6 +1696,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          commission_fixed?: number | null
           commission_percent?: number | null
           created_at?: string | null
           discount_percent?: number | null
@@ -1603,6 +1712,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          commission_fixed?: number | null
           commission_percent?: number | null
           created_at?: string | null
           discount_percent?: number | null
