@@ -1816,6 +1816,110 @@ export type Database = {
           },
         ]
       }
+      saas_plans: {
+        Row: {
+          billing_type: Database["public"]["Enums"]["billing_type"]
+          churn_rate_percent: number | null
+          cost_per_buyer_eur: number | null
+          cost_per_subscriber_per_month_eur: number
+          created_at: string
+          id: string
+          is_free_plan: boolean
+          name: string
+          new_subscribers_per_period: number
+          price_eur: number
+          product_id: string
+          sort_order: number
+          subscribers: number
+          updated_at: string
+        }
+        Insert: {
+          billing_type?: Database["public"]["Enums"]["billing_type"]
+          churn_rate_percent?: number | null
+          cost_per_buyer_eur?: number | null
+          cost_per_subscriber_per_month_eur?: number
+          created_at?: string
+          id?: string
+          is_free_plan?: boolean
+          name: string
+          new_subscribers_per_period?: number
+          price_eur?: number
+          product_id: string
+          sort_order?: number
+          subscribers?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_type?: Database["public"]["Enums"]["billing_type"]
+          churn_rate_percent?: number | null
+          cost_per_buyer_eur?: number | null
+          cost_per_subscriber_per_month_eur?: number
+          created_at?: string
+          id?: string
+          is_free_plan?: boolean
+          name?: string
+          new_subscribers_per_period?: number
+          price_eur?: number
+          product_id?: string
+          sort_order?: number
+          subscribers?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saas_plans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "saas_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saas_products: {
+        Row: {
+          created_at: string
+          default_channel_id: string | null
+          id: string
+          name: string
+          planning_period: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_channel_id?: string | null
+          id?: string
+          name: string
+          planning_period?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_channel_id?: string | null
+          id?: string
+          name?: string
+          planning_period?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saas_products_default_channel_id_fkey"
+            columns: ["default_channel_id"]
+            isOneToOne: false
+            referencedRelation: "sales_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saas_products_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_channels: {
         Row: {
           commission_fixed: number | null
@@ -2195,7 +2299,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      billing_type: "subscription" | "one_time"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2322,6 +2426,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      billing_type: ["subscription", "one_time"],
+    },
   },
 } as const
