@@ -47,9 +47,10 @@ import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
 import { TokenSaasManager } from "./token-saas";
 import { MarketplaceManager } from "./marketplace";
+import { CashFlowTimelineManager } from "./cashflow-timeline";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
 import { ProjectSettings } from "./ProjectSettings";
-import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
+import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2, Wallet } from "lucide-react";
 import { type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
 import {
   AlertDialog,
@@ -485,7 +486,7 @@ export const Dashboard = () => {
           
           return (
             <Tabs defaultValue="products" className="space-y-4 sm:space-y-6">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto p-1 gap-1">
+              <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 h-auto p-1 gap-1">
                 <TabsTrigger value="products" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Package className="w-4 h-4 shrink-0" />
                   <span className="text-[9px] sm:text-xs leading-tight text-center break-words">{businessConfig.productLabelPlural}</span>
@@ -493,6 +494,10 @@ export const Dashboard = () => {
                 <TabsTrigger value="metrics" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <BarChart3 className="w-4 h-4 shrink-0" />
                   <span className="text-[9px] sm:text-xs leading-tight text-center">Показатели</span>
+                </TabsTrigger>
+                <TabsTrigger value="cashflow" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
+                  <Wallet className="w-4 h-4 shrink-0" />
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">Cash Flow</span>
                 </TabsTrigger>
                 <TabsTrigger value="competitors" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Users className="w-4 h-4 shrink-0" />
@@ -817,6 +822,117 @@ export const Dashboard = () => {
                 />
               </AnimatedCard>
             )}
+          </TabsContent>
+
+          {/* CASH FLOW TIMELINE TAB */}
+          <TabsContent value="cashflow" className="space-y-6">
+            <AnimatedCard delay={0.1}>
+              <CashFlowTimelineManager
+                projectId={projectId}
+                currency={currency}
+                businessType={businessType}
+                ecommerceData={
+                  (businessType === 'ecommerce' || businessType === 'production') ? {
+                    products: products.map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      price: p.price,
+                      cost: p.cost,
+                      quantity: p.quantity,
+                      logisticsToClientPerUnit: p.logisticsToClientPerUnit,
+                    })),
+                    channels: salesChannels.map(ch => ({
+                      id: ch.id,
+                      name: ch.name,
+                      commissionPercent: ch.commissionPercent,
+                      returnRatePercent: ch.returnRatePercent,
+                      paymentDelayDays: ch.paymentDelayDays,
+                    })),
+                    productChannelAllocations: productChannelAllocations.map(a => ({
+                      productId: a.productId,
+                      channelId: a.channelId,
+                      quantity: a.quantity,
+                      priceOverride: a.priceOverride,
+                    })),
+                    horizonPeriods: 12,
+                    planningPeriod: 'month',
+                  } : undefined
+                }
+                servicesData={
+                  businessType === 'services' ? {
+                    services: products.map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      price: p.price,
+                      cost: p.cost,
+                      quantity: p.quantity,
+                      billingModel: p.billingModel || 'fixed_project',
+                      estimatedHoursPerProject: p.estimatedHoursPerProject ?? undefined,
+                      hourlyRate: p.hourlyRate ?? undefined,
+                      retainerFee: p.retainerFee ?? undefined,
+                      clientsCount: p.clientsCount ?? undefined,
+                    })),
+                    horizonPeriods: 12,
+                    planningPeriod: 'month',
+                  } : undefined
+                }
+                saasData={
+                  (businessType === 'saas' || businessType === 'freemium') ? {
+                    products: products.map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      price: p.price,
+                      newSubscribers: p.newSubscribers ?? 0,
+                      churnRate: p.churnRate ?? 0,
+                      cost: p.cost,
+                    })),
+                    horizonPeriods: 12,
+                    planningPeriod: 'month',
+                  } : undefined
+                }
+                sharingData={
+                  businessType === 'sharing' ? {
+                    assets: products.map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      gmv: p.gmv ?? 0,
+                      takeRate: p.takeRate ?? 0,
+                      utilizationRate: p.utilizationRate ?? 0,
+                      maintenanceCost: p.cost,
+                    })),
+                    horizonPeriods: 12,
+                    planningPeriod: 'month',
+                  } : undefined
+                }
+                expensesData={
+                  currentMetrics.detailedExpenses ? {
+                    fixedCosts: {
+                      salaries: (
+                        currentMetrics.detailedExpenses.fixedCosts.salaryOldClients +
+                        currentMetrics.detailedExpenses.fixedCosts.salaryNewClients +
+                        currentMetrics.detailedExpenses.fixedCosts.managementSalary +
+                        currentMetrics.detailedExpenses.fixedCosts.marketingSalary +
+                        currentMetrics.detailedExpenses.fixedCosts.productionSalary
+                      ),
+                      rent: (
+                        currentMetrics.detailedExpenses.fixedCosts.officeRent +
+                        currentMetrics.detailedExpenses.fixedCosts.warehouseRent
+                      ),
+                      marketing: currentMetrics.marketingCosts,
+                      other: (
+                        currentMetrics.detailedExpenses.fixedCosts.internet +
+                        currentMetrics.detailedExpenses.fixedCosts.communication +
+                        currentMetrics.detailedExpenses.fixedCosts.banking +
+                        currentMetrics.detailedExpenses.fixedCosts.subscriptions +
+                        currentMetrics.detailedExpenses.fixedCosts.utilities
+                      ),
+                    },
+                    taxes: currentMetrics.detailedExpenses.taxes,
+                    horizonPeriods: 12,
+                  } : undefined
+                }
+              />
+            </AnimatedCard>
           </TabsContent>
 
           {/* COMPETITORS TAB */}
