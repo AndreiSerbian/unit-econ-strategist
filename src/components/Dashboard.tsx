@@ -46,6 +46,7 @@ import { MarketingMetrics } from "./MarketingMetrics";
 import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
 import { TokenSaasManager } from "./token-saas";
+import { MarketplaceManager } from "./marketplace";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
 import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2 } from "lucide-react";
@@ -548,6 +549,18 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
 
+            {/* Marketplace Categories Manager - only for marketplace business type */}
+            {businessType === 'marketplace' && (
+              <AnimatedCard delay={0.16}>
+                <MarketplaceManager
+                  projectId={projectId}
+                  channels={salesChannels}
+                  currency={currency}
+                  planningPeriod={(businessType === 'marketplace' ? 'month' : 'month') as 'week' | 'month' | 'quarter' | 'year'}
+                />
+              </AnimatedCard>
+            )}
+
             {/* Token SaaS uses dedicated manager */}
             {businessType === 'token_saas' ? (
               <AnimatedCard delay={0.18}>
@@ -556,7 +569,7 @@ export const Dashboard = () => {
                   scenarioType="current"
                 />
               </AnimatedCard>
-            ) : (
+            ) : businessType !== 'marketplace' ? (
               <AnimatedCard delay={0.18}>
                 <ProductsManagement
                   products={products}
@@ -569,7 +582,7 @@ export const Dashboard = () => {
                   businessType={businessType}
                 />
               </AnimatedCard>
-            )}
+            ) : null}
 
             {/* Привязка сырья к продуктам — только если hasRawMaterials */}
             {features.hasRawMaterials && products.length > 0 && (
