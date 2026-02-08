@@ -324,17 +324,30 @@ export function servicesAdapter(input: ServicesInput): AdapterLine[] {
 }
 
 // ============================================================
-// SAAS ADAPTER
+// SAAS ADAPTER (Product → Plans model)
 // ============================================================
+export interface SaasPlanInput {
+  id: string;
+  name: string;
+  billingType: 'subscription' | 'one_time';
+  priceEur: number;
+  subscribers: number; // for subscription: subscribers, for one_time: buyers
+  newSubscribersPerPeriod: number;
+  costPerSubscriberPerMonthEur: number;
+  isFreePlan: boolean;
+  churnRatePercent: number | null;
+  costPerBuyerEur: number | null;
+}
+
+export interface SaasProductInput {
+  id: string;
+  name: string;
+  planningPeriod: 'week' | 'month' | 'quarter' | 'year';
+  plans: SaasPlanInput[];
+}
+
 export interface SaasInput {
-  products: Array<{
-    id: string;
-    name: string;
-    price: number; // MRR per subscriber
-    newSubscribers: number;
-    churnRate: number; // percent per period
-    cost: number; // hosting/infra cost per subscriber
-  }>;
+  products: SaasProductInput[];
   horizonPeriods: number;
   planningPeriod: PlanningPeriod;
 }
@@ -343,39 +356,71 @@ export function saasAdapter(input: SaasInput): AdapterLine[] {
   const lines: AdapterLine[] = [];
   const { products, horizonPeriods } = input;
 
-  const revenueByPeriod = new Array(horizonPeriods).fill(0);
-  const costByPeriod = new Array(horizonPeriods).fill(0);
+  const subscriptionRevenueByPeriod = new Array(horizonPeriods).fill(0);
+  const oneTimeRevenueByPeriod = new Array(horizonPeriods).fill(0);
+  const variableCostByPeriod = new Array(horizonPeriods).fill(0);
 
   for (const product of products) {
-    let subscribers = 0;
-    
-    for (let p = 0; p < horizonPeriods; p++) {
-      // Add new subscribers
-      subscribers += product.newSubscribers;
-      // Apply churn
-      subscribers = subscribers * (1 - product.churnRate / 100);
-      
-      revenueByPeriod[p] += subscribers * product.price;
-      costByPeriod[p] += subscribers * product.cost;
+    for (const plan of product.plans) {
+      if (plan.billingType === 'subscription') {
+        // Track subscribers over time with churn
+        let subscribers = plan.subscribers;
+        const churnRate = plan.churnRatePercent ?? 0;
+        
+        for (let p = 0; p < horizonPeriods; p++) {
+          // Calculate revenue (free plans contribute 0)
+          if (!plan.isFreePlan) {
+            subscriptionRevenueByPeriod[p] += subscribers * plan.priceEur;
+          }
+          
+          // Variable cost applies to ALL subscribers including free tier
+          variableCostByPeriod[p] += subscribers * plan.costPerSubscriberPerMonthEur;
+          
+          // Apply churn and add new subscribers for next period
+          if (p < horizonPeriods - 1) {
+            subscribers = subscribers * (1 - churnRate / 100) + plan.newSubscribersPerPeriod;
+          }
+        }
+      } else {
+        // One-time purchase: buyers per period
+        const buyersPerPeriod = plan.subscribers;
+        const revenuePerPeriod = buyersPerPeriod * plan.priceEur;
+        const costPerPeriod = buyersPerPeriod * (plan.costPerBuyerEur ?? 0);
+        
+        for (let p = 0; p < horizonPeriods; p++) {
+          oneTimeRevenueByPeriod[p] += revenuePerPeriod;
+          variableCostByPeriod[p] += costPerPeriod;
+        }
+      }
     }
   }
 
-  if (revenueByPeriod.some(v => v > 0)) {
+  if (subscriptionRevenueByPeriod.some(v => v > 0)) {
     lines.push({
       name: 'Подписочная выручка (MRR)',
       lineType: 'inflow',
       category: 'revenue',
-      values: revenueByPeriod,
+      values: subscriptionRevenueByPeriod,
       sourceAdapter: 'saas',
     });
   }
 
-  if (costByPeriod.some(v => v > 0)) {
+  if (oneTimeRevenueByPeriod.some(v => v > 0)) {
     lines.push({
-      name: 'Инфраструктурные затраты',
+      name: 'Разовые покупки',
+      lineType: 'inflow',
+      category: 'revenue',
+      values: oneTimeRevenueByPeriod,
+      sourceAdapter: 'saas',
+    });
+  }
+
+  if (variableCostByPeriod.some(v => v > 0)) {
+    lines.push({
+      name: 'Переменные расходы (SaaS)',
       lineType: 'outflow',
       category: 'cogs',
-      values: costByPeriod,
+      values: variableCostByPeriod,
       sourceAdapter: 'saas',
     });
   }

@@ -48,6 +48,7 @@ import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
 import { TokenSaasManager } from "./token-saas";
 import { MarketplaceManager } from "./marketplace";
 import { CashFlowTimelineManager } from "./cashflow-timeline";
+import { SaasProductsManager } from "./saas-products";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
 import { ProjectSettings } from "./ProjectSettings";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2, Wallet } from "lucide-react";
@@ -75,6 +76,7 @@ import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
+import { useSaasProducts } from "@/hooks/useSaasProducts";
 import { useNavigate } from "react-router-dom";
 
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
@@ -142,6 +144,9 @@ export const Dashboard = () => {
     clearSalesChannels,
     clearAllData,
   } = useProject(user?.id);
+
+  // SaaS Products for the new Product -> Plans model
+  const { products: saasProducts } = useSaasProducts(projectId || '');
 
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
@@ -574,6 +579,14 @@ export const Dashboard = () => {
                   scenarioType="current"
                 />
               </AnimatedCard>
+            ) : businessType === 'saas' ? (
+              <AnimatedCard delay={0.18}>
+                <SaasProductsManager
+                  projectId={projectId || ''}
+                  currency={currency}
+                  salesChannels={salesChannels}
+                />
+              </AnimatedCard>
             ) : businessType !== 'marketplace' ? (
               <AnimatedCard delay={0.18}>
                 <ProductsManagement
@@ -878,13 +891,22 @@ export const Dashboard = () => {
                 }
                 saasData={
                   (businessType === 'saas' || businessType === 'freemium') ? {
-                    products: products.map(p => ({
+                    products: saasProducts.map(p => ({
                       id: p.id,
                       name: p.name,
-                      price: p.price,
-                      newSubscribers: p.newSubscribers ?? 0,
-                      churnRate: p.churnRate ?? 0,
-                      cost: p.cost,
+                      planningPeriod: p.planning_period,
+                      plans: p.plans.map(plan => ({
+                        id: plan.id,
+                        name: plan.name,
+                        billingType: plan.billing_type,
+                        priceEur: plan.price_eur,
+                        subscribers: plan.subscribers,
+                        newSubscribersPerPeriod: plan.new_subscribers_per_period,
+                        costPerSubscriberPerMonthEur: plan.cost_per_subscriber_per_month_eur,
+                        isFreePlan: plan.is_free_plan,
+                        churnRatePercent: plan.churn_rate_percent,
+                        costPerBuyerEur: plan.cost_per_buyer_eur,
+                      })),
                     })),
                     horizonPeriods: 12,
                     planningPeriod: 'month',
