@@ -189,6 +189,144 @@ export type Database = {
         }
         Relationships: []
       }
+      cashflow_lines: {
+        Row: {
+          category: string
+          created_at: string
+          formula_config: Json | null
+          id: string
+          is_active: boolean
+          line_type: string
+          name: string
+          sort_order: number
+          source: string
+          source_adapter: string | null
+          timeline_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          formula_config?: Json | null
+          id?: string
+          is_active?: boolean
+          line_type: string
+          name: string
+          sort_order?: number
+          source?: string
+          source_adapter?: string | null
+          timeline_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          formula_config?: Json | null
+          id?: string
+          is_active?: boolean
+          line_type?: string
+          name?: string
+          sort_order?: number
+          source?: string
+          source_adapter?: string | null
+          timeline_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashflow_lines_timeline_id_fkey"
+            columns: ["timeline_id"]
+            isOneToOne: false
+            referencedRelation: "cashflow_timelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cashflow_points: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          is_override: boolean
+          line_id: string
+          notes: string | null
+          period_index: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          is_override?: boolean
+          line_id: string
+          notes?: string | null
+          period_index: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          is_override?: boolean
+          line_id?: string
+          notes?: string | null
+          period_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashflow_points_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "cashflow_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cashflow_timelines: {
+        Row: {
+          created_at: string
+          discount_rate_annual: number
+          horizon_periods: number
+          id: string
+          name: string
+          planning_period: string
+          project_id: string
+          scenario_type: string
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discount_rate_annual?: number
+          horizon_periods?: number
+          id?: string
+          name?: string
+          planning_period?: string
+          project_id: string
+          scenario_type?: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discount_rate_annual?: number
+          horizon_periods?: number
+          id?: string
+          name?: string
+          planning_period?: string
+          project_id?: string
+          scenario_type?: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashflow_timelines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       category_channel_stats: {
         Row: {
           category_id: string
