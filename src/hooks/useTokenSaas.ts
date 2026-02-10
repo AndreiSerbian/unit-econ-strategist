@@ -216,13 +216,47 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
     }
   }, [projectId, fetchAll, toast]);
 
-  const updateModel = useCallback(async (id: string, data: Partial<ApiModel>) => {
+  const updateModel = useCallback(async (id: string, data: Partial<ApiModel> & {
+    pricing_text?: { price_in_1m: number; price_out_1m: number; price_cached_in_1m?: number | null };
+    pricing_image?: { price_per_image: number };
+  }) => {
     try {
-      const { error } = await supabase
-        .from('api_models')
-        .update(data)
-        .eq('id', id);
-      if (error) throw error;
+      // Extract pricing data
+      const { pricing_text, pricing_image, provider, ...modelData } = data as any;
+
+      // Update base model fields if any
+      if (Object.keys(modelData).length > 0) {
+        const { error } = await supabase
+          .from('api_models')
+          .update(modelData)
+          .eq('id', id);
+        if (error) throw error;
+      }
+
+      // Update text pricing
+      if (pricing_text) {
+        const { error } = await supabase
+          .from('model_pricing_text')
+          .upsert({
+            model_id: id,
+            price_in_1m: pricing_text.price_in_1m,
+            price_out_1m: pricing_text.price_out_1m,
+            price_cached_in_1m: pricing_text.price_cached_in_1m ?? null,
+          }, { onConflict: 'model_id' });
+        if (error) throw error;
+      }
+
+      // Update image pricing
+      if (pricing_image) {
+        const { error } = await supabase
+          .from('model_pricing_image')
+          .upsert({
+            model_id: id,
+            price_per_image: pricing_image.price_per_image,
+          }, { onConflict: 'model_id' });
+        if (error) throw error;
+      }
+
       await fetchAll();
     } catch (error) {
       console.error('Error updating model:', error);

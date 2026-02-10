@@ -52,7 +52,14 @@ export function ApiProvidersManager({
   });
 
   const [editingModel, setEditingModel] = useState<string | null>(null);
-  const [editModelData, setEditModelData] = useState<Partial<ApiModel>>({});
+  const [editModelData, setEditModelData] = useState<{
+    model_name: string;
+    model_code: string;
+    price_in_1m?: number;
+    price_out_1m?: number;
+    price_per_image?: number;
+    model_type?: string;
+  }>({ model_name: '', model_code: '' });
 
   const handleAddProvider = async () => {
     if (!newProviderName.trim()) return;
@@ -95,17 +102,29 @@ export function ApiProvidersManager({
 
   const startEditModel = (model: ApiModel) => {
     setEditingModel(model.id);
+    const isText = model.model_type === 'text';
     setEditModelData({
       model_name: model.model_name,
       model_code: model.model_code,
-      api_cost_usd: model.api_cost_usd,
+      model_type: model.model_type || 'text',
+      price_in_1m: isText ? model.pricing_text?.price_in_1m ?? 0 : undefined,
+      price_out_1m: isText ? model.pricing_text?.price_out_1m ?? 0 : undefined,
+      price_per_image: !isText ? model.pricing_image?.price_per_image ?? 0 : undefined,
     });
   };
 
   const saveModelEdit = async (id: string) => {
-    await onUpdateModel(id, editModelData);
+    const isText = editModelData.model_type === 'text';
+    await onUpdateModel(id, {
+      model_name: editModelData.model_name,
+      model_code: editModelData.model_code,
+      ...(isText
+        ? { pricing_text: { price_in_1m: editModelData.price_in_1m ?? 0, price_out_1m: editModelData.price_out_1m ?? 0 } }
+        : { pricing_image: { price_per_image: editModelData.price_per_image ?? 0 } }
+      ),
+    } as any);
     setEditingModel(null);
-    setEditModelData({});
+    setEditModelData({ model_name: '', model_code: '' });
   };
 
   const getProviderModels = (providerId: string) => 
@@ -202,12 +221,32 @@ export function ApiProvidersManager({
                                   onChange={e => setEditModelData({ ...editModelData, model_code: e.target.value })}
                                   className="h-7 text-sm w-24 font-mono"
                                 />
-                                <NumericInput
-                                  value={editModelData.api_cost_usd || 0}
-                                  onChange={v => setEditModelData({ ...editModelData, api_cost_usd: v ?? 0 })}
-                                  className="h-7 text-sm w-24 font-mono"
-                                  step="0.0001"
-                                />
+                                {editModelData.model_type === 'text' ? (
+                                  <>
+                                    <NumericInput
+                                      value={editModelData.price_in_1m ?? 0}
+                                      onChange={v => setEditModelData({ ...editModelData, price_in_1m: v ?? 0 })}
+                                      className="h-7 text-sm w-24 font-mono"
+                                      step="0.01"
+                                      placeholder="In $/1M"
+                                    />
+                                    <NumericInput
+                                      value={editModelData.price_out_1m ?? 0}
+                                      onChange={v => setEditModelData({ ...editModelData, price_out_1m: v ?? 0 })}
+                                      className="h-7 text-sm w-24 font-mono"
+                                      step="0.01"
+                                      placeholder="Out $/1M"
+                                    />
+                                  </>
+                                ) : (
+                                  <NumericInput
+                                    value={editModelData.price_per_image ?? 0}
+                                    onChange={v => setEditModelData({ ...editModelData, price_per_image: v ?? 0 })}
+                                    className="h-7 text-sm w-24 font-mono"
+                                    step="0.001"
+                                    placeholder="$/img"
+                                  />
+                                )}
                                 <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => saveModelEdit(model.id)}>
                                   <Check className="w-4 h-4 text-accent" />
                                 </Button>
