@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Settings, Server, Zap, Package, Layers, BarChart3, Calculator } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Settings, Server, Zap, Package, Layers, BarChart3, Calculator, Trash2 } from 'lucide-react';
 import { useTokenSaas } from '@/hooks/useTokenSaas';
 import { TokenEconomicsConfigCard } from './TokenEconomicsConfigCard';
 import { ApiProvidersManager } from './ApiProvidersManager';
@@ -47,6 +49,7 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
     calculateScenarioMetrics,
     seedCatalog,
     generateOperations,
+    clearAll,
   } = useTokenSaas(projectId, scenarioType);
 
   if (loading) {
@@ -67,6 +70,28 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" className="gap-1">
+              <Trash2 className="w-4 h-4" />
+              Очистить всё
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Очистить все данные Token SaaS?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Будут удалены все провайдеры, модели, операции, пакеты и настройки. Это действие необратимо.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Отмена</AlertDialogCancel>
+              <AlertDialogAction onClick={clearAll}>Удалить всё</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 h-auto">
           <TabsTrigger value="dashboard" className="flex items-center gap-1 text-xs sm:text-sm py-2">
