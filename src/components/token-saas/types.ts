@@ -16,13 +16,20 @@ export interface ApiModel {
   provider_id?: string;
   model_name: string;
   model_code: string;
+  model_type?: string;       // 'text' | 'image'
+  model_class?: string;      // 'text' | 'image' | 'image_premium'
+  mode_or_variant?: string;  // e.g. 'Batch', 'Standard', 'HD 1024×1024'
   api_cost_usd: number;
   description?: string;
   active: boolean;
+  enabled: boolean;           // allowed for calculations (user can toggle)
   created_at: string;
   updated_at: string;
   // Joined field
   provider?: ApiProvider;
+  // Pricing (joined)
+  pricing_text?: { price_in_1m: number; price_cached_in_1m: number | null; price_out_1m: number };
+  pricing_image?: { price_per_image: number };
 }
 
 export interface TokenPackage {
@@ -93,6 +100,8 @@ export interface TokenEconomicsConfig {
   default_text_markup: number;
   default_image_markup: number;
   default_premium_markup: number;
+  default_in_tok: number;
+  default_out_tok: number;
   created_at: string;
   updated_at: string;
 }

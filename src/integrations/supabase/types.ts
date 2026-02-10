@@ -70,6 +70,7 @@ export type Database = {
           api_cost_usd: number
           created_at: string
           description: string | null
+          enabled: boolean
           id: string
           mode_or_variant: string | null
           model_class: string | null
@@ -85,6 +86,7 @@ export type Database = {
           api_cost_usd?: number
           created_at?: string
           description?: string | null
+          enabled?: boolean
           id?: string
           mode_or_variant?: string | null
           model_class?: string | null
@@ -100,6 +102,7 @@ export type Database = {
           api_cost_usd?: number
           created_at?: string
           description?: string | null
+          enabled?: boolean
           id?: string
           mode_or_variant?: string | null
           model_class?: string | null
@@ -2130,6 +2133,8 @@ export type Database = {
         Row: {
           created_at: string
           default_image_markup: number
+          default_in_tok: number
+          default_out_tok: number
           default_premium_markup: number
           default_text_markup: number
           id: string
@@ -2140,6 +2145,8 @@ export type Database = {
         Insert: {
           created_at?: string
           default_image_markup?: number
+          default_in_tok?: number
+          default_out_tok?: number
           default_premium_markup?: number
           default_text_markup?: number
           id?: string
@@ -2150,6 +2157,8 @@ export type Database = {
         Update: {
           created_at?: string
           default_image_markup?: number
+          default_in_tok?: number
+          default_out_tok?: number
           default_premium_markup?: number
           default_text_markup?: number
           id?: string
@@ -2296,7 +2305,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      generate_token_operations: {
+        Args: { p_project_id: string }
+        Returns: number
+      }
+      seed_reference_catalog: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       billing_type: "subscription" | "one_time"
