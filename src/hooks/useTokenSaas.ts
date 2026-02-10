@@ -547,6 +547,33 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
     };
   }, [packages, usageForecasts, operations, compositeOperations, calculateOperationMetrics, calculateCompositeMetrics]);
 
+  // ============ CATALOG FUNCTIONS ============
+  const seedCatalog = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const { error } = await supabase.rpc('seed_reference_catalog', { p_project_id: projectId });
+      if (error) throw error;
+      await fetchAll();
+      toast({ title: 'Каталог загружен', description: 'Провайдеры и модели добавлены' });
+    } catch (error) {
+      console.error('Error seeding catalog:', error);
+      toast({ title: 'Ошибка загрузки каталога', variant: 'destructive' });
+    }
+  }, [projectId, fetchAll, toast]);
+
+  const generateOperations = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const { data, error } = await supabase.rpc('generate_token_operations', { p_project_id: projectId });
+      if (error) throw error;
+      await fetchAll();
+      toast({ title: 'Операции сгенерированы', description: `${data} операций обновлено` });
+    } catch (error) {
+      console.error('Error generating operations:', error);
+      toast({ title: 'Ошибка генерации операций', variant: 'destructive' });
+    }
+  }, [projectId, fetchAll, toast]);
+
   return {
     // State
     config,
@@ -577,6 +604,8 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
     updateCompositeOperation,
     deleteCompositeOperation,
     updateUsageForecast,
+    seedCatalog,
+    generateOperations,
     refetch: fetchAll,
 
     // Calculations

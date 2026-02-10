@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { NumericInput } from '@/components/ui/numeric-input';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Plus, Trash2, ChevronDown, Server, Cpu, Edit2, Check, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -72,6 +73,7 @@ export function ApiProvidersManager({
       api_cost_usd: newModel.api_cost_usd,
       description: newModel.description.trim() || undefined,
       active: true,
+      enabled: true,
     });
     setNewModel({
       provider_id: '',
@@ -220,6 +222,11 @@ export function ApiProvidersManager({
                                 <span className="font-mono text-xs text-accent">
                                   ${model.api_cost_usd.toFixed(6)}
                                 </span>
+                                <Switch
+                                  checked={model.enabled}
+                                  onCheckedChange={v => onUpdateModel(model.id, { enabled: v } as any)}
+                                  className="scale-75"
+                                />
                                 <Badge variant={model.active ? 'default' : 'secondary'} className="text-[10px]">
                                   {model.active ? 'ON' : 'OFF'}
                                 </Badge>

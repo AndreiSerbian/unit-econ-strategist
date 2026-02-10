@@ -17,6 +17,8 @@ export function TokenEconomicsConfigCard({ config, onSave }: TokenEconomicsConfi
   const [textMarkup, setTextMarkup] = useState(1.5);
   const [imageMarkup, setImageMarkup] = useState(2.0);
   const [premiumMarkup, setPremiumMarkup] = useState(2.2);
+  const [defaultInTok, setDefaultInTok] = useState(300);
+  const [defaultOutTok, setDefaultOutTok] = useState(400);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,8 @@ export function TokenEconomicsConfigCard({ config, onSave }: TokenEconomicsConfi
       setTextMarkup(config.default_text_markup);
       setImageMarkup(config.default_image_markup);
       setPremiumMarkup(config.default_premium_markup);
+      setDefaultInTok(config.default_in_tok ?? 300);
+      setDefaultOutTok(config.default_out_tok ?? 400);
     }
   }, [config]);
 
@@ -35,6 +39,8 @@ export function TokenEconomicsConfigCard({ config, onSave }: TokenEconomicsConfi
       default_text_markup: textMarkup,
       default_image_markup: imageMarkup,
       default_premium_markup: premiumMarkup,
+      default_in_tok: defaultInTok,
+      default_out_tok: defaultOutTok,
     });
     setSaving(false);
   };
@@ -43,7 +49,9 @@ export function TokenEconomicsConfigCard({ config, onSave }: TokenEconomicsConfi
     config.it_value_usd !== itValueUsd ||
     config.default_text_markup !== textMarkup ||
     config.default_image_markup !== imageMarkup ||
-    config.default_premium_markup !== premiumMarkup;
+    config.default_premium_markup !== premiumMarkup ||
+    (config.default_in_tok ?? 300) !== defaultInTok ||
+    (config.default_out_tok ?? 400) !== defaultOutTok;
 
   return (
     <TooltipProvider>
@@ -58,7 +66,7 @@ export function TokenEconomicsConfigCard({ config, onSave }: TokenEconomicsConfi
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
             {/* IT Value */}
             <div className="space-y-2">
               <Label className="flex items-center gap-1 text-xs sm:text-sm">
@@ -166,6 +174,52 @@ export function TokenEconomicsConfigCard({ config, onSave }: TokenEconomicsConfi
               <p className="text-[10px] text-muted-foreground">
                 Маржа: {((1 - 1/premiumMarkup) * 100).toFixed(0)}%
               </p>
+            </div>
+
+            {/* Default In Tokens */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1 text-xs sm:text-sm">
+                📥 In токенов
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3 h-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">
+                      Кол-во входных токенов для расчёта стоимости атомарной текстовой операции.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </Label>
+              <NumericInput
+                value={defaultInTok}
+                onChange={(v) => setDefaultInTok(v ?? 300)}
+                step="50"
+                className="font-mono"
+              />
+            </div>
+
+            {/* Default Out Tokens */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1 text-xs sm:text-sm">
+                📤 Out токенов
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3 h-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">
+                      Кол-во выходных токенов для расчёта стоимости атомарной текстовой операции.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </Label>
+              <NumericInput
+                value={defaultOutTok}
+                onChange={(v) => setDefaultOutTok(v ?? 400)}
+                step="50"
+                className="font-mono"
+              />
             </div>
           </div>
 

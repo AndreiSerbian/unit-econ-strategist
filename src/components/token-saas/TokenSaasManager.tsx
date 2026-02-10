@@ -45,6 +45,8 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
     calculateOperationMetrics,
     calculateCompositeMetrics,
     calculateScenarioMetrics,
+    seedCatalog,
+    generateOperations,
   } = useTokenSaas(projectId, scenarioType);
 
   if (loading) {
@@ -111,7 +113,13 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
         </TabsContent>
 
         <TabsContent value="api_pricing" className="mt-6">
-          <ApiPricingTable />
+          <ApiPricingTable
+            projectId={projectId}
+            onToggleEnabled={async (id, enabled) => { await updateModel(id, { enabled } as any); }}
+            onSeedCatalog={seedCatalog}
+            onGenerateOperations={generateOperations}
+            modelsCount={models.length}
+          />
         </TabsContent>
 
         <TabsContent value="config" className="mt-6">
