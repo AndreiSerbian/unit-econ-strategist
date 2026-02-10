@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Settings, Server, Zap, Package, Layers, BarChart3, Calculator, Trash2 } from 'lucide-react';
+import { Settings, Server, Zap, Package, Layers, BarChart3, Calculator, Trash2, TrendingUp } from 'lucide-react';
 import { useTokenSaas } from '@/hooks/useTokenSaas';
 import { TokenEconomicsConfigCard } from './TokenEconomicsConfigCard';
 import { ApiProvidersManager } from './ApiProvidersManager';
@@ -11,6 +11,7 @@ import { TokenPackagesManager } from './TokenPackagesManager';
 import { CompositeOperationsManager } from './CompositeOperationsManager';
 import { TokenEconomicsDashboard } from './TokenEconomicsDashboard';
 import { ApiPricingTable } from './ApiPricingTable';
+import { UsageForecastManager } from './UsageForecastManager';
 
 interface TokenSaasManagerProps {
   projectId: string;
@@ -47,6 +48,7 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
     calculateOperationMetrics,
     calculateCompositeMetrics,
     calculateScenarioMetrics,
+    updateUsageForecast,
     seedCatalog,
     generateOperations,
     clearAll,
@@ -93,7 +95,7 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
         </AlertDialog>
       </div>
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 h-auto">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-auto">
           <TabsTrigger value="dashboard" className="flex items-center gap-1 text-xs sm:text-sm py-2">
             <BarChart3 className="w-4 h-4" />
             <span className="hidden sm:inline">Dashboard</span>
@@ -121,6 +123,10 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
           <TabsTrigger value="packages" className="flex items-center gap-1 text-xs sm:text-sm py-2">
             <Package className="w-4 h-4" />
             <span className="hidden sm:inline">Пакеты</span>
+          </TabsTrigger>
+          <TabsTrigger value="forecast" className="flex items-center gap-1 text-xs sm:text-sm py-2">
+            <TrendingUp className="w-4 h-4" />
+            <span className="hidden sm:inline">Прогноз</span>
           </TabsTrigger>
         </TabsList>
 
@@ -197,6 +203,18 @@ export function TokenSaasManager({ projectId, scenarioType }: TokenSaasManagerPr
             onAdd={addPackage}
             onUpdate={updatePackage}
             onDelete={deletePackage}
+          />
+        </TabsContent>
+
+        <TabsContent value="forecast" className="mt-6">
+          <UsageForecastManager
+            operations={operations}
+            compositeOperations={compositeOperations}
+            usageForecasts={usageForecasts}
+            itValueUsd={itValueUsd}
+            onUpdateForecast={updateUsageForecast}
+            calculateOperationMetrics={calculateOperationMetrics}
+            calculateCompositeMetrics={calculateCompositeMetrics}
           />
         </TabsContent>
       </Tabs>
