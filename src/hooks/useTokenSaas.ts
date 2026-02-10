@@ -574,6 +574,34 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
     }
   }, [projectId, fetchAll, toast]);
 
+  const clearAll = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      // Delete in correct order to respect foreign keys
+      await supabase.from('operation_usage_forecast').delete().eq('project_id', projectId);
+      await supabase.from('composite_operation_items').delete().in('composite_id',
+        compositeOperations.map(c => c.id)
+      );
+      await supabase.from('composite_operations').delete().eq('project_id', projectId);
+      await supabase.from('package_capacities').delete().in('package_id',
+        packages.map(p => p.id)
+      );
+      await supabase.from('token_packages').delete().eq('project_id', projectId);
+      await supabase.from('operations_catalog').delete().eq('project_id', projectId);
+      await supabase.from('model_pricing_text').delete().in('model_id', models.map(m => m.id));
+      await supabase.from('model_pricing_image').delete().in('model_id', models.map(m => m.id));
+      await supabase.from('api_models').delete().eq('project_id', projectId);
+      await supabase.from('api_providers').delete().eq('project_id', projectId);
+      await supabase.from('token_economics_config').delete().eq('project_id', projectId);
+
+      await fetchAll();
+      toast({ title: 'Данные очищены', description: 'Все данные Token SaaS удалены' });
+    } catch (error) {
+      console.error('Error clearing all:', error);
+      toast({ title: 'Ошибка очистки', variant: 'destructive' });
+    }
+  }, [projectId, compositeOperations, packages, models, fetchAll, toast]);
+
   return {
     // State
     config,
@@ -606,6 +634,7 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
     updateUsageForecast,
     seedCatalog,
     generateOperations,
+    clearAll,
     refetch: fetchAll,
 
     // Calculations
