@@ -220,7 +220,11 @@ export function ApiProvidersManager({
                                 <span className="flex-1 text-sm">{model.model_name}</span>
                                 <code className="text-xs bg-muted px-1 rounded">{model.model_code}</code>
                                 <span className="font-mono text-xs text-accent">
-                                  ${model.api_cost_usd.toFixed(6)}
+                                  {model.pricing_text
+                                    ? `In: $${model.pricing_text.price_in_1m}/1M · Out: $${model.pricing_text.price_out_1m}/1M`
+                                    : model.pricing_image
+                                    ? `$${model.pricing_image.price_per_image}/img`
+                                    : `$${model.api_cost_usd.toFixed(6)}`}
                                 </span>
                                 <Switch
                                   checked={model.enabled}
@@ -261,8 +265,14 @@ export function ApiProvidersManager({
                 <div key={model.id} className="flex items-center gap-2 p-2 rounded bg-muted/30">
                   <Cpu className="w-4 h-4 text-muted-foreground" />
                   <span className="flex-1 text-sm">{model.model_name}</span>
-                  <code className="text-xs bg-muted px-1 rounded">{model.model_code}</code>
-                  <span className="font-mono text-xs text-accent">${model.api_cost_usd.toFixed(6)}</span>
+                   <code className="text-xs bg-muted px-1 rounded">{model.model_code}</code>
+                   <span className="font-mono text-xs text-accent">
+                     {model.pricing_text
+                       ? `In: $${model.pricing_text.price_in_1m}/1M · Out: $${model.pricing_text.price_out_1m}/1M`
+                       : model.pricing_image
+                       ? `$${model.pricing_image.price_per_image}/img`
+                       : `$${model.api_cost_usd.toFixed(6)}`}
+                   </span>
                   <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => onDeleteModel(model.id)}>
                     <Trash2 className="w-3 h-3" />
                   </Button>

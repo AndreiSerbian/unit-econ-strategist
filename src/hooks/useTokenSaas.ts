@@ -50,10 +50,10 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
       
       setProviders((providersData as ApiProvider[]) || []);
 
-      // Fetch models with provider info
+      // Fetch models with provider info and pricing
       const { data: modelsData } = await supabase
         .from('api_models')
-        .select('*, provider:api_providers(*)')
+        .select('*, provider:api_providers(*), pricing_text:model_pricing_text(*), pricing_image:model_pricing_image(*)')
         .eq('project_id', projectId)
         .order('model_name');
       
