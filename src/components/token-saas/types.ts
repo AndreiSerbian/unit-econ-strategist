@@ -60,6 +60,11 @@ export interface OperationCatalogItem {
   api_cost_usd: number;
   markup_multiplier: number;
   base_it_cost: number; // Generated column
+  user_price_usd: number;
+  it_cost: number;
+  margin_usd: number;
+  default_in_tok?: number;
+  default_out_tok?: number;
   active: boolean;
   created_at: string;
   updated_at: string;

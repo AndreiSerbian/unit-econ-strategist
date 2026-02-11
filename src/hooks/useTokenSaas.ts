@@ -507,13 +507,13 @@ export function useTokenSaas(projectId: string | undefined, scenarioType: string
   const itValueUsd = config?.it_value_usd || 0.001;
 
   const calculateOperationMetrics = useCallback((op: OperationCatalogItem) => {
-    const userPriceUsd = op.api_cost_usd * op.markup_multiplier;
-    const marginUsd = userPriceUsd - op.api_cost_usd;
-    const marginPercent = op.api_cost_usd > 0 ? (marginUsd / userPriceUsd) * 100 : 0;
-    const itCost = op.base_it_cost;
+    const userPriceUsd = op.user_price_usd || (op.api_cost_usd * op.markup_multiplier);
+    const itCost = op.it_cost || (itValueUsd > 0 ? userPriceUsd / itValueUsd : 0);
+    const marginUsd = op.margin_usd || (userPriceUsd - op.api_cost_usd);
+    const marginPercent = userPriceUsd > 0 ? (marginUsd / userPriceUsd) * 100 : 0;
 
     return { userPriceUsd, marginUsd, marginPercent, itCost };
-  }, []);
+  }, [itValueUsd]);
 
   const calculateCompositeMetrics = useCallback((composite: CompositeOperation) => {
     let totalApiCost = 0;
