@@ -26,7 +26,7 @@ interface OperationsCatalogProps {
     image: number;
     image_premium: number;
   };
-  onAdd: (data: Omit<OperationCatalogItem, 'id' | 'project_id' | 'created_at' | 'updated_at' | 'base_it_cost' | 'api_model'>) => Promise<void>;
+  onAdd: (data: Omit<OperationCatalogItem, 'id' | 'project_id' | 'created_at' | 'updated_at' | 'base_it_cost' | 'api_model' | 'user_price_usd' | 'it_cost' | 'margin_usd' | 'default_in_tok' | 'default_out_tok'>) => Promise<void>;
   onUpdate: (id: string, data: Partial<OperationCatalogItem>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   calculateMetrics: (op: OperationCatalogItem) => {
