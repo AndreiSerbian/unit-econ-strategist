@@ -2023,6 +2023,7 @@ export type Database = {
       scenarios: {
         Row: {
           avg_check: number | null
+          business_metrics: Json | null
           conversion_rate: number | null
           created_at: string
           fixed_costs: number | null
@@ -2039,6 +2040,7 @@ export type Database = {
         }
         Insert: {
           avg_check?: number | null
+          business_metrics?: Json | null
           conversion_rate?: number | null
           created_at?: string
           fixed_costs?: number | null
@@ -2055,6 +2057,7 @@ export type Database = {
         }
         Update: {
           avg_check?: number | null
+          business_metrics?: Json | null
           conversion_rate?: number | null
           created_at?: string
           fixed_costs?: number | null

@@ -77,6 +77,8 @@ import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, cal
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useSaasProducts } from "@/hooks/useSaasProducts";
+import { useMarketplace } from "@/hooks/useMarketplace";
+import { useTokenSaas } from "@/hooks/useTokenSaas";
 import { useNavigate } from "react-router-dom";
 
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
@@ -146,7 +148,14 @@ export const Dashboard = () => {
   } = useProject(user?.id);
 
   // SaaS Products for the new Product -> Plans model
-  const { products: saasProducts } = useSaasProducts(projectId || '');
+  const { products: saasProducts, aggregateKPIs: saasAggregateKPIs } = useSaasProducts(projectId || '');
+
+  // Marketplace categories for revenue bridge
+  const { totals: marketplaceTotals } = useMarketplace(projectId || undefined);
+
+  // Token SaaS for revenue bridge
+  const tokenSaas = useTokenSaas(projectId || undefined, 'current');
+  const tokenScenarioMetrics = tokenSaas.calculateScenarioMetrics();
 
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
@@ -154,6 +163,34 @@ export const Dashboard = () => {
       setShowOnboarding(true);
     }
   }, []);
+
+  // ===== REVENUE BRIDGE =====
+  // Sync SaaS revenue into global metrics when business type is 'saas'
+  useEffect(() => {
+    if (businessType !== 'saas' || !saasAggregateKPIs) return;
+    const saasRevenue = saasAggregateKPIs.totalRevenue || 0;
+    if (saasRevenue > 0 && saasRevenue !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: saasRevenue }));
+    }
+  }, [businessType, saasAggregateKPIs?.totalRevenue]);
+
+  // Sync Marketplace revenue into global metrics when business type is 'marketplace'
+  useEffect(() => {
+    if (businessType !== 'marketplace' || !marketplaceTotals) return;
+    const mktRevenue = marketplaceTotals.totalPlatformRevenue || 0;
+    if (mktRevenue > 0 && mktRevenue !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: mktRevenue }));
+    }
+  }, [businessType, marketplaceTotals?.totalPlatformRevenue]);
+
+  // Sync Token SaaS revenue into global metrics when business type is 'token_saas'
+  useEffect(() => {
+    if (businessType !== 'token_saas') return;
+    const tokenRevenue = tokenScenarioMetrics?.totalPackageRevenue || 0;
+    if (tokenRevenue > 0 && tokenRevenue !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: tokenRevenue }));
+    }
+  }, [businessType, tokenScenarioMetrics?.totalPackageRevenue]);
 
   const handleOnboardingComplete = (selectedType: BusinessType) => {
     localStorage.setItem(ONBOARDING_KEY, "true");

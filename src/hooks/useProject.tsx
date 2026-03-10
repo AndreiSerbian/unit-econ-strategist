@@ -1,3 +1,22 @@
+/**
+ * SOURCE OF TRUTH CONTRACT
+ * 
+ * Revenue:
+ *   - E-commerce, Production, Sharing, Freemium: products table (price × quantity) via syncProductsToMetrics
+ *   - Services: products + products_services subtype (billing model calculation)
+ *   - SaaS: saas_products + saas_plans (MRR aggregation) — synced via Dashboard revenue bridge
+ *   - Marketplace: marketplace_categories (GMV × take_rate) — synced via Dashboard revenue bridge
+ *   - Token SaaS: token_packages (package sales × price) — synced via Dashboard revenue bridge
+ * 
+ * Scenario persistence:
+ *   - Base columns: revenue, total_clients, new_clients, etc.
+ *   - Business-type metrics: stored in `business_metrics` JSONB column
+ * 
+ * Product persistence:
+ *   - Base fields: products table
+ *   - Subtype fields: products_services, products_saas, products_marketplace, products_sharing, products_production
+ *   - Both saveProduct/updateProduct AND saveAllToCloud write subtypes
+ */
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -549,7 +568,25 @@ export const useProject = (userId: string | undefined) => {
             fixed_costs: scenario.data.fixedCosts,
             variable_costs: scenario.data.variableCosts,
             marketing_costs: scenario.data.marketingCosts,
-          },
+            business_metrics: {
+              customerLifetimeMonths: scenario.data.customerLifetimeMonths,
+              purchaseFrequency: scenario.data.purchaseFrequency,
+              nrr: scenario.data.nrr,
+              repeatRate: scenario.data.repeatRate,
+              utilizationRate: scenario.data.utilizationRate,
+              takeRate: scenario.data.takeRate,
+              freeToPayConversion: scenario.data.freeToPayConversion,
+              expansionRevenue: scenario.data.expansionRevenue,
+              marketShare: scenario.data.marketShare,
+              quality: scenario.data.quality,
+              ltv: scenario.data.ltv,
+              churnRate: scenario.data.churnRate,
+              retentionRate: scenario.data.retentionRate,
+              paybackMonths: scenario.data.paybackMonths,
+              totalLeads: scenario.data.totalLeads,
+              projectMargin: scenario.data.projectMargin,
+            },
+          } as any,
           { onConflict: 'project_id,scenario_type' }
         );
         
@@ -643,6 +680,49 @@ export const useProject = (userId: string | undefined) => {
           delivery_type: product.deliveryType || 'courier',
           logistics_to_client: product.logisticsToClientPerUnit || 0,
         }, { onConflict: 'id' });
+
+        // Persist subtype data based on business type
+        if (businessType === 'services') {
+          await supabase.from("products_services" as any).upsert({
+            product_id: product.id,
+            hourly_rate: product.hourlyRate,
+            hours_per_week: product.hoursPerWeek,
+            utilization: product.utilization,
+            billing_model: product.billingModel || 'fixed_project',
+            planning_period: product.planningPeriod || 'month',
+            estimated_hours_per_project: product.estimatedHoursPerProject,
+            planned_billable_hours_per_period: product.plannedBillableHoursPerPeriod,
+            billable_percent: product.billablePercent ?? product.utilization ?? 100,
+            allocation_percent: product.allocationPercent ?? 100,
+            retainer_fee: product.retainerFee,
+            clients_count: product.clientsCount ?? 0,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'saas' || businessType === 'freemium') {
+          await supabase.from("products_saas" as any).upsert({
+            product_id: product.id,
+            churn_rate: product.churnRate,
+            free_to_pay_conversion: product.freeToPayConversion,
+            new_subscribers: product.newSubscribers,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'marketplace') {
+          await supabase.from("products_marketplace" as any).upsert({
+            product_id: product.id,
+            take_rate: product.takeRate,
+            gmv: product.gmv,
+            avg_order_value: product.avgOrderValue,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'sharing') {
+          await supabase.from("products_sharing" as any).upsert({
+            product_id: product.id,
+            utilization_rate: product.utilizationRate,
+            take_rate: product.takeRate,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'production') {
+          await supabase.from("products_production" as any).upsert({
+            product_id: product.id,
+            defect_rate: product.defectRate,
+          }, { onConflict: 'product_id' });
+        }
       }
 
       // Синхронизируем конкурентов (включая удаление)
@@ -758,7 +838,7 @@ export const useProject = (userId: string | undefined) => {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials, products, competitors, productChannelAllocations]);
+  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials, products, competitors, productChannelAllocations, businessType]);
 
   // Debounced автосохранение при изменении данных (2 секунды задержка)
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -851,6 +931,8 @@ export const useProject = (userId: string | undefined) => {
       if (scenarios) {
         scenarios.forEach((scenario) => {
           const detailedData = detailedExpensesMap[scenario.scenario_type];
+          // Restore business-type metrics from JSONB column
+          const bm = (scenario as any).business_metrics || {};
           const metrics: Metrics = {
             revenue: Number(scenario.revenue) || 0,
             totalClients: scenario.total_clients || 0,
@@ -863,6 +945,23 @@ export const useProject = (userId: string | undefined) => {
             marketingCosts: Number(scenario.marketing_costs) || 0,
             detailedExpenses: detailedData?.expenses || initialDetailedExpenses,
             leadSources: detailedData?.leadSources || [],
+            // Business-type specific metrics from JSONB
+            customerLifetimeMonths: bm.customerLifetimeMonths,
+            purchaseFrequency: bm.purchaseFrequency,
+            nrr: bm.nrr,
+            repeatRate: bm.repeatRate,
+            utilizationRate: bm.utilizationRate,
+            takeRate: bm.takeRate,
+            freeToPayConversion: bm.freeToPayConversion,
+            expansionRevenue: bm.expansionRevenue,
+            marketShare: bm.marketShare,
+            quality: bm.quality,
+            ltv: bm.ltv,
+            churnRate: bm.churnRate,
+            retentionRate: bm.retentionRate,
+            paybackMonths: bm.paybackMonths,
+            totalLeads: bm.totalLeads,
+            projectMargin: bm.projectMargin,
           };
 
           if (scenario.scenario_type === "current") setCurrentMetrics(metrics);
@@ -1120,7 +1219,25 @@ export const useProject = (userId: string | undefined) => {
           fixed_costs: metrics.fixedCosts,
           variable_costs: metrics.variableCosts,
           marketing_costs: metrics.marketingCosts,
-        },
+          business_metrics: {
+            customerLifetimeMonths: metrics.customerLifetimeMonths,
+            purchaseFrequency: metrics.purchaseFrequency,
+            nrr: metrics.nrr,
+            repeatRate: metrics.repeatRate,
+            utilizationRate: metrics.utilizationRate,
+            takeRate: metrics.takeRate,
+            freeToPayConversion: metrics.freeToPayConversion,
+            expansionRevenue: metrics.expansionRevenue,
+            marketShare: metrics.marketShare,
+            quality: metrics.quality,
+            ltv: metrics.ltv,
+            churnRate: metrics.churnRate,
+            retentionRate: metrics.retentionRate,
+            paybackMonths: metrics.paybackMonths,
+            totalLeads: metrics.totalLeads,
+            projectMargin: metrics.projectMargin,
+          },
+        } as any,
         { onConflict: 'project_id,scenario_type' }
       );
 

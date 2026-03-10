@@ -1,0 +1,1 @@
+ALTER TABLE scenarios ADD COLUMN IF NOT EXISTS business_metrics jsonb DEFAULT '{}'::jsonb;
