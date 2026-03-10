@@ -1,3 +1,22 @@
+/**
+ * SOURCE OF TRUTH CONTRACT
+ * 
+ * Revenue:
+ *   - E-commerce, Production, Sharing, Freemium: products table (price × quantity) via syncProductsToMetrics
+ *   - Services: products + products_services subtype (billing model calculation)
+ *   - SaaS: saas_products + saas_plans (MRR aggregation) — synced via Dashboard revenue bridge
+ *   - Marketplace: marketplace_categories (GMV × take_rate) — synced via Dashboard revenue bridge
+ *   - Token SaaS: token_packages (package sales × price) — synced via Dashboard revenue bridge
+ * 
+ * Scenario persistence:
+ *   - Base columns: revenue, total_clients, new_clients, etc.
+ *   - Business-type metrics: stored in `business_metrics` JSONB column
+ * 
+ * Product persistence:
+ *   - Base fields: products table
+ *   - Subtype fields: products_services, products_saas, products_marketplace, products_sharing, products_production
+ *   - Both saveProduct/updateProduct AND saveAllToCloud write subtypes
+ */
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
