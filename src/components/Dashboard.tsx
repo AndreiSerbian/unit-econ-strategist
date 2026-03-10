@@ -151,7 +151,7 @@ export const Dashboard = () => {
   const { products: saasProducts, aggregateKPIs: saasAggregateKPIs } = useSaasProducts(projectId || '');
 
   // Marketplace categories for revenue bridge
-  const { totals: marketplaceTotals } = useMarketplace(projectId || '', salesChannels);
+  const { totals: marketplaceTotals } = useMarketplace(projectId || undefined);
 
   // Token SaaS for revenue bridge
   const tokenSaas = useTokenSaas(projectId || undefined, 'current');
