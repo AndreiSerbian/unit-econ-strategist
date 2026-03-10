@@ -164,6 +164,34 @@ export const Dashboard = () => {
     }
   }, []);
 
+  // ===== REVENUE BRIDGE =====
+  // Sync SaaS revenue into global metrics when business type is 'saas'
+  useEffect(() => {
+    if (businessType !== 'saas' || !saasAggregateKPIs) return;
+    const saasRevenue = saasAggregateKPIs.totalRevenue || 0;
+    if (saasRevenue > 0 && saasRevenue !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: saasRevenue }));
+    }
+  }, [businessType, saasAggregateKPIs?.totalRevenue]);
+
+  // Sync Marketplace revenue into global metrics when business type is 'marketplace'
+  useEffect(() => {
+    if (businessType !== 'marketplace' || !marketplaceTotals) return;
+    const mktRevenue = marketplaceTotals.totalPlatformRevenue || 0;
+    if (mktRevenue > 0 && mktRevenue !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: mktRevenue }));
+    }
+  }, [businessType, marketplaceTotals?.totalPlatformRevenue]);
+
+  // Sync Token SaaS revenue into global metrics when business type is 'token_saas'
+  useEffect(() => {
+    if (businessType !== 'token_saas') return;
+    const tokenRevenue = tokenScenarioMetrics?.totalPackageRevenue || 0;
+    if (tokenRevenue > 0 && tokenRevenue !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: tokenRevenue }));
+    }
+  }, [businessType, tokenScenarioMetrics?.totalPackageRevenue]);
+
   const handleOnboardingComplete = (selectedType: BusinessType) => {
     localStorage.setItem(ONBOARDING_KEY, "true");
     updateBusinessType(selectedType);
