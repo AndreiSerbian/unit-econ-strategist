@@ -761,7 +761,7 @@ export const useProject = (userId: string | undefined) => {
   }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials, products, competitors, productChannelAllocations]);
 
   // Debounced автосохранение при изменении данных (2 секунды задержка)
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   useEffect(() => {
     if (!userId || !projectId || isInitialLoad.current) return;
