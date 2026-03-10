@@ -1138,7 +1138,25 @@ export const useProject = (userId: string | undefined) => {
           fixed_costs: metrics.fixedCosts,
           variable_costs: metrics.variableCosts,
           marketing_costs: metrics.marketingCosts,
-        },
+          business_metrics: {
+            customerLifetimeMonths: metrics.customerLifetimeMonths,
+            purchaseFrequency: metrics.purchaseFrequency,
+            nrr: metrics.nrr,
+            repeatRate: metrics.repeatRate,
+            utilizationRate: metrics.utilizationRate,
+            takeRate: metrics.takeRate,
+            freeToPayConversion: metrics.freeToPayConversion,
+            expansionRevenue: metrics.expansionRevenue,
+            marketShare: metrics.marketShare,
+            quality: metrics.quality,
+            ltv: metrics.ltv,
+            churnRate: metrics.churnRate,
+            retentionRate: metrics.retentionRate,
+            paybackMonths: metrics.paybackMonths,
+            totalLeads: metrics.totalLeads,
+            projectMargin: metrics.projectMargin,
+          },
+        } as any,
         { onConflict: 'project_id,scenario_type' }
       );
 
