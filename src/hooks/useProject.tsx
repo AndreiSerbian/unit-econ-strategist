@@ -869,6 +869,8 @@ export const useProject = (userId: string | undefined) => {
       if (scenarios) {
         scenarios.forEach((scenario) => {
           const detailedData = detailedExpensesMap[scenario.scenario_type];
+          // Restore business-type metrics from JSONB column
+          const bm = (scenario as any).business_metrics || {};
           const metrics: Metrics = {
             revenue: Number(scenario.revenue) || 0,
             totalClients: scenario.total_clients || 0,
@@ -881,6 +883,23 @@ export const useProject = (userId: string | undefined) => {
             marketingCosts: Number(scenario.marketing_costs) || 0,
             detailedExpenses: detailedData?.expenses || initialDetailedExpenses,
             leadSources: detailedData?.leadSources || [],
+            // Business-type specific metrics from JSONB
+            customerLifetimeMonths: bm.customerLifetimeMonths,
+            purchaseFrequency: bm.purchaseFrequency,
+            nrr: bm.nrr,
+            repeatRate: bm.repeatRate,
+            utilizationRate: bm.utilizationRate,
+            takeRate: bm.takeRate,
+            freeToPayConversion: bm.freeToPayConversion,
+            expansionRevenue: bm.expansionRevenue,
+            marketShare: bm.marketShare,
+            quality: bm.quality,
+            ltv: bm.ltv,
+            churnRate: bm.churnRate,
+            retentionRate: bm.retentionRate,
+            paybackMonths: bm.paybackMonths,
+            totalLeads: bm.totalLeads,
+            projectMargin: bm.projectMargin,
           };
 
           if (scenario.scenario_type === "current") setCurrentMetrics(metrics);
