@@ -661,6 +661,49 @@ export const useProject = (userId: string | undefined) => {
           delivery_type: product.deliveryType || 'courier',
           logistics_to_client: product.logisticsToClientPerUnit || 0,
         }, { onConflict: 'id' });
+
+        // Persist subtype data based on business type
+        if (businessType === 'services') {
+          await supabase.from("products_services" as any).upsert({
+            product_id: product.id,
+            hourly_rate: product.hourlyRate,
+            hours_per_week: product.hoursPerWeek,
+            utilization: product.utilization,
+            billing_model: product.billingModel || 'fixed_project',
+            planning_period: product.planningPeriod || 'month',
+            estimated_hours_per_project: product.estimatedHoursPerProject,
+            planned_billable_hours_per_period: product.plannedBillableHoursPerPeriod,
+            billable_percent: product.billablePercent ?? product.utilization ?? 100,
+            allocation_percent: product.allocationPercent ?? 100,
+            retainer_fee: product.retainerFee,
+            clients_count: product.clientsCount ?? 0,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'saas' || businessType === 'freemium') {
+          await supabase.from("products_saas" as any).upsert({
+            product_id: product.id,
+            churn_rate: product.churnRate,
+            free_to_pay_conversion: product.freeToPayConversion,
+            new_subscribers: product.newSubscribers,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'marketplace') {
+          await supabase.from("products_marketplace" as any).upsert({
+            product_id: product.id,
+            take_rate: product.takeRate,
+            gmv: product.gmv,
+            avg_order_value: product.avgOrderValue,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'sharing') {
+          await supabase.from("products_sharing" as any).upsert({
+            product_id: product.id,
+            utilization_rate: product.utilizationRate,
+            take_rate: product.takeRate,
+          }, { onConflict: 'product_id' });
+        } else if (businessType === 'production') {
+          await supabase.from("products_production" as any).upsert({
+            product_id: product.id,
+            defect_rate: product.defectRate,
+          }, { onConflict: 'product_id' });
+        }
       }
 
       // Синхронизируем конкурентов (включая удаление)
