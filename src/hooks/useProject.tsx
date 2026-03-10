@@ -819,7 +819,7 @@ export const useProject = (userId: string | undefined) => {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials, products, competitors, productChannelAllocations]);
+  }, [projectId, userId, currentMetrics, scenarioA, scenarioB, logisticsTariffs, salesChannels, materials, productMaterials, products, competitors, productChannelAllocations, businessType]);
 
   // Debounced автосохранение при изменении данных (2 секунды задержка)
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
