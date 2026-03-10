@@ -77,6 +77,8 @@ import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, cal
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useSaasProducts } from "@/hooks/useSaasProducts";
+import { useMarketplace } from "@/hooks/useMarketplace";
+import { useTokenSaas } from "@/hooks/useTokenSaas";
 import { useNavigate } from "react-router-dom";
 
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
