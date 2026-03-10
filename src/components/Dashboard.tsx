@@ -148,7 +148,14 @@ export const Dashboard = () => {
   } = useProject(user?.id);
 
   // SaaS Products for the new Product -> Plans model
-  const { products: saasProducts } = useSaasProducts(projectId || '');
+  const { products: saasProducts, aggregateKPIs: saasAggregateKPIs } = useSaasProducts(projectId || '');
+
+  // Marketplace categories for revenue bridge
+  const { totals: marketplaceTotals } = useMarketplace(projectId || '', salesChannels);
+
+  // Token SaaS for revenue bridge
+  const tokenSaas = useTokenSaas(projectId || undefined, 'current');
+  const tokenScenarioMetrics = tokenSaas.calculateScenarioMetrics();
 
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
