@@ -54,9 +54,9 @@ export const PERIOD_LABELS: Record<PlanningPeriod, string> = {
 };
 
 export const BILLING_MODEL_OPTIONS = [
-  { value: 'fixed_project' as const, label: 'Фикс проект' },
-  { value: 'hourly' as const, label: 'Почасовая' },
-  { value: 'retainer' as const, label: 'Ретейнер' },
+  { value: 'fixed_project' as const, label: 'Фиксированный проект' },
+  { value: 'hourly' as const, label: 'Почасовая оплата' },
+  { value: 'retainer' as const, label: 'Абонентское сопровождение' },
 ];
 
 export const PLANNING_PERIOD_OPTIONS = [

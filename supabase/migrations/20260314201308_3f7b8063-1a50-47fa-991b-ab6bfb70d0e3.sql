@@ -1,0 +1,1 @@
+ALTER TABLE products_services ADD COLUMN IF NOT EXISTS quality_factors jsonb DEFAULT NULL;

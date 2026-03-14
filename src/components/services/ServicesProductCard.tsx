@@ -44,9 +44,9 @@ const PERIOD_LABELS: Record<PlanningPeriod, string> = {
 };
 
 const BILLING_MODEL_LABELS: Record<BillingModel, string> = {
-  fixed_project: 'Фикс проект',
-  hourly: 'Почасовая',
-  retainer: 'Ретейнер',
+  fixed_project: 'Фиксированный проект',
+  hourly: 'Почасовая оплата',
+  retainer: 'Абонентское сопровождение',
 };
 
 // Calculate all derived metrics
@@ -214,7 +214,7 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-billingModel`}>
-            <FieldTooltip content="Фикс проект — оплата за результат. Почасовая — оплата за время. Ретейнер — фикс. абонплата.">
+            <FieldTooltip content="Фиксированный проект — оплата за результат. Почасовая — оплата за время. Абонентское сопровождение — фиксированная плата за период.">
               Модель оплаты
             </FieldTooltip>
           </Label>
@@ -226,16 +226,16 @@ export const ServicesProductCard = memo(({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fixed_project">Фикс проект</SelectItem>
-              <SelectItem value="hourly">Почасовая</SelectItem>
-              <SelectItem value="retainer">Ретейнер</SelectItem>
+              <SelectItem value="fixed_project">Фиксированный проект</SelectItem>
+              <SelectItem value="hourly">Почасовая оплата</SelectItem>
+              <SelectItem value="retainer">Абонентское сопровождение</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div>
           <Label htmlFor={`${product.id}-planningPeriod`}>
-            <FieldTooltip content="Период для расчёта метрик: неделя, месяц, квартал или год.">
+            <FieldTooltip content="Период планирования влияет на расчёт выручки, количества часов и итоговых показателей услуги.">
               Период планирования
             </FieldTooltip>
           </Label>
@@ -260,7 +260,7 @@ export const ServicesProductCard = memo(({
             {billingModel === 'fixed_project' 
               ? `Цена проекта (${currency})`
               : billingModel === 'retainer'
-              ? `Абонплата (${currency})`
+              ? `Стоимость сопровождения/мес (${currency})`
               : `Ставка/час (${currency})`
             }
           </Label>
@@ -291,7 +291,7 @@ export const ServicesProductCard = memo(({
         <div>
           <Label htmlFor={`${product.id}-allocationPercent`}>
             <FieldTooltip content="Какой % мощности выделен на эту услугу (если несколько услуг).">
-              Allocation %
+              Доля мощности %
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -303,8 +303,8 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-billablePercent`}>
-            <FieldTooltip content="Какой % выделенного времени оплачивается клиентом (billable).">
-              Billable %
+            <FieldTooltip content="Какой % выделенного времени оплачивается клиентом.">
+              Оплачиваемое время %
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -328,7 +328,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'fixed_project' && (
           <div>
             <Label htmlFor={`${product.id}-estimatedHours`}>
-              <FieldTooltip content="Сколько часов нужно на 1 проект. Обязательно для расчёта capacity.">
+              <FieldTooltip content="Сколько часов нужно на 1 проект. Обязательно для расчёта пропускной способности.">
                 Часов/проект
               </FieldTooltip>
             </Label>
@@ -361,8 +361,8 @@ export const ServicesProductCard = memo(({
           <>
             <div>
               <Label htmlFor={`${product.id}-retainerFee`}>
-                <FieldTooltip content="Фиксированная месячная плата за ретейнер.">
-                  Абонплата ({currency})
+                <FieldTooltip content="Фиксированная месячная плата за абонентское сопровождение.">
+                  Стоимость сопровождения/мес ({currency})
                 </FieldTooltip>
               </Label>
               <NumericInput
@@ -394,7 +394,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'retainer' && (
           <div>
             <Label htmlFor={`${product.id}-clientsCount`}>
-              Клиентов на ретейнере
+              Клиентов на сопровождении
             </Label>
             <NumericInput
               id={`${product.id}-clientsCount`}
@@ -429,7 +429,7 @@ export const ServicesProductCard = memo(({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs sm:text-sm">
           {/* Billable hours */}
           <div className="p-2 bg-muted/50 rounded">
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Billable/нед</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs">Оплач. часов/нед</p>
             <p className="font-mono font-semibold">
               {metrics.billableHoursWeek.toFixed(1)} ч
             </p>
@@ -437,7 +437,7 @@ export const ServicesProductCard = memo(({
           
           <div className="p-2 bg-muted/50 rounded">
             <p className="text-muted-foreground text-[10px] sm:text-xs">
-              Billable/{PERIOD_LABELS[planningPeriod]}
+              Оплач. часов/{PERIOD_LABELS[planningPeriod]}
             </p>
             <p className="font-mono font-semibold">
               {metrics.billableHoursPeriod.toFixed(0)} ч
@@ -503,8 +503,8 @@ export const ServicesProductCard = memo(({
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
               {billingModel === 'fixed_project' 
-                ? `Указано ${product.quantity} проектов, но capacity позволяет максимум ${metrics.maxProjectsPerPeriod}`
-                : 'Запланировано больше часов, чем доступно billable-времени'
+                ? `Указано ${product.quantity} проектов, но пропускная способность позволяет максимум ${metrics.maxProjectsPerPeriod}`
+                : 'Запланировано больше часов, чем доступно оплачиваемого времени'
               }
             </span>
           </div>

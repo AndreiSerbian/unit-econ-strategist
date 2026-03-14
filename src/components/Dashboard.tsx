@@ -47,6 +47,7 @@ import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
 import { TokenSaasManager } from "./token-saas";
 import { MarketplaceManager } from "./marketplace";
+import { ServiceDeliveryPipeline, ServicesCharts, ServiceFlowExplainer, ServiceQualityAssessment } from "./services";
 import { CashFlowTimelineManager } from "./cashflow-timeline";
 import { SaasProductsManager } from "./saas-products";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
@@ -763,11 +764,23 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
  
-            {products.length > 0 && (
+            {/* Service delivery pipeline — only for services */}
+            {businessType === 'services' && (
+              <AnimatedCard delay={0.245}>
+                <ServiceDeliveryPipeline currency={currency} />
+              </AnimatedCard>
+            )}
+
+            {/* Charts: services-specific or generic */}
+            {products.length > 0 && businessType === 'services' ? (
+              <AnimatedCard delay={0.25}>
+                <ServicesCharts products={products} currency={currency} />
+              </AnimatedCard>
+            ) : products.length > 0 ? (
               <AnimatedCard delay={0.25}>
                 <ProductsCharts products={products} currency={currency} />
               </AnimatedCard>
-            )}
+            ) : null}
  
             {(products.length > 0 || competitors.some(c => (c.products || []).length > 0)) && (
               <AnimatedCard delay={0.3}>
@@ -782,6 +795,12 @@ export const Dashboard = () => {
 
           {/* METRICS TAB - Second */}
           <TabsContent value="metrics" className="space-y-6">
+            {/* Service flow explainer — only for services */}
+            {businessType === 'services' && (
+              <AnimatedCard delay={0.05}>
+                <ServiceFlowExplainer />
+              </AnimatedCard>
+            )}
             <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">
                 <CardHeader>
@@ -1128,7 +1147,17 @@ export const Dashboard = () => {
               );
             })()}
             
-            {competitors.length > 0 && (
+            {competitors.length > 0 && businessType === 'services' && (
+              <AnimatedCard delay={0.55}>
+                <ServiceQualityAssessment
+                  products={products}
+                  competitors={competitors}
+                  companyName="Моя компания"
+                />
+              </AnimatedCard>
+            )}
+
+            {competitors.length > 0 && businessType !== 'services' && (
               <AnimatedCard delay={0.55}>
                 <QualityComparison
                   products={products}

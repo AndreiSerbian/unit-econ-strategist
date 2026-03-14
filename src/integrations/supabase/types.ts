@@ -1599,6 +1599,7 @@ export type Database = {
           planned_billable_hours_per_period: number | null
           planning_period: string | null
           product_id: string
+          quality_factors: Json | null
           retainer_fee: number | null
           updated_at: string
           utilization: number | null
@@ -1615,6 +1616,7 @@ export type Database = {
           planned_billable_hours_per_period?: number | null
           planning_period?: string | null
           product_id: string
+          quality_factors?: Json | null
           retainer_fee?: number | null
           updated_at?: string
           utilization?: number | null
@@ -1631,6 +1633,7 @@ export type Database = {
           planned_billable_hours_per_period?: number | null
           planning_period?: string | null
           product_id?: string
+          quality_factors?: Json | null
           retainer_fee?: number | null
           updated_at?: string
           utilization?: number | null
