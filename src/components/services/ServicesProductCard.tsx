@@ -44,9 +44,9 @@ const PERIOD_LABELS: Record<PlanningPeriod, string> = {
 };
 
 const BILLING_MODEL_LABELS: Record<BillingModel, string> = {
-  fixed_project: 'Фикс проект',
-  hourly: 'Почасовая',
-  retainer: 'Ретейнер',
+  fixed_project: 'Фиксированный проект',
+  hourly: 'Почасовая оплата',
+  retainer: 'Абонентское сопровождение',
 };
 
 // Calculate all derived metrics
