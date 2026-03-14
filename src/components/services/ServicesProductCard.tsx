@@ -328,7 +328,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'fixed_project' && (
           <div>
             <Label htmlFor={`${product.id}-estimatedHours`}>
-              <FieldTooltip content="Сколько часов нужно на 1 проект. Обязательно для расчёта capacity.">
+              <FieldTooltip content="Сколько часов нужно на 1 проект. Обязательно для расчёта пропускной способности.">
                 Часов/проект
               </FieldTooltip>
             </Label>
