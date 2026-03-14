@@ -235,7 +235,7 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-planningPeriod`}>
-            <FieldTooltip content="Период для расчёта метрик: неделя, месяц, квартал или год.">
+            <FieldTooltip content="Период планирования влияет на расчёт выручки, количества часов и итоговых показателей услуги.">
               Период планирования
             </FieldTooltip>
           </Label>
