@@ -429,7 +429,7 @@ export const ServicesProductCard = memo(({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs sm:text-sm">
           {/* Billable hours */}
           <div className="p-2 bg-muted/50 rounded">
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Billable/нед</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs">Оплач. часов/нед</p>
             <p className="font-mono font-semibold">
               {metrics.billableHoursWeek.toFixed(1)} ч
             </p>
