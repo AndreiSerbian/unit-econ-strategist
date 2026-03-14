@@ -214,7 +214,7 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-billingModel`}>
-            <FieldTooltip content="Фикс проект — оплата за результат. Почасовая — оплата за время. Ретейнер — фикс. абонплата.">
+            <FieldTooltip content="Фиксированный проект — оплата за результат. Почасовая — оплата за время. Абонентское сопровождение — фиксированная плата за период.">
               Модель оплаты
             </FieldTooltip>
           </Label>
