@@ -47,6 +47,7 @@ import AIAnalytics from "./AIAnalytics";
 import { BusinessTypeMetricsComparison } from "./BusinessTypeMetricsComparison";
 import { TokenSaasManager } from "./token-saas";
 import { MarketplaceManager } from "./marketplace";
+import { ServiceDeliveryPipeline, ServicesCharts, ServiceFlowExplainer, ServiceQualityAssessment } from "./services";
 import { CashFlowTimelineManager } from "./cashflow-timeline";
 import { SaasProductsManager } from "./saas-products";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
