@@ -260,7 +260,7 @@ export const ServicesProductCard = memo(({
             {billingModel === 'fixed_project' 
               ? `Цена проекта (${currency})`
               : billingModel === 'retainer'
-              ? `Абонплата (${currency})`
+              ? `Стоимость сопровождения/мес (${currency})`
               : `Ставка/час (${currency})`
             }
           </Label>
