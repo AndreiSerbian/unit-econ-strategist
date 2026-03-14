@@ -303,8 +303,8 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-billablePercent`}>
-            <FieldTooltip content="Какой % выделенного времени оплачивается клиентом (billable).">
-              Billable %
+            <FieldTooltip content="Какой % выделенного времени оплачивается клиентом.">
+              Оплачиваемое время %
             </FieldTooltip>
           </Label>
           <NumericInput
