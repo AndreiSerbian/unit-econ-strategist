@@ -394,7 +394,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'retainer' && (
           <div>
             <Label htmlFor={`${product.id}-clientsCount`}>
-              Клиентов на ретейнере
+              Клиентов на сопровождении
             </Label>
             <NumericInput
               id={`${product.id}-clientsCount`}
