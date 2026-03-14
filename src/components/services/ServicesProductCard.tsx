@@ -291,7 +291,7 @@ export const ServicesProductCard = memo(({
         <div>
           <Label htmlFor={`${product.id}-allocationPercent`}>
             <FieldTooltip content="Какой % мощности выделен на эту услугу (если несколько услуг).">
-              Allocation %
+              Доля мощности %
             </FieldTooltip>
           </Label>
           <NumericInput
