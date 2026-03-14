@@ -226,9 +226,9 @@ export const ServicesProductCard = memo(({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fixed_project">Фикс проект</SelectItem>
-              <SelectItem value="hourly">Почасовая</SelectItem>
-              <SelectItem value="retainer">Ретейнер</SelectItem>
+              <SelectItem value="fixed_project">Фиксированный проект</SelectItem>
+              <SelectItem value="hourly">Почасовая оплата</SelectItem>
+              <SelectItem value="retainer">Абонентское сопровождение</SelectItem>
             </SelectContent>
           </Select>
         </div>
