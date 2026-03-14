@@ -1148,13 +1148,23 @@ export const Dashboard = () => {
             })()}
             
             {competitors.length > 0 && (
-              <AnimatedCard delay={0.55}>
-                <QualityComparison
-                  products={products}
-                  competitors={competitors}
-                  companyName="Моя компания"
-                />
-              </AnimatedCard>
+              {businessType === 'services' ? (
+                <AnimatedCard delay={0.55}>
+                  <ServiceQualityAssessment
+                    products={products}
+                    competitors={competitors}
+                    companyName="Моя компания"
+                  />
+                </AnimatedCard>
+              ) : (
+                <AnimatedCard delay={0.55}>
+                  <QualityComparison
+                    products={products}
+                    competitors={competitors}
+                    companyName="Моя компания"
+                  />
+                </AnimatedCard>
+              )}
             )}
 
             {competitors.length > 0 && (
