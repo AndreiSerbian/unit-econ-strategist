@@ -106,7 +106,7 @@ export const CompetitorExpensesCharts = ({ competitorName, expenses, currency }:
       category: "ФОТ продаж",
     })),
     { name: "Материалы", value: expenses.variableCosts.production.materials, category: "Исполнение" },
-    { name: "Кураторы", value: expenses.variableCosts.production.curators, category: "Исполнение" },
+    { name: "Выплаты исполнителям", value: expenses.variableCosts.production.curators, category: "Исполнение" },
     { name: "Логистика", value: expenses.variableCosts.production.logistics, category: "Исполнение" },
     { name: "% партнёрам", value: expenses.variableCosts.production.partnersPercent, category: "Исполнение" },
     { name: "Ремонт оборудования", value: expenses.variableCosts.production.equipmentRepair, category: "Исполнение" },

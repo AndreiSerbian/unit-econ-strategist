@@ -882,15 +882,15 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Кураторы</span>
+                    <span>Выплаты исполнителям</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Переменные выплаты кураторам/исполнителям за работу с клиентами, если зависят
-                        от объёма или количества клиентов. Фиксированную ставку относите в ФОТ
-                        производства.
+                        Переменные выплаты специалистам или подрядчикам, которые напрямую зависят
+                        от количества клиентов, объёма работ или числа оказанных услуг.
+                        Фиксированную ставку относите в ФОТ производства.
                       </TooltipContent>
                     </Tooltip>
                   </Label>

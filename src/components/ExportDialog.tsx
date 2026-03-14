@@ -85,7 +85,7 @@ export const ExportDialog = ({ data, projectName = "Анализ" }: ExportDialo
         csv += `${c.name},Переменные - ФОТ продаж,Бонусы по старым клиентам,${de.variableCosts.salesPayroll.bonusOldClients}\n`;
         csv += `${c.name},Переменные - ФОТ продаж,Бонусы по новым клиентам,${de.variableCosts.salesPayroll.bonusNewClients}\n`;
         csv += `${c.name},Переменные - Исполнение,Материалы,${de.variableCosts.production.materials}\n`;
-        csv += `${c.name},Переменные - Исполнение,Кураторы,${de.variableCosts.production.curators}\n`;
+        csv += `${c.name},Переменные - Исполнение,Выплаты исполнителям,${de.variableCosts.production.curators}\n`;
         csv += `${c.name},Переменные - Исполнение,Логистика,${de.variableCosts.production.logistics}\n`;
         csv += `${c.name},Налоги,Налоги,${de.taxes}\n`;
       });

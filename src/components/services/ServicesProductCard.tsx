@@ -503,8 +503,8 @@ export const ServicesProductCard = memo(({
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
               {billingModel === 'fixed_project' 
-                ? `Указано ${product.quantity} проектов, но capacity позволяет максимум ${metrics.maxProjectsPerPeriod}`
-                : 'Запланировано больше часов, чем доступно billable-времени'
+                ? `Указано ${product.quantity} проектов, но пропускная способность позволяет максимум ${metrics.maxProjectsPerPeriod}`
+                : 'Запланировано больше часов, чем доступно оплачиваемого времени'
               }
             </span>
           </div>
