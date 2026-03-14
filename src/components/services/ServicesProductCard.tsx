@@ -361,8 +361,8 @@ export const ServicesProductCard = memo(({
           <>
             <div>
               <Label htmlFor={`${product.id}-retainerFee`}>
-                <FieldTooltip content="Фиксированная месячная плата за ретейнер.">
-                  Абонплата ({currency})
+                <FieldTooltip content="Фиксированная месячная плата за абонентское сопровождение.">
+                  Стоимость сопровождения/мес ({currency})
                 </FieldTooltip>
               </Label>
               <NumericInput
