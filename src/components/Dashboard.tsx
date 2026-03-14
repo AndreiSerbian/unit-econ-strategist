@@ -795,6 +795,12 @@ export const Dashboard = () => {
 
           {/* METRICS TAB - Second */}
           <TabsContent value="metrics" className="space-y-6">
+            {/* Service flow explainer — only for services */}
+            {businessType === 'services' && (
+              <AnimatedCard delay={0.05}>
+                <ServiceFlowExplainer />
+              </AnimatedCard>
+            )}
             <AnimatedCard delay={0.1}>
               <Card className="shadow-lg">
                 <CardHeader>
