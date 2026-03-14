@@ -203,13 +203,13 @@ export const businessTypes: BusinessTypeConfig[] = [
     description: 'Оказание услуг, консультирование, обучение',
     icon: '💼',
     primaryMetrics: ['Часовая ставка', 'Загрузка', 'Проектная маржа'],
-    additionalMetrics: ['Utilization Rate', 'Billable Hours', 'Client Retention'],
+    additionalMetrics: ['Загрузка (%)', 'Оплачиваемые часы', 'Удержание клиентов'],
     labels: {
       revenue: 'Выручка от услуг',
       clients: 'Клиенты/Проекты',
       avgCheck: 'Средний проект',
       conversion: 'Конверсия в договор',
-      retention: 'Retention Rate',
+      retention: 'Удержание клиентов',
     },
     productLabel: 'Услуга',
     productLabelPlural: 'Услуги',
@@ -217,9 +217,9 @@ export const businessTypes: BusinessTypeConfig[] = [
     productFields: [
       { key: 'name', label: 'Название услуги', type: 'text', required: true },
       { key: 'billingModel', label: 'Модель оплаты', type: 'select', options: [
-        { value: 'fixed_project', label: 'Фикс проект' },
-        { value: 'hourly', label: 'Почасовая' },
-        { value: 'retainer', label: 'Ретейнер' },
+        { value: 'fixed_project', label: 'Фиксированный проект' },
+        { value: 'hourly', label: 'Почасовая оплата' },
+        { value: 'retainer', label: 'Абонентское сопровождение' },
       ]},
       { key: 'planningPeriod', label: 'Период', type: 'select', options: [
         { value: 'week', label: 'Неделя' },
@@ -229,14 +229,14 @@ export const businessTypes: BusinessTypeConfig[] = [
       ]},
       { key: 'price', label: 'Цена проекта', type: 'number' },
       { key: 'hoursPerWeek', label: 'Часов/нед', type: 'number', suffix: 'ч', min: 0, max: 168 },
-      { key: 'billablePercent', label: 'Billable %', type: 'number', suffix: '%', min: 0, max: 100 },
+      { key: 'billablePercent', label: 'Оплачиваемое время %', type: 'number', suffix: '%', min: 0, max: 100 },
     ],
     metricFields: [
       { key: 'hourlyRate', label: 'Часовая ставка', description: 'Средняя ставка за час работы', category: 'revenue' },
-      { key: 'utilizationRate', label: 'Utilization', description: 'Процент оплачиваемого времени', suffix: '%', category: 'custom' },
-      { key: 'billableHours', label: 'Billable Hours', description: 'Оплачиваемые часы в месяц', category: 'custom' },
+      { key: 'utilizationRate', label: 'Загрузка (%)', description: 'Процент оплачиваемого времени', suffix: '%', category: 'custom' },
+      { key: 'billableHours', label: 'Оплачиваемые часы', description: 'Оплачиваемые часы в месяц', category: 'custom' },
       { key: 'projectMargin', label: 'Проектная маржа', description: 'Средняя маржа на проект', suffix: '%', category: 'revenue' },
-      { key: 'clientRetention', label: 'Client Retention', description: 'Процент возвращающихся клиентов', suffix: '%', category: 'retention' },
+      { key: 'clientRetention', label: 'Удержание клиентов', description: 'Процент возвращающихся клиентов', suffix: '%', category: 'retention' },
       { key: 'avgProjectValue', label: 'Средний проект', description: 'Средняя стоимость проекта', category: 'revenue', calculatedFrom: ['revenue', 'totalClients'] },
     ],
     features: {
