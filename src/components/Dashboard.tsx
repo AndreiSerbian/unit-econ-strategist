@@ -764,11 +764,23 @@ export const Dashboard = () => {
               </AnimatedCard>
             )}
  
-            {products.length > 0 && (
+            {/* Service delivery pipeline — only for services */}
+            {businessType === 'services' && (
+              <AnimatedCard delay={0.245}>
+                <ServiceDeliveryPipeline currency={currency} />
+              </AnimatedCard>
+            )}
+
+            {/* Charts: services-specific or generic */}
+            {products.length > 0 && businessType === 'services' ? (
+              <AnimatedCard delay={0.25}>
+                <ServicesCharts products={products} currency={currency} />
+              </AnimatedCard>
+            ) : products.length > 0 ? (
               <AnimatedCard delay={0.25}>
                 <ProductsCharts products={products} currency={currency} />
               </AnimatedCard>
-            )}
+            ) : null}
  
             {(products.length > 0 || competitors.some(c => (c.products || []).length > 0)) && (
               <AnimatedCard delay={0.3}>
