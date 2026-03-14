@@ -437,7 +437,7 @@ export const ServicesProductCard = memo(({
           
           <div className="p-2 bg-muted/50 rounded">
             <p className="text-muted-foreground text-[10px] sm:text-xs">
-              Billable/{PERIOD_LABELS[planningPeriod]}
+              Оплач. часов/{PERIOD_LABELS[planningPeriod]}
             </p>
             <p className="font-mono font-semibold">
               {metrics.billableHoursPeriod.toFixed(0)} ч
