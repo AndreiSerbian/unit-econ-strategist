@@ -85,7 +85,7 @@ import { useNavigate } from "react-router-dom";
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
 
 // ===== Shared market share calculation =====
-function useMarketShares(myRevenue: number, competitors: Array<{ revenue?: number | null; marketShare?: number | null }>) {
+function useMarketShares<T extends { revenue?: number | null; marketShare?: number | null }>(myRevenue: number, competitors: T[]) {
   const totalRevenue = myRevenue + competitors.reduce((sum, c) => sum + (c.revenue || 0), 0);
   const myMarketShare = totalRevenue > 0 ? (myRevenue / totalRevenue) * 100 : 0;
   const competitorsWithShare = competitors.map(c => ({
