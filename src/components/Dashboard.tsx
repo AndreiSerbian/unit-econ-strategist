@@ -34,7 +34,7 @@ import { StrategyDictionary } from "./StrategyDictionary";
 import { CompetitiveSimulator } from "./CompetitiveSimulator";
 import { CompetitiveRanking } from "./CompetitiveRanking";
 import { QualityComparison } from "./QualityComparison";
-import { ScenarioSummary } from "./ScenarioSummary";
+import { ScenarioComparison } from "./ScenarioComparison";
 import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
@@ -694,18 +694,9 @@ export const Dashboard = () => {
                     <ProductsCharts products={products} currency={currency} />
                   </AnimatedCard>
                 ) : null}
-              </TabsContent>
 
-              {/* ===== TAB 2: ПОКАЗАТЕЛИ (derived company analytics) ===== */}
-              <TabsContent value="metrics" className="space-y-6">
-                {/* Service flow explainer */}
-                {businessType === 'services' && (
-                  <AnimatedCard delay={0.05}>
-                    <ServiceFlowExplainer />
-                  </AnimatedCard>
-                )}
-
-                <AnimatedCard delay={0.1}>
+                {/* Company metrics input (scenario tabs with expenses/leads/metrics) */}
+                <AnimatedCard delay={0.28}>
                   <Card className="shadow-lg">
                     <CardHeader>
                       <CardTitle>Основные показатели бизнеса</CardTitle>
@@ -733,6 +724,15 @@ export const Dashboard = () => {
                     </CardContent>
                   </Card>
                 </AnimatedCard>
+              </TabsContent>
+              {/* ===== TAB 2: ПОКАЗАТЕЛИ (derived company analytics) ===== */}
+              <TabsContent value="metrics" className="space-y-6">
+                {/* Service flow explainer */}
+                {businessType === 'services' && (
+                  <AnimatedCard delay={0.05}>
+                    <ServiceFlowExplainer />
+                  </AnimatedCard>
+                )}
 
                 {/* Metrics charts */}
                 {(currentMetrics.revenue > 0 || scenarioA.revenue > 0 || scenarioB.revenue > 0) && (
@@ -1139,55 +1139,51 @@ export const Dashboard = () => {
 
               {/* ===== TAB 6: ИТОГИ (executive summary) ===== */}
               <TabsContent value="summary" className="space-y-6">
-                {/* Scenario Summaries */}
+                {/* Scenario Comparison (merged from 3× ScenarioSummary) */}
                 <AnimatedCard delay={0.1}>
-                  <ScenarioSummary
+                  <ScenarioComparison
                     projectId={projectId}
-                    scenarioType="current"
-                    scenarioLabel="Текущая ситуация"
-                    metrics={currentMetrics.detailedExpenses ? {
-                      revenue: currentMetrics.revenue,
-                      profit: calculateProfit(currentMetrics),
-                      profitMargin: calculateProfitMargin(currentMetrics),
-                      cac: calculateCAC(currentMetrics),
-                      breakEven: calculateBreakEvenDifference(currentMetrics),
-                    } : undefined}
+                    currency={currency}
+                    scenarios={[
+                      {
+                        type: "current",
+                        label: "Текущая ситуация",
+                        hasData: !!currentMetrics.detailedExpenses,
+                        metrics: currentMetrics.detailedExpenses ? {
+                          revenue: currentMetrics.revenue,
+                          profit: calculateProfit(currentMetrics),
+                          profitMargin: calculateProfitMargin(currentMetrics),
+                          cac: calculateCAC(currentMetrics),
+                          breakEven: calculateBreakEvenDifference(currentMetrics),
+                        } : undefined,
+                      },
+                      {
+                        type: "scenarioA",
+                        label: "Сценарий А",
+                        hasData: !!scenarioA.detailedExpenses,
+                        metrics: scenarioA.detailedExpenses ? {
+                          revenue: scenarioA.revenue,
+                          profit: calculateProfit(scenarioA),
+                          profitMargin: calculateProfitMargin(scenarioA),
+                          cac: calculateCAC(scenarioA),
+                          breakEven: calculateBreakEvenDifference(scenarioA),
+                        } : undefined,
+                      },
+                      {
+                        type: "scenarioB",
+                        label: "Сценарий Б",
+                        hasData: !!scenarioB.detailedExpenses,
+                        metrics: scenarioB.detailedExpenses ? {
+                          revenue: scenarioB.revenue,
+                          profit: calculateProfit(scenarioB),
+                          profitMargin: calculateProfitMargin(scenarioB),
+                          cac: calculateCAC(scenarioB),
+                          breakEven: calculateBreakEvenDifference(scenarioB),
+                        } : undefined,
+                      },
+                    ]}
                   />
                 </AnimatedCard>
-
-                {scenarioA.detailedExpenses && (
-                  <AnimatedCard delay={0.15}>
-                    <ScenarioSummary
-                      projectId={projectId}
-                      scenarioType="scenarioA"
-                      scenarioLabel="Сценарий А"
-                      metrics={{
-                        revenue: scenarioA.revenue,
-                        profit: calculateProfit(scenarioA),
-                        profitMargin: calculateProfitMargin(scenarioA),
-                        cac: calculateCAC(scenarioA),
-                        breakEven: calculateBreakEvenDifference(scenarioA),
-                      }}
-                    />
-                  </AnimatedCard>
-                )}
-
-                {scenarioB.detailedExpenses && (
-                  <AnimatedCard delay={0.2}>
-                    <ScenarioSummary
-                      projectId={projectId}
-                      scenarioType="scenarioB"
-                      scenarioLabel="Сценарий Б"
-                      metrics={{
-                        revenue: scenarioB.revenue,
-                        profit: calculateProfit(scenarioB),
-                        profitMargin: calculateProfitMargin(scenarioB),
-                        cac: calculateCAC(scenarioB),
-                        breakEven: calculateBreakEvenDifference(scenarioB),
-                      }}
-                    />
-                  </AnimatedCard>
-                )}
 
                 {/* Action Plan Manager */}
                 <AnimatedCard delay={0.3}>
