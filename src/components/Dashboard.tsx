@@ -725,6 +725,7 @@ export const Dashboard = () => {
                   </Card>
                 </AnimatedCard>
               </TabsContent>
+              {/* ===== TAB 2: ПОКАЗАТЕЛИ (derived company analytics) ===== */}
               <TabsContent value="metrics" className="space-y-6">
                 {/* Service flow explainer */}
                 {businessType === 'services' && (
@@ -732,35 +733,6 @@ export const Dashboard = () => {
                     <ServiceFlowExplainer />
                   </AnimatedCard>
                 )}
-
-                <AnimatedCard delay={0.1}>
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle>Основные показатели бизнеса</CardTitle>
-                      <CardDescription>
-                        Внесите ключевые метрики вашей компании для расчета юнит-экономики.
-                        {products.length > 0 && " Используйте кнопку синхронизации для загрузки данных из продуктов."}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <CompanyMetrics
-                        currentMetrics={currentMetrics}
-                        setCurrentMetrics={setCurrentMetrics}
-                        scenarioA={scenarioA}
-                        setScenarioA={setScenarioA}
-                        scenarioB={scenarioB}
-                        setScenarioB={setScenarioB}
-                        saveScenario={saveScenario}
-                        isAuthenticated={!!user}
-                        currency={currency}
-                        productsRevenue={calculateProductsRevenue()}
-                        productsCosts={calculateProductsCosts()}
-                        syncProductsToMetrics={syncProductsToMetrics}
-                        businessType={businessType}
-                      />
-                    </CardContent>
-                  </Card>
-                </AnimatedCard>
 
                 {/* Metrics charts */}
                 {(currentMetrics.revenue > 0 || scenarioA.revenue > 0 || scenarioB.revenue > 0) && (
