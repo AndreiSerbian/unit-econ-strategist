@@ -694,9 +694,37 @@ export const Dashboard = () => {
                     <ProductsCharts products={products} currency={currency} />
                   </AnimatedCard>
                 ) : null}
-              </TabsContent>
 
-              {/* ===== TAB 2: ПОКАЗАТЕЛИ (derived company analytics) ===== */}
+                {/* Company metrics input (scenario tabs with expenses/leads/metrics) */}
+                <AnimatedCard delay={0.28}>
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Основные показатели бизнеса</CardTitle>
+                      <CardDescription>
+                        Внесите ключевые метрики вашей компании для расчета юнит-экономики.
+                        {products.length > 0 && " Используйте кнопку синхронизации для загрузки данных из продуктов."}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <CompanyMetrics
+                        currentMetrics={currentMetrics}
+                        setCurrentMetrics={setCurrentMetrics}
+                        scenarioA={scenarioA}
+                        setScenarioA={setScenarioA}
+                        scenarioB={scenarioB}
+                        setScenarioB={setScenarioB}
+                        saveScenario={saveScenario}
+                        isAuthenticated={!!user}
+                        currency={currency}
+                        productsRevenue={calculateProductsRevenue()}
+                        productsCosts={calculateProductsCosts()}
+                        syncProductsToMetrics={syncProductsToMetrics}
+                        businessType={businessType}
+                      />
+                    </CardContent>
+                  </Card>
+                </AnimatedCard>
+              </TabsContent>
               <TabsContent value="metrics" className="space-y-6">
                 {/* Service flow explainer */}
                 {businessType === 'services' && (
