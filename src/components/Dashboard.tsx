@@ -34,7 +34,7 @@ import { StrategyDictionary } from "./StrategyDictionary";
 import { CompetitiveSimulator } from "./CompetitiveSimulator";
 import { CompetitiveRanking } from "./CompetitiveRanking";
 import { QualityComparison } from "./QualityComparison";
-import { ScenarioSummary } from "./ScenarioSummary";
+import { ScenarioComparison } from "./ScenarioComparison";
 import { MetricHistoryChart } from "./MetricHistoryChart";
 import { MetricForecasting } from "./MetricForecasting";
 import { ActionPlanManager } from "./ActionPlanManager";
