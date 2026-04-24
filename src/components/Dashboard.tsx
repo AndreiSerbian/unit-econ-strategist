@@ -520,6 +520,11 @@ export const Dashboard = () => {
               {/* ===== TAB 1: МОЯ КОМПАНИЯ (input only) ===== */}
               <TabsContent value="company" className="space-y-6">
 
+                {/* Startup checklist — informational guidance */}
+                <AnimatedCard delay={0.05}>
+                  <StartupChecklist projectId={projectId} businessType={businessType} />
+                </AnimatedCard>
+
                 {/* Raw materials */}
                 {features.hasRawMaterials && (
                   <AnimatedCard delay={0.1}>
