@@ -123,7 +123,6 @@ export const CashFlowTimelineManager = memo(({
 
   // Edit-line dialog intentionally disabled for the conference build.
   // The grid renders a disabled edit button with a tooltip explaining this.
-  };
 
   const hasData = allLinesWithValues.length > 0 || generatedAdapterLines.length > 0;
   const hasLinkedData = generatedAdapterLines.length > 0;
