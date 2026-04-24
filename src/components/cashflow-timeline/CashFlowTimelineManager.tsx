@@ -121,10 +121,8 @@ export const CashFlowTimelineManager = memo(({
     applyAdapterLines(generatedAdapterLines);
   }, [generatedAdapterLines, applyAdapterLines]);
 
-  const handleEditLine = (line: CashFlowLine) => {
-    // TODO: Implement edit dialog
-    console.log('Edit line:', line);
-  };
+  // Edit-line dialog intentionally disabled for the conference build.
+  // The grid renders a disabled edit button with a tooltip explaining this.
 
   const hasData = allLinesWithValues.length > 0 || generatedAdapterLines.length > 0;
   const hasLinkedData = generatedAdapterLines.length > 0;
@@ -242,7 +240,7 @@ export const CashFlowTimelineManager = memo(({
         showCumulative={showCumulative}
         onUpdatePoint={updatePoint}
         onDeleteLine={deleteLine}
-        onEditLine={handleEditLine}
+        
       />
     </div>
   );

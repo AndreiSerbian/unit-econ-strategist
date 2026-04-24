@@ -51,6 +51,9 @@ import { CashFlowTimelineManager } from "./cashflow-timeline";
 import { SaasProductsManager } from "./saas-products";
 import { MetricRelationshipAnalyzer } from "./MetricRelationshipAnalyzer";
 import { ProjectSettings } from "./ProjectSettings";
+import { StartupChecklist } from "./StartupChecklist";
+import { SubjectiveEstimateBadge } from "./ui/subjective-estimate-badge";
+import { SummarySection } from "./summary/SummarySection";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { BarChart3, Users, Brain, LogOut, LogIn, Package, TrendingUp, Map, HelpCircle, Truck, CloudOff, Cloud, Save, Loader2, Trash2, Wallet, Building2, FileText, ChevronDown } from "lucide-react";
 import { type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
@@ -517,6 +520,11 @@ export const Dashboard = () => {
               {/* ===== TAB 1: МОЯ КОМПАНИЯ (input only) ===== */}
               <TabsContent value="company" className="space-y-6">
 
+                {/* Startup checklist — informational guidance */}
+                <AnimatedCard delay={0.05}>
+                  <StartupChecklist projectId={projectId} businessType={businessType} />
+                </AnimatedCard>
+
                 {/* Raw materials */}
                 {features.hasRawMaterials && (
                   <AnimatedCard delay={0.1}>
@@ -944,10 +952,15 @@ export const Dashboard = () => {
                 <AnimatedCard delay={0.1}>
                   <Card className="shadow-lg">
                     <CardHeader>
-                      <CardTitle>Анализ конкурентов</CardTitle>
-                      <CardDescription>
-                        Добавьте информацию о конкурентах для сравнительного анализа. Все данные вводятся в выбранной валюте.
-                      </CardDescription>
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div>
+                          <CardTitle>Анализ конкурентов</CardTitle>
+                          <CardDescription>
+                            Добавьте информацию о конкурентах для сравнительного анализа. Все данные вводятся в выбранной валюте.
+                          </CardDescription>
+                        </div>
+                        <SubjectiveEstimateBadge />
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <CompetitorAnalysis
@@ -975,6 +988,9 @@ export const Dashboard = () => {
 
               {/* ===== TAB 5: РЫНОК (all comparative analytics) ===== */}
               <TabsContent value="market" className="space-y-6">
+                <div className="flex items-center justify-end -mb-2">
+                  <SubjectiveEstimateBadge label="Раздел основан на экспертных оценках" />
+                </div>
                 <AnimatedCard delay={0.1}>
                   <MarketOverview
                     projectId={projectId}
@@ -1139,6 +1155,15 @@ export const Dashboard = () => {
 
               {/* ===== TAB 6: ИТОГИ (executive summary) ===== */}
               <TabsContent value="summary" className="space-y-6">
+                {/* Executive summary cards (Company / CashFlow / Risks / Recommendations) */}
+                <AnimatedCard delay={0.05}>
+                  <SummarySection
+                    metrics={currentMetrics}
+                    projectId={projectId}
+                    currency={currency}
+                  />
+                </AnimatedCard>
+
                 {/* Scenario Comparison (merged from 3× ScenarioSummary) */}
                 <AnimatedCard delay={0.1}>
                   <ScenarioComparison
