@@ -240,7 +240,7 @@ export const CashFlowTimelineManager = memo(({
         showCumulative={showCumulative}
         onUpdatePoint={updatePoint}
         onDeleteLine={deleteLine}
-        onEditLine={handleEditLine}
+        
       />
     </div>
   );
