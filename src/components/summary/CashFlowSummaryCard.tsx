@@ -17,6 +17,15 @@ const fmt = (v: number, currency: string) => {
   return `${Math.round(v).toLocaleString("ru-RU")} ${currency}`;
 };
 
+const pluralizePeriod = (n: number) => {
+  const abs = Math.abs(n) % 100;
+  const last = abs % 10;
+  if (abs > 10 && abs < 20) return "периодов";
+  if (last === 1) return "период";
+  if (last >= 2 && last <= 4) return "периода";
+  return "периодов";
+};
+
 export const CashFlowSummaryCard = ({
   summary,
   topInflowName,
@@ -78,7 +87,7 @@ export const CashFlowSummaryCard = ({
       label: "Окупаемость",
       value:
         summary!.paybackPeriod !== undefined
-          ? `${summary!.paybackPeriod + 1} периодов`
+          ? `${summary!.paybackPeriod + 1} ${pluralizePeriod(summary!.paybackPeriod + 1)}`
           : "Не достигнута",
     },
   ];

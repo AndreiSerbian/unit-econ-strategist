@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { SubjectiveEstimateBadge } from "@/components/ui/subjective-estimate-badge";
 
 interface SWOTData {
   id?: string;
@@ -226,7 +227,10 @@ export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysis
   return (
     <Card data-export="swot-analysis">
       <CardHeader>
-        <CardTitle>SWOT Анализ</CardTitle>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CardTitle>SWOT Анализ</CardTitle>
+          <SubjectiveEstimateBadge />
+        </div>
         <CardDescription>
           Анализ сильных и слабых сторон, возможностей и угроз
         </CardDescription>
