@@ -1,284 +1,143 @@
+# Conference Readiness Implementation
 
+Scope: stability + clarity polish only. No DB migrations, no IA changes, no new business types, no deep refactor.
 
-## Final Implementation Plan: Platform IA Restructuring
+## 1. Cash Flow edit-line stub — disable safely
 
-### Target Tab Structure (7 tabs)
+**`src/components/cashflow-timeline/CashFlowTimelineManager.tsx`**
+- Remove `handleEditLine` `console.log` stub.
+- Stop passing `onEditLine` to `CashFlowGrid` (or pass a no-op).
 
-```text
-Tab 1: Моя компания     (input only)
-Tab 2: Показатели        (derived company analytics)
-Tab 3: Cash Flow         (timeline + explainability)
-Tab 4: Конкуренты        (input only, minimal charts)
-Tab 5: Рынок             (all comparative analytics)
-Tab 6: Итоги             (executive summary)
-Tab 7: Теория            (game theory, reference — stays separate)
-```
+**`src/components/cashflow-timeline/CashFlowGrid.tsx`**
+- Make `onEditLine` prop optional.
+- Wrap the Pencil edit button in a `Tooltip`, set `disabled`, tooltip text:
+  *«Редактирование строк Cash Flow будет доступно в будущей версии.»*
+- Keep inline cell editing (`EditableCell`) and the delete button untouched.
 
----
+## 2. Subjective Estimate Badge
 
-### Component Action Matrix
+**New: `src/components/ui/subjective-estimate-badge.tsx`**
+- Small neutral `Badge variant="outline"` with `Info` icon + text «Субъективная экспертная оценка».
+- Wrapped in Tooltip with text: *«Этот результат основан на введённых пользователем предположениях или экспертной оценке, а не на проверенных внешних рыночных данных.»*
+- Reusable, no props beyond optional `className`.
 
-| Component | Current Tab | Target Tab | Action | Reason |
-|-----------|-------------|------------|--------|--------|
-| `ProductsManagement` | Products | Моя компания | **keep** | Core input |
-| `SaasProductsManager` | Products | Моя компания | **keep** | Core input |
-| `TokenSaasManager` | Products | Моя компания | **keep** | Core input |
-| `MarketplaceManager` | Products | Моя компания | **keep** | Core input |
-| `RawMaterialsManager` | Products | Моя компания | **keep** | Core input |
-| `LogisticsTariffs` | Products | Моя компания | **keep** | Core input |
-| `SalesChannelsManager` | Products | Моя компания | **keep** | Core input |
-| `ProductMaterialsAllocation` | Products | Моя компания | **keep** | Core input |
-| `ProductChannelBreakdown` | Products | Моя компания | **keep** | Core input |
-| `ChannelAnalytics` | Products | Моя компания | **keep** | Local channel preview |
-| `ServiceDeliveryPipeline` | Products | Моя компания | **keep** | Services input |
-| `ProductsCharts` / `ServicesCharts` | Products | Моя компания | **keep** | Local product preview only |
-| Inline logistics card (L688-764) | Products | Моя компания | **keep** | Local cost preview |
-| `ProductComparison` | Products | **Рынок** | **move** | Comparison = market |
-| `DetailedExpensesForm` | Metrics | **Моя компания** | **move** | Input, not analytics |
-| `LeadSourcesForm` | Metrics | **Моя компания** | **move** | Marketing input |
-| `DutiesAndTaxes` | Metrics | **Моя компания** | **move** | Input |
-| `CompanyMetrics` | Metrics | Показатели | **refactor** | Remove embedded input forms; keep as read-mostly metrics display |
-| `MetricsCharts` | Metrics | Показатели | **keep** | Derived analytics |
-| `ExpensesBreakdownCharts` | Metrics | Показатели | **keep** | Derived analytics |
-| `KeyMetricsComparison` | Metrics | Показатели | **keep** | Derived analytics |
-| `ROICalculator` | Metrics | Показатели | **keep** | Derived analytics |
-| `LTVCalculator` | Metrics | Показатели | **keep** | Derived analytics |
-| `SensitivityAnalysis` | Metrics | Показатели | **keep** | Derived analytics |
-| `ServiceFlowExplainer` | Metrics | Показатели | **keep** | Services context |
-| `MarketingMetrics` | Analytics | **Показатели** | **move** | Derived company metrics |
-| `CustomerJourney` | Analytics | **Показатели** | **move** | Funnel = company metrics |
-| `CashFlowDiagram` | Analytics | **Показатели** | **move** | Summary cash flow view |
-| `CompetitorAnalysis` | Competitors | Конкуренты | **keep** | Input stays |
-| `CompetitorCharts` | Competitors | Конкуренты | **keep** | Basic input preview |
-| `CompetitorKeyMetricsComparison` | Competitors | **Рынок** | **move** | Heavy comparison → market |
-| `CompetitorROICalculator` | Competitors | — | **deprecate** | Duplicates ROICalculator logic |
-| `BusinessTypeMetricsComparison` | Competitors | **Рынок** | **move** | Comparison → market |
-| `CompetitiveScoreCalculator` | Competitors | **Рынок** | **move** | Scoring → market |
-| `QualityComparison` | Competitors | **Рынок** | **move** | Quality comparison → market |
-| `ServiceQualityAssessment` | Competitors | **Рынок** | **move** | Quality comparison → market |
-| `SWOTAnalysis` | Competitors | **Рынок** | **move** | Analysis → market |
-| `MarketOverview` | Market | Рынок | **keep** | Already correct |
-| `CompetitiveMap` | Market | Рынок | **keep** | Already correct |
-| `CompetitiveRanking` | Market | Рынок | **keep** | Already correct |
-| `MetricRelationshipAnalyzer` | Analytics | **Рынок** | **move** | Multi-factor → market |
-| `ScenarioSummary` ×3 | Analytics | **Итоги** | **merge** → single `ScenarioComparison` | 3 instances = duplication |
-| `ActionPlanManager` | Analytics | **Итоги** | **move** | Summary layer |
-| `AIAnalytics` | Analytics | **Итоги** | **move** | Summary layer |
-| `MetricHistoryChart` | Analytics | **Итоги** (collapsible) | **move** | Secondary content |
-| `MetricForecasting` | Analytics | **Итоги** (collapsible) | **move** | Secondary content |
-| Market share IIFE ×5 | Dashboard inline | — | **refactor** → extract `useMarketShares()` hook | Same calc repeated 5× |
-| `GameTheoryMatrix` | Game Theory | **Теория** | **keep** | Stays in separate tab |
-| `StrategyDictionary` | Game Theory | **Теория** | **keep** | Stays in separate tab |
-| `CompetitiveSimulator` | Game Theory | **Теория** | **keep** | Stays in separate tab |
+**Mount points (header-level only, in `Dashboard.tsx`):**
+- Конкуренты tab — next to "Анализ конкурентов" CardTitle.
+- Рынок tab — at top of the tab content (single banner above MarketOverview), covering: MarketOverview, CompetitiveMap, CompetitiveRanking, CompetitiveScoreCalculator, QualityComparison/ServiceQualityAssessment, SWOTAnalysis, BusinessTypeMetricsComparison.
+- Do NOT add to: KeyMetrics, MarketingMetrics, ROI/LTV calculators, ScenarioComparison, Cash Flow, summary cards.
 
-**Totals: 1 deprecated, 1 merged (3→1), 1 refactored (CompanyMetrics), 1 extracted (useMarketShares), 14 moved, rest kept.**
+## 3. Startup Checklist
 
----
+**New: `src/components/StartupChecklist.tsx`**
+- Collapsible card titled «Что заполнить сначала».
+- Manual checkboxes (informational only, no completion detection).
+- State persisted in `localStorage` per project: `startup-checklist:{projectId}` (checked items + dismissed flag).
+- Dismiss button + a "Показать чеклист" button to reopen.
+- Steps adapted by `businessType`:
+  - SaaS: добавить SaaS-продукт и тарифы → расходы → источники лидов → проверить показатели → сравнить сценарии → открыть «Итоги».
+  - E-commerce / Production: добавить товары → сырьё/логистику (если есть) → расходы → источники лидов → показатели → сценарии → итоги.
+  - Services: добавить услуги и модели биллинга → расходы → источники лидов → качество услуг → показатели → сценарии → итоги.
+  - Marketplace: добавить категории → источники лидов → расходы → показатели → сценарии → итоги.
+  - Default: общий 6-шаговый список.
 
-### Marketing Linkage Model
+**Mount in `Dashboard.tsx`:**
+- Inside `TabsContent value="company"` at the top (not above tabs), so it doesn't distract from other tabs.
 
-#### Cost Taxonomy
+## 4. Executive Summary Cards (Итоги tab)
 
-```text
-MARKETING COSTS (total)
-├── Channel-Level Costs (per lead source)
-│   ├── Paid: ad spend per source (trafficPurchase allocated)
-│   ├── Organic: SEO budget, content cost (new optional indirectCost field)
-│   └── Referral: referral program cost
-│
-├── Shared Marketing Overhead
-│   ├── marketingSalary (from fixedCosts)
-│   ├── CRM tools (from variableCosts.marketing.crmCosts)
-│   ├── Contractors/agencies (contractorsPayment)
-│   └── Custom marketing categories
-│
-└── Sales Costs (NOT marketing — excluded from CAC numerator by default)
-    ├── bonusNewClients, bonusOldClients
-    └── Sales payroll custom categories
-```
+All cards live in **`src/components/summary/`** as small, stable, read-only components reusing existing utilities.
 
-#### CAC Distinction
+**`CompanySummaryCard.tsx`**
+- Props: `metrics`, `currency`.
+- Reuses `calculateProfit`, `calculateProfitMargin`, `calculateCAC`, `calculateLTV`, `calculateLTVCACRatio`.
+- KPI grid: Revenue, Profit, Margin %, CAC, LTV, LTV/CAC, Total clients, Avg check.
+- Each KPI shows «Недостаточно данных» if value is 0/NaN/Infinity AND `metrics.detailedExpenses` is missing.
+- If partial data: render the KPIs that are computable, label others.
 
-| Metric | Formula | Costs Included |
-|--------|---------|----------------|
-| **Channel CAC** | channel spend / new clients from channel | Only that channel's direct spend |
-| **Blended CAC** | (all channel costs + shared overhead) / total new clients | Channel + overhead, no sales |
-| **Fully-loaded CAC** | (all marketing + sales costs) / total new clients | Everything including salaries & bonuses |
+**`CashFlowSummaryCard.tsx`**
+- Props: `projectId`, `currency`.
+- Uses `useCashFlowTimeline({ projectId })` and calls `fetchTimeline('current')` once on mount (single fetch, no loops).
+- Renders only `summary` data (NPV, total inflow, total outflow, net CF, payback period in periods).
+- Driver logic computed locally from `allLinesWithValues`: top inflow line, top outflow line, weakest period (min `netCashFlow`).
+- If no timeline / all zero → «Недостаточно данных. Перейдите на вкладку Cash Flow и заполните данные.»
+- IMPORTANT: this hook instance is independent of the Cash Flow tab's hook instance (separate state). Single `useEffect` with `[projectId]` deps avoids duplicate-fetch loops.
 
-Implementation: `MarketingMetrics` component will display all three CAC variants. The `CustomerJourney` component will show cost-per-stage by connecting `leadSources` cost data to funnel stages.
+**`RiskSummaryCard.tsx`**
+- Props: `metrics`, `cashflowSummary` (optional, passed from parent), `currency`.
+- Rule-based risks (each rendered only when triggered):
+  - LTV/CAC < 1 → «Высокий риск: CAC превышает LTV».
+  - LTV/CAC ≥ 1 && < 3 → «Внимание: LTV/CAC ниже целевого 3:1».
+  - Profit margin < 0 → «Бизнес работает в убыток».
+  - Profit margin ≥ 0 && < 10 → «Низкая маржа».
+  - Cash flow NPV < 0 → «Отрицательный NPV проекта».
+  - Cash flow has weakest period < 0 → «Кассовый разрыв в периоде N».
+  - newClients == 0 && totalClients > 0 → «Нет новых клиентов — рост остановлен».
+- If no risks triggered → «Существенных рисков по введённым данным не обнаружено».
+- If no metrics → «Недостаточно данных».
 
-Organic channels: each lead source gets an optional `indirectCost` number field (SEO/content/tools). Stored in existing `leadSources` array within metrics — no DB migration needed.
+**`RecommendationSummaryCard.tsx`**
+- Props: `metrics`, `cashflowSummary` (optional), `currency`.
+- Rule-based recommendations mirroring risks:
+  - LTV/CAC < 3 → «Снизить CAC или увеличить LTV (повысить retention/avg check)».
+  - Profit margin < 10 → «Пересмотреть структуру переменных расходов».
+  - NPV < 0 → «Пересмотреть допущения сценария или горизонт планирования».
+  - newClients == 0 → «Активизировать каналы привлечения, проверить конверсию».
+  - Conversion rate < 1 → «Низкая конверсия — улучшить воронку».
+  - Always (if data is present): «Сравните оптимистичный/пессимистичный сценарий ниже».
+- Each recommendation tied to a visible metric (label shown).
+- «Недостаточно данных» if no metrics.
 
-Salary allocation: `marketingSalary` is treated as shared overhead for blended/fully-loaded CAC. It does NOT inflate per-channel CPL.
+**Mount in `Dashboard.tsx` Итоги tab:**
+- Order: CompanySummaryCard → CashFlowSummaryCard → RiskSummaryCard → RecommendationSummaryCard → existing ScenarioComparison → ActionPlanManager → AIAnalytics → collapsible (history/forecast).
+- Pass `cashflowSummary` from CashFlowSummaryCard down via lifted state in Dashboard? No — to keep coupling minimal, RiskSummaryCard and RecommendationSummaryCard each call `useCashFlowTimeline` independently for the `current` scenario. To avoid 3× fetches, instead **lift one shared call**: create a tiny inline component grouping the three cards, or have CashFlowSummaryCard fetch and pass `summary` to siblings via a wrapper. **Decision:** add a `SummarySection` wrapper component in `src/components/summary/SummarySection.tsx` that owns the single `useCashFlowTimeline` call and renders all four cards, passing `summary` + `weakestPeriod` to Risk + Recommendation cards.
 
----
+So the actual mount becomes a single `<SummarySection metrics={currentMetrics} projectId={projectId} currency={currency} />` block before ScenarioComparison.
 
-### Scoring Hierarchy
+## 5. Demo Data — manual template only
 
-```text
-Layer 1: Product/Service Score (1–20)
-├── Source: MANUAL (products.quality slider)
-├── Services: optional 6-subfactor → composite (ServiceQualityAssessment)
-├── Nature: SUBJECTIVE
-├── Shown: Моя компания → product card
+**New: `docs/CONFERENCE_DEMO_DATA.md`**
+Realistic sample data for E-commerce and SaaS (one of each), enough to populate the demo path:
+- Project setup (name, business type, currency).
+- 2–3 products (E-comm) with name/price/cost/quantity/quality.
+- 2 SaaS plans with name/price/subscribers/churn.
+- Detailed expenses: fixed (rent, salaries) + variable marketing (traffic) + sales bonuses.
+- Lead sources: 1 paid (cost, leads, conversion) + 1 organic (with `indirectCost`).
+- 1 competitor with revenue/marketShare/quality.
+- Cash Flow: defaults are auto-generated; just open the tab.
+- Suggested narrative for the demo.
 
-Layer 2: Company Score (1–20)
-├── Source: AGGREGATED (weighted avg of product scores)
-│   Weight = product revenue share (price × quantity / total revenue)
-├── Override: user can set manually
-├── Explainability: show "auto" vs "manual" badge
-│   If auto: show "Рассчитано из N продуктов, веса по доле выручки"
-│   List: Product A (score X, weight Y%), Product B (score X, weight Y%)
-├── Stored: scenarios.business_metrics.companyQuality (JSONB)
-├── Shown: Показатели → header card
+No seed button, no DB scripts.
 
-Layer 3: Competitor Score (1–20)
-├── Source: MANUAL (expert estimate)
-├── Nature: SUBJECTIVE — labeled "экспертная оценка"
-├── Shown: Конкуренты → competitor card
+## 6. Files changed
 
-Layer 4: Market Comparison
-├── Source: COMPUTED from Layers 1-3
-├── Shown: Рынок → CompetitiveRanking, CompetitiveMap, unified quality charts
-```
+**New (6):**
+- `src/components/ui/subjective-estimate-badge.tsx`
+- `src/components/StartupChecklist.tsx`
+- `src/components/summary/CompanySummaryCard.tsx`
+- `src/components/summary/CashFlowSummaryCard.tsx`
+- `src/components/summary/RiskSummaryCard.tsx`
+- `src/components/summary/RecommendationSummaryCard.tsx`
+- `src/components/summary/SummarySection.tsx`
+- `docs/CONFERENCE_DEMO_DATA.md`
 
----
+**Edited (3):**
+- `src/components/cashflow-timeline/CashFlowTimelineManager.tsx` — remove stub, drop onEditLine handler.
+- `src/components/cashflow-timeline/CashFlowGrid.tsx` — disable edit button + tooltip.
+- `src/components/Dashboard.tsx` — mount StartupChecklist in Моя компания tab, mount badge banners in Конкуренты + Рынок, replace top of Итоги tab with `<SummarySection />`.
 
-### Cash Flow Business Logic
+## 7. Constraints respected
 
-#### Data Sources
+- ✅ No DB migrations, no schema changes, no IA changes, no new business types.
+- ✅ No deep Dashboard refactor (only adds + 2 banner spots + summary mount).
+- ✅ Causal architecture preserved (cards consume existing metrics & cash flow hook only).
+- ✅ AI Analytics remains optional / unchanged.
+- ✅ Badge not applied to internal computed metrics (CAC/LTV/margin/revenue/profit/cash flow/scenario comparison).
+- ✅ CashFlowSummaryCard fetches once via lifted hook in `SummarySection` — no duplicate fetches across the 4 cards.
+- ✅ Cash Flow tab state untouched; Итоги has its own hook instance.
 
-| Inflows | Derived From | Auto/Manual |
-|---------|-------------|-------------|
-| Product revenue | products (price × qty) | **Auto** via adapter |
-| SaaS MRR | saas_plans (subs × price) | **Auto** via adapter |
-| Marketplace commission | categories (GMV × take_rate) | **Auto** via adapter |
-| Token package sales | packages (sales × price) | **Auto** via adapter |
-| Custom income | user-defined lines | **Manual** |
+## 8. Out of scope (per user)
 
-| Outflows | Derived From | Auto/Manual |
-|----------|-------------|-------------|
-| Salaries | detailedExpenses.fixedCosts.salary* | **Auto** |
-| Rent | officeRent + warehouseRent | **Auto** |
-| Marketing | marketingCosts | **Auto** |
-| Taxes | detailedExpenses.taxes | **Auto** |
-| Custom expenses | user-defined lines | **Manual** |
-
-#### Scenario Effect
-Each scenario creates a separate `cashflow_timeline`. Adapters pull from the active scenario's metrics.
-
-#### Cash Flow ≠ Profit
-Profit = accrual basis, single period. Cash Flow = cash basis over time (payment delays, upfront investments, working capital).
-
-#### Decision Questions
-
-| Question | Answer Location | Metric |
-|----------|----------------|--------|
-| Сколько заработаю? | Last period cumulative | Cumulative net cash flow |
-| Когда окуплюсь? | Row turning positive | Payback period |
-| Где кассовый разрыв? | Negative net flow periods | Min cumulative position |
-
-#### Summary Driver Logic (for Итоги tab)
-
-The `CashFlowSummaryCard` will show:
-- **Top inflow source**: line with highest total amount across periods
-- **Top outflow category**: line with highest total outflow
-- **Weakest period**: period index with lowest net cash flow
-- **Payback driver**: which inflow category contributes most to turning cumulative positive
-
----
-
-### Summary Tab (Итоги) — Executive Design
-
-```text
-Tab 6: Итоги
-├── CompanySummaryCard (NEW)
-│   Revenue, profit, margin, avg check, total clients — KPI row, no charts
-│
-├── MarketPositionCard (NEW)
-│   Company score vs avg competitor, market share, rank — KPI row
-│
-├── CashFlowSummaryCard (NEW)
-│   NPV, payback, min cash, risk indicator (green/yellow/red)
-│   + top inflow source, top outflow, weakest period, payback driver
-│
-├── RisksSummaryCard (NEW)
-│   Top 3-5 risks from SWOT threats + negative CF + high CAC/LTV ratio
-│
-├── RecommendationsCard (NEW)
-│   Top 3-5 actions from metric analysis checks
-│
-├── ActionPlanManager (MOVED)
-│
-├── AIAnalytics (MOVED)
-│
-└── [Collapsible: Дополнительно]
-    ├── ScenarioComparison (MERGED from 3× ScenarioSummary)
-    ├── MetricHistoryChart (MOVED)
-    └── MetricForecasting (MOVED)
-```
-
-NOT in Итоги: no raw forms, no detailed charts, no competitive maps.
-
----
-
-### Business-Priority Implementation Roadmap
-
-#### Phase 1A: IA Cleanup Only (tab restructure, no logic changes)
-
-1. Rename tabs in `Dashboard.tsx`: Products → Моя компания, remove Analytics tab, keep Theory separate
-2. Move `DetailedExpensesForm`, `LeadSourcesForm`, `DutiesAndTaxes` into Моя компания
-3. Move `MarketingMetrics`, `CustomerJourney`, `CashFlowDiagram` into Показатели
-4. Move comparison components from Конкуренты to Рынок: `CompetitorKeyMetricsComparison`, `BusinessTypeMetricsComparison`, `CompetitiveScoreCalculator`, `QualityComparison`/`ServiceQualityAssessment`, `SWOTAnalysis`
-5. Move `ProductComparison` from Products to Рынок
-6. Move `MetricRelationshipAnalyzer` from Analytics to Рынок
-7. Move `ScenarioSummary` ×3, `ActionPlanManager`, `AIAnalytics`, `MetricHistoryChart`, `MetricForecasting` into new Итоги tab
-8. Keep `GameTheoryMatrix`, `StrategyDictionary`, `CompetitiveSimulator` in Теория tab
-
-**Impact: Fixes user confusion about where to input vs where to analyze. Pure JSX reordering in Dashboard.tsx.**
-
-#### Phase 1B: Deduplication Cleanup
-
-1. Extract `useMarketShares(revenue, competitors)` hook — replaces 5 identical IIFEs
-2. Remove `CompetitorROICalculator` from rendering (deprecated — `ROICalculator` covers this)
-3. Merge 3× `ScenarioSummary` into single `ScenarioComparison` component showing all 3 scenarios side-by-side
-4. Refactor `CompanyMetrics` — remove embedded input forms that were moved to Моя компания
-
-**Impact: Eliminates duplicate logic, reduces Dashboard.tsx by ~150 lines.**
-
-#### Phase 2: Summary Layer
-
-1. Create `CompanySummaryCard` — KPI row from currentMetrics
-2. Create `MarketPositionCard` — company score, market share, competitive rank
-3. Create `CashFlowSummaryCard` — NPV, payback, risk indicator + driver logic (top inflow/outflow, weakest period)
-4. Create `RisksSummaryCard` — derived from SWOT + metrics checks
-5. Create `RecommendationsCard` — derived from metric analysis
-6. Wire collapsible section for MetricHistoryChart + MetricForecasting
-
-#### Phase 3: Marketing & Scoring
-
-1. Add `indirectCost` field to organic lead sources
-2. Display channel CAC / blended CAC / fully-loaded CAC in `MarketingMetrics`
-3. Add company-level quality aggregate with explainability (auto/manual badge, product weights)
-4. Connect `CustomerJourney` to cost-per-stage from lead sources
-
-#### Phase 4: Cash Flow Explainability
-
-1. Add `CashFlowExplainer` card at top of Cash Flow tab
-2. Add data source badges to timeline lines ("из продуктов", "вручную")
-3. Highlight payback period in green, negative periods in red
-
----
-
-### Files Changed Per Phase
-
-| Phase | Files |
-|-------|-------|
-| 1A | `Dashboard.tsx` (major restructure) |
-| 1B | `Dashboard.tsx`, new `useMarketShares.ts` hook, new `ScenarioComparison.tsx`, edit `CompanyMetrics.tsx` |
-| 2 | New: `CompanySummaryCard.tsx`, `MarketPositionCard.tsx`, `CashFlowSummaryCard.tsx`, `RisksSummaryCard.tsx`, `RecommendationsCard.tsx`. Edit: `Dashboard.tsx` |
-| 3 | Edit: `MarketingMetrics.tsx`, `CustomerJourney.tsx`, `LeadSourcesForm.tsx`. New: company quality card in `CompanyMetrics.tsx` |
-| 4 | New: `CashFlowExplainer.tsx`. Edit: `CashFlowTimelineManager.tsx`, `CashFlowGrid.tsx` |
-
-No DB migrations required for any phase.
-
+- Full Cash Flow edit dialog.
+- MarketPositionCard.
+- Demo seed button / dev mode.
+- Deep refactor of CompanyMetrics input/display split (Phase 1B already done).
