@@ -38,7 +38,7 @@ interface CashFlowGridProps {
   showCumulative: boolean;
   onUpdatePoint: (lineId: string, periodIndex: number, amount: number) => void;
   onDeleteLine: (lineId: string) => void;
-  onEditLine: (line: CashFlowLine) => void;
+  onEditLine?: (line: CashFlowLine) => void;
 }
 
 const formatNumber = (value: number) => {
@@ -184,14 +184,28 @@ export const CashFlowGrid = memo(({
       {line.isManual && (
         <TableCell className="sticky right-0 bg-background z-10">
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => onEditLine(line)}
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      disabled
+                      aria-label="Редактирование строки (скоро)"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs max-w-[220px]">
+                    Редактирование строк Cash Flow будет доступно в будущей версии.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Button
               variant="ghost"
               size="icon"
