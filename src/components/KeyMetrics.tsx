@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Target, DollarSign, BarChart3 } from "lucide-react";
+import { MetricInfoTooltip } from "@/components/ui/metric-info-tooltip";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -168,7 +169,8 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <Target className="w-3 h-3" />
-              CAC
+              <span>CAC</span>
+              <MetricInfoTooltip metricKey="cac" />
             </p>
             <p className="text-lg sm:text-xl font-bold font-mono text-primary">
               {calculateCAC().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
@@ -179,7 +181,8 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              CPL
+              <span>CPL</span>
+              <MetricInfoTooltip metricKey="cpl" />
             </p>
             <p className="text-lg sm:text-xl font-bold font-mono text-secondary">
               {calculateCPL().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
@@ -190,7 +193,8 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <BarChart3 className="w-3 h-3" />
-              Безубыточность
+              <span>Безубыточность</span>
+              <MetricInfoTooltip metricKey="breakeven" />
             </p>
             <p className="text-lg sm:text-xl font-bold font-mono text-accent">
               {calculateBreakeven().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} кл.
@@ -201,7 +205,8 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Прибыль
+              <span>Прибыль</span>
+              <MetricInfoTooltip metricKey="profitPerClient" />
             </p>
             <p className="text-lg sm:text-xl font-bold font-mono text-success">
               {calculateProfitPerPayment().toLocaleString("ru-RU", { maximumFractionDigits: 0 })}{" "}
@@ -217,7 +222,8 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
               <div className="space-y-1">
                 <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
-                  LTV
+                  <span>LTV</span>
+                  <MetricInfoTooltip metricKey="ltv" />
                 </p>
                 <p className="text-lg sm:text-xl font-bold font-mono text-primary">
                   {calculateLTV().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
@@ -228,7 +234,8 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
               <div className="space-y-1">
                 <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                   <Target className="w-3 h-3" />
-                  LTV/CAC
+                  <span>LTV/CAC</span>
+                  <MetricInfoTooltip metricKey="ltvCac" />
                 </p>
                 <p className={`text-lg sm:text-xl font-bold font-mono ${
                   calculateLTVCACRatio() < 1 ? 'text-destructive' : 
