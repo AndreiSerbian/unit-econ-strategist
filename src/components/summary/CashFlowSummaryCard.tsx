@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import type { TimelineSummary } from "@/components/cashflow-timeline/types";
+import { MetricInfoTooltip } from "@/components/ui/metric-info-tooltip";
 
 interface CashFlowSummaryCardProps {
   summary: TimelineSummary | null;
@@ -70,18 +71,20 @@ export const CashFlowSummaryCard = ({
     );
   }
 
-  const items: Array<{ label: string; value: string; tone?: "positive" | "negative" }> = [
-    { label: "Всего притоков", value: fmt(summary!.totalInflow, currency), tone: "positive" },
-    { label: "Всего оттоков", value: fmt(summary!.totalOutflow, currency), tone: "negative" },
+  const items: Array<{ label: string; value: string; tone?: "positive" | "negative"; tooltipKey?: string }> = [
+    { label: "Всего притоков", value: fmt(summary!.totalInflow, currency), tone: "positive", tooltipKey: "totalInflow" },
+    { label: "Всего оттоков", value: fmt(summary!.totalOutflow, currency), tone: "negative", tooltipKey: "totalOutflow" },
     {
       label: "Чистый денежный поток",
       value: fmt(summary!.netCashFlow, currency),
       tone: summary!.netCashFlow >= 0 ? "positive" : "negative",
+      tooltipKey: "netCashFlow",
     },
     {
       label: "NPV (приведённая ценность)",
       value: fmt(summary!.npv, currency),
       tone: summary!.npv >= 0 ? "positive" : "negative",
+      tooltipKey: "npv",
     },
     {
       label: "Окупаемость",
@@ -89,6 +92,7 @@ export const CashFlowSummaryCard = ({
         summary!.paybackPeriod !== undefined
           ? `${summary!.paybackPeriod + 1} ${pluralizePeriod(summary!.paybackPeriod + 1)}`
           : "Не достигнута",
+      tooltipKey: "payback",
     },
   ];
 
@@ -110,8 +114,9 @@ export const CashFlowSummaryCard = ({
               key={it.label}
               className="rounded-md border bg-muted/20 p-3 flex flex-col gap-1"
             >
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                {it.label}
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                <span>{it.label}</span>
+                {it.tooltipKey && <MetricInfoTooltip metricKey={it.tooltipKey} />}
               </div>
               <div
                 className={`text-sm font-semibold ${

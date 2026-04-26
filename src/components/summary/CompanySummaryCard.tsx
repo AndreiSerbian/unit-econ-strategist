@@ -7,6 +7,7 @@ import {
   calculateLTV,
   calculateLTVCACRatio,
 } from "@/utils/metricsCalculations";
+import { MetricInfoTooltip } from "@/components/ui/metric-info-tooltip";
 
 interface CompanySummaryCardProps {
   metrics: any;
@@ -56,15 +57,15 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
   const ltv = calculateLTV(metrics);
   const ltvCac = calculateLTVCACRatio(metrics);
 
-  const kpis: Array<{ label: string; value: string; hint?: string }> = [
-    { label: "Выручка", value: fmt(metrics.revenue || 0, currency) },
-    { label: "Прибыль", value: fmt(profit, currency) },
-    { label: "Маржа", value: fmtPct(margin) },
-    { label: "CAC", value: cac > 0 ? fmt(cac, currency) : "Недостаточно данных" },
-    { label: "LTV", value: ltv > 0 ? fmt(ltv, currency) : "Недостаточно данных" },
-    { label: "LTV / CAC", value: fmtRatio(ltvCac) },
-    { label: "Всего клиентов", value: fmtNum(metrics.totalClients || 0) },
-    { label: "Средний чек", value: fmt(metrics.avgCheck || 0, currency) },
+  const kpis: Array<{ label: string; value: string; hint?: string; tooltipKey?: string }> = [
+    { label: "Выручка", value: fmt(metrics.revenue || 0, currency), tooltipKey: "revenue" },
+    { label: "Прибыль", value: fmt(profit, currency), tooltipKey: "profit" },
+    { label: "Маржа", value: fmtPct(margin), tooltipKey: "margin" },
+    { label: "CAC", value: cac > 0 ? fmt(cac, currency) : "Недостаточно данных", tooltipKey: "cac" },
+    { label: "LTV", value: ltv > 0 ? fmt(ltv, currency) : "Недостаточно данных", tooltipKey: "ltv" },
+    { label: "LTV / CAC", value: fmtRatio(ltvCac), tooltipKey: "ltvCac" },
+    { label: "Всего клиентов", value: fmtNum(metrics.totalClients || 0), tooltipKey: "totalClients" },
+    { label: "Средний чек", value: fmt(metrics.avgCheck || 0, currency), tooltipKey: "avgCheck" },
   ];
 
   return (
@@ -85,8 +86,9 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
               key={k.label}
               className="rounded-md border bg-muted/20 p-3 flex flex-col gap-1"
             >
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                {k.label}
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                <span>{k.label}</span>
+                {k.tooltipKey && <MetricInfoTooltip metricKey={k.tooltipKey} />}
               </div>
               <div className="text-sm font-semibold">{k.value}</div>
             </div>
