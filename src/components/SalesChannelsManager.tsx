@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,20 +56,31 @@ interface ChannelTypeOption {
   legacy?: boolean;
 }
 
-// SaaS-relevant channel types
-// "Enterprise" replaces old "Розница B2B" for SaaS context
+// SaaS-relevant channel types — labels are localized via t() inside the component.
+// Descriptions are kept in RU as legacy fallback for tooltips not yet localized.
 const CHANNEL_TYPES: ChannelTypeOption[] = [
   { value: "website", label: "Свой сайт", icon: Globe, description: "Прямые продажи через свой сайт (Stripe, Paddle и др.)" },
   { value: "marketplace", label: "Маркетплейс", icon: ShoppingBag, description: "Продажи через SaaS-маркетплейсы (AppSumo, G2 и др.)" },
   { value: "distributor", label: "Дистрибьютор", icon: Truck, description: "Реселлеры и дистрибьюторы" },
   { value: "enterprise", label: "Enterprise", icon: Building2, description: "Корпоративные контракты с отсрочкой оплаты" },
-  { value: "retail", label: "Розница B2B", icon: Store, description: "Розничные B2B продажи", legacy: true }, // Kept for backward compatibility
+  { value: "retail", label: "Розница B2B", icon: Store, description: "Розничные B2B продажи", legacy: true },
   { value: "agent", label: "Агенты/Партнёры", icon: Handshake, description: "Affiliate и партнёрские программы" },
   { value: "direct_b2b", label: "Прямые B2B продажи", icon: Users, description: "Прямые контракты с бизнесами" },
-  // Legacy channels - hidden by default for SaaS but kept for backward compatibility
   { value: "franchise", label: "Франшиза", icon: Store, description: "Legacy: франчайзинговая модель", legacy: true },
   { value: "export", label: "Экспорт", icon: Ship, description: "Legacy: экспортные продажи", legacy: true },
 ];
+
+const CHANNEL_TYPE_LABEL_KEY: Record<SalesChannel["type"], string> = {
+  website: "salesChannels.typeWebsite",
+  marketplace: "salesChannels.typeMarketplace",
+  distributor: "salesChannels.typeDistributor",
+  enterprise: "salesChannels.typeEnterprise",
+  retail: "salesChannels.typeRetail",
+  agent: "salesChannels.typeAgent",
+  direct_b2b: "salesChannels.typeDirectB2b",
+  franchise: "salesChannels.typeFranchise",
+  export: "salesChannels.typeExport",
+};
 
 // SaaS-specific templates (no fulfillment/logistics costs)
 const CHANNEL_TEMPLATES: Record<string, Partial<SalesChannel>> = {
@@ -166,12 +178,17 @@ export const SalesChannelsManager = ({
   currency,
   businessType = 'saas',
 }: SalesChannelsManagerProps) => {
+  const { t } = useTranslation();
   const isSaaS = businessType === 'saas' || businessType === 'freemium';
-  
+
   // Filter channel types based on business type
-  const availableChannelTypes = isSaaS 
-    ? CHANNEL_TYPES.filter(t => !t.legacy) 
-    : CHANNEL_TYPES;
+  const availableChannelTypes = useMemo(
+    () => (isSaaS ? CHANNEL_TYPES.filter((c) => !c.legacy) : CHANNEL_TYPES),
+    [isSaaS]
+  );
+
+  const tChannelTypeLabel = (type: SalesChannel["type"]) =>
+    t(CHANNEL_TYPE_LABEL_KEY[type] ?? "");
 
   const [newChannel, setNewChannel] = useState<Omit<SalesChannel, "id">>({
     name: "",
@@ -205,7 +222,7 @@ export const SalesChannelsManager = ({
 
   const handleAddChannel = () => {
     if (!newChannel.name.trim()) {
-      toast.error("Введите название канала");
+      toast.error(t("salesChannels.nameRequired"));
       return;
     }
 
@@ -229,12 +246,12 @@ export const SalesChannelsManager = ({
       paymentDelayDays: 0,
       discountPercent: 0,
     });
-    toast.success("Канал добавлен");
+    toast.success(t("salesChannels.addedToast"));
   };
 
   const handleDeleteChannel = (channelId: string) => {
     setChannels(channels.filter((c) => c.id !== channelId));
-    toast.success("Канал удалён");
+    toast.success(t("salesChannels.deletedToast"));
   };
 
   const handleUpdateChannel = (channelId: string, updates: Partial<SalesChannel>) => {
@@ -246,40 +263,35 @@ export const SalesChannelsManager = ({
     return channelType?.icon || Store;
   };
 
-  const getChannelTypeLabel = (type: SalesChannel["type"]) => {
-    return CHANNEL_TYPES.find((t) => t.value === type)?.label || type;
-  };
+  const getChannelTypeLabel = (type: SalesChannel["type"]) => tChannelTypeLabel(type) || type;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Store className="w-5 h-5 text-primary" />
-          Каналы продаж
+          {t("salesChannels.title")}
         </CardTitle>
         <CardDescription>
-          {isSaaS 
-            ? "Настройте параметры каналов: комиссии, скидки, возвраты, условия оплаты"
-            : "Настройте параметры каналов: комиссии, фулфилмент, логистика, возвраты"
-          }
+          {isSaaS ? t("salesChannels.descSaas") : t("salesChannels.descPhysical")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Add new channel form */}
         <div className="p-3 sm:p-4 border rounded-lg bg-muted/30 space-y-4">
-          <h3 className="font-medium text-sm">Добавить канал</h3>
+          <h3 className="font-medium text-sm">{t("salesChannels.addTitle")}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <div>
-              <Label className="text-xs sm:text-sm">Название</Label>
+              <Label className="text-xs sm:text-sm">{t("common.name")}</Label>
               <Input
                 value={newChannel.name}
                 onChange={(e) => setNewChannel({ ...newChannel, name: e.target.value })}
-                placeholder={isSaaS ? "Stripe Direct" : "Wildberries"}
+                placeholder={isSaaS ? t("salesChannels.namePlaceholderSaas") : t("salesChannels.namePlaceholderPhysical")}
                 className="text-sm"
               />
             </div>
             <div>
-              <Label className="text-xs sm:text-sm">Тип канала</Label>
+              <Label className="text-xs sm:text-sm">{t("salesChannels.typeLabel")}</Label>
               <Select value={newChannel.type} onValueChange={handleTypeChange}>
                 <SelectTrigger className="text-sm">
                   <SelectValue />
@@ -289,7 +301,7 @@ export const SalesChannelsManager = ({
                     <SelectItem key={type.value} value={type.value}>
                       <div className="flex items-center gap-2">
                         <type.icon className="w-4 h-4" />
-                        {type.label}
+                        {tChannelTypeLabel(type.value)}
                       </div>
                     </SelectItem>
                   ))}
@@ -298,8 +310,8 @@ export const SalesChannelsManager = ({
             </div>
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Комиссия (%)
-                <FieldTooltip content="Доля платформы/партнёра/реселлера от выручки" />
+                {t("salesChannels.commission")}
+                <FieldTooltip content={t("salesChannels.commissionTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.commissionPercent}
@@ -316,7 +328,7 @@ export const SalesChannelsManager = ({
             {!isSaaS && (
               <>
                 <div>
-                  <Label className="text-xs sm:text-sm">Фулфилмент ({currency})</Label>
+                  <Label className="text-xs sm:text-sm">{t("salesChannels.fulfillment", { currency })}</Label>
                   <NumericInput
                     value={newChannel.fulfillmentCostPerUnit}
                     onChange={(value) => setNewChannel({ ...newChannel, fulfillmentCostPerUnit: value || 0 })}
@@ -325,7 +337,7 @@ export const SalesChannelsManager = ({
                   />
                 </div>
                 <div>
-                  <Label className="text-xs sm:text-sm">Логистика ({currency})</Label>
+                  <Label className="text-xs sm:text-sm">{t("salesChannels.logistics", { currency })}</Label>
                   <NumericInput
                     value={newChannel.logisticsCostPerUnit}
                     onChange={(value) => setNewChannel({ ...newChannel, logisticsCostPerUnit: value || 0 })}
@@ -337,8 +349,8 @@ export const SalesChannelsManager = ({
             )}
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Возвраты (%)
-                <FieldTooltip content="Refunds и chargebacks, НЕ churn" />
+                {t("salesChannels.returns")}
+                <FieldTooltip content={t("salesChannels.returnsTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.returnRatePercent}
@@ -349,8 +361,8 @@ export const SalesChannelsManager = ({
             </div>
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Отсрочка (дни)
-                <FieldTooltip content="Задержка выплаты, net-30/60" />
+                {t("salesChannels.delay")}
+                <FieldTooltip content={t("salesChannels.delayTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.paymentDelayDays}
@@ -361,8 +373,8 @@ export const SalesChannelsManager = ({
             </div>
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Скидка (%)
-                <FieldTooltip content="Типичная скидка для канала" />
+                {t("salesChannels.discount")}
+                <FieldTooltip content={t("salesChannels.discountTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.discountPercent || 0}
@@ -374,14 +386,14 @@ export const SalesChannelsManager = ({
           </div>
           <Button onClick={handleAddChannel} className="w-full">
             <Plus className="w-4 h-4 mr-2" />
-            Добавить канал
+            {t("salesChannels.addCta")}
           </Button>
         </div>
 
         {/* Channels list */}
         {channels.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-medium text-sm">Настроенные каналы</h3>
+            <h3 className="font-medium text-sm">{t("salesChannels.configured")}</h3>
             {channels.map((channel) => {
               const Icon = getChannelIcon(channel.type);
               return (
@@ -415,7 +427,7 @@ export const SalesChannelsManager = ({
                   
                   <div className={`grid grid-cols-2 ${isSaaS ? 'sm:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-6'} gap-2 sm:gap-3 mt-3 sm:mt-4`}>
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Комиссия (%)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.commission")}</Label>
                       <NumericInput
                         value={channel.commissionPercent}
                         onChange={(value) => handleUpdateChannel(channel.id, { commissionPercent: validatePercent(value || 0) })}
@@ -426,7 +438,7 @@ export const SalesChannelsManager = ({
                     {!isSaaS && (
                       <>
                         <div>
-                          <Label className="text-[10px] sm:text-xs">Фулфилмент</Label>
+                          <Label className="text-[10px] sm:text-xs">{t("salesChannels.fulfillmentShort")}</Label>
                           <NumericInput
                             value={channel.fulfillmentCostPerUnit}
                             onChange={(value) => handleUpdateChannel(channel.id, { fulfillmentCostPerUnit: value || 0 })}
@@ -434,7 +446,7 @@ export const SalesChannelsManager = ({
                           />
                         </div>
                         <div>
-                          <Label className="text-[10px] sm:text-xs">Логистика</Label>
+                          <Label className="text-[10px] sm:text-xs">{t("salesChannels.logisticsShort")}</Label>
                           <NumericInput
                             value={channel.logisticsCostPerUnit}
                             onChange={(value) => handleUpdateChannel(channel.id, { logisticsCostPerUnit: value || 0 })}
@@ -444,7 +456,7 @@ export const SalesChannelsManager = ({
                       </>
                     )}
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Возвраты (%)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.returns")}</Label>
                       <NumericInput
                         value={channel.returnRatePercent}
                         onChange={(value) => handleUpdateChannel(channel.id, { returnRatePercent: validatePercent(value || 0) })}
@@ -452,7 +464,7 @@ export const SalesChannelsManager = ({
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Отсрочка (дни)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.delay")}</Label>
                       <NumericInput
                         value={channel.paymentDelayDays}
                         onChange={(value) => handleUpdateChannel(channel.id, { paymentDelayDays: validateDelayDays(value || 0) })}
@@ -460,7 +472,7 @@ export const SalesChannelsManager = ({
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Скидка (%)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.discount")}</Label>
                       <NumericInput
                         value={channel.discountPercent || 0}
                         onChange={(value) => handleUpdateChannel(channel.id, { discountPercent: validatePercent(value || 0) })}
@@ -477,12 +489,9 @@ export const SalesChannelsManager = ({
         {channels.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <Store className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Нет настроенных каналов</p>
+            <p>{t("salesChannels.emptyTitle")}</p>
             <p className="text-sm">
-              {isSaaS 
-                ? "Добавьте каналы продаж для анализа unit-экономики"
-                : "Добавьте каналы продаж для анализа маржинальности"
-              }
+              {isSaaS ? t("salesChannels.emptyHintSaas") : t("salesChannels.emptyHintPhysical")}
             </p>
           </div>
         )}

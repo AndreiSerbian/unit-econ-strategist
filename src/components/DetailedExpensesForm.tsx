@@ -12,6 +12,7 @@ import {
 import { Plus, X, Calculator, Info } from "lucide-react";
 import { NumericInput } from "@/components/ui/numeric-input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ExpenseCategory {
   id: string;
@@ -87,6 +88,7 @@ export const DetailedExpensesForm = memo(({
   currency,
   hasLeadSources = false,
 }: DetailedExpensesFormProps) => {
+  const { t } = useTranslation();
   const [newCategoryName, setNewCategoryName] = useState("");
 
   const updateFixedCost = useCallback((field: keyof typeof expenses.fixedCosts, value: number) => {
@@ -362,7 +364,7 @@ export const DetailedExpensesForm = memo(({
       <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>📊 Постоянные расходы</span>
+            <span>{t("expenses.fixedTitle")}</span>
             <span className="font-mono text-primary">
               {calculateFixedTotal().toLocaleString("ru-RU")} {currency}
             </span>
@@ -373,34 +375,30 @@ export const DetailedExpensesForm = memo(({
             <AccordionItem value="fot">
               <AccordionTrigger>
                 <div className="flex items-center gap-2">
-                  <span>Оклады и ставки (постоянный ФОТ)</span>
+                  <span>{t("expenses.fotGroup")}</span>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                      Фиксированная зарплата сотрудников в штате, которую вы платите независимо от
-                      выручки: оклады отдела продаж, маркетинга, производства, руководства и других
-                      ролей.
+                      {t("expenses.fotGroupTooltip")}
                     </TooltipContent>
                   </Tooltip>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <p className="text-xs text-muted-foreground mb-2">
-                  Фиксированная часть зарплаты, не зависящая от результатов
+                  {t("expenses.fotHint")}
                 </p>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>ЗП по старым клиентам</span>
+                    <span>{t("expenses.salaryOldClients")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Фиксированная часть зарплаты менеджеров по работе с текущими клиентами:
-                        сопровождение, продления, допродажи, удержание. Бонусы и KPI — в блоке
-                        «Бонусы и KPI (переменный ФОТ)».
+                        {t("expenses.salaryOldClientsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -416,15 +414,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>ЗП по новым клиентам</span>
+                    <span>{t("expenses.salaryNewClients")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Фиксированная часть зарплаты менеджеров по привлечению новых клиентов:
-                        обработка лидов, первичные продажи, холодные контакты. Бонусы и премии — в
-                        переменном ФОТ.
+                        {t("expenses.salaryNewClientsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -440,14 +436,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Оклад руководящего состава</span>
+                    <span>{t("expenses.managementSalary")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Фиксированные оклады руководства и управленцев (директор, head of sales,
-                        head of marketing и т.п.), не зависящие от количества сделок.
+                        {t("expenses.managementSalaryTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -463,14 +458,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Оклад отдела маркетинга</span>
+                    <span>{t("expenses.marketingSalary")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Штатные маркетологи, SMM, аналитики и другие сотрудники маркетинга на окладе.
-                        Покупка трафика и подрядчики — в блоке «Маркетинг (Marketing Cost)».
+                        {t("expenses.marketingSalaryTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -486,15 +480,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Оклад отдела производства</span>
+                    <span>{t("expenses.productionSalary")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Фиксированный ФОТ сотрудников, которые отвечают за исполнение обязательств
-                        перед клиентами: производство услуги/товара, обучение, кураторы на окладе и
-                        т.п.
+                        {t("expenses.productionSalaryTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -512,17 +504,17 @@ export const DetailedExpensesForm = memo(({
             </AccordionItem>
 
             <AccordionItem value="rent">
-              <AccordionTrigger>Аренда</AccordionTrigger>
+              <AccordionTrigger>{t("expenses.rentGroup")}</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>Аренда офиса</Label>
+                  <Label>{t("expenses.officeRent")}</Label>
                   <NumericInput
                     value={expenses.fixedCosts.officeRent}
                     onChange={(v) => updateFixedCost("officeRent", v)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Аренда склада</Label>
+                  <Label>{t("expenses.warehouseRent")}</Label>
                   <NumericInput
                     value={expenses.fixedCosts.warehouseRent}
                     onChange={(v) => updateFixedCost("warehouseRent", v)}
@@ -532,39 +524,39 @@ export const DetailedExpensesForm = memo(({
             </AccordionItem>
 
             <AccordionItem value="operational">
-              <AccordionTrigger>Операционные расходы</AccordionTrigger>
+              <AccordionTrigger>{t("expenses.operationalGroup")}</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Интернет</Label>
+                    <Label>{t("expenses.internet")}</Label>
                     <NumericInput
                       value={expenses.fixedCosts.internet}
                       onChange={(v) => updateFixedCost("internet", v)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Связь</Label>
+                    <Label>{t("expenses.communication")}</Label>
                     <NumericInput
                       value={expenses.fixedCosts.communication}
                       onChange={(v) => updateFixedCost("communication", v)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Банковское обслуживание</Label>
+                    <Label>{t("expenses.banking")}</Label>
                     <NumericInput
                       value={expenses.fixedCosts.banking}
                       onChange={(v) => updateFixedCost("banking", v)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Лицензии и подписки</Label>
+                    <Label>{t("expenses.subscriptions")}</Label>
                     <NumericInput
                       value={expenses.fixedCosts.subscriptions}
                       onChange={(v) => updateFixedCost("subscriptions", v)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Коммунальные (уборка и т.д.)</Label>
+                    <Label>{t("expenses.utilities")}</Label>
                     <NumericInput
                       value={expenses.fixedCosts.utilities}
                       onChange={(v) => updateFixedCost("utilities", v)}
@@ -575,7 +567,7 @@ export const DetailedExpensesForm = memo(({
             </AccordionItem>
 
             <AccordionItem value="custom-fixed">
-              <AccordionTrigger>Пользовательские категории</AccordionTrigger>
+              <AccordionTrigger>{t("expenses.customGroup")}</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 {expenses.fixedCosts.customCategories.map((category) => (
                   <div key={category.id} className="flex items-center gap-2">
@@ -595,7 +587,7 @@ export const DetailedExpensesForm = memo(({
                 ))}
                 <div className="flex items-center gap-2">
                   <Input
-                    placeholder="Название категории"
+                    placeholder={t("forms.addCategoryName")}
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                   />
@@ -606,7 +598,7 @@ export const DetailedExpensesForm = memo(({
                     disabled={!newCategoryName.trim()}
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Добавить
+                    {t("forms.add")}
                   </Button>
                 </div>
               </AccordionContent>
@@ -618,7 +610,7 @@ export const DetailedExpensesForm = memo(({
       <Card className="border-secondary/20">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>📈 Переменные расходы</span>
+            <span>{t("expenses.variableTitle")}</span>
             <span className="font-mono text-secondary">
               {calculateVariableTotal().toLocaleString("ru-RU")} {currency}
             </span>
@@ -630,14 +622,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
-                    <span>Маркетинг (Marketing Cost)</span>
+                    <span>{t("expenses.marketingGroup")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Переменные маркетинговые расходы, которые зависят от количества лидов и
-                        рекламной активности: реклама, подрядчики, CRM‑сервисы и другие инструменты.
+                        {t("expenses.marketingGroupTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -651,20 +642,19 @@ export const DetailedExpensesForm = memo(({
                   <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Info className="h-4 w-4 text-primary" />
-                      Расходы на трафик учитываются из блока "Источники трафика" выше
+                      {t("expenses.marketingFromTraffic")}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1">
-                      <span>Закупка трафика</span>
+                      <span>{t("expenses.trafficPurchase")}</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                          Прямые расходы на рекламу: контекст, таргет, баннеры и другие форматы, где вы
-                          покупаете показы, клики или лиды.
+                          {t("expenses.trafficPurchaseTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -676,14 +666,13 @@ export const DetailedExpensesForm = memo(({
                 )}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Оплата подрядчикам</span>
+                    <span>{t("expenses.contractorsPayment")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Агентства и внешние подрядчики по маркетингу: SMM, креатив, медиабаинг, SEO и
-                        другие услуги.
+                        {t("expenses.contractorsPaymentTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -694,14 +683,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>CRM расходы</span>
+                    <span>{t("expenses.crmCosts")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Подписки на CRM‑системы, рассылки, коллтрекинг и другие сервисы для работы с
-                        лидами и клиентами.
+                        {t("expenses.crmCostsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -728,7 +716,7 @@ export const DetailedExpensesForm = memo(({
                 ))}
                 <div className="flex items-center gap-2">
                   <Input
-                    placeholder="Название категории"
+                    placeholder={t("forms.addCategoryName")}
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                   />
@@ -739,7 +727,7 @@ export const DetailedExpensesForm = memo(({
                     disabled={!newCategoryName.trim()}
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Добавить
+                    {t("forms.add")}
                   </Button>
                 </div>
               </AccordionContent>
@@ -749,14 +737,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
-                    <span>Бонусы и KPI (переменный ФОТ)</span>
+                    <span>{t("expenses.salesGroup")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Переменная часть ФОТ отдела продаж: бонусы и премии, зависящие от плана,
-                        выручки или количества сделок.
+                        {t("expenses.salesGroupTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -767,18 +754,17 @@ export const DetailedExpensesForm = memo(({
               </AccordionTrigger>
               <AccordionContent className="space-y-4 pt-4">
                 <p className="text-xs text-muted-foreground mb-2">
-                  Переменная часть зарплаты, зависящая от результатов продаж
+                  {t("expenses.salesHint")}
                 </p>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Бонусы по старым клиентам</span>
+                    <span>{t("expenses.bonusOldClients")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Бонусы менеджеров за работу с существующими клиентами: продления, повторные
-                        покупки, апселлы и удержание.
+                        {t("expenses.bonusOldClientsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -789,14 +775,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Бонусы по новым клиентам</span>
+                    <span>{t("expenses.bonusNewClients")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Бонусы за привлечение новых клиентов: закрытые сделки с новых лидов, первая
-                        покупка и т.п.
+                        {t("expenses.bonusNewClientsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -823,7 +808,7 @@ export const DetailedExpensesForm = memo(({
                 ))}
                 <div className="flex items-center gap-2">
                   <Input
-                    placeholder="Название категории"
+                    placeholder={t("forms.addCategoryName")}
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                   />
@@ -834,7 +819,7 @@ export const DetailedExpensesForm = memo(({
                     disabled={!newCategoryName.trim()}
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Добавить
+                    {t("forms.add")}
                   </Button>
                 </div>
               </AccordionContent>
@@ -844,15 +829,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
-                    <span>Исполнение обязательств (Production Cost)</span>
+                    <span>{t("expenses.productionGroup")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Переменные расходы на выполнение услуги или производства под конкретного
-                        клиента: материалы, кураторы, логистика, выплаты партнёрам, ремонт
-                        оборудования.
+                        {t("expenses.productionGroupTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -864,14 +847,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Материалы</span>
+                    <span>{t("expenses.materials")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Себестоимость сырья и материалов, которые уходят на выполнение обязательств по
-                        продукту. Включая значения, автоматически рассчитанные из блока «Сырьё».
+                        {t("expenses.materialsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -882,15 +864,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Выплаты исполнителям</span>
+                    <span>{t("expenses.curators")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Переменные выплаты специалистам или подрядчикам, которые напрямую зависят
-                        от количества клиентов, объёма работ или числа оказанных услуг.
-                        Фиксированную ставку относите в ФОТ производства.
+                        {t("expenses.curatorsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -901,16 +881,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Склад и точка сбыта / логистика</span>
+                    <span>{t("expenses.logistics")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Логистика от склада и точки сбыта до клиента, а также прочие логистические
-                        расходы, которые не попали в расчёты по сырью и продуктам. При нажатии кнопки
-                        в блоке "Сырьё по продуктам" сюда автоматически подставляются расчёты
-                        логистики.
+                        {t("expenses.logisticsTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -921,13 +898,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Процент партнёрам</span>
+                    <span>{t("expenses.partnersPercent")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Выплаты партнёрам, франчайзи или аффилиатам в процентах от сделки или выручки.
+                        {t("expenses.partnersPercentTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -938,14 +915,13 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Ремонт оборудования</span>
+                    <span>{t("expenses.equipmentRepair")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Переменный ремонт и обслуживание оборудования, связанное с объёмом работы:
-                        чем больше производите, тем выше износ и расходы на сервис.
+                        {t("expenses.equipmentRepairTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -972,7 +948,7 @@ export const DetailedExpensesForm = memo(({
                 ))}
                 <div className="flex items-center gap-2">
                   <Input
-                    placeholder="Название категории"
+                    placeholder={t("forms.addCategoryName")}
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                   />
@@ -983,7 +959,7 @@ export const DetailedExpensesForm = memo(({
                     disabled={!newCategoryName.trim()}
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Добавить
+                    {t("forms.add")}
                   </Button>
                 </div>
               </AccordionContent>
@@ -993,13 +969,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
-                    <span>🏛️ Пошлины и НДС</span>
+                    <span>{t("expenses.dutiesGroup")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Таможенные пошлины на импорт, экспортные пошлины, НДС к вычету и возмещению.
+                        {t("expenses.dutiesGroupTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -1016,13 +992,13 @@ export const DetailedExpensesForm = memo(({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1">
-                      <span>Таможенные пошлины ({currency})</span>
+                      <span>{t("expenses.customsDuty", { currency })}</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                          Пошлины на импорт товаров и сырья. Рассчитываются от таможенной стоимости.
+                          {t("expenses.customsDutyTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -1035,7 +1011,7 @@ export const DetailedExpensesForm = memo(({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Ставка таможенной пошлины (%)</Label>
+                    <Label>{t("expenses.customsDutyRate")}</Label>
                     <NumericInput
                       value={expenses.duties?.customsDutyRate || 0}
                       onChange={(v) => onChange({
@@ -1047,13 +1023,13 @@ export const DetailedExpensesForm = memo(({
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1">
-                      <span>Экспортные пошлины ({currency})</span>
+                      <span>{t("expenses.exportDuty", { currency })}</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                          Пошлины на экспорт товаров (если применимо).
+                          {t("expenses.exportDutyTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -1066,7 +1042,7 @@ export const DetailedExpensesForm = memo(({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Ставка экспортной пошлины (%)</Label>
+                    <Label>{t("expenses.exportDutyRate")}</Label>
                     <NumericInput
                       value={expenses.duties?.exportDutyRate || 0}
                       onChange={(v) => onChange({
@@ -1079,17 +1055,17 @@ export const DetailedExpensesForm = memo(({
                 </div>
                 
                 <div className="pt-4 border-t space-y-4">
-                  <h4 className="font-medium text-sm">НДС (налог на добавленную стоимость)</h4>
+                  <h4 className="font-medium text-sm">{t("expenses.vatTitle")}</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="flex items-center gap-1">
-                        <span>Входящий НДС ({currency})</span>
+                        <span>{t("expenses.vatInput", { currency })}</span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                            НДС, уплаченный поставщикам. Принимается к вычету.
+                            {t("expenses.vatInputTooltip")}
                           </TooltipContent>
                         </Tooltip>
                       </Label>
@@ -1103,13 +1079,13 @@ export const DetailedExpensesForm = memo(({
                     </div>
                     <div className="space-y-2">
                       <Label className="flex items-center gap-1">
-                        <span>Исходящий НДС ({currency})</span>
+                        <span>{t("expenses.vatOutput", { currency })}</span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                            НДС в составе выручки. Авто: Выручка × 20% / 120%
+                            {t("expenses.vatOutputTooltip")}
                           </TooltipContent>
                         </Tooltip>
                       </Label>
@@ -1133,7 +1109,7 @@ export const DetailedExpensesForm = memo(({
                           }}
                         >
                           <Calculator className="w-4 h-4 mr-1" />
-                          Авто
+                          {t("common.auto")}
                         </Button>
                       </div>
                     </div>
@@ -1143,8 +1119,8 @@ export const DetailedExpensesForm = memo(({
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">
                         {((expenses.duties?.vatOutput || 0) - (expenses.duties?.vatInput || 0)) >= 0 
-                          ? "НДС к уплате:" 
-                          : "НДС к возмещению:"}
+                          ? t("expenses.vatPayable") 
+                          : t("expenses.vatRefundable")}
                       </span>
                       <span className={`text-lg font-bold font-mono ${
                         ((expenses.duties?.vatOutput || 0) - (expenses.duties?.vatInput || 0)) >= 0 
@@ -1163,13 +1139,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionTrigger>
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
-                    <span>Налоги и другое</span>
+                    <span>{t("expenses.taxesGroup")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Налоги на прибыль, налоги на ФОТ (страховые взносы) и прочие обязательные платежи.
+                        {t("expenses.taxesGroupTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -1181,13 +1157,13 @@ export const DetailedExpensesForm = memo(({
               <AccordionContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1">
-                    <span>Налоговая ставка (%)</span>
+                    <span>{t("expenses.taxRate")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-                        Ставка налога на прибыль или упрощённого налога (УСН). Используется для автоматического расчёта суммы налогов.
+                        {t("expenses.taxRateTooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </Label>
@@ -1198,7 +1174,7 @@ export const DetailedExpensesForm = memo(({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Сумма налогов ({currency})</Label>
+                  <Label>{t("expenses.taxAmount", { currency })}</Label>
                   <div className="flex items-center gap-2">
                     <NumericInput
                       value={expenses.taxes}
@@ -1206,24 +1182,17 @@ export const DetailedExpensesForm = memo(({
                     />
                     <Button variant="outline" size="sm" onClick={autoCalculateTaxes}>
                       <Calculator className="w-4 h-4 mr-1" />
-                      Авто
+                      {t("common.auto")}
                     </Button>
                   </div>
                 </div>
                 <div className="p-3 bg-muted/50 rounded-lg space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">💡 Налоги на ФОТ (страховые взносы)</p>
+                  <p className="text-xs font-medium text-muted-foreground">{t("expenses.payrollTaxesTitle")}</p>
                   <p className="text-xs text-muted-foreground">
-                    В РФ работодатель платит ~30% от ФОТ в социальные фонды (ПФР, ФСС, ФОМС).
-                    Рассчитайте сумму: (ЗП по старым + ЗП по новым + Оклад руководства + Маркетинг + Производство) × 0.3
+                    {t("expenses.payrollTaxesHint")}
                   </p>
                   <p className="text-xs font-mono">
-                    Ориентировочно: {(
-                      (expenses.fixedCosts.salaryOldClients +
-                       expenses.fixedCosts.salaryNewClients +
-                       expenses.fixedCosts.managementSalary +
-                       expenses.fixedCosts.marketingSalary +
-                       expenses.fixedCosts.productionSalary) * 0.3
-                    ).toLocaleString("ru-RU")} {currency}
+                    {t("expenses.payrollTaxesEstimate", { value: ((expenses.fixedCosts.salaryOldClients + expenses.fixedCosts.salaryNewClients + expenses.fixedCosts.managementSalary + expenses.fixedCosts.marketingSalary + expenses.fixedCosts.productionSalary) * 0.3).toLocaleString("ru-RU"), currency })}
                   </p>
                 </div>
                 {expenses.variableCosts.other.customCategories.map((category) => (
@@ -1244,7 +1213,7 @@ export const DetailedExpensesForm = memo(({
                 ))}
                 <div className="flex items-center gap-2">
                   <Input
-                    placeholder="Название категории"
+                    placeholder={t("forms.addCategoryName")}
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                   />
@@ -1255,7 +1224,7 @@ export const DetailedExpensesForm = memo(({
                     disabled={!newCategoryName.trim()}
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Добавить
+                    {t("forms.add")}
                   </Button>
                 </div>
               </AccordionContent>

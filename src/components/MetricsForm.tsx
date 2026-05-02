@@ -10,6 +10,7 @@ import { LeadSourcesForm, LeadSource } from "./LeadSourcesForm";
 import { SalesFunnel } from "./SalesFunnel";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getBusinessTypeConfig, type BusinessType } from "@/config/businessTypeMetrics";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ExpenseCategory {
   id: string;
@@ -189,6 +190,7 @@ export const MetricsForm = memo(({
   isAuthenticated,
   calculateProfit,
 }: MetricsFormProps) => {
+  const { t } = useTranslation();
   const [showFunnel, setShowFunnel] = useState(true);
   const config = getBusinessTypeConfig(businessType);
   
@@ -254,34 +256,34 @@ export const MetricsForm = memo(({
             <CardTitle className="text-base flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-accent" />
-                Интеграция с продуктами
+                {t("metricsForm.productsIntegration")}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onSyncProducts}
               >
-                Синхронизировать
+                {t("metricsForm.sync")}
               </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Выручка из продуктов</p>
+                <p className="text-muted-foreground">{t("metricsForm.productsRevenue")}</p>
                 <p className="font-mono font-semibold text-accent">
                   {productsRevenue.toLocaleString("ru-RU")} {currency}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Себестоимость продуктов</p>
+                <p className="text-muted-foreground">{t("metricsForm.productsCosts")}</p>
                 <p className="font-mono font-semibold text-destructive">
                   {productsCosts.toLocaleString("ru-RU")} {currency}
                 </p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Нажмите "Синхронизировать" чтобы автоматически обновить выручку и переменные расходы
+              {t("metricsForm.syncHint")}
             </p>
           </CardContent>
         </Card>
@@ -292,20 +294,20 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-primary" />
-              {config.labels.revenue || 'Выручка и доходы'}
+              {config.labels.revenue || t("metricsForm.revenueAndIncome")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">
-                {businessType === 'saas' ? 'MRR формируется из тарифных планов' : 'Общая выручка формируется автоматически из продуктов'}
+                {businessType === 'saas' ? t("metricsForm.revenueMrrFromPlans") : t("metricsForm.revenueAutoFromProducts")}
               </p>
               <p className="text-xl font-bold font-mono text-primary">
                 {metrics.revenue.toLocaleString("ru-RU")} {currency}
               </p>
               {productsRevenue > 0 && (
                 <p className="text-[11px] text-muted-foreground">
-                  Из продуктов: {productsRevenue.toLocaleString("ru-RU")} {currency}
+                  {t("metricsForm.revenueFromProducts")} {productsRevenue.toLocaleString("ru-RU")} {currency}
                 </p>
               )}
               {businessType === 'saas' && (
@@ -316,13 +318,13 @@ export const MetricsForm = memo(({
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                {config.labels.avgCheck || 'Средний чек'}
+                {config.labels.avgCheck || t("metricsForm.avgCheck")}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs text-xs">
-                    {businessType === 'saas' ? 'ARPU = MRR / кол-во подписчиков' : 'Средний чек = выручка / кол-во клиентов'}
+                    {businessType === 'saas' ? t("metricsForm.avgCheckArpuTooltip") : t("metricsForm.avgCheckTooltip")}
                   </TooltipContent>
                 </Tooltip>
               </p>
@@ -337,12 +339,12 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="w-4 h-4 text-secondary" />
-              {config.labels.clients || 'Клиенты'}
+              {config.labels.clients || t("metricsForm.clients")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-totalClients`}>{config.labels.clients || 'Всего клиентов'}</Label>
+              <Label htmlFor={`${scenario}-totalClients`}>{config.labels.clients || t("metricsForm.totalClients")}</Label>
               <NumericInput
                 id={`${scenario}-totalClients`}
                 value={metrics.totalClients}
@@ -351,7 +353,7 @@ export const MetricsForm = memo(({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor={`${scenario}-newClients`}>Новые</Label>
+                <Label htmlFor={`${scenario}-newClients`}>{t("metricsForm.newClients")}</Label>
                 <NumericInput
                   id={`${scenario}-newClients`}
                   value={metrics.newClients}
@@ -359,7 +361,7 @@ export const MetricsForm = memo(({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`${scenario}-returningClients`}>Повторные</Label>
+                <Label htmlFor={`${scenario}-returningClients`}>{t("metricsForm.returningClients")}</Label>
                 <NumericInput
                   id={`${scenario}-returningClients`}
                   value={metrics.returningClients}
@@ -374,12 +376,12 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Percent className="w-4 h-4 text-accent" />
-              Конверсия и LTV
+              {t("metricsForm.conversionAndLtv")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-conversionRate`}>Конверсия в оплату (%)</Label>
+              <Label htmlFor={`${scenario}-conversionRate`}>{t("metricsForm.conversionRate")}</Label>
               <NumericInput
                 id={`${scenario}-conversionRate`}
                 value={metrics.conversionRate}
@@ -389,7 +391,7 @@ export const MetricsForm = memo(({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`${scenario}-lifetime`} className="text-xs">
-                  Срок жизни (мес)
+                  {t("metricsForm.customerLifetimeMonths")}
                 </Label>
                 <NumericInput
                   id={`${scenario}-lifetime`}
@@ -399,7 +401,7 @@ export const MetricsForm = memo(({
               </div>
               <div className="space-y-2">
                 <Label htmlFor={`${scenario}-frequency`} className="text-xs">
-                  Покупок/мес
+                  {t("metricsForm.purchaseFrequency")}
                 </Label>
                 <NumericInput
                   id={`${scenario}-frequency`}
@@ -416,13 +418,13 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-destructive" />
-              Расходы
+              {t("metricsForm.expenses")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">
-                Постоянные расходы (из детализированных статей)
+                {t("metricsForm.fixedExpensesHint")}
               </p>
               <p className="text-lg font-bold font-mono text-destructive">
                 {metrics.fixedCosts.toLocaleString("ru-RU")} {currency}
@@ -430,7 +432,7 @@ export const MetricsForm = memo(({
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">
-                Переменные расходы (из детализированных статей, включая материалы и налоги)
+                {t("metricsForm.variableExpensesHint")}
               </p>
               <p className="text-lg font-bold font-mono text-warning">
                 {metrics.variableCosts.toLocaleString("ru-RU")} {currency}
@@ -438,7 +440,7 @@ export const MetricsForm = memo(({
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">
-                Маркетинг (из детализированных статей и/или источников трафика)
+                {t("metricsForm.marketingExpensesHint")}
               </p>
               <p className="text-lg font-bold font-mono text-primary">
                 {metrics.marketingCosts.toLocaleString("ru-RU")} {currency}
@@ -455,12 +457,12 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Activity className="w-4 h-4 text-accent" />
-              {businessType === 'saas' && 'SaaS-метрики'}
-              {businessType === 'ecommerce' && 'E-commerce метрики'}
-              {businessType === 'services' && 'Метрики услуг'}
-              {businessType === 'freemium' && 'Freemium-метрики'}
-              {businessType === 'sharing' && 'Sharing-метрики'}
-              {businessType === 'marketplace' && 'Маркетплейс-метрики'}
+              {businessType === 'saas' && t("metricsForm.saasMetrics")}
+              {businessType === 'ecommerce' && t("metricsForm.ecommerceMetrics")}
+              {businessType === 'services' && t("metricsForm.servicesMetrics")}
+              {businessType === 'freemium' && t("metricsForm.freemiumMetrics")}
+              {businessType === 'sharing' && t("metricsForm.sharingMetrics")}
+              {businessType === 'marketplace' && t("metricsForm.marketplaceMetrics")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -470,13 +472,13 @@ export const MetricsForm = memo(({
                 <>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-churnRate`} className="flex items-center gap-1">
-                      Churn Rate (%)
+                      {t("metricsForm.churnRate")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Процент подписчиков, которые отменяют подписку ежемесячно
+                          {t("metricsForm.churnRateTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -488,19 +490,19 @@ export const MetricsForm = memo(({
                     />
                     {(metrics.churnRate ?? 0) > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Retention: {(100 - (metrics.churnRate || 0)).toFixed(1)}%
+                        {t("metricsForm.retentionLabel")}: {(100 - (metrics.churnRate || 0)).toFixed(1)}%
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-nrr`} className="flex items-center gap-1">
-                      NRR (%)
+                      {t("metricsForm.nrr")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Net Revenue Retention — чистое удержание выручки с учётом апгрейдов и оттока
+                          {t("metricsForm.nrrTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -512,19 +514,19 @@ export const MetricsForm = memo(({
                     />
                     {(metrics.nrr ?? 0) > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        {(metrics.nrr || 0) >= 100 ? '✅ Положительный рост' : '⚠️ Негативный рост'}
+                        {(metrics.nrr || 0) >= 100 ? t("metricsForm.nrrPositive") : t("metricsForm.nrrNegative")}
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-expansionRevenue`} className="flex items-center gap-1">
-                      Expansion Revenue
+                      {t("metricsForm.expansionRevenue")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Дополнительная выручка от апгрейдов и допродаж существующим клиентам
+                          {t("metricsForm.expansionRevenueTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -535,7 +537,7 @@ export const MetricsForm = memo(({
                     />
                     {metrics.revenue > 0 && (metrics.expansionRevenue || 0) > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        {((metrics.expansionRevenue || 0) / metrics.revenue * 100).toFixed(1)}% от MRR
+                        {t("metricsForm.expansionShareOfMrr", { percent: ((metrics.expansionRevenue || 0) / metrics.revenue * 100).toFixed(1) })}
                       </p>
                     )}
                   </div>
@@ -547,13 +549,13 @@ export const MetricsForm = memo(({
                 <>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-repeatRate`} className="flex items-center gap-1">
-                      Repeat Rate (%)
+                      {t("metricsForm.repeatRate")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Доля клиентов, совершивших повторную покупку
+                          {t("metricsForm.repeatRateTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -565,19 +567,19 @@ export const MetricsForm = memo(({
                     />
                     {metrics.totalClients > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Расч.: {metrics.returningClients > 0 ? ((metrics.returningClients / metrics.totalClients) * 100).toFixed(1) : 0}%
+                        {t("metricsForm.repeatRateCalc", { percent: metrics.returningClients > 0 ? ((metrics.returningClients / metrics.totalClients) * 100).toFixed(1) : 0 })}
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-cartAbandonmentRate`} className="flex items-center gap-1">
-                      Cart Abandonment (%)
+                      {t("metricsForm.cartAbandonment")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Процент пользователей, бросивших корзину без оформления заказа
+                          {t("metricsForm.cartAbandonmentTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -588,18 +590,18 @@ export const MetricsForm = memo(({
                       step="0.1"
                     />
                     {(metrics.cartAbandonmentRate ?? 0) > 70 && (
-                      <p className="text-xs text-amber-500">⚠️ Выше среднего (70%)</p>
+                      <p className="text-xs text-amber-500">{t("metricsForm.cartAbandonmentHigh")}</p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-aov`} className="flex items-center gap-1">
-                      AOV ({currency})
+                      {t("metricsForm.aov", { currency })}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Average Order Value — средняя стоимость заказа
+                          {t("metricsForm.aovTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -617,13 +619,13 @@ export const MetricsForm = memo(({
                 <>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-utilizationRate`} className="flex items-center gap-1">
-                      Utilization Rate (%)
+                      {t("metricsForm.utilizationRate")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Процент оплачиваемого времени от общего рабочего времени
+                          {t("metricsForm.utilizationRateTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -635,19 +637,19 @@ export const MetricsForm = memo(({
                     />
                     {(metrics.utilizationRate ?? 0) > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        {(metrics.utilizationRate || 0) >= 75 ? '✅ Хорошая загрузка' : '⚠️ Низкая загрузка'}
+                        {(metrics.utilizationRate || 0) >= 75 ? t("metricsForm.utilizationGood") : t("metricsForm.utilizationLow")}
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-billableHours`} className="flex items-center gap-1">
-                      Billable Hours
+                      {t("metricsForm.billableHours")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Общее количество оплачиваемых часов в месяц
+                          {t("metricsForm.billableHoursTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -658,19 +660,19 @@ export const MetricsForm = memo(({
                     />
                     {(metrics.billableHours ?? 0) > 0 && metrics.revenue > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        ~{(metrics.revenue / (metrics.billableHours || 1)).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}/час
+                        {t("metricsForm.perHour", { value: (metrics.revenue / (metrics.billableHours || 1)).toLocaleString("ru-RU", { maximumFractionDigits: 0 }), currency })}
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-projectMargin`} className="flex items-center gap-1">
-                      Проектная маржа (%)
+                      {t("metricsForm.projectMargin")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Средняя маржинальность проектов после вычета прямых затрат
+                          {t("metricsForm.projectMarginTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -689,13 +691,13 @@ export const MetricsForm = memo(({
                 <>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-freeToPayConversion`} className="flex items-center gap-1">
-                      Free → Paid (%)
+                      {t("metricsForm.freeToPay")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Конверсия из бесплатного плана в платный
+                          {t("metricsForm.freeToPayTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -706,18 +708,18 @@ export const MetricsForm = memo(({
                       step="0.1"
                     />
                     {(metrics.freeToPayConversion ?? 0) >= 2 && (
-                      <p className="text-xs text-green-500">✅ Отличная конверсия</p>
+                      <p className="text-xs text-green-500">{t("metricsForm.freeToPayGreat")}</p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-dauMau`} className="flex items-center gap-1">
-                      DAU/MAU (%)
+                      {t("metricsForm.dauMau")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Отношение дневных активных пользователей к месячным — показатель стикинесса
+                          {t("metricsForm.dauMauTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -729,19 +731,19 @@ export const MetricsForm = memo(({
                     />
                     {(metrics.dauMau ?? 0) > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        {(metrics.dauMau || 0) >= 20 ? '✅ Хорошая вовлечённость' : '⚠️ Низкая вовлечённость'}
+                        {(metrics.dauMau || 0) >= 20 ? t("metricsForm.dauMauGood") : t("metricsForm.dauMauLow")}
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-churnRate`} className="flex items-center gap-1">
-                      Churn Rate (%)
+                      {t("metricsForm.churnRate")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Процент платящих пользователей, отменяющих подписку
+                          {t("metricsForm.freemiumChurnTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -760,13 +762,13 @@ export const MetricsForm = memo(({
                 <>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-gmv`} className="flex items-center gap-1">
-                      GMV ({currency})
+                      {t("metricsForm.gmv", { currency })}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Gross Merchandise Value — общий объём транзакций на платформе
+                          {t("metricsForm.gmvTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -778,13 +780,13 @@ export const MetricsForm = memo(({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`${scenario}-takeRate`} className="flex items-center gap-1">
-                      Take Rate (%)
+                      {t("metricsForm.takeRate")}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
-                          Процент комиссии платформы от GMV
+                          {t("metricsForm.takeRateTooltip")}
                         </TooltipContent>
                       </Tooltip>
                     </Label>
@@ -796,20 +798,20 @@ export const MetricsForm = memo(({
                     />
                     {(metrics.gmv ?? 0) > 0 && (metrics.takeRate ?? 0) > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Комиссия: {((metrics.gmv || 0) * (metrics.takeRate || 0) / 100).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                        {t("metricsForm.takeRateCommission", { value: ((metrics.gmv || 0) * (metrics.takeRate || 0) / 100).toLocaleString("ru-RU", { maximumFractionDigits: 0 }), currency })}
                       </p>
                     )}
                   </div>
                   {businessType === 'marketplace' && (
                     <div className="space-y-2">
                       <Label htmlFor={`${scenario}-liquidity`} className="flex items-center gap-1">
-                        Liquidity (%)
+                        {t("metricsForm.liquidity")}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs text-xs">
-                            Процент успешно завершённых транзакций от общего числа листингов
+                            {t("metricsForm.liquidityTooltip")}
                           </TooltipContent>
                         </Tooltip>
                       </Label>
@@ -824,13 +826,13 @@ export const MetricsForm = memo(({
                   {businessType === 'sharing' && (
                     <div className="space-y-2">
                       <Label htmlFor={`${scenario}-utilizationRate`} className="flex items-center gap-1">
-                        Utilization Rate (%)
+                        {t("metricsForm.utilizationRate")}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs text-xs">
-                            Загрузка ресурсов — процент времени использования
+                            {t("metricsForm.sharingUtilizationTooltip")}
                           </TooltipContent>
                         </Tooltip>
                       </Label>
@@ -881,24 +883,24 @@ export const MetricsForm = memo(({
 
       <Card className="bg-gradient-to-br from-primary/5 to-secondary/5">
         <CardHeader>
-          <CardTitle>Итоговые показатели</CardTitle>
+          <CardTitle>{t("forms.totals")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Выручка</p>
+              <p className="text-sm text-muted-foreground">{t("forms.totalRevenue")}</p>
               <p className="text-2xl font-bold text-primary font-mono">
                 {metrics.revenue.toLocaleString("ru-RU")} {currency}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Общие расходы</p>
+              <p className="text-sm text-muted-foreground">{t("forms.totalExpenses")}</p>
               <p className="text-2xl font-bold text-destructive font-mono">
                 {(metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts).toLocaleString("ru-RU")} {currency}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Прибыль</p>
+              <p className="text-sm text-muted-foreground">{t("forms.totalProfit")}</p>
               <p className={`text-2xl font-bold font-mono ${calculateProfit(metrics) >= 0 ? "text-accent" : "text-destructive"}`}>
                 {calculateProfit(metrics).toLocaleString("ru-RU")} {currency}
               </p>
@@ -915,7 +917,7 @@ export const MetricsForm = memo(({
             className="flex-1"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Очистить сценарий
+            {t("forms.clearScenario")}
           </Button>
         )}
         <Button 
@@ -924,7 +926,7 @@ export const MetricsForm = memo(({
           disabled={!isAuthenticated}
         >
           <Save className="w-4 h-4 mr-2" />
-          {isAuthenticated ? "Сохранить сценарий" : "Войдите для сохранения"}
+          {isAuthenticated ? t("forms.saveScenario") : t("forms.signInToSave")}
         </Button>
       </div>
     </div>
