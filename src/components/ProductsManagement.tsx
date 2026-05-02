@@ -16,6 +16,7 @@ import {
 import { Plus, Trash2, Package, Star, Clock, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n/useTranslation";
 import { LogisticsTariffsData } from "@/hooks/useProject";
 import { 
   BusinessType, 
@@ -126,6 +127,7 @@ export const ProductsManagement = ({
   tariffs,
   businessType,
 }: ProductsManagementProps) => {
+  const { t } = useTranslation();
   const config = useMemo(() => getBusinessTypeConfig(businessType), [businessType]);
   const fields = config.productFields;
   const productLabel = getProductLabel(businessType);
@@ -142,7 +144,7 @@ export const ProductsManagement = ({
 
   const handleAddProduct = async () => {
     if (!newProduct.name.trim()) {
-      toast.error(`Введите название ${productLabel.toLowerCase()}а`);
+      toast.error(t("validation.enterProductName", { entity: productLabel.toLowerCase() }));
       return;
     }
 
@@ -164,20 +166,20 @@ export const ProductsManagement = ({
     const hours = product.hoursPerWeek ?? 40;
     const billable = (hours * rate) / 100;
     
-    let status = 'Низкая';
+    let status = t("products.utilLow");
     let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'destructive';
-    
+
     if (rate >= 85) {
-      status = 'Отличная';
+      status = t("products.utilGreat");
       variant = 'default';
     } else if (rate >= 70) {
-      status = 'Хорошая';
+      status = t("products.utilGood");
       variant = 'default';
     } else if (rate >= 60) {
-      status = 'Нормальная';
+      status = t("products.utilNormal");
       variant = 'secondary';
     }
-    
+
     return { billable, rate, status, variant, hours };
   };
 
@@ -249,7 +251,7 @@ export const ProductsManagement = ({
               onValueChange={(v) => onChange(field.key, v)}
             >
               <SelectTrigger id={fieldId}>
-                <SelectValue placeholder={`Выберите ${field.label.toLowerCase()}`} />
+                <SelectValue placeholder={t("products.selectPlaceholder", { field: field.label.toLowerCase() })} />
               </SelectTrigger>
               <SelectContent>
                 {field.options?.map((opt) => (
@@ -279,12 +281,12 @@ export const ProductsManagement = ({
         revenue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
         cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
         metrics.push(
-          { label: 'MRR', value: `${revenue.toLocaleString("ru-RU")} ${currency}` },
-          { label: 'ARR', value: `${(revenue * 12).toLocaleString("ru-RU")} ${currency}` },
+          { label: t("products.mrr"), value: `${revenue.toLocaleString("ru-RU")} ${currency}` },
+          { label: t("products.arr"), value: `${(revenue * 12).toLocaleString("ru-RU")} ${currency}` },
         );
         if (products.length > 0) {
           const avgChurn = products.reduce((sum, p) => sum + (p.churnRate ?? 0), 0) / products.length;
-          metrics.push({ label: 'Avg Churn', value: `${avgChurn.toFixed(1)}%` });
+          metrics.push({ label: t("products.avgChurn"), value: `${avgChurn.toFixed(1)}%` });
         }
         break;
 
@@ -306,22 +308,22 @@ export const ProductsManagement = ({
           
           // Цветовой индикатор
           let utilColor = 'text-destructive';
-          let utilStatus = 'Низкая';
+          let utilStatus = t("products.utilLow");
           if (avgUtil >= 85) {
             utilColor = 'text-success';
-            utilStatus = 'Отличная';
+            utilStatus = t("products.utilGreat");
           } else if (avgUtil >= 70) {
             utilColor = 'text-success';
-            utilStatus = 'Хорошая';
+            utilStatus = t("products.utilGood");
           } else if (avgUtil >= 60) {
             utilColor = 'text-warning';
-            utilStatus = 'Нормальная';
+            utilStatus = t("products.utilNormal");
           }
-          
+
           metrics.push(
-            { label: 'Часов/нед', value: `${totalHours.toFixed(0)} ч` },
-            { label: 'Billable', value: `${totalBillable.toFixed(0)} ч` },
-            { label: 'Загрузка', value: `${avgUtil.toFixed(0)}% (${utilStatus})`, color: utilColor }
+            { label: t("products.hoursPerWeek"), value: `${totalHours.toFixed(0)} ч` },
+            { label: t("products.billable"), value: `${totalBillable.toFixed(0)} ч` },
+            { label: t("products.utilization"), value: `${avgUtil.toFixed(0)}% (${utilStatus})`, color: utilColor }
           );
         }
         break;
@@ -334,8 +336,8 @@ export const ProductsManagement = ({
         revenue = totalGMV * (avgTakeRate / 100);
         cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
         metrics.push(
-          { label: 'GMV', value: `${totalGMV.toLocaleString("ru-RU")} ${currency}` },
-          { label: 'Avg Take Rate', value: `${avgTakeRate.toFixed(1)}%` },
+          { label: t("products.mrr").replace("MRR", "GMV"), value: `${totalGMV.toLocaleString("ru-RU")} ${currency}` },
+          { label: t("products.avgTakeRate"), value: `${avgTakeRate.toFixed(1)}%` },
         );
         break;
 
@@ -347,7 +349,7 @@ export const ProductsManagement = ({
         cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
         if (products.length > 0) {
           const avgUtil = products.reduce((sum, p) => sum + (p.utilizationRate ?? 0), 0) / products.length;
-          metrics.push({ label: 'Средняя загрузка', value: `${avgUtil.toFixed(0)}%` });
+          metrics.push({ label: t("products.avgUtilization"), value: `${avgUtil.toFixed(0)}%` });
         }
         break;
 
