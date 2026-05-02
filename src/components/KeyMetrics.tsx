@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Target, DollarSign, BarChart3 } from "lucide-react";
 import { MetricInfoTooltip } from "@/components/ui/metric-info-tooltip";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -67,6 +68,7 @@ interface KeyMetricsProps {
 }
 
 export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
+  const { t } = useTranslation();
   const calculateCAC = () => {
     if (!metrics.detailedExpenses || metrics.newClients === 0) return 0;
 
@@ -161,7 +163,7 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
           <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-          🎯 Ключевые показатели
+          {t("keyMetrics.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -175,7 +177,7 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
             <p className="text-lg sm:text-xl font-bold font-mono text-primary">
               {calculateCAC().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
             </p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Стоимость привлечения</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{t("keyMetrics.cacHint")}</p>
           </div>
 
           <div className="space-y-1">
@@ -187,25 +189,25 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
             <p className="text-lg sm:text-xl font-bold font-mono text-secondary">
               {calculateCPL().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
             </p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Стоимость лида</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{t("keyMetrics.cplHint")}</p>
           </div>
 
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <BarChart3 className="w-3 h-3" />
-              <span>Безубыточность</span>
+              <span>{t("keyMetrics.breakeven")}</span>
               <MetricInfoTooltip metricKey="breakeven" />
             </p>
             <p className="text-lg sm:text-xl font-bold font-mono text-accent">
-              {calculateBreakeven().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} кл.
+              {calculateBreakeven().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {t("keyMetrics.breakevenSuffix")}
             </p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Клиентов для окупаемости</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{t("keyMetrics.breakevenHint")}</p>
           </div>
 
           <div className="space-y-1">
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              <span>Прибыль</span>
+              <span>{t("keyMetrics.profit")}</span>
               <MetricInfoTooltip metricKey="profitPerClient" />
             </p>
             <p className="text-lg sm:text-xl font-bold font-mono text-success">
@@ -213,7 +215,7 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
               {currency}
             </p>
             <p className="text-[10px] sm:text-xs text-muted-foreground">
-              Маржа: {calculateProfitMargin().toFixed(1)}%
+              {t("keyMetrics.profitMarginHint", { value: calculateProfitMargin().toFixed(1) })}
             </p>
           </div>
 
@@ -228,7 +230,7 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
                 <p className="text-lg sm:text-xl font-bold font-mono text-primary">
                   {calculateLTV().toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                 </p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Ценность клиента</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{t("keyMetrics.ltvHint")}</p>
               </div>
 
               <div className="space-y-1">
@@ -243,7 +245,7 @@ export const KeyMetrics = ({ metrics, currency }: KeyMetricsProps) => {
                 }`}>
                   {calculateLTVCACRatio().toFixed(2)}x
                 </p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Эффективность</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{t("keyMetrics.ltvCacHint")}</p>
               </div>
             </>
           )}

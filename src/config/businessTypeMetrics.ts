@@ -13,10 +13,12 @@ export type BusinessType =
 export interface ProductField {
   key: string;
   label: string;
+  labelKey?: string;
   type: 'text' | 'number' | 'select';
   required?: boolean;
   suffix?: string;
-  options?: { value: string; label: string }[];
+  suffixKey?: string;
+  options?: { value: string; label: string; labelKey?: string }[];
   min?: number;
   max?: number;
 }
@@ -24,8 +26,11 @@ export interface ProductField {
 export interface MetricField {
   key: string;
   label: string;
+  labelKey?: string;
   description?: string;
+  descriptionKey?: string;
   suffix?: string;
+  suffixKey?: string;
   category: 'revenue' | 'clients' | 'conversion' | 'retention' | 'custom';
   calculatedFrom?: string[]; // If metric is auto-calculated
 }
@@ -41,7 +46,9 @@ export interface BusinessTypeFeatures {
 export interface BusinessTypeConfig {
   id: BusinessType;
   label: string;
+  labelKey?: string;
   description: string;
+  descriptionKey?: string;
   icon: string;
   primaryMetrics: string[];
   additionalMetrics: string[];
@@ -53,24 +60,28 @@ export interface BusinessTypeConfig {
     retention?: string;
   };
   productLabel: string;
+  productLabelKey?: string;
   productLabelPlural: string;
+  productLabelPluralKey?: string;
   productFields: ProductField[];
   metricFields: MetricField[];
   features: BusinessTypeFeatures;
 }
 
 const DELIVERY_TYPE_OPTIONS = [
-  { value: "courier", label: "Курьер" },
-  { value: "pickup", label: "Самовывоз" },
-  { value: "transport_company", label: "Транспортная компания" },
-  { value: "own_delivery", label: "Своя доставка" },
+  { value: "courier", label: "Курьер", labelKey: "businessTypeMetrics.delivery_courier" },
+  { value: "pickup", label: "Самовывоз", labelKey: "businessTypeMetrics.delivery_pickup" },
+  { value: "transport_company", label: "Транспортная компания", labelKey: "businessTypeMetrics.delivery_transport_company" },
+  { value: "own_delivery", label: "Своя доставка", labelKey: "businessTypeMetrics.delivery_own_delivery" },
 ];
 
 export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'saas',
     label: 'SaaS / Подписка',
+    labelKey: 'businessTypeMetrics.saas_label',
     description: 'Программное обеспечение как услуга, подписочные модели',
+    descriptionKey: 'businessTypeMetrics.saas_description',
     icon: '💻',
     primaryMetrics: ['MRR', 'ARR', 'Churn Rate', 'ARPU', 'LTV'],
     additionalMetrics: ['Retention Rate', 'Expansion Revenue', 'NRR'],
@@ -82,7 +93,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Retention Rate',
     },
     productLabel: 'Тарифный план',
+    productLabelKey: 'businessTypeMetrics.saas_productLabel',
     productLabelPlural: 'Тарифные планы',
+    productLabelPluralKey: 'businessTypeMetrics.saas_productLabelPlural',
     productFields: [
       { key: 'name', label: 'Название плана', type: 'text', required: true },
       { key: 'price', label: 'Цена подписки', type: 'number', suffix: '/мес' },
@@ -112,7 +125,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'ecommerce',
     label: 'E-commerce / Дропшиппинг',
+    labelKey: 'businessTypeMetrics.ecommerce_label',
     description: 'Интернет-магазины, дистрибуция, дропшиппинг',
+    descriptionKey: 'businessTypeMetrics.ecommerce_description',
     icon: '🛒',
     primaryMetrics: ['AOV', 'Repeat Rate', 'Cart Abandonment', 'Маржа'],
     additionalMetrics: ['ROAS', 'CPA', 'GMV'],
@@ -124,7 +139,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Repeat Rate',
     },
     productLabel: 'Продукт',
+    productLabelKey: 'businessTypeMetrics.ecommerce_productLabel',
     productLabelPlural: 'Продукты',
+    productLabelPluralKey: 'businessTypeMetrics.ecommerce_productLabelPlural',
     productFields: [
       { key: 'name', label: 'Название', type: 'text', required: true },
       { key: 'price', label: 'Цена', type: 'number' },
@@ -156,7 +173,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'production',
     label: 'Производство',
+    labelKey: 'businessTypeMetrics.production_label',
     description: 'Собственное производство товаров',
+    descriptionKey: 'businessTypeMetrics.production_description',
     icon: '🏭',
     primaryMetrics: ['Себестоимость', 'Мощности', 'Утилизация', 'Маржа'],
     additionalMetrics: ['Оборачиваемость', 'Брак %', 'OEE'],
@@ -168,7 +187,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Повторные заказы',
     },
     productLabel: 'Продукт',
+    productLabelKey: 'businessTypeMetrics.production_productLabel',
     productLabelPlural: 'Продукты',
+    productLabelPluralKey: 'businessTypeMetrics.production_productLabelPlural',
     productFields: [
       { key: 'name', label: 'Название', type: 'text', required: true },
       { key: 'price', label: 'Цена', type: 'number' },
@@ -200,7 +221,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'services',
     label: 'Услуги / Консалтинг',
+    labelKey: 'businessTypeMetrics.services_label',
     description: 'Оказание услуг, консультирование, обучение',
+    descriptionKey: 'businessTypeMetrics.services_description',
     icon: '💼',
     primaryMetrics: ['Часовая ставка', 'Загрузка', 'Проектная маржа'],
     additionalMetrics: ['Загрузка (%)', 'Оплачиваемые часы', 'Удержание клиентов'],
@@ -212,7 +235,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Удержание клиентов',
     },
     productLabel: 'Услуга',
+    productLabelKey: 'businessTypeMetrics.services_productLabel',
     productLabelPlural: 'Услуги',
+    productLabelPluralKey: 'businessTypeMetrics.services_productLabelPlural',
     // Services v2: minimal fields for add form, full editing in ServicesProductCard
     productFields: [
       { key: 'name', label: 'Название услуги', type: 'text', required: true },
@@ -250,7 +275,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'freemium',
     label: 'Freemium / On-demand',
+    labelKey: 'businessTypeMetrics.freemium_label',
     description: 'Бесплатная базовая версия с платными функциями',
+    descriptionKey: 'businessTypeMetrics.freemium_description',
     icon: '🎁',
     primaryMetrics: ['Free → Paid конверсия', 'ARPU', 'LTV'],
     additionalMetrics: ['DAU/MAU', 'Activation Rate', 'Feature Adoption'],
@@ -262,7 +289,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Retention Rate',
     },
     productLabel: 'Тариф',
+    productLabelKey: 'businessTypeMetrics.freemium_productLabel',
     productLabelPlural: 'Тарифы',
+    productLabelPluralKey: 'businessTypeMetrics.freemium_productLabelPlural',
     productFields: [
       { key: 'name', label: 'Название тарифа', type: 'text', required: true },
       { key: 'price', label: 'Цена', type: 'number', suffix: '/мес' },
@@ -289,7 +318,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'sharing',
     label: 'Sharing Economy',
+    labelKey: 'businessTypeMetrics.sharing_label',
     description: 'Шеринг, аренда, совместное использование ресурсов',
+    descriptionKey: 'businessTypeMetrics.sharing_description',
     icon: '🔄',
     primaryMetrics: ['Utilization Rate', 'Take Rate', 'GMV'],
     additionalMetrics: ['Supply/Demand Balance', 'Time to First Booking'],
@@ -301,7 +332,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Repeat Usage',
     },
     productLabel: 'Ресурс',
+    productLabelKey: 'businessTypeMetrics.sharing_productLabel',
     productLabelPlural: 'Ресурсы',
+    productLabelPluralKey: 'businessTypeMetrics.sharing_productLabelPlural',
     productFields: [
       { key: 'name', label: 'Название ресурса', type: 'text', required: true },
       { key: 'price', label: 'Цена аренды', type: 'number', suffix: '/час' },
@@ -329,7 +362,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'marketplace',
     label: 'Маркетплейс',
+    labelKey: 'businessTypeMetrics.marketplace_label',
     description: 'Платформа для связи покупателей и продавцов',
+    descriptionKey: 'businessTypeMetrics.marketplace_description',
     icon: '🏪',
     primaryMetrics: ['GMV', 'Take Rate', 'Liquidity'],
     additionalMetrics: ['Seller Acquisition', 'Buyer Acquisition', 'AOV'],
@@ -341,7 +376,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Retention',
     },
     productLabel: 'Категория',
+    productLabelKey: 'businessTypeMetrics.marketplace_productLabel',
     productLabelPlural: 'Категории',
+    productLabelPluralKey: 'businessTypeMetrics.marketplace_productLabelPlural',
     productFields: [
       { key: 'name', label: 'Название категории', type: 'text', required: true },
       { key: 'gmv', label: 'GMV', type: 'number' },
@@ -368,7 +405,9 @@ export const businessTypes: BusinessTypeConfig[] = [
   {
     id: 'token_saas',
     label: 'Token SaaS',
+    labelKey: 'businessTypeMetrics.token_saas_label',
     description: 'Платформа с токен-экономикой (API, AI, кредиты)',
+    descriptionKey: 'businessTypeMetrics.token_saas_description',
     icon: '🪙',
     primaryMetrics: ['IT Price', 'Package Revenue', 'API Margin', 'IT Utilization'],
     additionalMetrics: ['Platform Profit', 'Avg IT Cost', 'Markup %'],
@@ -380,7 +419,9 @@ export const businessTypes: BusinessTypeConfig[] = [
       retention: 'Повторные покупки',
     },
     productLabel: 'Пакет токенов',
+    productLabelKey: 'businessTypeMetrics.token_saas_productLabel',
     productLabelPlural: 'Пакеты токенов',
+    productLabelPluralKey: 'businessTypeMetrics.token_saas_productLabelPlural',
     productFields: [
       // Token SaaS uses custom UI, minimal fields for compatibility
       { key: 'name', label: 'Название пакета', type: 'text', required: true },
@@ -404,6 +445,28 @@ export const businessTypes: BusinessTypeConfig[] = [
     },
   },
 ];
+
+/**
+ * Resolve i18n text from an optional translation key with a Russian fallback.
+ * Use in components that read user-facing labels from this config.
+ */
+export const resolveI18nText = (
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  fallback?: string,
+  key?: string
+): string => {
+  if (key) {
+    const translated = t(key);
+    // t() returns the path itself if the key is missing → fall back to RU.
+    if (translated && translated !== key) return translated;
+  }
+  return fallback ?? "";
+};
+
+export const getProductLabelKey = (type: BusinessType, plural = false): string | undefined => {
+  const config = getBusinessTypeConfig(type);
+  return plural ? config.productLabelPluralKey : config.productLabelKey;
+};
 
 export const getBusinessTypeConfig = (type: BusinessType): BusinessTypeConfig => {
   return businessTypes.find(bt => bt.id === type) || businessTypes[1]; // default to ecommerce

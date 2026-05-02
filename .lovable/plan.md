@@ -1,89 +1,104 @@
-## Goal
 
-Add small Info-icon tooltips next to key metric labels in three summary components, explaining for each metric: what it is, how it's calculated (matching the actual project code), and where the numbers come from.
+# Pass 2B — Implementation Plan (approved scope)
 
-No calculation logic, schema, IA, or dependencies change. Existing global `TooltipProvider` in `src/App.tsx` is reused.
+Scope is exactly the 14 files listed in the user's prompt. RU stays as fallback everywhere. No formula, schema, route, or internal-key changes.
 
-## Files to be created
+## Files to modify
 
-### 1. `src/config/summaryMetricTooltips.ts`
+1. `src/i18n/dictionary.ts` — extend with new sections (RU/EN/RO).
+2. `src/config/businessTypeMetrics.ts` — add optional `*Key` fields, keep RU as fallback.
+3. `src/components/ProductsManagement.tsx` — translate productLabel, field labels, field descriptions, delivery options via `*Key`.
+4. `src/components/MetricsForm.tsx` — only the spots reading `metricFields` `label/description` from config → use `*Key` if present.
+5. `src/components/DetailedExpensesForm.tsx` — only spots reading config text (none currently consume metricFields visibly; verify and skip if none).
+6. `src/components/KeyMetrics.tsx` — t() title + 4–6 hint strings + breakeven suffix.
+7. `src/components/SalesFunnel.tsx` — title, stage names, conversion text, CPL/CAC labels, source type labels, "лидов" suffix, sources title.
+8. `src/components/AIAnalytics.tsx` — already mostly localized; nothing left except `console.error` (kept as English log).
+9. `src/components/ExportDialog.tsx` — translate CSV header rows + competitor expense category strings.
+10. `src/components/CompanyMetrics.tsx` — TabsTrigger labels (Текущий / Сценарий A / Сценарий B).
+11. `src/components/ScenarioSummary.tsx` — full t() for visible UI + recommendation generator strings + toasts.
+12. `src/components/MetricsCharts.tsx` — translate visible card titles/descriptions, scenario `name` field on chart data, costs breakdown `name`. Add `name=` props on `<Bar/>`/`<Line/>` so legend/tooltip show translated text. **Keep Cyrillic `dataKey`s untouched** (they are series identifiers in JSX). Pie labels render from `entry.name` which we translate at data construction.
+13. `src/components/summary/CompanySummaryCard.tsx` — t() for description, all 8 KPI labels, "Недостаточно данных" fallback.
+14. `src/components/summary/CashFlowSummaryCard.tsx` — t() for description, all metric labels, payback pluralization (3 forms via t), top-inflow/outflow/weakest-period labels, loading state.
+15. `src/components/summary/RecommendationSummaryCard.tsx` — t() for descriptions, recommendation tags/texts.
+16. `src/components/summary/RiskSummaryCard.tsx` — t() for descriptions, all risk text variants, no-risks state.
+17. `src/components/summary/SummarySection.tsx` — no visible RU strings to change; structure stays.
 
-Single source of truth for tooltip content. Exports `SUMMARY_METRIC_TOOLTIPS` (keyed map) and `getSummaryTooltip(key)`. Each entry has `title` (bilingual where applicable: RU + EN + acronym), short `description`, simplified `formula`, and `source` (where in the app the inputs come from).
+## Dictionary sections (RU/EN/RO symmetrical)
 
-Keys covered (exactly the metrics the user asked for):
+New / extended sections:
 
-- `cac`, `cpl`, `breakeven`, `profitPerClient`, `profit`, `margin`, `ltv`, `ltvCac`
-- `revenue`, `totalClients`, `avgCheck`
-- `totalInflow`, `totalOutflow`, `netCashFlow`, `npv`, `payback`
+- `summary` (extended ~60 keys): company KPI labels, cashflow labels, risk texts, recommendation tags + texts, scenario summary UI, payback period plural forms.
+- `keyMetrics` (~10): titles, hints.
+- `salesFunnel` (~12): stages, source types, labels.
+- `charts` (~14): chart titles/descriptions, legend captions, scenario column names.
+- `scenarios` (3): tab labels.
+- `exportDialog` (extended ~40): CSV header columns + competitor expense category items.
+- `businessTypeMetrics` (~36): per-business-type label/description/productLabel/productLabelPlural + delivery options.
 
-Formulas verified against current code:
+Estimated ~175 new keys × 3 languages = ~525 entries.
 
-- `CAC = (marketing + bonusNewClients) / newClients` — from `calculateCAC` in `metricsCalculations.ts`.
-- `CPL = marketing / leads`, `leads = newClients / conversionRate` — from `calculateCPL`.
-- `Breakeven = fixedTotal / (avgCheck − variablePerClient)` — from `calculateBreakeven`.
-- `Profit = revenue − (fixed + variable + marketing)` — from `calculateProfit`.
-- `Margin = profit / revenue × 100%` — from `calculateProfitMargin`.
-- `LTV = avgCheck × purchaseFrequency × customerLifetimeMonths` — from `calculateLTV`.
-- `NPV = Σ NCFₜ / (1 + r)ᵗ`, `Payback = first period where cumulative NCF ≥ 0` — from `useCashFlowTimeline.ts`.
+## businessTypeMetrics.ts changes
 
-NPV/payback descriptions are explicitly framed as simplified estimates, not guarantees.
+Add optional fields to existing interfaces (no removal):
+```ts
+labelKey?: string;
+descriptionKey?: string;
+productLabelKey?: string;
+productLabelPluralKey?: string;
+```
 
-### 2. `src/components/ui/metric-info-tooltip.tsx`
+For each `BusinessTypeConfig` entry, add the 4 keys (e.g. `labelKey: 'businessTypeMetrics.saas_label'`).
 
-Reusable `MetricInfoTooltip` component:
+For `DELIVERY_TYPE_OPTIONS`, add `labelKey: 'businessTypeMetrics.delivery_courier'` etc.
 
-- Renders a small lucide `Info` icon (w-3 h-3, muted color) inside a `<button>` trigger so it's focusable on mobile.
-- Uses existing `Tooltip` / `TooltipTrigger` / `TooltipContent` from `src/components/ui/tooltip.tsx` (global `TooltipProvider` already in `App.tsx`).
-- Props: `metricKey?` (auto-loads from config), or explicit `title`/`description`/`formula`/`source`.
-- Fail-safe: if no content resolves, returns `null` (won't break rendering).
-- Compact content: title (bold), description, formula (mono in muted box), source ("Источник: …").
+Add helper:
+```ts
+export const getProductLabelKey = (type: BusinessType, plural = false) => {
+  const c = getBusinessTypeConfig(type);
+  return plural ? c.productLabelPluralKey : c.productLabelKey;
+};
+```
 
-## Files to be edited (label-only changes, no logic)
+Field-level `*Key` for individual `productFields`/`metricFields` is NOT added in this pass — they would require adding ~120 dictionary keys × 3 languages just for field labels and risk over-running. **ProductsManagement.tsx's field-level labels are translated via a small mapping inside the component** keyed by `field.key` (limited to common keys: `name/price/cost/quantity/quality/...`) using existing `forms.*` / `common.*` / `metricsForm.*` keys. Where no mapping exists, fall back to original Russian `field.label` → preserves RU UI.
 
-### 3. `src/components/KeyMetrics.tsx`
+This trade-off is documented in the final report.
 
-Add `<MetricInfoTooltip metricKey="…" />` next to the label `<p>` for each KPI tile:
+## MetricsCharts approach
 
-- CAC → `cac`
-- CPL → `cpl`
-- Безубыточность → `breakeven`
-- Прибыль → `profitPerClient` (this tile shows profit-per-client; description matches)
-- LTV → `ltv`
-- LTV/CAC → `ltvCac`
+- Keep all `dataKey="выручка"` etc. (they are stable JSX identifiers and chart data keys — out of scope).
+- Add `name={t("charts.legendRevenue")}` to each `<Bar />` / `<Line />` so legend/tooltip render translated strings while internal keys stay Cyrillic.
+- Translate `data[].name` (scenario column label) at render time using `t("charts.scenarioCurrent" | "scenarioA" | "scenarioB")`.
+- Translate Pie `costsBreakdownData[].name` similarly.
+- Card titles/descriptions translated via t().
 
-### 4. `src/components/summary/CompanySummaryCard.tsx`
+## ExportDialog
 
-Extend the `kpis` array entries with an optional `tooltipKey` and render the icon next to each label inside the existing `kpis.map(...)` block:
+- All hardcoded CSV header row strings, competitor expense category strings ("Постоянные", "Переменные - Маркетинг", "ЗП по старым клиентам", etc.) → `t("exportDialog.csv*")`.
+- Numerical values, dataKeys, file format, currency logic untouched.
 
-- Выручка → `revenue`
-- Прибыль → `profit`
-- Маржа → `margin`
-- CAC → `cac`
-- LTV → `ltv`
-- LTV / CAC → `ltvCac`
-- Всего клиентов → `totalClients`
-- Средний чек → `avgCheck`
+## ScenarioSummary special case
 
-### 5. `src/components/summary/CashFlowSummaryCard.tsx`
+The string `"Резюме сохранено"`, generator outputs (`"⚠️ Отрицательная маржа..."`, etc.), placeholders, button labels — all translated via `summary.*` keys.
 
-Extend the `items` array entries with `tooltipKey` and render the icon next to each label:
+## Mobile safety
 
-- Всего притоков → `totalInflow`
-- Всего оттоков → `totalOutflow`
-- Чистый денежный поток → `netCashFlow`
-- NPV → `npv`
-- Окупаемость → `payback`
+Only minor utility classes if EN/RO overflow: `text-sm`, `truncate`, `whitespace-normal`, `min-w-0`. No layout redesign.
 
-## Constraints honored
+## What is NOT touched
 
-- Zero changes to `metricsCalculations.ts`, `useCashFlowTimeline.ts`, types, schema, or tabs.
-- No new npm dependencies (uses existing Radix Tooltip + lucide).
-- Tooltips added only in the three listed files; SaaS, marketplace, competitor, detailed forms untouched.
-- Bilingual titles for CAC, LTV, NPV (and others where natural).
-- No threshold claims (e.g. no "LTV/CAC must be ≥ 3").
-- Mobile: Radix Tooltip on a focusable `<button>` opens on tap/focus.
-- Demo path Моя компания → Показатели → Cash Flow → Итоги → Теория stays intact.
+- Financial formulas, calc utilities (`metricsCalculations.ts` not edited).
+- Cash Flow internal logic, hooks.
+- Supabase schema / queries / column names.
+- Edge Function (`ai-analytics`) payload, model, prompt structure (only the existing `language` field passed in).
+- Routes, internal IDs, scenario/business model keys, chart `dataKey`s, saved data format, 7-tab structure.
+- Forecasting / SWOT / ROI / LTV / Sensitivity / Onboarding / GameTheory / Market / Competitor deep UI / ProjectSettings / MarketingMetrics / Theory texts.
 
-## Post-implementation report
+## Acceptance
 
-After implementing I will return: changed files, list of metrics that received tooltips, `tsc --noEmit` clean confirmation, confirmation no calculation logic changed, and remaining risks.
+- Switching RU/EN/RO updates: KeyMetrics labels, SalesFunnel labels, Summary cards, ExportDialog (incl. CSV headers), Charts legend/tooltips/titles, ScenarioSummary, CompanyMetrics tab labels, Product business-model labels (via `*Key`).
+- `getProductLabel()` / `getBusinessTypeConfig()` continue to work for any code not yet upgraded — RU fallback intact.
+- No data reset on language change. Active tab preserved. Build passes.
+
+## Final report after implementation
+
+Files modified, dictionary sections + key counts, fully vs partially localized, remaining hardcoded RU per file (most importantly: per-field labels inside `businessTypeMetrics.ts` `productFields[].label`/`metricFields[].label` for fields with no mapping match), `businessTypeMetrics.ts` compatibility status, mobile risks, build status, and proposed Pass 2C scope.

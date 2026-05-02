@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { TrendingUp } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface Metrics {
   revenue: number;
@@ -23,25 +24,26 @@ interface MetricsChartsProps {
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))'];
 
 export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsChartsProps) => {
+  const { t } = useTranslation();
   const calculateProfit = (metrics: Metrics) => {
     return metrics.revenue - metrics.fixedCosts - metrics.variableCosts - metrics.marketingCosts;
   };
 
   const revenueComparisonData = [
     {
-      name: 'Текущая',
+      name: t("charts.scenarioCurrent"),
       выручка: currentMetrics.revenue,
       расходы: currentMetrics.fixedCosts + currentMetrics.variableCosts + currentMetrics.marketingCosts,
       прибыль: calculateProfit(currentMetrics),
     },
     {
-      name: 'Сценарий А',
+      name: t("charts.scenarioA"),
       выручка: scenarioA.revenue,
       расходы: scenarioA.fixedCosts + scenarioA.variableCosts + scenarioA.marketingCosts,
       прибыль: calculateProfit(scenarioA),
     },
     {
-      name: 'Сценарий Б',
+      name: t("charts.scenarioB"),
       выручка: scenarioB.revenue,
       расходы: scenarioB.fixedCosts + scenarioB.variableCosts + scenarioB.marketingCosts,
       прибыль: calculateProfit(scenarioB),
@@ -50,26 +52,26 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
 
   const clientsComparisonData = [
     {
-      name: 'Текущая',
+      name: t("charts.scenarioCurrent"),
       новые: currentMetrics.newClients,
       повторные: currentMetrics.returningClients,
     },
     {
-      name: 'Сценарий А',
+      name: t("charts.scenarioA"),
       новые: scenarioA.newClients,
       повторные: scenarioA.returningClients,
     },
     {
-      name: 'Сценарий Б',
+      name: t("charts.scenarioB"),
       новые: scenarioB.newClients,
       повторные: scenarioB.returningClients,
     },
   ];
 
   const costsBreakdownData = [
-    { name: 'Постоянные', value: currentMetrics.fixedCosts },
-    { name: 'Переменные', value: currentMetrics.variableCosts },
-    { name: 'Маркетинг', value: currentMetrics.marketingCosts },
+    { name: t("charts.costsFixed"), value: currentMetrics.fixedCosts },
+    { name: t("charts.costsVariable"), value: currentMetrics.variableCosts },
+    { name: t("charts.costsMarketing"), value: currentMetrics.marketingCosts },
   ];
 
   return (
@@ -78,10 +80,10 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            Сравнение выручки, расходов и прибыли
+            {t("charts.revenueComparisonTitle")}
           </CardTitle>
           <CardDescription>
-            Анализ финансовых показателей по всем трем сценариям
+            {t("charts.revenueComparisonDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,9 +100,9 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
                 }}
               />
               <Legend />
-              <Bar dataKey="выручка" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="расходы" fill="hsl(var(--destructive))" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="прибыль" fill="hsl(var(--success))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="выручка" name={t("charts.legendRevenue")} fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="расходы" name={t("charts.legendExpenses")} fill="hsl(var(--destructive))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="прибыль" name={t("charts.legendProfit")} fill="hsl(var(--success))" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -109,8 +111,8 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Динамика клиентской базы</CardTitle>
-            <CardDescription>Новые и повторные клиенты по сценариям</CardDescription>
+            <CardTitle>{t("charts.clientsTitle")}</CardTitle>
+            <CardDescription>{t("charts.clientsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
@@ -129,6 +131,7 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
                 <Line
                   type="monotone"
                   dataKey="новые"
+                  name={t("charts.legendNew")}
                   stroke="hsl(var(--secondary))"
                   strokeWidth={3}
                   dot={{ r: 6 }}
@@ -136,6 +139,7 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
                 <Line
                   type="monotone"
                   dataKey="повторные"
+                  name={t("charts.legendReturning")}
                   stroke="hsl(var(--accent))"
                   strokeWidth={3}
                   dot={{ r: 6 }}
@@ -147,8 +151,8 @@ export const MetricsCharts = ({ currentMetrics, scenarioA, scenarioB }: MetricsC
 
         <Card>
           <CardHeader>
-            <CardTitle>Структура расходов</CardTitle>
-            <CardDescription>Распределение затрат в текущей ситуации</CardDescription>
+            <CardTitle>{t("charts.costsTitle")}</CardTitle>
+            <CardDescription>{t("charts.costsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">

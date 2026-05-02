@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Target, Users, CreditCard, TrendingDown } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface LeadSource {
   id: string;
@@ -28,19 +29,20 @@ export const SalesFunnel = memo(({
   marketingCosts,
   currency,
 }: SalesFunnelProps) => {
+  const { t } = useTranslation();
   const cpl = totalLeads > 0 ? marketingCosts / totalLeads : 0;
   const cac = totalClients > 0 ? marketingCosts / totalClients : 0;
 
   const stages = [
     {
-      name: "Лиды",
+      name: t("salesFunnel.leads"),
       value: totalLeads,
       icon: Target,
       color: "bg-primary",
       width: 100,
     },
     {
-      name: "Клиенты",
+      name: t("salesFunnel.clients"),
       value: totalClients,
       icon: Users,
       color: "bg-success",
@@ -56,10 +58,10 @@ export const SalesFunnel = memo(({
   };
 
   const typeLabels: Record<string, string> = {
-    paid: "Платный трафик",
-    organic: "Органика",
-    referral: "Рефералы",
-    direct: "Прямой",
+    paid: t("salesFunnel.paid"),
+    organic: t("salesFunnel.organic"),
+    referral: t("salesFunnel.referral"),
+    direct: t("salesFunnel.direct"),
   };
 
   const typeColors: Record<string, string> = {
@@ -74,7 +76,7 @@ export const SalesFunnel = memo(({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingDown className="w-5 h-5 text-accent" />
-          Воронка продаж
+          {t("salesFunnel.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -93,7 +95,7 @@ export const SalesFunnel = memo(({
                 <Progress value={stage.width} className="h-8" />
                 {index === 1 && stage.width > 0 && (
                   <span className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-primary-foreground">
-                    Конверсия: {conversionRate.toFixed(1)}%
+                    {t("salesFunnel.conversion", { value: conversionRate.toFixed(1) })}
                   </span>
                 )}
               </div>
@@ -104,13 +106,13 @@ export const SalesFunnel = memo(({
         {/* Метрики стоимости */}
         <div className="grid grid-cols-2 gap-4 pt-4 border-t">
           <div className="text-center p-3 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">CPL (стоимость лида)</p>
+            <p className="text-sm text-muted-foreground">{t("salesFunnel.cplLabel")}</p>
             <p className="text-xl font-bold font-mono text-primary">
               {cpl.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
             </p>
           </div>
           <div className="text-center p-3 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">CAC (стоимость клиента)</p>
+            <p className="text-sm text-muted-foreground">{t("salesFunnel.cacLabel")}</p>
             <p className="text-xl font-bold font-mono text-destructive">
               {cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
             </p>
@@ -120,7 +122,7 @@ export const SalesFunnel = memo(({
         {/* Источники трафика */}
         {leadSources.length > 0 && (
           <div className="space-y-3 pt-4 border-t">
-            <h4 className="font-semibold text-sm">Источники трафика</h4>
+            <h4 className="font-semibold text-sm">{t("salesFunnel.sourcesTitle")}</h4>
             {Object.entries(sourcesByType).map(([type, sources]) => {
               if (sources.length === 0) return null;
               const totalLeadsInType = sources.reduce((sum, s) => sum + s.leads, 0);
@@ -134,7 +136,7 @@ export const SalesFunnel = memo(({
                       {typeLabels[type]}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      CPL: {cplType.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                      {t("salesFunnel.cplShort")}: {cplType.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                     </span>
                   </div>
                   {sources.map((source) => (
@@ -145,7 +147,7 @@ export const SalesFunnel = memo(({
                       <span>{source.name}</span>
                       <div className="flex gap-4">
                         <span className="text-muted-foreground">
-                          {source.leads.toLocaleString("ru-RU")} лидов
+                          {source.leads.toLocaleString("ru-RU")} {t("salesFunnel.leadsSuffix")}
                         </span>
                         <span className="font-mono">
                           {source.cost.toLocaleString("ru-RU")} {currency}

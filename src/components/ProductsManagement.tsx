@@ -21,8 +21,8 @@ import { LogisticsTariffsData } from "@/hooks/useProject";
 import { 
   BusinessType, 
   getBusinessTypeConfig, 
-  getProductLabel,
-  ProductField 
+  ProductField,
+  resolveI18nText,
 } from "@/config/businessTypeMetrics";
 import { ServicesProductCard, ServiceProduct } from "@/components/services";
 
@@ -130,8 +130,8 @@ export const ProductsManagement = ({
   const { t } = useTranslation();
   const config = useMemo(() => getBusinessTypeConfig(businessType), [businessType]);
   const fields = config.productFields;
-  const productLabel = getProductLabel(businessType);
-  const productLabelPlural = getProductLabel(businessType, true);
+  const productLabel = resolveI18nText(t, config.productLabel, config.productLabelKey);
+  const productLabelPlural = resolveI18nText(t, config.productLabelPlural, config.productLabelPluralKey);
 
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>(() => 
     getDefaultProductValues(businessType)
@@ -195,12 +195,12 @@ export const ProductsManagement = ({
       case 'text':
         return (
           <div key={field.key}>
-            <Label htmlFor={fieldId}>{field.label}</Label>
+            <Label htmlFor={fieldId}>{resolveI18nText(t, field.label, field.labelKey)}</Label>
             <Input
               id={fieldId}
               value={value ?? ''}
               onChange={(e) => onChange(field.key, e.target.value)}
-              placeholder={field.label}
+              placeholder={resolveI18nText(t, field.label, field.labelKey)}
             />
           </div>
         );
@@ -219,7 +219,7 @@ export const ProductsManagement = ({
           <div key={field.key}>
             <Label htmlFor={fieldId} className="flex items-center gap-1">
               {field.key === 'quality' && <Star className="w-3 h-3 text-warning" />}
-              {field.label}
+              {resolveI18nText(t, field.label, field.labelKey)}
               {field.suffix && ` (${field.suffix})`}
               {!field.suffix && field.key !== 'name' && field.key !== 'quantity' && 
                !field.key.includes('Rate') && !field.key.includes('utilization') && 
@@ -245,18 +245,18 @@ export const ProductsManagement = ({
       case 'select':
         return (
           <div key={field.key}>
-            <Label htmlFor={fieldId}>{field.label}</Label>
+            <Label htmlFor={fieldId}>{resolveI18nText(t, field.label, field.labelKey)}</Label>
             <Select
               value={value ?? field.options?.[0]?.value ?? ''}
               onValueChange={(v) => onChange(field.key, v)}
             >
               <SelectTrigger id={fieldId}>
-                <SelectValue placeholder={t("products.selectPlaceholder", { field: field.label.toLowerCase() })} />
+                <SelectValue placeholder={t("products.selectPlaceholder", { field: resolveI18nText(t, field.label, field.labelKey).toLowerCase() })} />
               </SelectTrigger>
               <SelectContent>
                 {field.options?.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                    {resolveI18nText(t, opt.label, opt.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>

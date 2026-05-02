@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricsForm, initialMetricsState } from "./MetricsForm";
 import { LeadSource } from "./LeadSourcesForm";
 import type { BusinessType } from "@/config/businessTypeMetrics";
+import { useTranslation } from "@/i18n/useTranslation";
 interface ExpenseCategory {
   id: string;
   name: string;
@@ -118,6 +119,7 @@ export const CompanyMetrics = ({
   syncProductsToMetrics,
   businessType,
 }: CompanyMetricsProps) => {
+  const { t } = useTranslation();
   const calculateProfit = useCallback((metrics: Metrics) => {
     return metrics.revenue - metrics.fixedCosts - metrics.variableCosts - metrics.marketingCosts;
   }, []);
@@ -324,9 +326,9 @@ export const CompanyMetrics = ({
     <div className="space-y-12">
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="current">Текущий</TabsTrigger>
-          <TabsTrigger value="scenarioA">Сценарий A</TabsTrigger>
-          <TabsTrigger value="scenarioB">Сценарий B</TabsTrigger>
+          <TabsTrigger value="current">{t("scenarios.current")}</TabsTrigger>
+          <TabsTrigger value="scenarioA">{t("scenarios.scenarioA")}</TabsTrigger>
+          <TabsTrigger value="scenarioB">{t("scenarios.scenarioB")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="current" className="mt-6">
