@@ -1296,6 +1296,10 @@ export const Dashboard = () => {
                 <AnimatedCard delay={0.3}>
                   <CompetitiveSimulator myCompany={currentMetrics} competitors={competitors} currency={currency} />
                 </AnimatedCard>
+
+                <AnimatedCard delay={0.4}>
+                  <GlossarySection />
+                </AnimatedCard>
               </TabsContent>
             </Tabs>
           );
