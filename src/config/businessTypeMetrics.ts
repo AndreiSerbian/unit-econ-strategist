@@ -13,10 +13,12 @@ export type BusinessType =
 export interface ProductField {
   key: string;
   label: string;
+  labelKey?: string;
   type: 'text' | 'number' | 'select';
   required?: boolean;
   suffix?: string;
-  options?: { value: string; label: string }[];
+  suffixKey?: string;
+  options?: { value: string; label: string; labelKey?: string }[];
   min?: number;
   max?: number;
 }
@@ -24,8 +26,11 @@ export interface ProductField {
 export interface MetricField {
   key: string;
   label: string;
+  labelKey?: string;
   description?: string;
+  descriptionKey?: string;
   suffix?: string;
+  suffixKey?: string;
   category: 'revenue' | 'clients' | 'conversion' | 'retention' | 'custom';
   calculatedFrom?: string[]; // If metric is auto-calculated
 }
@@ -41,7 +46,9 @@ export interface BusinessTypeFeatures {
 export interface BusinessTypeConfig {
   id: BusinessType;
   label: string;
+  labelKey?: string;
   description: string;
+  descriptionKey?: string;
   icon: string;
   primaryMetrics: string[];
   additionalMetrics: string[];
@@ -53,17 +60,19 @@ export interface BusinessTypeConfig {
     retention?: string;
   };
   productLabel: string;
+  productLabelKey?: string;
   productLabelPlural: string;
+  productLabelPluralKey?: string;
   productFields: ProductField[];
   metricFields: MetricField[];
   features: BusinessTypeFeatures;
 }
 
 const DELIVERY_TYPE_OPTIONS = [
-  { value: "courier", label: "Курьер" },
-  { value: "pickup", label: "Самовывоз" },
-  { value: "transport_company", label: "Транспортная компания" },
-  { value: "own_delivery", label: "Своя доставка" },
+  { value: "courier", label: "Курьер", labelKey: "businessTypeMetrics.delivery_courier" },
+  { value: "pickup", label: "Самовывоз", labelKey: "businessTypeMetrics.delivery_pickup" },
+  { value: "transport_company", label: "Транспортная компания", labelKey: "businessTypeMetrics.delivery_transport_company" },
+  { value: "own_delivery", label: "Своя доставка", labelKey: "businessTypeMetrics.delivery_own_delivery" },
 ];
 
 export const businessTypes: BusinessTypeConfig[] = [
