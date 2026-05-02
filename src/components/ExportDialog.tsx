@@ -2,13 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ExportDialogProps {
   data: any;
   projectName?: string;
 }
 
-export const ExportDialog = ({ data, projectName = "Анализ" }: ExportDialogProps) => {
+export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
+  const { t } = useTranslation();
+  const effectiveProjectName = projectName ?? t("exportDialog.defaultProjectName");
   const exportToJSON = () => {
     const dataStr = JSON.stringify(data, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
