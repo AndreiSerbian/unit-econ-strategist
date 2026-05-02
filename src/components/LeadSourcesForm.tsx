@@ -172,7 +172,7 @@ export const LeadSourcesForm = memo(({
                 className="grid grid-cols-12 gap-2 items-center p-2 border rounded-lg"
               >
                 <div className="col-span-12 sm:col-span-4">
-                  <Label className="text-xs text-muted-foreground">Источник</Label>
+                  <Label className="text-xs text-muted-foreground">{t("leadSources.source")}</Label>
                   <Input
                     value={source.name}
                     onChange={(e) => updateSource(source.id, "name", e.target.value)}
@@ -180,7 +180,7 @@ export const LeadSourcesForm = memo(({
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-2">
-                  <Label className="text-xs text-muted-foreground">Тип</Label>
+                  <Label className="text-xs text-muted-foreground">{t("leadSources.type")}</Label>
                   <Select
                     value={source.type}
                     onValueChange={(v) => updateSource(source.id, "type", v)}
@@ -198,7 +198,7 @@ export const LeadSourcesForm = memo(({
                   </Select>
                 </div>
                 <div className="col-span-6 sm:col-span-2">
-                  <Label className="text-xs text-muted-foreground">Лиды</Label>
+                  <Label className="text-xs text-muted-foreground">{t("leadSources.leads")}</Label>
                   <NumericInput
                     value={source.leads}
                     onChange={(v) => updateSource(source.id, "leads", v)}
@@ -206,7 +206,7 @@ export const LeadSourcesForm = memo(({
                   />
                 </div>
                 <div className="col-span-6 sm:col-span-3">
-                  <Label className="text-xs text-muted-foreground">Затраты ({currency})</Label>
+                  <Label className="text-xs text-muted-foreground">{t("leadSources.cost", { currency })}</Label>
                   <NumericInput
                     value={source.cost}
                     onChange={(v) => updateSource(source.id, "cost", v)}
@@ -226,7 +226,7 @@ export const LeadSourcesForm = memo(({
 
                 <div className="col-span-12 grid grid-cols-3 gap-2 mt-2 pt-2 border-t">
                   <div className="text-center">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">CPL</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t("leadSources.cpl")}</p>
                     <p className="font-mono text-xs sm:text-sm font-semibold">
                       {source.leads > 0 && source.cost > 0
                         ? `${cpl.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
@@ -234,7 +234,7 @@ export const LeadSourcesForm = memo(({
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Оценочный CAC</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t("leadSources.estimatedCac")}</p>
                     <p className="font-mono text-xs sm:text-sm font-semibold">
                       {hasCAC
                         ? `${cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
@@ -242,7 +242,7 @@ export const LeadSourcesForm = memo(({
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">ROI канала</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t("leadSources.roi")}</p>
                     <p className={`font-mono text-xs sm:text-sm font-semibold ${hasROI ? roiClass : "text-muted-foreground"}`}>
                       {hasROI
                         ? `${roi.toLocaleString("ru-RU", { maximumFractionDigits: 0 })}%`
@@ -258,7 +258,7 @@ export const LeadSourcesForm = memo(({
         {/* Добавление нового источника */}
         <div className="flex flex-wrap gap-2 pt-2 border-t">
           <Input
-            placeholder="Название источника"
+            placeholder={t("leadSources.sourceNamePlaceholder")}
             value={newSourceName}
             onChange={(e) => setNewSourceName(e.target.value)}
             className="flex-1 min-w-[150px]"
@@ -280,7 +280,7 @@ export const LeadSourcesForm = memo(({
           </Select>
           <Button onClick={addSource} disabled={!newSourceName.trim()}>
             <Plus className="w-4 h-4 mr-1" />
-            Добавить
+            {t("leadSources.add")}
           </Button>
         </div>
       </CardContent>

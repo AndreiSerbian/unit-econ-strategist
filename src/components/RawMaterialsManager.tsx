@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FlaskConical, Plus, Trash2, Calculator } from "lucide-react";
+import { FlaskConical, Plus, Trash2 } from "lucide-react";
 import { RawMaterial, LogisticsTariffsData } from "@/hooks/useProject";
-import { calculateMaterialLogisticsCost } from "./LogisticsTariffs";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface RawMaterialsManagerProps {
   materials: RawMaterial[];
@@ -22,38 +22,45 @@ interface RawMaterialsManagerProps {
   tariffs?: LogisticsTariffsData;
 }
 
-const UNIT_OPTIONS = [
-  { value: "кг", label: "кг (килограмм)" },
-  { value: "г", label: "г (грамм)" },
-  { value: "т", label: "т (тонна)" },
-  { value: "л", label: "л (литр)" },
-  { value: "мл", label: "мл (миллилитр)" },
-  { value: "м³", label: "м³ (куб. метр)" },
-  { value: "м", label: "м (метр)" },
-  { value: "см", label: "см (сантиметр)" },
-  { value: "мм", label: "мм (миллиметр)" },
-  { value: "м²", label: "м² (кв. метр)" },
-  { value: "шт.", label: "шт. (штука)" },
-  { value: "упак.", label: "упак. (упаковка)" },
-  { value: "коробка", label: "коробка" },
-  { value: "паллета", label: "паллета" },
-  { value: "other", label: "Другое..." },
-];
-
-const TRANSPORT_TYPE_OPTIONS = [
-  { value: "auto", label: "Авто" },
-  { value: "rail", label: "Ж/Д" },
-  { value: "air", label: "Авиа" },
-  { value: "sea", label: "Морской" },
-  { value: "local", label: "Локальный" },
-];
-
 export const RawMaterialsManager = ({
   materials,
   setMaterials,
   currency,
-  tariffs,
 }: RawMaterialsManagerProps) => {
+  const { t } = useTranslation();
+
+  const UNIT_OPTIONS = useMemo(
+    () => [
+      { value: "кг", label: t("rawMaterials.unitKg") },
+      { value: "г", label: t("rawMaterials.unitG") },
+      { value: "т", label: t("rawMaterials.unitT") },
+      { value: "л", label: t("rawMaterials.unitL") },
+      { value: "мл", label: t("rawMaterials.unitMl") },
+      { value: "м³", label: t("rawMaterials.unitM3") },
+      { value: "м", label: t("rawMaterials.unitM") },
+      { value: "см", label: t("rawMaterials.unitCm") },
+      { value: "мм", label: t("rawMaterials.unitMm") },
+      { value: "м²", label: t("rawMaterials.unitM2") },
+      { value: "шт.", label: t("rawMaterials.unitPcs") },
+      { value: "упак.", label: t("rawMaterials.unitPack") },
+      { value: "коробка", label: t("rawMaterials.unitBox") },
+      { value: "паллета", label: t("rawMaterials.unitPallet") },
+      { value: "other", label: t("rawMaterials.unitOther") },
+    ],
+    [t]
+  );
+
+  const TRANSPORT_TYPE_OPTIONS = useMemo(
+    () => [
+      { value: "auto", label: t("rawMaterials.transportAuto") },
+      { value: "rail", label: t("rawMaterials.transportRail") },
+      { value: "air", label: t("rawMaterials.transportAir") },
+      { value: "sea", label: t("rawMaterials.transportSea") },
+      { value: "local", label: t("rawMaterials.transportLocal") },
+    ],
+    [t]
+  );
+
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("шт.");
   const [customUnit, setCustomUnit] = useState("");
@@ -117,32 +124,34 @@ export const RawMaterialsManager = ({
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   };
 
+  const unitDisplay = unit === "other" ? customUnit || t("common.untitled") : unit;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FlaskConical className="w-5 h-5 text-primary" />
-          Сырьё
+          {t("rawMaterials.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Row 1: Name, Unit, Price, Logistics */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
           <div className="space-y-1 col-span-2 sm:col-span-1">
-            <Label htmlFor="material-name" className="text-xs sm:text-sm">Название</Label>
+            <Label htmlFor="material-name" className="text-xs sm:text-sm">{t("rawMaterials.name")}</Label>
             <Input
               id="material-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Мука, ткань..."
+              placeholder={t("rawMaterials.namePlaceholder")}
               className="text-sm"
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-unit" className="text-xs sm:text-sm">Ед. измерения</Label>
+            <Label htmlFor="material-unit" className="text-xs sm:text-sm">{t("rawMaterials.unit")}</Label>
             <Select value={unit} onValueChange={setUnit}>
               <SelectTrigger id="material-unit" className="text-sm">
-                <SelectValue placeholder="Ед." />
+                <SelectValue placeholder={t("rawMaterials.unitPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {UNIT_OPTIONS.map((opt) => (
@@ -157,12 +166,12 @@ export const RawMaterialsManager = ({
                 className="mt-2 text-sm"
                 value={customUnit}
                 onChange={(e) => setCustomUnit(e.target.value)}
-                placeholder="Введите единицу"
+                placeholder={t("rawMaterials.customUnitPlaceholder")}
               />
             )}
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-price" className="text-xs sm:text-sm">Цена ({currency})</Label>
+            <Label htmlFor="material-price" className="text-xs sm:text-sm">{t("rawMaterials.price", { currency })}</Label>
             <NumericInput
               id="material-price"
               value={pricePerUnit}
@@ -171,7 +180,7 @@ export const RawMaterialsManager = ({
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-logistics" className="text-xs sm:text-sm">Логистика ({currency})</Label>
+            <Label htmlFor="material-logistics" className="text-xs sm:text-sm">{t("rawMaterials.logistics", { currency })}</Label>
             <NumericInput
               id="material-logistics"
               value={logisticsToProductionPerUnit}
@@ -179,7 +188,7 @@ export const RawMaterialsManager = ({
               className="text-sm"
             />
             <p className="text-[9px] sm:text-[10px] text-muted-foreground">
-              за 1 {unit === "other" ? customUnit || "ед." : unit || "ед."}
+              {t("rawMaterials.perUnit", { unit: unitDisplay })}
             </p>
           </div>
         </div>
@@ -187,7 +196,7 @@ export const RawMaterialsManager = ({
         {/* Row 2: Weight, Volume, Transport Type, Distance */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
           <div className="space-y-1">
-            <Label htmlFor="material-weight" className="text-xs sm:text-sm">Вес (кг)</Label>
+            <Label htmlFor="material-weight" className="text-xs sm:text-sm">{t("rawMaterials.weight")}</Label>
             <NumericInput
               id="material-weight"
               value={weight}
@@ -197,7 +206,7 @@ export const RawMaterialsManager = ({
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-volume" className="text-xs sm:text-sm">Объём (м³)</Label>
+            <Label htmlFor="material-volume" className="text-xs sm:text-sm">{t("rawMaterials.volume")}</Label>
             <NumericInput
               id="material-volume"
               value={volume}
@@ -207,13 +216,13 @@ export const RawMaterialsManager = ({
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-transport" className="text-xs sm:text-sm">Тип транспорта</Label>
+            <Label htmlFor="material-transport" className="text-xs sm:text-sm">{t("rawMaterials.transport")}</Label>
             <Select
               value={transportType}
               onValueChange={(v) => setTransportType(v as RawMaterial["transportType"])}
             >
               <SelectTrigger id="material-transport" className="text-sm">
-                <SelectValue placeholder="Транспорт" />
+                <SelectValue placeholder={t("rawMaterials.transportPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {TRANSPORT_TYPE_OPTIONS.map((opt) => (
@@ -225,7 +234,7 @@ export const RawMaterialsManager = ({
             </Select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="material-distance" className="text-xs sm:text-sm">Расстояние (км)</Label>
+            <Label htmlFor="material-distance" className="text-xs sm:text-sm">{t("rawMaterials.distance")}</Label>
             <NumericInput
               id="material-distance"
               value={distance}
@@ -238,7 +247,7 @@ export const RawMaterialsManager = ({
 
         <Button className="w-full" onClick={handleAdd}>
           <Plus className="w-4 h-4 mr-2" />
-          Добавить сырьё
+          {t("rawMaterials.add")}
         </Button>
 
         {materials.length > 0 && (
@@ -251,7 +260,7 @@ export const RawMaterialsManager = ({
                 {/* Row 1: Basic fields */}
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="col-span-2 sm:col-span-1">
-                    <Label className="text-xs text-muted-foreground">Название</Label>
+                    <Label className="text-xs text-muted-foreground">{t("rawMaterials.name")}</Label>
                     <Input
                       value={m.name}
                       onChange={(e) => handleUpdate(m.id, "name", e.target.value)}
@@ -259,7 +268,7 @@ export const RawMaterialsManager = ({
                     />
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Ед. изм.</Label>
+                    <Label className="text-xs text-muted-foreground">{t("rawMaterials.unitShort")}</Label>
                     <Select
                       value={UNIT_OPTIONS.some((o) => o.value === m.unit) ? m.unit : "other"}
                       onValueChange={(v) => {
@@ -284,13 +293,13 @@ export const RawMaterialsManager = ({
                         className="mt-2 text-sm"
                         value={m.unit}
                         onChange={(e) => handleUpdate(m.id, "unit", e.target.value)}
-                        placeholder="Введите единицу"
+                        placeholder={t("rawMaterials.customUnitPlaceholder")}
                       />
                     )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">
-                      Цена ({currency})
+                      {t("rawMaterials.price", { currency })}
                     </Label>
                     <NumericInput
                       value={m.pricePerUnit}
@@ -300,7 +309,7 @@ export const RawMaterialsManager = ({
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">
-                      Логистика ({currency})
+                      {t("rawMaterials.logistics", { currency })}
                     </Label>
                     <NumericInput
                       value={m.logisticsToProductionPerUnit || 0}
@@ -315,7 +324,7 @@ export const RawMaterialsManager = ({
                 {/* Row 2: Extended logistics fields */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 items-end">
                   <div>
-                    <Label className="text-xs text-muted-foreground">Вес (кг)</Label>
+                    <Label className="text-xs text-muted-foreground">{t("rawMaterials.weight")}</Label>
                     <NumericInput
                       value={m.weight || 0}
                       onChange={(value) => handleUpdate(m.id, "weight", value)}
@@ -323,7 +332,7 @@ export const RawMaterialsManager = ({
                     />
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Объём (м³)</Label>
+                    <Label className="text-xs text-muted-foreground">{t("rawMaterials.volume")}</Label>
                     <NumericInput
                       value={m.volume || 0}
                       onChange={(value) => handleUpdate(m.id, "volume", value)}
@@ -331,7 +340,7 @@ export const RawMaterialsManager = ({
                     />
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Транспорт</Label>
+                    <Label className="text-xs text-muted-foreground">{t("rawMaterials.transportShort")}</Label>
                     <Select
                       value={m.transportType || "auto"}
                       onValueChange={(v) =>
@@ -351,7 +360,7 @@ export const RawMaterialsManager = ({
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Расст. (км)</Label>
+                    <Label className="text-xs text-muted-foreground">{t("rawMaterials.distanceShort")}</Label>
                     <NumericInput
                       value={m.distance || 0}
                       onChange={(value) => handleUpdate(m.id, "distance", value)}
