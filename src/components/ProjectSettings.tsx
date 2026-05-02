@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { businessTypes, type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ProjectSettingsProps {
   currentBusinessType: BusinessType;
@@ -37,12 +38,15 @@ interface ProjectSettingsProps {
   onCurrencyChange: (currency: string) => void;
 }
 
+const CURRENCY_CODES = ["RUB", "USD", "EUR", "KZT", "BYN", "UAH", "MDL", "RON"] as const;
+
 export const ProjectSettings = ({
   currentBusinessType,
   onBusinessTypeChange,
   currency,
   onCurrencyChange,
 }: ProjectSettingsProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<BusinessType>(currentBusinessType);
   const [showWarning, setShowWarning] = useState(false);
@@ -84,22 +88,22 @@ export const ProjectSettings = ({
     <>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
-          <Button variant="ghost" size="sm" title="Настройки проекта">
+          <Button variant="ghost" size="sm" title={t("projectSettings.tooltip")}>
             <Settings className="w-4 h-4" />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Настройки проекта</DialogTitle>
+            <DialogTitle>{t("projectSettings.title")}</DialogTitle>
             <DialogDescription>
-              Настройте параметры вашего проекта
+              {t("projectSettings.description")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
             {/* Business Type Selection */}
             <div className="space-y-3">
-              <Label>Тип бизнеса</Label>
+              <Label>{t("projectSettings.businessTypeLabel")}</Label>
               <Select value={selectedType} onValueChange={(v) => handleTypeSelect(v as BusinessType)}>
                 <SelectTrigger>
                   <SelectValue>
@@ -129,11 +133,10 @@ export const ProjectSettings = ({
                   <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
                     <p className="font-medium text-amber-600 dark:text-amber-400">
-                      Внимание: смена типа бизнеса
+                      {t("projectSettings.warningTitle")}
                     </p>
                     <p className="text-muted-foreground mt-1">
-                      При смене типа бизнеса некоторые метрики и настройки могут стать нерелевантными. 
-                      Данные сохранятся, но их интерпретация изменится.
+                      {t("projectSettings.warningBody")}
                     </p>
                   </div>
                 </div>
@@ -141,11 +144,13 @@ export const ProjectSettings = ({
 
               {/* Current metrics preview */}
               <div className="text-sm text-muted-foreground">
-                <p className="font-medium mb-2">Ключевые метрики для {newConfig.label}:</p>
+                <p className="font-medium mb-2">
+                  {t("projectSettings.keyMetricsForLabel", { type: newConfig.label })}
+                </p>
                 <div className="flex flex-wrap gap-1">
                   {newConfig.primaryMetrics.map((metric) => (
-                    <span 
-                      key={metric} 
+                    <span
+                      key={metric}
                       className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
                     >
                       {metric}
@@ -157,20 +162,17 @@ export const ProjectSettings = ({
 
             {/* Currency Selection */}
             <div className="space-y-3">
-              <Label>Валюта</Label>
+              <Label>{t("projectSettings.currencyLabel")}</Label>
               <Select value={currency} onValueChange={onCurrencyChange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="RUB">₽ Рубль (RUB)</SelectItem>
-                  <SelectItem value="USD">$ Доллар (USD)</SelectItem>
-                  <SelectItem value="EUR">€ Евро (EUR)</SelectItem>
-                  <SelectItem value="KZT">₸ Тенге (KZT)</SelectItem>
-                  <SelectItem value="BYN">Br Белорусский рубль (BYN)</SelectItem>
-                  <SelectItem value="UAH">₴ Гривна (UAH)</SelectItem>
-                  <SelectItem value="MDL">L Молдавский лей (MDL)</SelectItem>
-                  <SelectItem value="RON">lei Румынский лей (RON)</SelectItem>
+                  {CURRENCY_CODES.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {t(`currencies.${code}`)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -178,10 +180,10 @@ export const ProjectSettings = ({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Отмена
+              {t("projectSettings.cancel")}
             </Button>
             <Button onClick={handleSave}>
-              Сохранить
+              {t("projectSettings.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -193,24 +195,31 @@ export const ProjectSettings = ({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Подтвердите смену типа бизнеса
+              {t("projectSettings.confirmTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>
-                  Вы меняете тип бизнеса с <strong>"{currentConfig.label}"</strong> на <strong>"{newConfig.label}"</strong>.
+                  {t("projectSettings.confirmBody1", {
+                    from: currentConfig.label,
+                    to: newConfig.label,
+                  })}
                 </p>
                 <div className="p-3 bg-muted rounded-lg space-y-2">
-                  <p className="font-medium">Что изменится:</p>
+                  <p className="font-medium">{t("projectSettings.confirmChangesLabel")}</p>
                   <ul className="list-disc list-inside text-sm space-y-1">
-                    <li>Названия метрик и их интерпретация</li>
-                    <li>Поля в формах для {newConfig.productLabelPlural.toLowerCase()}</li>
-                    <li>Рекомендации и аналитика будут адаптированы</li>
+                    <li>{t("projectSettings.confirmChange1")}</li>
+                    <li>
+                      {t("projectSettings.confirmChange2", {
+                        products: newConfig.productLabelPlural.toLowerCase(),
+                      })}
+                    </li>
+                    <li>{t("projectSettings.confirmChange3")}</li>
                   </ul>
                 </div>
                 <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
                   <p className="text-sm text-green-700 dark:text-green-400">
-                    ✓ Ваши данные (показатели, продукты, конкуренты) <strong>не будут удалены</strong>
+                    {t("projectSettings.confirmDataSafe")}
                   </p>
                 </div>
               </div>
@@ -218,10 +227,10 @@ export const ProjectSettings = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleCancelChange}>
-              Отмена
+              {t("projectSettings.confirmCancel")}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmChange}>
-              Да, сменить тип
+              {t("projectSettings.confirmAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
