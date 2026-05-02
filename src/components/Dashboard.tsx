@@ -410,23 +410,23 @@ export const Dashboard = () => {
           {user && (
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Вход выполнен как {user.email}
+                {t("header.signedInAs", { email: user.email ?? "" })}
               </p>
               <div className="flex items-center gap-2">
                 {hasUnsavedChanges ? (
                   <span className="flex items-center gap-1 text-xs text-amber-500">
                     <CloudOff className="w-3 h-3" />
-                    Есть несохранённые изменения
+                    {t("header.unsavedChanges")}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 text-xs text-green-500">
                     <Cloud className="w-3 h-3" />
-                    Данные синхронизированы
+                    {t("header.synced")}
                   </span>
                 )}
                 {lastSavedAt && (
                   <span className="text-xs text-muted-foreground">
-                    • Сохранено {formatLastSaved(lastSavedAt)}
+                    • {t("header.savedAt", { time: formatLastSaved(lastSavedAt) })}
                   </span>
                 )}
                 <Button
@@ -437,42 +437,42 @@ export const Dashboard = () => {
                   className="h-6 px-2 text-xs"
                 >
                   {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                  <span className="ml-1 hidden sm:inline">Сохранить</span>
+                  <span className="ml-1 hidden sm:inline">{t("header.save")}</span>
                 </Button>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-6 px-2 text-xs text-destructive hover:text-destructive">
                       <Trash2 className="w-3 h-3" />
-                      <span className="ml-1 hidden sm:inline">Очистить</span>
+                      <span className="ml-1 hidden sm:inline">{t("header.clear")}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Очистить данные</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t("header.clearMenuLabel")}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={clearProducts}><Package className="w-4 h-4 mr-2" />Продукты</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearMaterials}><Truck className="w-4 h-4 mr-2" />Сырьё</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearSalesChannels}><TrendingUp className="w-4 h-4 mr-2" />Каналы продаж</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearMetrics}><BarChart3 className="w-4 h-4 mr-2" />Показатели</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearCompetitors}><Users className="w-4 h-4 mr-2" />Конкуренты</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearProducts}><Package className="w-4 h-4 mr-2" />{t("header.clearProducts")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearMaterials}><Truck className="w-4 h-4 mr-2" />{t("header.clearMaterials")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearSalesChannels}><TrendingUp className="w-4 h-4 mr-2" />{t("header.clearChannels")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearMetrics}><BarChart3 className="w-4 h-4 mr-2" />{t("header.clearMetrics")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearCompetitors}><Users className="w-4 h-4 mr-2" />{t("header.clearCompetitors")}</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />Очистить всё
+                          <Trash2 className="w-4 h-4 mr-2" />{t("header.clearAll")}
                         </DropdownMenuItem>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Очистить все данные?</AlertDialogTitle>
+                          <AlertDialogTitle>{t("header.clearAllConfirmTitle")}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Это действие удалит все введённые данные: продукты, сырьё, показатели, конкурентов и каналы продаж. Данные в облаке не будут удалены до следующего сохранения.
+                            {t("header.clearAllConfirmDesc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Отмена</AlertDialogCancel>
+                          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                           <AlertDialogAction onClick={clearAllData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Очистить всё
+                            {t("header.clearAll")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
