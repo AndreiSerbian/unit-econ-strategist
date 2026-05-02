@@ -10,6 +10,7 @@ import { ClipboardList, Plus, CheckCircle2, Circle, Clock, Trash2, Sparkles } fr
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ActionPlan {
   id: string;
@@ -32,6 +33,8 @@ interface ActionPlanManagerProps {
 }
 
 export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManagerProps) => {
+  const { t, language } = useTranslation();
+  const dateLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [plans, setPlans] = useState<ActionPlan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -71,7 +74,7 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
   const addPlan = async () => {
     if (!projectId || !newPlan.title.trim()) {
-      toast.error("Заполните название задачи");
+      toast.error(t("actionPlan.toastFillTitle"));
       return;
     }
 
@@ -89,11 +92,11 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (error) {
       console.error('Error adding plan:', error);
-      toast.error("Ошибка при добавлении задачи");
+      toast.error(t("actionPlan.toastAddError"));
       return;
     }
 
-    toast.success("Задача добавлена");
+    toast.success(t("actionPlan.toastAdded"));
     setIsDialogOpen(false);
     setNewPlan({
       title: "",
@@ -114,11 +117,11 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (error) {
       console.error('Error updating status:', error);
-      toast.error("Ошибка при обновлении статуса");
+      toast.error(t("actionPlan.toastUpdateError"));
       return;
     }
 
-    toast.success("Статус обновлен");
+    toast.success(t("actionPlan.toastStatusUpdated"));
     loadPlans();
   };
 
@@ -130,11 +133,11 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (error) {
       console.error('Error deleting plan:', error);
-      toast.error("Ошибка при удалении");
+      toast.error(t("actionPlan.toastDeleteError"));
       return;
     }
 
-    toast.success("Задача удалена");
+    toast.success(t("actionPlan.toastDeleted"));
     loadPlans();
   };
 
@@ -145,8 +148,8 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (currentMetrics.profitMargin < 10) {
       recommendations.push({
-        title: "Оптимизация переменных расходов",
-        description: "Проанализировать и снизить переменные расходы на 10-15%",
+        title: t("actionPlan.recOptVarTitle"),
+        description: t("actionPlan.recOptVarDesc"),
         priority: "high",
         status: "pending",
         due_date: "",
@@ -156,8 +159,8 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (currentMetrics.cac > 1000) {
       recommendations.push({
-        title: "Оптимизация маркетинговых каналов",
-        description: "Пересмотреть эффективность каждого канала привлечения",
+        title: t("actionPlan.recOptMarketingTitle"),
+        description: t("actionPlan.recOptMarketingDesc"),
         priority: "high",
         status: "pending",
         due_date: "",
@@ -167,8 +170,8 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (currentMetrics.breakEven < 0) {
       recommendations.push({
-        title: "Увеличение среднего чека",
-        description: "Разработать стратегию повышения среднего чека на 15-20%",
+        title: t("actionPlan.recIncreaseAOVTitle"),
+        description: t("actionPlan.recIncreaseAOVDesc"),
         priority: "high",
         status: "pending",
         due_date: "",
@@ -182,7 +185,7 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
   const addGeneratedActions = async () => {
     const recommendations = generateRecommendedActions();
     if (!recommendations || recommendations.length === 0) {
-      toast.info("Нет рекомендаций на основе текущих метрик");
+      toast.info(t("actionPlan.toastNoRecommendations"));
       return;
     }
 
@@ -199,11 +202,11 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
 
     if (error) {
       console.error('Error adding generated actions:', error);
-      toast.error("Ошибка при добавлении задач");
+      toast.error(t("actionPlan.toastAddError"));
       return;
     }
 
-    toast.success(`Добавлено ${recommendations.length} рекомендаций`);
+    toast.success(t("actionPlan.toastRecommendationsAdded", { count: recommendations.length }));
     loadPlans();
   };
 
@@ -219,6 +222,13 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
     completed: <CheckCircle2 className="h-4 w-4" />
   };
 
+  const priorityLabel = (p: string) =>
+    p === "high"
+      ? t("actionPlan.priorityHigh")
+      : p === "medium"
+      ? t("actionPlan.priorityMedium")
+      : t("actionPlan.priorityLow");
+
   return (
     <Card>
       <CardHeader>
@@ -226,10 +236,10 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
           <div>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="h-5 w-5" />
-              План действий
+              {t("actionPlan.title")}
             </CardTitle>
             <CardDescription>
-              Задачи для улучшения показателей бизнеса
+              {t("actionPlan.description")}
             </CardDescription>
           </div>
           <div className="flex gap-2">
@@ -240,58 +250,58 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
                 onClick={addGeneratedActions}
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                Генерировать
+                {t("actionPlan.generate")}
               </Button>
             )}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  Добавить
+                  {t("actionPlan.add")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Новая задача</DialogTitle>
+                  <DialogTitle>{t("actionPlan.dialogTitle")}</DialogTitle>
                   <DialogDescription>
-                    Добавьте задачу для улучшения показателей
+                    {t("actionPlan.dialogDescription")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Название *</Label>
+                    <Label htmlFor="title">{t("actionPlan.nameLabel")}</Label>
                     <Input
                       id="title"
                       value={newPlan.title}
                       onChange={(e) => setNewPlan({...newPlan, title: e.target.value})}
-                      placeholder="Название задачи"
+                      placeholder={t("actionPlan.namePlaceholder")}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Описание</Label>
+                    <Label htmlFor="description">{t("actionPlan.descriptionLabel")}</Label>
                     <Textarea
                       id="description"
                       value={newPlan.description}
                       onChange={(e) => setNewPlan({...newPlan, description: e.target.value})}
-                      placeholder="Подробное описание"
+                      placeholder={t("actionPlan.descriptionPlaceholder")}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Приоритет</Label>
+                      <Label>{t("actionPlan.priorityLabel")}</Label>
                       <Select value={newPlan.priority} onValueChange={(v) => setNewPlan({...newPlan, priority: v})}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="high">Высокий</SelectItem>
-                          <SelectItem value="medium">Средний</SelectItem>
-                          <SelectItem value="low">Низкий</SelectItem>
+                          <SelectItem value="high">{t("actionPlan.priorityHigh")}</SelectItem>
+                          <SelectItem value="medium">{t("actionPlan.priorityMedium")}</SelectItem>
+                          <SelectItem value="low">{t("actionPlan.priorityLow")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="due_date">Срок</Label>
+                      <Label htmlFor="due_date">{t("actionPlan.dueDateLabel")}</Label>
                       <Input
                         id="due_date"
                         type="date"
@@ -303,9 +313,9 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Отмена
+                    {t("actionPlan.cancel")}
                   </Button>
-                  <Button onClick={addPlan}>Добавить</Button>
+                  <Button onClick={addPlan}>{t("actionPlan.add")}</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -314,10 +324,10 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-center text-muted-foreground py-8">Загрузка...</p>
+          <p className="text-center text-muted-foreground py-8">{t("actionPlan.loading")}</p>
         ) : plans.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
-            Нет задач. Добавьте первую задачу или сгенерируйте рекомендации.
+            {t("actionPlan.empty")}
           </p>
         ) : (
           <div className="space-y-3">
@@ -330,7 +340,7 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant={priorityColors[plan.priority as keyof typeof priorityColors]}>
-                        {plan.priority === 'high' ? 'Высокий' : plan.priority === 'medium' ? 'Средний' : 'Низкий'}
+                        {priorityLabel(plan.priority)}
                       </Badge>
                       <h4 className="font-medium">{plan.title}</h4>
                     </div>
@@ -341,7 +351,7 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
                     )}
                     {plan.due_date && (
                       <p className="text-xs text-muted-foreground">
-                        Срок: {new Date(plan.due_date).toLocaleDateString('ru-RU')}
+                        {t("actionPlan.dueLabel")} {new Date(plan.due_date).toLocaleDateString(dateLocale)}
                       </p>
                     )}
                   </div>
@@ -357,9 +367,9 @@ export const ActionPlanManager = ({ projectId, currentMetrics }: ActionPlanManag
                         </div>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">В ожидании</SelectItem>
-                        <SelectItem value="in_progress">В работе</SelectItem>
-                        <SelectItem value="completed">Выполнено</SelectItem>
+                        <SelectItem value="pending">{t("actionPlan.statusPending")}</SelectItem>
+                        <SelectItem value="in_progress">{t("actionPlan.statusInProgress")}</SelectItem>
+                        <SelectItem value="completed">{t("actionPlan.statusCompleted")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
