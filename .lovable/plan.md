@@ -1,104 +1,77 @@
+## Pass 2C-1 — Onboarding & Settings localization
 
-# Pass 2B — Implementation Plan (approved scope)
+Scope: 4 components + dictionary. Strict UI-only changes. No formulas, no schema, no internal IDs touched.
 
-Scope is exactly the 14 files listed in the user's prompt. RU stays as fallback everywhere. No formula, schema, route, or internal-key changes.
+### Files to modify
 
-## Files to modify
+- `src/i18n/dictionary.ts` — add RU/EN/RO sections
+- `src/components/OnboardingFlow.tsx`
+- `src/components/StartupChecklist.tsx`
+- `src/components/ActionPlanManager.tsx`
+- `src/components/ProjectSettings.tsx`
 
-1. `src/i18n/dictionary.ts` — extend with new sections (RU/EN/RO).
-2. `src/config/businessTypeMetrics.ts` — add optional `*Key` fields, keep RU as fallback.
-3. `src/components/ProductsManagement.tsx` — translate productLabel, field labels, field descriptions, delivery options via `*Key`.
-4. `src/components/MetricsForm.tsx` — only the spots reading `metricFields` `label/description` from config → use `*Key` if present.
-5. `src/components/DetailedExpensesForm.tsx` — only spots reading config text (none currently consume metricFields visibly; verify and skip if none).
-6. `src/components/KeyMetrics.tsx` — t() title + 4–6 hint strings + breakeven suffix.
-7. `src/components/SalesFunnel.tsx` — title, stage names, conversion text, CPL/CAC labels, source type labels, "лидов" suffix, sources title.
-8. `src/components/AIAnalytics.tsx` — already mostly localized; nothing left except `console.error` (kept as English log).
-9. `src/components/ExportDialog.tsx` — translate CSV header rows + competitor expense category strings.
-10. `src/components/CompanyMetrics.tsx` — TabsTrigger labels (Текущий / Сценарий A / Сценарий B).
-11. `src/components/ScenarioSummary.tsx` — full t() for visible UI + recommendation generator strings + toasts.
-12. `src/components/MetricsCharts.tsx` — translate visible card titles/descriptions, scenario `name` field on chart data, costs breakdown `name`. Add `name=` props on `<Bar/>`/`<Line/>` so legend/tooltip show translated text. **Keep Cyrillic `dataKey`s untouched** (they are series identifiers in JSX). Pie labels render from `entry.name` which we translate at data construction.
-13. `src/components/summary/CompanySummaryCard.tsx` — t() for description, all 8 KPI labels, "Недостаточно данных" fallback.
-14. `src/components/summary/CashFlowSummaryCard.tsx` — t() for description, all metric labels, payback pluralization (3 forms via t), top-inflow/outflow/weakest-period labels, loading state.
-15. `src/components/summary/RecommendationSummaryCard.tsx` — t() for descriptions, recommendation tags/texts.
-16. `src/components/summary/RiskSummaryCard.tsx` — t() for descriptions, all risk text variants, no-risks state.
-17. `src/components/summary/SummarySection.tsx` — no visible RU strings to change; structure stays.
+### Dictionary additions (~110 keys × 3 langs)
 
-## Dictionary sections (RU/EN/RO symmetrical)
+**`onboarding`** (~25 keys)
+- `progress` (e.g. "{current} / {total}"), `back`, `next`, `start`, `startWork`, `skip`
+- `selectedLabel` ("Выбрано:" / "Selected:" / "Selectat:")
+- `keyMetricsForType`
+- Step titles + descriptions × 8 (welcome, businessType, products, metrics, competitors, market, analytics, theory)
+- Welcome bullets (4), products bullets (4), metrics bullets (4), competitors bullets (4), market bullets (4), analytics bullets (4), theory bullets (4) — stored as arrays via numbered keys (`welcomeBullet1`…`welcomeBullet4`, etc.)
 
-New / extended sections:
+**`startupChecklist`** (~30 keys)
+- `title`, `description`, `progress` ("{done}/{total}"), `dismiss`, `show`, `showFull`
+- Default steps (6): `defaultProducts`, `defaultExpenses`, `defaultLeads`, `defaultMetrics`, `defaultScenarios`, `defaultSummary`
+- SaaS steps (6): `saasProducts`, `saasExpenses`, `saasLeads`, `saasMetrics`, `saasScenarios`, `saasSummary`
+- Ecommerce (6): `ecommerceProducts`, `ecommerceLogistics`, `ecommerceExpenses`, `ecommerceLeads`, `ecommerceMetrics`, `ecommerceScenarios`
+- Production (6), Services (6), Marketplace (5) — same pattern
 
-- `summary` (extended ~60 keys): company KPI labels, cashflow labels, risk texts, recommendation tags + texts, scenario summary UI, payback period plural forms.
-- `keyMetrics` (~10): titles, hints.
-- `salesFunnel` (~12): stages, source types, labels.
-- `charts` (~14): chart titles/descriptions, legend captions, scenario column names.
-- `scenarios` (3): tab labels.
-- `exportDialog` (extended ~40): CSV header columns + competitor expense category items.
-- `businessTypeMetrics` (~36): per-business-type label/description/productLabel/productLabelPlural + delivery options.
+**`actionPlan`** (~30 keys)
+- `title`, `description`, `generate`, `add`, `cancel`, `loading`, `empty`
+- `dialogTitle`, `dialogDescription`, `nameLabel`, `namePlaceholder`, `descriptionLabel`, `descriptionPlaceholder`, `priorityLabel`, `dueDateLabel`
+- `priorityHigh`, `priorityMedium`, `priorityLow`
+- `statusPending`, `statusInProgress`, `statusCompleted`
+- `dueLabel` ("Срок:")
+- Toasts: `toastFillTitle`, `toastAddError`, `toastAdded`, `toastUpdateError`, `toastStatusUpdated`, `toastDeleteError`, `toastDeleted`, `toastNoRecommendations`, `toastRecommendationsAdded` (with `{count}` var)
+- Recommendation seeds: `recOptVarTitle`, `recOptVarDesc`, `recOptMarketingTitle`, `recOptMarketingDesc`, `recIncreaseAOVTitle`, `recIncreaseAOVDesc`
 
-Estimated ~175 new keys × 3 languages = ~525 entries.
+**`projectSettings`** (~25 keys)
+- `title`, `description`, `tooltip` ("Настройки проекта")
+- `businessTypeLabel`, `currencyLabel`
+- `warningTitle`, `warningBody`
+- `keyMetricsForLabel`
+- `cancel`, `save`, `confirmTitle`, `confirmBody1` (with `{from}`,`{to}`), `confirmChangesLabel`, `confirmChange1`, `confirmChange2` (with `{products}`), `confirmChange3`, `confirmDataSafe`, `confirmCancel`, `confirmAction`
 
-## businessTypeMetrics.ts changes
+**`currencies`** (8 keys: `RUB`, `USD`, `EUR`, `KZT`, `BYN`, `UAH`, `MDL`, `RON`) — translated descriptive labels; codes themselves stay unchanged.
 
-Add optional fields to existing interfaces (no removal):
-```ts
-labelKey?: string;
-descriptionKey?: string;
-productLabelKey?: string;
-productLabelPluralKey?: string;
-```
+### Implementation notes
 
-For each `BusinessTypeConfig` entry, add the 4 keys (e.g. `labelKey: 'businessTypeMetrics.saas_label'`).
+- All components import `useTranslation` from `@/i18n/useTranslation` (existing pattern).
+- Use `t("section.key", { var })` for interpolation (LanguageProvider already supports `{var}` substitution).
+- **Internal IDs preserved**: `value="high"`, `value="pending"`, business model IDs, currency codes, language codes, `related_metric` keys, step `id`s, localStorage key `startup-checklist:*`, Supabase column names.
+- **OnboardingFlow**: rebuild `steps` array inside component using `t()`; bullet arrays via `[t("onboarding.welcomeBullet1"), …]`.
+- **StartupChecklist**: replace step `label` with translated value via `labelKey` lookup; keep `id` unchanged so persisted progress still maps. Add `aria-label` translation for dismiss button.
+- **ActionPlanManager**: translate priority/status display only; keep raw values in DB. Recommendation seeds use translated title/description but stored values for `priority`, `status`, `related_metric` stay literal.
+- **ProjectSettings**: translate currency dropdown labels via `currencies.*`; the symbol prefix stays. Translate `productLabelPlural.toLowerCase()` interpolation by passing the already-resolved label.
 
-For `DELIVERY_TYPE_OPTIONS`, add `labelKey: 'businessTypeMetrics.delivery_courier'` etc.
+### Mobile safety
 
-Add helper:
-```ts
-export const getProductLabelKey = (type: BusinessType, plural = false) => {
-  const c = getBusinessTypeConfig(type);
-  return plural ? c.productLabelPluralKey : c.productLabelKey;
-};
-```
+- Onboarding buttons already have `hidden sm:inline` — translations fit.
+- ActionPlan dialog uses `grid-cols-2` — RO labels short enough; add `truncate` only if needed.
+- ProjectSettings dialog `sm:max-w-[500px]` accommodates longer EN/RO.
 
-Field-level `*Key` for individual `productFields`/`metricFields` is NOT added in this pass — they would require adding ~120 dictionary keys × 3 languages just for field labels and risk over-running. **ProductsManagement.tsx's field-level labels are translated via a small mapping inside the component** keyed by `field.key` (limited to common keys: `name/price/cost/quantity/quality/...`) using existing `forms.*` / `common.*` / `metricsForm.*` keys. Where no mapping exists, fall back to original Russian `field.label` → preserves RU UI.
+### Out of scope (for Pass 2C-2+)
 
-This trade-off is documented in the final report.
+Cash Flow, Competitors, Market, ROI/LTV/Sensitivity calculators, MetricForecasting, MarketingMetrics, SWOT, GameTheory, StrategyDictionary, CompetitiveSimulator, tooltip configs.
 
-## MetricsCharts approach
+### Acceptance
 
-- Keep all `dataKey="выручка"` etc. (they are stable JSX identifiers and chart data keys — out of scope).
-- Add `name={t("charts.legendRevenue")}` to each `<Bar />` / `<Line />` so legend/tooltip render translated strings while internal keys stay Cyrillic.
-- Translate `data[].name` (scenario column label) at render time using `t("charts.scenarioCurrent" | "scenarioA" | "scenarioB")`.
-- Translate Pie `costsBreakdownData[].name` similarly.
-- Card titles/descriptions translated via t().
+- All 4 components render in RU/EN/RO with no hardcoded user-facing Cyrillic.
+- Language switch does not reset onboarding step, checklist progress (localStorage), action plans (Supabase), or project settings.
+- Currency codes (RUB/USD/EUR/KZT/BYN/UAH/MDL/RON), language codes (ru/en/ro), business model IDs, action plan priority/status raw values unchanged.
+- Dictionary keys symmetrical across 3 languages.
+- 7-tab dashboard structure, formulas, Supabase schema, routes untouched.
 
-## ExportDialog
+### Final report will include
 
-- All hardcoded CSV header row strings, competitor expense category strings ("Постоянные", "Переменные - Маркетинг", "ЗП по старым клиентам", etc.) → `t("exportDialog.csv*")`.
-- Numerical values, dataKeys, file format, currency logic untouched.
-
-## ScenarioSummary special case
-
-The string `"Резюме сохранено"`, generator outputs (`"⚠️ Отрицательная маржа..."`, etc.), placeholders, button labels — all translated via `summary.*` keys.
-
-## Mobile safety
-
-Only minor utility classes if EN/RO overflow: `text-sm`, `truncate`, `whitespace-normal`, `min-w-0`. No layout redesign.
-
-## What is NOT touched
-
-- Financial formulas, calc utilities (`metricsCalculations.ts` not edited).
-- Cash Flow internal logic, hooks.
-- Supabase schema / queries / column names.
-- Edge Function (`ai-analytics`) payload, model, prompt structure (only the existing `language` field passed in).
-- Routes, internal IDs, scenario/business model keys, chart `dataKey`s, saved data format, 7-tab structure.
-- Forecasting / SWOT / ROI / LTV / Sensitivity / Onboarding / GameTheory / Market / Competitor deep UI / ProjectSettings / MarketingMetrics / Theory texts.
-
-## Acceptance
-
-- Switching RU/EN/RO updates: KeyMetrics labels, SalesFunnel labels, Summary cards, ExportDialog (incl. CSV headers), Charts legend/tooltips/titles, ScenarioSummary, CompanyMetrics tab labels, Product business-model labels (via `*Key`).
-- `getProductLabel()` / `getBusinessTypeConfig()` continue to work for any code not yet upgraded — RU fallback intact.
-- No data reset on language change. Active tab preserved. Build passes.
-
-## Final report after implementation
-
-Files modified, dictionary sections + key counts, fully vs partially localized, remaining hardcoded RU per file (most importantly: per-field labels inside `businessTypeMetrics.ts` `productFields[].label`/`metricFields[].label` for fields with no mapping match), `businessTypeMetrics.ts` compatibility status, mobile risks, build status, and proposed Pass 2C scope.
+Files modified, dictionary sections added, key count, per-component status, remaining RU text (if any), mobile risks, build status, safety confirmation, suggested Pass 2C-2 scope (likely: ROICalculator, LTVCalculator, SensitivityAnalysis, MarketingMetrics).
