@@ -47,7 +47,7 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
             <Building2 className="w-4 h-4 text-primary" />
             {t("summary.company")}
           </CardTitle>
-          <CardDescription>Недостаточно данных. Заполните вкладку «Моя компания».</CardDescription>
+          <CardDescription>{t("summary.notEnoughData")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -60,14 +60,14 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
   const ltvCac = calculateLTVCACRatio(metrics);
 
   const kpis: Array<{ label: string; value: string; hint?: string; tooltipKey?: string }> = [
-    { label: "Выручка", value: fmt(metrics.revenue || 0, currency), tooltipKey: "revenue" },
-    { label: "Прибыль", value: fmt(profit, currency), tooltipKey: "profit" },
-    { label: "Маржа", value: fmtPct(margin), tooltipKey: "margin" },
-    { label: "CAC", value: cac > 0 ? fmt(cac, currency) : "Недостаточно данных", tooltipKey: "cac" },
-    { label: "LTV", value: ltv > 0 ? fmt(ltv, currency) : "Недостаточно данных", tooltipKey: "ltv" },
-    { label: "LTV / CAC", value: fmtRatio(ltvCac), tooltipKey: "ltvCac" },
-    { label: "Всего клиентов", value: fmtNum(metrics.totalClients || 0), tooltipKey: "totalClients" },
-    { label: "Средний чек", value: fmt(metrics.avgCheck || 0, currency), tooltipKey: "avgCheck" },
+    { label: t("summary.revenue"), value: fmt(metrics.revenue || 0, currency), tooltipKey: "revenue" },
+    { label: t("summary.profit"), value: fmt(profit, currency), tooltipKey: "profit" },
+    { label: t("summary.margin"), value: fmtPct(margin), tooltipKey: "margin" },
+    { label: t("summary.cac"), value: cac > 0 ? fmt(cac, currency) : t("summary.notEnough"), tooltipKey: "cac" },
+    { label: t("summary.ltv"), value: ltv > 0 ? fmt(ltv, currency) : t("summary.notEnough"), tooltipKey: "ltv" },
+    { label: t("summary.ltvCac"), value: fmtRatio(ltvCac), tooltipKey: "ltvCac" },
+    { label: t("summary.totalClients"), value: fmtNum(metrics.totalClients || 0), tooltipKey: "totalClients" },
+    { label: t("summary.avgCheck"), value: fmt(metrics.avgCheck || 0, currency), tooltipKey: "avgCheck" },
   ];
 
   return (
@@ -78,7 +78,7 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
           {t("summary.company")}
         </CardTitle>
         <CardDescription>
-          Сводные показатели текущего сценария на основе введённых данных.
+          {t("summary.companyDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
