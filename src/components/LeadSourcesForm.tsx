@@ -40,6 +40,13 @@ export const LeadSourcesForm = memo(({
   totalClients,
   totalRevenue,
 }: LeadSourcesFormProps) => {
+  const { t } = useTranslation();
+  const typeOptions = useMemo(() => ([
+    { value: "paid", label: t("leadSources.typePaid") },
+    { value: "organic", label: t("leadSources.typeOrganic") },
+    { value: "referral", label: t("leadSources.typeReferral") },
+    { value: "direct", label: t("leadSources.typeDirect") },
+  ]), [t]);
   // Локальное состояние, чтобы список и итоги обновлялись мгновенно,
   // даже если родитель по какой-то причине задерживает обновление метрик
   const [localSources, setLocalSources] = useState<LeadSource[]>(leadSources);
