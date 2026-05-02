@@ -283,7 +283,7 @@ export const MetricsForm = memo(({
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Нажмите "{t("metricsForm.sync")}" чтобы автоматически обновить выручку и переменные расходы
+              {t("metricsForm.syncHint")}
             </p>
           </CardContent>
         </Card>
