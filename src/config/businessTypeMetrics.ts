@@ -446,6 +446,28 @@ export const businessTypes: BusinessTypeConfig[] = [
   },
 ];
 
+/**
+ * Resolve i18n text from an optional translation key with a Russian fallback.
+ * Use in components that read user-facing labels from this config.
+ */
+export const resolveI18nText = (
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  fallback?: string,
+  key?: string
+): string => {
+  if (key) {
+    const translated = t(key);
+    // t() returns the path itself if the key is missing → fall back to RU.
+    if (translated && translated !== key) return translated;
+  }
+  return fallback ?? "";
+};
+
+export const getProductLabelKey = (type: BusinessType, plural = false): string | undefined => {
+  const config = getBusinessTypeConfig(type);
+  return plural ? config.productLabelPluralKey : config.productLabelKey;
+};
+
 export const getBusinessTypeConfig = (type: BusinessType): BusinessTypeConfig => {
   return businessTypes.find(bt => bt.id === type) || businessTypes[1]; // default to ecommerce
 };
