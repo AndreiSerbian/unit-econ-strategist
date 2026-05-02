@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { SubjectiveEstimateBadge } from "@/components/ui/subjective-estimate-badge";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface SWOTData {
   id?: string;
@@ -25,6 +26,7 @@ interface SWOTAnalysisProps {
 }
 
 export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysisProps) => {
+  const { t } = useTranslation();
   const [companySwot, setCompanySwot] = useState<SWOTData>({ strengths: [], weaknesses: [], opportunities: [], threats: [] });
   const [competitorSwots, setCompetitorSwots] = useState<Record<string, SWOTData>>({});
   const [newItems, setNewItems] = useState({
@@ -98,11 +100,11 @@ export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysis
 
       if (error) throw error;
       
-      toast.success("SWOT анализ сохранен");
+      toast.success(t("swotAnalysis.saved"));
       await loadSwotData();
     } catch (error) {
       console.error('Error saving SWOT:', error);
-      toast.error("Ошибка при сохранении SWOT анализа");
+      toast.error(t("swotAnalysis.saveError"));
     } finally {
       setIsSaving(false);
     }
@@ -182,7 +184,7 @@ export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysis
         </div>
         <div className="flex gap-2">
           <Textarea
-            placeholder={`Добавить ${title.toLowerCase()}...`}
+            placeholder={t("swotAnalysis.addPlaceholder", { category: title.toLowerCase() })}
             value={newItems[category]}
             onChange={(e) => setNewItems(prev => ({ ...prev, [category]: e.target.value }))}
             className="min-h-[60px]"
@@ -208,10 +210,10 @@ export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysis
   const renderSWOTMatrix = (swotData: SWOTData, entityType: 'company' | 'competitor', entityId?: string, entityName?: string) => (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {renderSWOTSection("Сильные стороны", "strengths", swotData.strengths, "bg-green-50 dark:bg-green-950/20", entityType, entityId)}
-        {renderSWOTSection("Слабые стороны", "weaknesses", swotData.weaknesses, "bg-red-50 dark:bg-red-950/20", entityType, entityId)}
-        {renderSWOTSection("Возможности", "opportunities", swotData.opportunities, "bg-blue-50 dark:bg-blue-950/20", entityType, entityId)}
-        {renderSWOTSection("Угрозы", "threats", swotData.threats, "bg-yellow-50 dark:bg-yellow-950/20", entityType, entityId)}
+        {renderSWOTSection(t("swotAnalysis.strengths"), "strengths", swotData.strengths, "bg-green-50 dark:bg-green-950/20", entityType, entityId)}
+        {renderSWOTSection(t("swotAnalysis.weaknesses"), "weaknesses", swotData.weaknesses, "bg-red-50 dark:bg-red-950/20", entityType, entityId)}
+        {renderSWOTSection(t("swotAnalysis.opportunities"), "opportunities", swotData.opportunities, "bg-blue-50 dark:bg-blue-950/20", entityType, entityId)}
+        {renderSWOTSection(t("swotAnalysis.threats"), "threats", swotData.threats, "bg-yellow-50 dark:bg-yellow-950/20", entityType, entityId)}
       </div>
       <Button
         onClick={() => saveSwot(entityType, entityId, entityName, swotData)}
@@ -219,7 +221,7 @@ export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysis
         className="w-full"
       >
         <Save className="h-4 w-4 mr-2" />
-        {isSaving ? "Сохранение..." : "Сохранить SWOT анализ"}
+        {isSaving ? t("swotAnalysis.saving") : t("swotAnalysis.save")}
       </Button>
     </div>
   );
@@ -228,17 +230,17 @@ export const SWOTAnalysis = ({ projectId, myCompany, competitors }: SWOTAnalysis
     <Card data-export="swot-analysis">
       <CardHeader>
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <CardTitle>SWOT Анализ</CardTitle>
+          <CardTitle>{t("swotAnalysis.title")}</CardTitle>
           <SubjectiveEstimateBadge />
         </div>
         <CardDescription>
-          Анализ сильных и слабых сторон, возможностей и угроз
+          {t("swotAnalysis.description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="company" className="w-full">
           <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${1 + competitors.length}, minmax(0, 1fr))` }}>
-            <TabsTrigger value="company">Моя компания</TabsTrigger>
+            <TabsTrigger value="company">{t("swotAnalysis.myCompany")}</TabsTrigger>
             {competitors.map(competitor => (
               <TabsTrigger key={competitor.id} value={competitor.id}>
                 {competitor.name}
