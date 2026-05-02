@@ -146,6 +146,7 @@ export const CashFlowGrid = memo(({
   onDeleteLine,
   onEditLine,
 }: CashFlowGridProps) => {
+  const { t } = useTranslation();
   const inflows = lines.filter(l => l.lineType === 'inflow');
   const outflows = lines.filter(l => l.lineType === 'outflow');
 
@@ -159,7 +160,7 @@ export const CashFlowGrid = memo(({
             <span className="text-sm font-medium truncate max-w-[120px]">{line.name}</span>
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="text-[10px] px-1 py-0">
-                {CATEGORY_LABELS[line.category]}
+                {t(CATEGORY_KEYS[line.category])}
               </Badge>
               {!line.isManual && (
                 <TooltipProvider>
