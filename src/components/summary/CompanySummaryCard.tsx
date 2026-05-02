@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Building2 } from "lucide-react";
 import {
   calculateProfit,
@@ -35,6 +36,7 @@ const fmtRatio = (v: number) => {
 };
 
 export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProps) => {
+  const { t } = useTranslation();
   const hasMetrics = !!metrics && metrics.revenue !== undefined;
 
   if (!hasMetrics || (metrics.revenue === 0 && metrics.totalClients === 0)) {

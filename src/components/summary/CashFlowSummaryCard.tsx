@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import type { TimelineSummary } from "@/components/cashflow-timeline/types";
 import { MetricInfoTooltip } from "@/components/ui/metric-info-tooltip";
@@ -36,6 +37,7 @@ export const CashFlowSummaryCard = ({
   currency,
   loading,
 }: CashFlowSummaryCardProps) => {
+  const { t } = useTranslation();
   const hasData =
     summary &&
     (summary.totalInflow !== 0 || summary.totalOutflow !== 0);

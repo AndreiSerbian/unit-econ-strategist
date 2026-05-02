@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Lightbulb } from "lucide-react";
 import {
   calculateProfitMargin,
@@ -15,6 +16,7 @@ export const RecommendationSummaryCard = ({
   metrics,
   cashflowSummary,
 }: RecommendationSummaryCardProps) => {
+  const { t } = useTranslation();
   const hasMetrics =
     metrics && (metrics.revenue > 0 || metrics.totalClients > 0);
 
