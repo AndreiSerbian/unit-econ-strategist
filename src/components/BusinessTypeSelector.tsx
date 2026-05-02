@@ -44,8 +44,8 @@ export const BusinessTypeSelector = memo(({
                     <CheckCircle className="w-5 h-5 text-primary" />
                   )}
                 </div>
-                <h3 className="font-semibold text-sm mb-1">{bt.label}</h3>
-                <p className="text-xs text-muted-foreground mb-3">{bt.description}</p>
+                <h3 className="font-semibold text-sm mb-1">{label}</h3>
+                <p className="text-xs text-muted-foreground mb-3">{description}</p>
                 <div className="flex flex-wrap gap-1">
                   {bt.primaryMetrics.slice(0, 3).map((metric, idx) => (
                     <span 
