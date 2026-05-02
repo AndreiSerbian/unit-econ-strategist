@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { TrendingUp, DollarSign, Calendar, Target, Truck } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface DetailedExpenses {
   fixedCosts: {
