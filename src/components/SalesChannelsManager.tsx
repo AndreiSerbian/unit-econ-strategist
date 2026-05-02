@@ -178,12 +178,17 @@ export const SalesChannelsManager = ({
   currency,
   businessType = 'saas',
 }: SalesChannelsManagerProps) => {
+  const { t } = useTranslation();
   const isSaaS = businessType === 'saas' || businessType === 'freemium';
-  
+
   // Filter channel types based on business type
-  const availableChannelTypes = isSaaS 
-    ? CHANNEL_TYPES.filter(t => !t.legacy) 
-    : CHANNEL_TYPES;
+  const availableChannelTypes = useMemo(
+    () => (isSaaS ? CHANNEL_TYPES.filter((c) => !c.legacy) : CHANNEL_TYPES),
+    [isSaaS]
+  );
+
+  const tChannelTypeLabel = (type: SalesChannel["type"]) =>
+    t(CHANNEL_TYPE_LABEL_KEY[type] ?? "");
 
   const [newChannel, setNewChannel] = useState<Omit<SalesChannel, "id">>({
     name: "",
@@ -217,7 +222,7 @@ export const SalesChannelsManager = ({
 
   const handleAddChannel = () => {
     if (!newChannel.name.trim()) {
-      toast.error("Введите название канала");
+      toast.error(t("salesChannels.nameRequired"));
       return;
     }
 
@@ -241,12 +246,12 @@ export const SalesChannelsManager = ({
       paymentDelayDays: 0,
       discountPercent: 0,
     });
-    toast.success("Канал добавлен");
+    toast.success(t("salesChannels.addedToast"));
   };
 
   const handleDeleteChannel = (channelId: string) => {
     setChannels(channels.filter((c) => c.id !== channelId));
-    toast.success("Канал удалён");
+    toast.success(t("salesChannels.deletedToast"));
   };
 
   const handleUpdateChannel = (channelId: string, updates: Partial<SalesChannel>) => {
@@ -258,9 +263,7 @@ export const SalesChannelsManager = ({
     return channelType?.icon || Store;
   };
 
-  const getChannelTypeLabel = (type: SalesChannel["type"]) => {
-    return CHANNEL_TYPES.find((t) => t.value === type)?.label || type;
-  };
+  const getChannelTypeLabel = (type: SalesChannel["type"]) => tChannelTypeLabel(type) || type;
 
   return (
     <Card>
