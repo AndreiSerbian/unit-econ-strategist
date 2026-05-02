@@ -37,6 +37,7 @@ import {
   type ExpensesInput,
 } from './adapters';
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface CashFlowTimelineManagerProps {
   projectId: string | null;
@@ -62,6 +63,7 @@ export const CashFlowTimelineManager = memo(({
   sharingData,
   expensesData,
 }: CashFlowTimelineManagerProps) => {
+  const { t } = useTranslation();
   const [scenarioType, setScenarioType] = useState<ScenarioType>('current');
   const [showPV, setShowPV] = useState(true);
   const [showCumulative, setShowCumulative] = useState(true);
@@ -132,7 +134,7 @@ export const CashFlowTimelineManager = memo(({
       <Card>
         <CardContent className="py-8">
           <div className="text-center text-muted-foreground">
-            Выберите проект для работы с денежными потоками
+            {t('cashFlow.selectProject')}
           </div>
         </CardContent>
       </Card>
@@ -149,7 +151,7 @@ export const CashFlowTimelineManager = memo(({
             Cash Flow Timeline
           </h2>
           <p className="text-sm text-muted-foreground">
-            Денежные потоки по периодам с дисконтированием (PV/NPV)
+            {t('cashFlow.timelineDescription')}
           </p>
         </div>
         
@@ -170,9 +172,9 @@ export const CashFlowTimelineManager = memo(({
       {/* Scenario Tabs */}
       <Tabs value={scenarioType} onValueChange={(v) => setScenarioType(v as ScenarioType)}>
         <TabsList>
-          <TabsTrigger value="current">Текущий</TabsTrigger>
-          <TabsTrigger value="optimistic">Оптимистичный</TabsTrigger>
-          <TabsTrigger value="pessimistic">Пессимистичный</TabsTrigger>
+          <TabsTrigger value="current">{t('scenarios.current')}</TabsTrigger>
+          <TabsTrigger value="optimistic">{t('scenarios.optimistic')}</TabsTrigger>
+          <TabsTrigger value="pessimistic">{t('scenarios.pessimistic')}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -194,10 +196,10 @@ export const CashFlowTimelineManager = memo(({
             <div className="flex items-center gap-2 text-sm">
               <Link2 className="w-4 h-4 text-primary" />
               <span>
-                Подключено {generatedAdapterLines.length} статей из бизнес-модели ({businessType})
+                {t('cashFlow.linkedLines', { count: generatedAdapterLines.length, type: businessType })}
               </span>
               <Badge variant="outline" className="ml-auto">
-                Автоматическое обновление
+                {t('cashFlow.autoUpdate')}
               </Badge>
             </div>
           </CardContent>
@@ -226,7 +228,7 @@ export const CashFlowTimelineManager = memo(({
           />
           <Label htmlFor="showCumulative" className="flex items-center gap-1.5 cursor-pointer">
             <TrendingUp className="w-3.5 h-3.5" />
-            Накопительный
+            {t('cashFlow.showCumulative')}
           </Label>
         </div>
       </div>

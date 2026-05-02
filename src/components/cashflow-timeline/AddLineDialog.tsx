@@ -6,13 +6,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, TrendingUp, TrendingDown } from 'lucide-react';
 import type { CashFlowLine, LineType, LineCategory } from './types';
-import { CATEGORY_LABELS } from './types';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface AddLineDialogProps {
   onAdd: (line: Omit<CashFlowLine, 'id' | 'timelineId' | 'createdAt' | 'updatedAt'>) => void;
 }
 
+const CATEGORY_KEYS: Record<LineCategory, string> = {
+  revenue: 'cashFlowLines.catRevenue',
+  cogs: 'cashFlowLines.catCogs',
+  logistics: 'cashFlowLines.catLogistics',
+  fees: 'cashFlowLines.catFees',
+  refunds: 'cashFlowLines.catRefunds',
+  marketing: 'cashFlowLines.catMarketing',
+  salaries: 'cashFlowLines.catSalaries',
+  rent: 'cashFlowLines.catRent',
+  taxes: 'cashFlowLines.catTaxes',
+  other: 'cashFlowLines.catOther',
+};
+
+const CATEGORY_ORDER: LineCategory[] = [
+  'revenue',
+  'cogs',
+  'logistics',
+  'fees',
+  'refunds',
+  'marketing',
+  'salaries',
+  'rent',
+  'taxes',
+  'other',
+];
+
 export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [lineType, setLineType] = useState<LineType>('inflow');
@@ -20,7 +47,7 @@ export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
 
   const handleSubmit = () => {
     if (!name.trim()) return;
-    
+
     onAdd({
       name: name.trim(),
       lineType,
@@ -29,7 +56,7 @@ export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
       sortOrder: 0,
       isActive: true,
     });
-    
+
     setName('');
     setLineType('inflow');
     setCategory('revenue');
@@ -41,29 +68,29 @@ export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Plus className="w-4 h-4" />
-          Добавить статью
+          {t('cashFlowLines.addLine')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>Новая статья денежного потока</DialogTitle>
+          <DialogTitle>{t('cashFlowLines.dialogTitle')}</DialogTitle>
           <DialogDescription>
-            Добавьте статью поступления или выбытия для ручного ввода
+            {t('cashFlowLines.dialogDescription')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Название</Label>
+            <Label>{t('cashFlowLines.nameLabel')}</Label>
             <Input
-              placeholder="Например: Консалтинг"
+              placeholder={t('cashFlowLines.namePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Тип</Label>
+            <Label>{t('cashFlowLines.typeLabel')}</Label>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 type="button"
@@ -72,7 +99,7 @@ export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
                 onClick={() => setLineType('inflow')}
               >
                 <TrendingUp className="w-4 h-4" />
-                Поступление
+                {t('cashFlowLines.typeInflow')}
               </Button>
               <Button
                 type="button"
@@ -81,20 +108,22 @@ export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
                 onClick={() => setLineType('outflow')}
               >
                 <TrendingDown className="w-4 h-4" />
-                Выбытие
+                {t('cashFlowLines.typeOutflow')}
               </Button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Категория</Label>
+            <Label>{t('cashFlowLines.categoryLabel')}</Label>
             <Select value={category} onValueChange={(v: LineCategory) => setCategory(v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(Object.entries(CATEGORY_LABELS) as [LineCategory, string][]).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                {CATEGORY_ORDER.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(CATEGORY_KEYS[value])}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -103,10 +132,10 @@ export const AddLineDialog = memo(({ onAdd }: AddLineDialogProps) => {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Отмена
+            {t('cashFlowLines.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim()}>
-            Добавить
+            {t('cashFlowLines.add')}
           </Button>
         </DialogFooter>
       </DialogContent>

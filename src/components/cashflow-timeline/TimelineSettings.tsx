@@ -6,14 +6,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Settings, HelpCircle, Calendar, Percent, Clock } from 'lucide-react';
 import type { CashFlowTimeline, PlanningPeriod } from './types';
-import { PERIOD_LABELS } from './types';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface TimelineSettingsProps {
   timeline: CashFlowTimeline | null;
   onUpdate: (updates: Partial<CashFlowTimeline>) => void;
 }
 
+const PERIOD_KEYS: Record<PlanningPeriod, string> = {
+  week: 'cashFlowPeriods.week',
+  month: 'cashFlowPeriods.month',
+  quarter: 'cashFlowPeriods.quarter',
+  year: 'cashFlowPeriods.year',
+};
+
+const PERIOD_ORDER: PlanningPeriod[] = ['week', 'month', 'quarter', 'year'];
+
 export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsProps) => {
+  const { t } = useTranslation();
   if (!timeline) return null;
 
   return (
@@ -21,9 +31,9 @@ export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsPr
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Settings className="w-4 h-4 text-primary" />
-          Настройки таймлайна
+          {t('cashFlowSettings.title')}
         </CardTitle>
-        <CardDescription>Период планирования и ставка дисконтирования</CardDescription>
+        <CardDescription>{t('cashFlowSettings.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -31,14 +41,14 @@ export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsPr
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
-              Период
+              {t('cashFlowSettings.period')}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-[200px]">Единица измерения времени для всех денежных потоков</p>
+                    <p className="max-w-[200px]">{t('cashFlowSettings.periodHint')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -51,8 +61,10 @@ export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsPr
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(Object.entries(PERIOD_LABELS) as [PlanningPeriod, string][]).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                {PERIOD_ORDER.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(PERIOD_KEYS[value])}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -62,14 +74,14 @@ export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsPr
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              Горизонт
+              {t('cashFlowSettings.horizon')}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-[200px]">Количество периодов для прогноза (1-120)</p>
+                    <p className="max-w-[200px]">{t('cashFlowSettings.horizonHint')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -90,14 +102,14 @@ export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsPr
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Percent className="w-3.5 h-3.5" />
-              Ставка дисконтирования
+              {t('cashFlowSettings.discountRate')}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-[200px]">Годовая ставка дисконтирования (%). Автоматически конвертируется в периодическую</p>
+                    <p className="max-w-[200px]">{t('cashFlowSettings.discountRateHint')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -123,7 +135,7 @@ export const TimelineSettings = memo(({ timeline, onUpdate }: TimelineSettingsPr
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              Дата начала
+              {t('cashFlowSettings.startDate')}
             </Label>
             <Input
               type="date"

@@ -23,7 +23,20 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CashFlowLine, PeriodMetrics, LineType, LineCategory } from './types';
-import { CATEGORY_LABELS } from './types';
+import { useTranslation } from '@/i18n/useTranslation';
+
+const CATEGORY_KEYS: Record<LineCategory, string> = {
+  revenue: 'cashFlowLines.catRevenue',
+  cogs: 'cashFlowLines.catCogs',
+  logistics: 'cashFlowLines.catLogistics',
+  fees: 'cashFlowLines.catFees',
+  refunds: 'cashFlowLines.catRefunds',
+  marketing: 'cashFlowLines.catMarketing',
+  salaries: 'cashFlowLines.catSalaries',
+  rent: 'cashFlowLines.catRent',
+  taxes: 'cashFlowLines.catTaxes',
+  other: 'cashFlowLines.catOther',
+};
 
 interface LineWithValues extends CashFlowLine {
   values: number[];
@@ -133,6 +146,7 @@ export const CashFlowGrid = memo(({
   onDeleteLine,
   onEditLine,
 }: CashFlowGridProps) => {
+  const { t } = useTranslation();
   const inflows = lines.filter(l => l.lineType === 'inflow');
   const outflows = lines.filter(l => l.lineType === 'outflow');
 
@@ -146,7 +160,7 @@ export const CashFlowGrid = memo(({
             <span className="text-sm font-medium truncate max-w-[120px]">{line.name}</span>
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="text-[10px] px-1 py-0">
-                {CATEGORY_LABELS[line.category]}
+                {t(CATEGORY_KEYS[line.category])}
               </Badge>
               {!line.isManual && (
                 <TooltipProvider>
@@ -155,7 +169,7 @@ export const CashFlowGrid = memo(({
                       <Link2 className="w-3 h-3 text-primary" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Связано с бизнес-моделью</p>
+                      <p>{t('cashFlow.linkedTooltip')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -193,7 +207,7 @@ export const CashFlowGrid = memo(({
                       size="icon"
                       className="h-7 w-7"
                       disabled
-                      aria-label="Редактирование строки (скоро)"
+                      aria-label={t('cashFlow.editComingAria')}
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
@@ -201,7 +215,7 @@ export const CashFlowGrid = memo(({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="text-xs max-w-[220px]">
-                    Редактирование строк Cash Flow будет доступно в будущей версии.
+                    {t('cashFlow.editComingTooltip')}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -224,8 +238,8 @@ export const CashFlowGrid = memo(({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Денежные потоки по периодам</CardTitle>
-        <CardDescription>Кликните на ячейку для редактирования (только ручные статьи)</CardDescription>
+        <CardTitle className="text-base">{t('cashFlow.gridTitle')}</CardTitle>
+        <CardDescription>{t('cashFlow.gridDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="w-full">
@@ -234,14 +248,14 @@ export const CashFlowGrid = memo(({
               <TableHeader>
                 <TableRow>
                   <TableHead className="sticky left-0 bg-background z-20 min-w-[180px]">
-                    Статья
+                    {t('cashFlow.columnLine')}
                   </TableHead>
                   {periodMetrics.map((pm) => (
                     <TableHead key={pm.periodIndex} className="text-center min-w-[70px] text-xs">
                       {pm.periodLabel}
                     </TableHead>
                   ))}
-                  <TableHead className="text-right bg-muted/30 min-w-[80px]">Итого</TableHead>
+                  <TableHead className="text-right bg-muted/30 min-w-[80px]">{t('cashFlow.columnTotal')}</TableHead>
                   <TableHead className="sticky right-0 bg-background z-20 w-[70px]" />
                 </TableRow>
               </TableHeader>
@@ -254,14 +268,14 @@ export const CashFlowGrid = memo(({
                       <TableCell colSpan={periodMetrics.length + 3} className="font-semibold text-success">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-4 h-4" />
-                          Поступления
+                          {t('cashFlow.inflow')}
                         </div>
                       </TableCell>
                     </TableRow>
                     {inflows.map(renderLineRow)}
                     <TableRow className="bg-success/10 font-semibold">
                       <TableCell className="sticky left-0 bg-success/10 z-10">
-                        Итого поступления
+                        {t('cashFlow.totalInflow')}
                       </TableCell>
                       {periodMetrics.map((pm) => (
                         <TableCell key={pm.periodIndex} className="text-center text-sm text-success">
@@ -283,14 +297,14 @@ export const CashFlowGrid = memo(({
                       <TableCell colSpan={periodMetrics.length + 3} className="font-semibold text-destructive">
                         <div className="flex items-center gap-2">
                           <TrendingDown className="w-4 h-4" />
-                          Выбытия
+                          {t('cashFlow.outflow')}
                         </div>
                       </TableCell>
                     </TableRow>
                     {outflows.map(renderLineRow)}
                     <TableRow className="bg-destructive/10 font-semibold">
                       <TableCell className="sticky left-0 bg-destructive/10 z-10">
-                        Итого выбытия
+                        {t('cashFlow.totalOutflow')}
                       </TableCell>
                       {periodMetrics.map((pm) => (
                         <TableCell key={pm.periodIndex} className="text-center text-sm text-destructive">
@@ -308,7 +322,7 @@ export const CashFlowGrid = memo(({
                 {/* Net Cash Flow Row */}
                 <TableRow className="bg-primary/10 font-bold">
                   <TableCell className="sticky left-0 bg-primary/10 z-10">
-                    Чистый денежный поток
+                    {t('cashFlow.netCashFlowFull')}
                   </TableCell>
                   {periodMetrics.map((pm) => (
                     <TableCell 
@@ -328,7 +342,7 @@ export const CashFlowGrid = memo(({
                 {showCumulative && (
                   <TableRow className="bg-muted/50">
                     <TableCell className="sticky left-0 bg-muted/50 z-10 text-muted-foreground">
-                      Накопительный CF
+                      {t('cashFlow.cumulativeCF')}
                     </TableCell>
                     {periodMetrics.map((pm) => (
                       <TableCell 
@@ -347,7 +361,7 @@ export const CashFlowGrid = memo(({
                 {showPV && (
                   <TableRow className="bg-accent/10">
                     <TableCell className="sticky left-0 bg-accent/10 z-10 text-muted-foreground">
-                      Приведённая стоимость (PV)
+                      {t('cashFlow.presentValue')}
                     </TableCell>
                     {periodMetrics.map((pm) => (
                       <TableCell 
