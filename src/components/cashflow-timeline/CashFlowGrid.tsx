@@ -169,7 +169,7 @@ export const CashFlowGrid = memo(({
                       <Link2 className="w-3 h-3 text-primary" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Связано с бизнес-моделью</p>
+                      <p>{t('cashFlow.linkedTooltip')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -207,7 +207,7 @@ export const CashFlowGrid = memo(({
                       size="icon"
                       className="h-7 w-7"
                       disabled
-                      aria-label="Редактирование строки (скоро)"
+                      aria-label={t('cashFlow.editComingAria')}
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
@@ -215,7 +215,7 @@ export const CashFlowGrid = memo(({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="text-xs max-w-[220px]">
-                    Редактирование строк Cash Flow будет доступно в будущей версии.
+                    {t('cashFlow.editComingTooltip')}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -238,8 +238,8 @@ export const CashFlowGrid = memo(({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Денежные потоки по периодам</CardTitle>
-        <CardDescription>Кликните на ячейку для редактирования (только ручные статьи)</CardDescription>
+        <CardTitle className="text-base">{t('cashFlow.gridTitle')}</CardTitle>
+        <CardDescription>{t('cashFlow.gridDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="w-full">
@@ -248,14 +248,14 @@ export const CashFlowGrid = memo(({
               <TableHeader>
                 <TableRow>
                   <TableHead className="sticky left-0 bg-background z-20 min-w-[180px]">
-                    Статья
+                    {t('cashFlow.columnLine')}
                   </TableHead>
                   {periodMetrics.map((pm) => (
                     <TableHead key={pm.periodIndex} className="text-center min-w-[70px] text-xs">
                       {pm.periodLabel}
                     </TableHead>
                   ))}
-                  <TableHead className="text-right bg-muted/30 min-w-[80px]">Итого</TableHead>
+                  <TableHead className="text-right bg-muted/30 min-w-[80px]">{t('cashFlow.columnTotal')}</TableHead>
                   <TableHead className="sticky right-0 bg-background z-20 w-[70px]" />
                 </TableRow>
               </TableHeader>
