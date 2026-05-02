@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { TrendingUp, DollarSign, AlertTriangle, CheckCircle2, Calendar, Repeat } from "lucide-react";
 import { calculateLTV, calculateLTVCACRatio, calculateChurnRate, calculateRetentionRate, calculatePaybackPeriod, calculateCAC } from "@/utils/metricsCalculations";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -83,6 +84,9 @@ export const LTVCalculator = ({
   setScenarioB,
   currency,
 }: LTVCalculatorProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
+
   const updateLTVParam = (
     scenario: "current" | "scenarioA" | "scenarioB",
     field: "customerLifetimeMonths" | "purchaseFrequency",
@@ -95,15 +99,15 @@ export const LTVCalculator = ({
   };
 
   const getLTVRatioStatus = (ratio: number) => {
-    if (ratio < 1) return { color: "text-destructive", icon: AlertTriangle, label: "Убыточная модель" };
-    if (ratio < 3) return { color: "text-warning", icon: AlertTriangle, label: "Зона риска" };
-    return { color: "text-success", icon: CheckCircle2, label: "Здоровая экономика" };
+    if (ratio < 1) return { color: "text-destructive", icon: AlertTriangle, label: t("ltvCalculator.statusUnprofitable") };
+    if (ratio < 3) return { color: "text-warning", icon: AlertTriangle, label: t("ltvCalculator.statusRisk") };
+    return { color: "text-success", icon: CheckCircle2, label: t("ltvCalculator.statusHealthy") };
   };
 
   const scenarios = [
-    { name: "Текущая", metrics: currentMetrics, setter: setCurrentMetrics, key: "current" as const },
-    { name: "Сценарий A", metrics: scenarioA, setter: setScenarioA, key: "scenarioA" as const },
-    { name: "Сценарий Б", metrics: scenarioB, setter: setScenarioB, key: "scenarioB" as const },
+    { name: t("ltvCalculator.scenarioCurrent"), metrics: currentMetrics, setter: setCurrentMetrics, key: "current" as const },
+    { name: t("ltvCalculator.scenarioA"), metrics: scenarioA, setter: setScenarioA, key: "scenarioA" as const },
+    { name: t("ltvCalculator.scenarioB"), metrics: scenarioB, setter: setScenarioB, key: "scenarioB" as const },
   ];
 
   const hasAnyLTVData = scenarios.some(s => s.metrics.customerLifetimeMonths && s.metrics.purchaseFrequency);
