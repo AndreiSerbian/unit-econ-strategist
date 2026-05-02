@@ -23,7 +23,20 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CashFlowLine, PeriodMetrics, LineType, LineCategory } from './types';
-import { CATEGORY_LABELS } from './types';
+import { useTranslation } from '@/i18n/useTranslation';
+
+const CATEGORY_KEYS: Record<LineCategory, string> = {
+  revenue: 'cashFlowLines.catRevenue',
+  cogs: 'cashFlowLines.catCogs',
+  logistics: 'cashFlowLines.catLogistics',
+  fees: 'cashFlowLines.catFees',
+  refunds: 'cashFlowLines.catRefunds',
+  marketing: 'cashFlowLines.catMarketing',
+  salaries: 'cashFlowLines.catSalaries',
+  rent: 'cashFlowLines.catRent',
+  taxes: 'cashFlowLines.catTaxes',
+  other: 'cashFlowLines.catOther',
+};
 
 interface LineWithValues extends CashFlowLine {
   values: number[];
