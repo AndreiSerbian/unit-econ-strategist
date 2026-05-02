@@ -84,7 +84,9 @@ import { useSaasProducts } from "@/hooks/useSaasProducts";
 import { useMarketplace } from "@/hooks/useMarketplace";
 import { useTokenSaas } from "@/hooks/useTokenSaas";
 import { useNavigate } from "react-router-dom";
-
+import { useTranslation } from "@/i18n/useTranslation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { GlossarySection } from "./theory/GlossarySection";
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
 
 // ===== Shared market share calculation =====
@@ -101,6 +103,7 @@ function useMarketShares<T extends { revenue?: number | null; marketShare?: numb
 export const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const {
@@ -358,7 +361,7 @@ export const Dashboard = () => {
                 className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto"
               />
               <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
-                Платформа для анализа юнит-экономики и теории игр
+                {t("header.subtitle")}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -386,19 +389,20 @@ export const Dashboard = () => {
                 currency={currency}
                 onCurrencyChange={updateCurrency}
               />
-              <Button variant="ghost" size="sm" onClick={handleShowOnboarding} title="Показать онбординг">
+              <LanguageSwitcher />
+              <Button variant="ghost" size="sm" onClick={handleShowOnboarding} title={t("header.showOnboarding")}>
                 <HelpCircle className="w-4 h-4" />
               </Button>
               <ExportDialog data={exportData} />
               {user ? (
                 <Button variant="outline" size="sm" onClick={signOut} className="whitespace-nowrap">
                   <LogOut className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Выход</span>
+                  <span className="hidden sm:inline">{t("header.signOut")}</span>
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="whitespace-nowrap">
                   <LogIn className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Вход</span>
+                  <span className="hidden sm:inline">{t("header.signIn")}</span>
                 </Button>
               )}
             </div>
@@ -406,23 +410,23 @@ export const Dashboard = () => {
           {user && (
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Вход выполнен как {user.email}
+                {t("header.signedInAs", { email: user.email ?? "" })}
               </p>
               <div className="flex items-center gap-2">
                 {hasUnsavedChanges ? (
                   <span className="flex items-center gap-1 text-xs text-amber-500">
                     <CloudOff className="w-3 h-3" />
-                    Есть несохранённые изменения
+                    {t("header.unsavedChanges")}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 text-xs text-green-500">
                     <Cloud className="w-3 h-3" />
-                    Данные синхронизированы
+                    {t("header.synced")}
                   </span>
                 )}
                 {lastSavedAt && (
                   <span className="text-xs text-muted-foreground">
-                    • Сохранено {formatLastSaved(lastSavedAt)}
+                    • {t("header.savedAt", { time: formatLastSaved(lastSavedAt) })}
                   </span>
                 )}
                 <Button
@@ -433,42 +437,42 @@ export const Dashboard = () => {
                   className="h-6 px-2 text-xs"
                 >
                   {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                  <span className="ml-1 hidden sm:inline">Сохранить</span>
+                  <span className="ml-1 hidden sm:inline">{t("header.save")}</span>
                 </Button>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-6 px-2 text-xs text-destructive hover:text-destructive">
                       <Trash2 className="w-3 h-3" />
-                      <span className="ml-1 hidden sm:inline">Очистить</span>
+                      <span className="ml-1 hidden sm:inline">{t("header.clear")}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Очистить данные</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t("header.clearMenuLabel")}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={clearProducts}><Package className="w-4 h-4 mr-2" />Продукты</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearMaterials}><Truck className="w-4 h-4 mr-2" />Сырьё</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearSalesChannels}><TrendingUp className="w-4 h-4 mr-2" />Каналы продаж</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearMetrics}><BarChart3 className="w-4 h-4 mr-2" />Показатели</DropdownMenuItem>
-                    <DropdownMenuItem onClick={clearCompetitors}><Users className="w-4 h-4 mr-2" />Конкуренты</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearProducts}><Package className="w-4 h-4 mr-2" />{t("header.clearProducts")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearMaterials}><Truck className="w-4 h-4 mr-2" />{t("header.clearMaterials")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearSalesChannels}><TrendingUp className="w-4 h-4 mr-2" />{t("header.clearChannels")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearMetrics}><BarChart3 className="w-4 h-4 mr-2" />{t("header.clearMetrics")}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={clearCompetitors}><Users className="w-4 h-4 mr-2" />{t("header.clearCompetitors")}</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />Очистить всё
+                          <Trash2 className="w-4 h-4 mr-2" />{t("header.clearAll")}
                         </DropdownMenuItem>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Очистить все данные?</AlertDialogTitle>
+                          <AlertDialogTitle>{t("header.clearAllConfirmTitle")}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Это действие удалит все введённые данные: продукты, сырьё, показатели, конкурентов и каналы продаж. Данные в облаке не будут удалены до следующего сохранения.
+                            {t("header.clearAllConfirmDesc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Отмена</AlertDialogCancel>
+                          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                           <AlertDialogAction onClick={clearAllData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Очистить всё
+                            {t("header.clearAll")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -489,31 +493,31 @@ export const Dashboard = () => {
               <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 h-auto p-1 gap-1">
                 <TabsTrigger value="company" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Building2 className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center break-words">Моя компания</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center break-words">{t("navigation.myCompany")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="metrics" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <BarChart3 className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Показатели</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.metrics")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="cashflow" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Wallet className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Cash Flow</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.cashFlow")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="competitors" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Users className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Конкуренты</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.competitors")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="market" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Map className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Рынок</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.market")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="summary" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <FileText className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Итоги</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.results")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="theory" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Brain className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Теория</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.theory")}</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -1291,6 +1295,10 @@ export const Dashboard = () => {
 
                 <AnimatedCard delay={0.3}>
                   <CompetitiveSimulator myCompany={currentMetrics} competitors={competitors} currency={currency} />
+                </AnimatedCard>
+
+                <AnimatedCard delay={0.4}>
+                  <GlossarySection />
                 </AnimatedCard>
               </TabsContent>
             </Tabs>

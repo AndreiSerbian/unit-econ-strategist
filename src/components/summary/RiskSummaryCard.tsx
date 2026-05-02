@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/i18n/useTranslation";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
 import {
   calculateProfitMargin,
@@ -24,6 +25,7 @@ export const RiskSummaryCard = ({
   weakestPeriodLabel,
   weakestPeriodValue,
 }: RiskSummaryCardProps) => {
+  const { t } = useTranslation();
   const hasMetrics =
     metrics && (metrics.revenue > 0 || metrics.totalClients > 0);
 
@@ -33,7 +35,7 @@ export const RiskSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <AlertTriangle className="w-4 h-4 text-primary" />
-            Риски
+            {t("summary.risks")}
           </CardTitle>
           <CardDescription>Недостаточно данных для оценки рисков.</CardDescription>
         </CardHeader>
@@ -101,7 +103,7 @@ export const RiskSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ShieldCheck className="w-4 h-4 text-success" />
-            Риски
+            {t("summary.risks")}
           </CardTitle>
           <CardDescription>
             Существенных рисков по введённым данным не обнаружено.
@@ -116,7 +118,7 @@ export const RiskSummaryCard = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <AlertTriangle className="w-4 h-4 text-primary" />
-          Риски
+          {t("summary.risks")}
         </CardTitle>
         <CardDescription>
           Автоматически выявленные риски на основе введённых данных и Cash Flow.

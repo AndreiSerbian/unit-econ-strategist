@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, TrendingUp, Users, Package, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface Metrics {
   revenue: number;
@@ -43,6 +44,7 @@ interface AIAnalyticsProps {
 }
 
 const AIAnalytics: React.FC<AIAnalyticsProps> = ({ metrics, competitors, products }) => {
+  const { t, language } = useTranslation();
   const [activeTab, setActiveTab] = useState('strategic');
   const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState<Record<string, string>>({});
@@ -56,26 +58,27 @@ const AIAnalytics: React.FC<AIAnalyticsProps> = ({ metrics, competitors, product
           competitors,
           products,
           analysisType: type,
+          language,
         },
       });
 
       if (error) throw error;
 
       setAnalysis(prev => ({ ...prev, [type]: data.analysis }));
-      toast.success('Анализ завершён');
+      toast.success(t('aiSummary.success'));
     } catch (error) {
       console.error('Analysis error:', error);
-      toast.error('Ошибка анализа. Проверьте API ключ.');
+      toast.error(t('aiSummary.error'));
     } finally {
       setIsLoading(false);
     }
   };
 
   const analysisTypes = [
-    { id: 'strategic', label: 'Стратегия', icon: Brain, description: 'Стратегические рекомендации по метрикам' },
-    { id: 'competitor', label: 'Конкуренты', icon: Users, description: 'Анализ конкурентной среды' },
-    { id: 'forecast', label: 'Прогноз', icon: TrendingUp, description: 'Прогноз развития на 3-12 месяцев' },
-    { id: 'products', label: 'Продукты', icon: Package, description: 'Анализ продуктового портфеля' },
+    { id: 'strategic', label: t('aiSummary.types_strategic'), icon: Brain, description: t('aiSummary.types_strategic_desc') },
+    { id: 'competitor', label: t('aiSummary.types_competitor'), icon: Users, description: t('aiSummary.types_competitor_desc') },
+    { id: 'forecast', label: t('aiSummary.types_forecast'), icon: TrendingUp, description: t('aiSummary.types_forecast_desc') },
+    { id: 'products', label: t('aiSummary.types_products'), icon: Package, description: t('aiSummary.types_products_desc') },
   ];
 
   const formatAnalysis = (text: string) => {
@@ -101,7 +104,7 @@ const AIAnalytics: React.FC<AIAnalyticsProps> = ({ metrics, competitors, product
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Sparkles className="h-5 w-5 text-primary" />
-          AI Аналитика (Claude)
+          {t('aiSummary.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -128,12 +131,12 @@ const AIAnalytics: React.FC<AIAnalyticsProps> = ({ metrics, competitors, product
                   {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Анализ...
+                      {t('aiSummary.running')}
                     </>
                   ) : (
                     <>
                       <Brain className="h-4 w-4 mr-2" />
-                      Запустить анализ
+                      {t('aiSummary.run')}
                     </>
                   )}
                 </Button>
@@ -149,7 +152,7 @@ const AIAnalytics: React.FC<AIAnalyticsProps> = ({ metrics, competitors, product
                 <div className="bg-muted/30 rounded-lg p-8 text-center">
                   <type.icon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
                   <p className="text-muted-foreground">
-                    Нажмите "Запустить анализ" для получения AI-рекомендаций
+                    {t('aiSummary.empty')}
                   </p>
                 </div>
               )}

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Lightbulb } from "lucide-react";
 import {
   calculateProfitMargin,
@@ -15,6 +16,7 @@ export const RecommendationSummaryCard = ({
   metrics,
   cashflowSummary,
 }: RecommendationSummaryCardProps) => {
+  const { t } = useTranslation();
   const hasMetrics =
     metrics && (metrics.revenue > 0 || metrics.totalClients > 0);
 
@@ -24,7 +26,7 @@ export const RecommendationSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Lightbulb className="w-4 h-4 text-primary" />
-            Рекомендации
+            {t("summary.recommendations")}
           </CardTitle>
           <CardDescription>Недостаточно данных для рекомендаций.</CardDescription>
         </CardHeader>
@@ -92,7 +94,7 @@ export const RecommendationSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Lightbulb className="w-4 h-4 text-primary" />
-            Рекомендации
+            {t("summary.recommendations")}
           </CardTitle>
           <CardDescription>
             Метрики в норме. Сосредоточьтесь на масштабировании текущей модели.
@@ -107,7 +109,7 @@ export const RecommendationSummaryCard = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Lightbulb className="w-4 h-4 text-primary" />
-          Рекомендации
+          {t("summary.recommendations")}
         </CardTitle>
         <CardDescription>
           Автоматические рекомендации, привязанные к конкретным метрикам.

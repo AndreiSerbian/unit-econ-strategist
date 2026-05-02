@@ -11,15 +11,25 @@ serve(async (req) => {
   }
 
   try {
-    const { metrics, competitors, products, analysisType } = await req.json();
-    
+    const { metrics, competitors, products, analysisType, language } = await req.json();
+
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
-    const systemPrompt = `Ты - эксперт по финансовому анализу и юнит-экономике. 
-Анализируй данные на русском языке. Давай конкретные, практичные рекомендации.
+    const lang: 'ru' | 'en' | 'ro' =
+      language === 'en' || language === 'ro' || language === 'ru' ? language : 'ru';
+
+    const languageInstruction: Record<'ru' | 'en' | 'ro', string> = {
+      ru: 'Отвечай на русском языке. Используй практичный деловой стиль.',
+      en: 'Respond in English. Use clear product and finance language.',
+      ro: 'Răspunde în limba română. Folosește un limbaj practic, ușor de înțeles pentru utilizatorii din Moldova.',
+    };
+
+    const systemPrompt = `Ты - эксперт по финансовому анализу и юнит-экономике.
+${languageInstruction[lang]}
+Давай конкретные, практичные рекомендации.
 Используй числа и проценты для обоснования выводов.
 Формат ответа: структурированный текст с заголовками и пунктами.`;
 
