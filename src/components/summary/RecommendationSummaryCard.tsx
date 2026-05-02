@@ -28,7 +28,7 @@ export const RecommendationSummaryCard = ({
             <Lightbulb className="w-4 h-4 text-primary" />
             {t("summary.recommendations")}
           </CardTitle>
-          <CardDescription>Недостаточно данных для рекомендаций.</CardDescription>
+          <CardDescription>{t("summary.notEnoughDataRecs")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -42,26 +42,26 @@ export const RecommendationSummaryCard = ({
 
     if (ltvCac > 0 && ltvCac < 3) {
       recs.push({
-        tag: "LTV/CAC",
-        text: "Снизить CAC или увеличить LTV: повысить retention, средний чек или частоту покупок.",
+        tag: t("summary.tagLtvCac"),
+        text: t("summary.recLtvCac"),
       });
     }
     if (margin < 10) {
       recs.push({
-        tag: "Маржа",
-        text: "Пересмотреть структуру переменных расходов и переговорить условия с поставщиками.",
+        tag: t("summary.tagMargin"),
+        text: t("summary.recMargin"),
       });
     }
     if (metrics.totalClients > 0 && (metrics.newClients ?? 0) === 0) {
       recs.push({
-        tag: "Привлечение",
-        text: "Активизировать каналы привлечения и проверить эффективность маркетинга.",
+        tag: t("summary.tagAcquisition"),
+        text: t("summary.recAcquisition"),
       });
     }
     if (metrics.conversionRate !== undefined && metrics.conversionRate > 0 && metrics.conversionRate < 1) {
       recs.push({
-        tag: "Воронка",
-        text: "Низкая конверсия — улучшить квалификацию лидов и точки контакта.",
+        tag: t("summary.tagFunnel"),
+        text: t("summary.recFunnel"),
       });
     }
   }
@@ -69,22 +69,22 @@ export const RecommendationSummaryCard = ({
   if (cashflowSummary) {
     if (cashflowSummary.npv < 0) {
       recs.push({
-        tag: "NPV",
-        text: "Пересмотреть допущения сценария или горизонт планирования: при текущих параметрах проект не окупается.",
+        tag: t("summary.tagNpv"),
+        text: t("summary.recNpv"),
       });
     }
     if (cashflowSummary.paybackPeriod === undefined) {
       recs.push({
-        tag: "Окупаемость",
-        text: "Сократить начальные оттоки или ускорить рост притоков, чтобы достичь окупаемости в горизонте.",
+        tag: t("summary.tagPayback"),
+        text: t("summary.recPayback"),
       });
     }
   }
 
   if (hasMetrics) {
     recs.push({
-      tag: "Сценарии",
-      text: "Сравните оптимистичный и пессимистичный сценарии в блоке ниже, чтобы оценить чувствительность.",
+      tag: t("summary.tagScenarios"),
+      text: t("summary.recScenarios"),
     });
   }
 
@@ -97,7 +97,7 @@ export const RecommendationSummaryCard = ({
             {t("summary.recommendations")}
           </CardTitle>
           <CardDescription>
-            Метрики в норме. Сосредоточьтесь на масштабировании текущей модели.
+            {t("summary.recsNone")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -112,7 +112,7 @@ export const RecommendationSummaryCard = ({
           {t("summary.recommendations")}
         </CardTitle>
         <CardDescription>
-          Автоматические рекомендации, привязанные к конкретным метрикам.
+          {t("summary.recsDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
