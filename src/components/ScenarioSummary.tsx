@@ -130,7 +130,7 @@ export const ScenarioSummary = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Резюме: {scenarioLabel}
+          {t("summary.title").replace("{label}", scenarioLabel)}
         </CardTitle>
         <CardDescription>
           {t("summary.titleHint")}
