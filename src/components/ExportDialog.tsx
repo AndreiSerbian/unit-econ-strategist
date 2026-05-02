@@ -85,8 +85,8 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
         csv += `${c.name},${ed("csvFixedCosts")},${ed("csvOfficeRent")},${de.fixedCosts.officeRent}\n`;
         csv += `${c.name},${ed("csvFixedCosts")},${ed("csvWarehouseRent")},${de.fixedCosts.warehouseRent}\n`;
         csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvTrafficPurchase")},${de.variableCosts.marketing.trafficPurchase}\n`;
-        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvContractorsPayment")},${de.variableCosts.marketing.contractorsPayment}\n`;
-        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvCrmCosts")},${de.variableCosts.marketing.crmCosts}\n`;
+        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvContractors")},${de.variableCosts.marketing.contractorsPayment}\n`;
+        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvCrm")},${de.variableCosts.marketing.crmCosts}\n`;
         csv += `${c.name},${ed("csvVariableSales")},${ed("csvBonusOldClients")},${de.variableCosts.salesPayroll.bonusOldClients}\n`;
         csv += `${c.name},${ed("csvVariableSales")},${ed("csvBonusNewClients")},${de.variableCosts.salesPayroll.bonusNewClients}\n`;
         csv += `${c.name},${ed("csvVariableProduction")},${ed("csvMaterials")},${de.variableCosts.production.materials}\n`;
