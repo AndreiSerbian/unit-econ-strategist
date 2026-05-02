@@ -268,14 +268,14 @@ export const CashFlowGrid = memo(({
                       <TableCell colSpan={periodMetrics.length + 3} className="font-semibold text-success">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-4 h-4" />
-                          Поступления
+                          {t('cashFlow.inflow')}
                         </div>
                       </TableCell>
                     </TableRow>
                     {inflows.map(renderLineRow)}
                     <TableRow className="bg-success/10 font-semibold">
                       <TableCell className="sticky left-0 bg-success/10 z-10">
-                        Итого поступления
+                        {t('cashFlow.totalInflow')}
                       </TableCell>
                       {periodMetrics.map((pm) => (
                         <TableCell key={pm.periodIndex} className="text-center text-sm text-success">
@@ -297,14 +297,14 @@ export const CashFlowGrid = memo(({
                       <TableCell colSpan={periodMetrics.length + 3} className="font-semibold text-destructive">
                         <div className="flex items-center gap-2">
                           <TrendingDown className="w-4 h-4" />
-                          Выбытия
+                          {t('cashFlow.outflow')}
                         </div>
                       </TableCell>
                     </TableRow>
                     {outflows.map(renderLineRow)}
                     <TableRow className="bg-destructive/10 font-semibold">
                       <TableCell className="sticky left-0 bg-destructive/10 z-10">
-                        Итого выбытия
+                        {t('cashFlow.totalOutflow')}
                       </TableCell>
                       {periodMetrics.map((pm) => (
                         <TableCell key={pm.periodIndex} className="text-center text-sm text-destructive">
@@ -322,7 +322,7 @@ export const CashFlowGrid = memo(({
                 {/* Net Cash Flow Row */}
                 <TableRow className="bg-primary/10 font-bold">
                   <TableCell className="sticky left-0 bg-primary/10 z-10">
-                    Чистый денежный поток
+                    {t('cashFlow.netCashFlowFull')}
                   </TableCell>
                   {periodMetrics.map((pm) => (
                     <TableCell 
@@ -342,7 +342,7 @@ export const CashFlowGrid = memo(({
                 {showCumulative && (
                   <TableRow className="bg-muted/50">
                     <TableCell className="sticky left-0 bg-muted/50 z-10 text-muted-foreground">
-                      Накопительный CF
+                      {t('cashFlow.cumulativeCF')}
                     </TableCell>
                     {periodMetrics.map((pm) => (
                       <TableCell 
@@ -361,7 +361,7 @@ export const CashFlowGrid = memo(({
                 {showPV && (
                   <TableRow className="bg-accent/10">
                     <TableCell className="sticky left-0 bg-accent/10 z-10 text-muted-foreground">
-                      Приведённая стоимость (PV)
+                      {t('cashFlow.presentValue')}
                     </TableCell>
                     {periodMetrics.map((pm) => (
                       <TableCell 
