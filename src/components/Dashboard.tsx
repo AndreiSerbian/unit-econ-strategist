@@ -84,7 +84,9 @@ import { useSaasProducts } from "@/hooks/useSaasProducts";
 import { useMarketplace } from "@/hooks/useMarketplace";
 import { useTokenSaas } from "@/hooks/useTokenSaas";
 import { useNavigate } from "react-router-dom";
-
+import { useTranslation } from "@/i18n/useTranslation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { GlossarySection } from "./theory/GlossarySection";
 const ONBOARDING_KEY = "strategy-analysis-onboarding-completed";
 
 // ===== Shared market share calculation =====
