@@ -126,10 +126,10 @@ export const LTVCalculator = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />
-          📊 Анализ пожизненной ценности клиента (LTV)
+          📊 {t("ltvCalculator.title")}
         </CardTitle>
         <CardDescription>
-          Оцените долгосрочную ценность клиентов и эффективность их привлечения
+          {t("ltvCalculator.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -151,7 +151,7 @@ export const LTVCalculator = ({
                 <div className="space-y-2">
                   <Label htmlFor={`${scenario.key}-lifetime`} className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    Средний срок жизни клиента (месяцев)
+                    {t("ltvCalculator.customerLifetime")}
                   </Label>
                   <Input
                     id={`${scenario.key}-lifetime`}
@@ -160,14 +160,14 @@ export const LTVCalculator = ({
                     step="1"
                     value={scenario.metrics.customerLifetimeMonths || ""}
                     onChange={(e) => updateLTVParam(scenario.key, "customerLifetimeMonths", e.target.value)}
-                    placeholder="Например: 12"
+                    placeholder={t("ltvCalculator.customerLifetimePh")}
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor={`${scenario.key}-frequency`} className="flex items-center gap-2">
                     <Repeat className="w-4 h-4" />
-                    Частота покупок в месяц
+                    {t("ltvCalculator.purchaseFrequency")}
                   </Label>
                   <Input
                     id={`${scenario.key}-frequency`}
@@ -176,7 +176,7 @@ export const LTVCalculator = ({
                     step="0.1"
                     value={scenario.metrics.purchaseFrequency || ""}
                     onChange={(e) => updateLTVParam(scenario.key, "purchaseFrequency", e.target.value)}
-                    placeholder="Например: 2"
+                    placeholder={t("ltvCalculator.purchaseFrequencyPh")}
                   />
                 </div>
               </div>
@@ -185,17 +185,17 @@ export const LTVCalculator = ({
                 <div className="mt-6 space-y-4">
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-                      <p className="text-xs text-muted-foreground mb-1">LTV</p>
+                      <p className="text-xs text-muted-foreground mb-1">{t("ltvCalculator.ltv")}</p>
                       <p className="text-xl font-bold text-primary font-mono">
-                        {ltv.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                        {ltv.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Пожизненная ценность</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t("ltvCalculator.ltvDesc")}</p>
                     </div>
 
                     <div className="p-4 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
                       <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                         <StatusIcon className={`w-3 h-3 ${status.color}`} />
-                        LTV/CAC
+                        {t("ltvCalculator.ltvCac")}
                       </p>
                       <p className={`text-xl font-bold font-mono ${status.color}`}>
                         {ltvCacRatio.toFixed(2)}x
@@ -204,19 +204,19 @@ export const LTVCalculator = ({
                     </div>
 
                     <div className="p-4 rounded-lg bg-gradient-to-br from-destructive/10 to-destructive/5 border border-destructive/20">
-                      <p className="text-xs text-muted-foreground mb-1">Churn Rate</p>
+                      <p className="text-xs text-muted-foreground mb-1">{t("ltvCalculator.churn")}</p>
                       <p className="text-xl font-bold text-destructive font-mono">
                         {churnRate.toFixed(1)}%
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Отток в месяц</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t("ltvCalculator.churnDesc")}</p>
                     </div>
 
                     <div className="p-4 rounded-lg bg-gradient-to-br from-success/10 to-success/5 border border-success/20">
-                      <p className="text-xs text-muted-foreground mb-1">Retention</p>
+                      <p className="text-xs text-muted-foreground mb-1">{t("ltvCalculator.retention")}</p>
                       <p className="text-xl font-bold text-success font-mono">
                         {retentionRate.toFixed(1)}%
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Удержание</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t("ltvCalculator.retentionDesc")}</p>
                     </div>
                   </div>
 
@@ -226,16 +226,16 @@ export const LTVCalculator = ({
                         <div>
                           <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <DollarSign className="w-4 h-4" />
-                            Период окупаемости
+                            {t("ltvCalculator.paybackPeriod")}
                           </p>
                           <p className="text-2xl font-bold text-secondary font-mono mt-1">
-                            {paybackPeriod === Infinity ? "∞" : paybackPeriod.toFixed(1)} мес
+                            {paybackPeriod === Infinity ? "∞" : t("ltvCalculator.paybackMonths", { value: paybackPeriod.toFixed(1) })}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-muted-foreground">CAC</p>
+                          <p className="text-xs text-muted-foreground">{t("ltvCalculator.cac")}</p>
                           <p className="text-lg font-semibold text-muted-foreground font-mono">
-                            {cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                            {cac.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                           </p>
                         </div>
                       </div>
@@ -249,7 +249,7 @@ export const LTVCalculator = ({
 
         {hasAnyLTVData && comparisonData.length > 1 && (
           <div className="mt-8 space-y-4">
-            <h3 className="text-lg font-semibold">Сравнение сценариев</h3>
+            <h3 className="text-lg font-semibold">{t("ltvCalculator.comparisonTitle")}</h3>
             
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={comparisonData}>
@@ -257,7 +257,7 @@ export const LTVCalculator = ({
                 <XAxis dataKey="name" className="text-xs" />
                 <YAxis className="text-xs" />
                 <Tooltip 
-                  formatter={(value: number) => value.toLocaleString("ru-RU", { maximumFractionDigits: 0 })}
+                  formatter={(value: number) => value.toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
                 />
                 <Legend />
@@ -270,11 +270,11 @@ export const LTVCalculator = ({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 px-4">Сценарий</th>
-                    <th className="text-right py-2 px-4">LTV</th>
-                    <th className="text-right py-2 px-4">CAC</th>
-                    <th className="text-right py-2 px-4">LTV/CAC</th>
-                    <th className="text-left py-2 px-4">Статус</th>
+                    <th className="text-left py-2 px-4">{t("ltvCalculator.scenario")}</th>
+                    <th className="text-right py-2 px-4">{t("ltvCalculator.ltv")}</th>
+                    <th className="text-right py-2 px-4">{t("ltvCalculator.cac")}</th>
+                    <th className="text-right py-2 px-4">{t("ltvCalculator.ltvCac")}</th>
+                    <th className="text-left py-2 px-4">{t("ltvCalculator.status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -285,10 +285,10 @@ export const LTVCalculator = ({
                       <tr key={idx} className="border-b last:border-0">
                         <td className="py-2 px-4 font-medium">{data.name}</td>
                         <td className="text-right py-2 px-4 font-mono">
-                          {data.LTV.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                          {data.LTV.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                         </td>
                         <td className="text-right py-2 px-4 font-mono">
-                          {data.CAC.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                          {data.CAC.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                         </td>
                         <td className={`text-right py-2 px-4 font-mono font-bold ${status.color}`}>
                           {data.ratio.toFixed(2)}x
@@ -305,11 +305,11 @@ export const LTVCalculator = ({
             </div>
 
             <div className="p-4 rounded-lg bg-muted/50 border">
-              <h4 className="font-semibold mb-2 text-sm">💡 Интерпретация LTV/CAC:</h4>
+              <h4 className="font-semibold mb-2 text-sm">💡 {t("ltvCalculator.interpretation")}</h4>
               <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• <span className="text-destructive font-semibold">&lt; 1</span> — Убыточная модель: стоимость привлечения превышает ценность клиента</li>
-                <li>• <span className="text-warning font-semibold">1-3</span> — Зона риска: бизнес может быть окупаем, но запас прочности низкий</li>
-                <li>• <span className="text-success font-semibold">&gt; 3</span> — Здоровая экономика: клиенты приносят значительно больше, чем стоят</li>
+                <li>• <span className="text-destructive font-semibold">&lt; 1</span> — {t("ltvCalculator.interpUnprofitable")}</li>
+                <li>• <span className="text-warning font-semibold">1-3</span> — {t("ltvCalculator.interpRisk")}</li>
+                <li>• <span className="text-success font-semibold">&gt; 3</span> — {t("ltvCalculator.interpHealthy")}</li>
               </ul>
             </div>
           </div>
