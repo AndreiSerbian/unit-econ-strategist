@@ -76,6 +76,8 @@ export const ROICalculator = ({
   scenarioB,
   currency,
 }: ROICalculatorProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [timePeriod, setTimePeriod] = useState(12);
   const [initialInvestment, setInitialInvestment] = useState(0);
 
