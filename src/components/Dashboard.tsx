@@ -361,7 +361,7 @@ export const Dashboard = () => {
                 className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto"
               />
               <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
-                Платформа для анализа юнит-экономики и теории игр
+                {t("header.subtitle")}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
