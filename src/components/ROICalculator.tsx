@@ -292,39 +292,39 @@ export const ROICalculator = ({
                    {item.hasData ? (
                      <div className="space-y-1.5">
                        <div>
-                         <p className="text-[10px] sm:text-xs text-muted-foreground">
-                           Логистика за период
-                         </p>
-                         <p className="text-base sm:text-lg font-mono font-semibold">
-                           {item.logistics.toLocaleString("ru-RU", {
-                             maximumFractionDigits: 0,
-                           })}{" "}
-                           {currency}
-                         </p>
-                       </div>
-                       <div className="flex items-center justify-between gap-2">
-                         <div>
-                           <p className="text-[10px] sm:text-xs text-muted-foreground">
-                             Доля в выручке
-                           </p>
-                           <p className="text-sm sm:text-base font-mono">
-                             {item.logisticsVsRevenue.toFixed(1)}%
-                           </p>
-                         </div>
-                         <div>
-                           <p className="text-[10px] sm:text-xs text-muted-foreground">
-                             Доля в переменных расходах
-                           </p>
-                           <p className="text-sm sm:text-base font-mono">
-                             {item.logisticsVsVariable.toFixed(1)}%
-                           </p>
-                         </div>
-                       </div>
-                     </div>
-                   ) : (
-                     <p className="text-sm text-muted-foreground italic">
-                       Детализированные расходы не заполнены
-                     </p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">
+                            {t("roiCalculator.logisticsForPeriod")}
+                          </p>
+                          <p className="text-base sm:text-lg font-mono font-semibold">
+                            {item.logistics.toLocaleString(numLocale, {
+                              maximumFractionDigits: 0,
+                            })}{" "}
+                            {currency}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">
+                              {t("roiCalculator.shareInRevenue")}
+                            </p>
+                            <p className="text-sm sm:text-base font-mono">
+                              {item.logisticsVsRevenue.toFixed(1)}%
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">
+                              {t("roiCalculator.shareInVariable")}
+                            </p>
+                            <p className="text-sm sm:text-base font-mono">
+                              {item.logisticsVsVariable.toFixed(1)}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        {t("roiCalculator.noDetailedExpenses")}
+                      </p>
                    )}
                  </CardContent>
                </Card>
