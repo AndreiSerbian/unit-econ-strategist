@@ -270,31 +270,28 @@ export const SalesChannelsManager = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Store className="w-5 h-5 text-primary" />
-          Каналы продаж
+          {t("salesChannels.title")}
         </CardTitle>
         <CardDescription>
-          {isSaaS 
-            ? "Настройте параметры каналов: комиссии, скидки, возвраты, условия оплаты"
-            : "Настройте параметры каналов: комиссии, фулфилмент, логистика, возвраты"
-          }
+          {isSaaS ? t("salesChannels.descSaas") : t("salesChannels.descPhysical")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Add new channel form */}
         <div className="p-3 sm:p-4 border rounded-lg bg-muted/30 space-y-4">
-          <h3 className="font-medium text-sm">Добавить канал</h3>
+          <h3 className="font-medium text-sm">{t("salesChannels.addTitle")}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <div>
-              <Label className="text-xs sm:text-sm">Название</Label>
+              <Label className="text-xs sm:text-sm">{t("common.name")}</Label>
               <Input
                 value={newChannel.name}
                 onChange={(e) => setNewChannel({ ...newChannel, name: e.target.value })}
-                placeholder={isSaaS ? "Stripe Direct" : "Wildberries"}
+                placeholder={isSaaS ? t("salesChannels.namePlaceholderSaas") : t("salesChannels.namePlaceholderPhysical")}
                 className="text-sm"
               />
             </div>
             <div>
-              <Label className="text-xs sm:text-sm">Тип канала</Label>
+              <Label className="text-xs sm:text-sm">{t("salesChannels.typeLabel")}</Label>
               <Select value={newChannel.type} onValueChange={handleTypeChange}>
                 <SelectTrigger className="text-sm">
                   <SelectValue />
@@ -304,7 +301,7 @@ export const SalesChannelsManager = ({
                     <SelectItem key={type.value} value={type.value}>
                       <div className="flex items-center gap-2">
                         <type.icon className="w-4 h-4" />
-                        {type.label}
+                        {tChannelTypeLabel(type.value)}
                       </div>
                     </SelectItem>
                   ))}
@@ -313,8 +310,8 @@ export const SalesChannelsManager = ({
             </div>
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Комиссия (%)
-                <FieldTooltip content="Доля платформы/партнёра/реселлера от выручки" />
+                {t("salesChannels.commission")}
+                <FieldTooltip content={t("salesChannels.commissionTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.commissionPercent}
@@ -331,7 +328,7 @@ export const SalesChannelsManager = ({
             {!isSaaS && (
               <>
                 <div>
-                  <Label className="text-xs sm:text-sm">Фулфилмент ({currency})</Label>
+                  <Label className="text-xs sm:text-sm">{t("salesChannels.fulfillment", { currency })}</Label>
                   <NumericInput
                     value={newChannel.fulfillmentCostPerUnit}
                     onChange={(value) => setNewChannel({ ...newChannel, fulfillmentCostPerUnit: value || 0 })}
@@ -340,7 +337,7 @@ export const SalesChannelsManager = ({
                   />
                 </div>
                 <div>
-                  <Label className="text-xs sm:text-sm">Логистика ({currency})</Label>
+                  <Label className="text-xs sm:text-sm">{t("salesChannels.logistics", { currency })}</Label>
                   <NumericInput
                     value={newChannel.logisticsCostPerUnit}
                     onChange={(value) => setNewChannel({ ...newChannel, logisticsCostPerUnit: value || 0 })}
@@ -352,8 +349,8 @@ export const SalesChannelsManager = ({
             )}
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Возвраты (%)
-                <FieldTooltip content="Refunds и chargebacks, НЕ churn" />
+                {t("salesChannels.returns")}
+                <FieldTooltip content={t("salesChannels.returnsTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.returnRatePercent}
@@ -364,8 +361,8 @@ export const SalesChannelsManager = ({
             </div>
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Отсрочка (дни)
-                <FieldTooltip content="Задержка выплаты, net-30/60" />
+                {t("salesChannels.delay")}
+                <FieldTooltip content={t("salesChannels.delayTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.paymentDelayDays}
@@ -376,8 +373,8 @@ export const SalesChannelsManager = ({
             </div>
             <div>
               <Label className="text-xs sm:text-sm flex items-center">
-                Скидка (%)
-                <FieldTooltip content="Типичная скидка для канала" />
+                {t("salesChannels.discount")}
+                <FieldTooltip content={t("salesChannels.discountTooltip")} />
               </Label>
               <NumericInput
                 value={newChannel.discountPercent || 0}
@@ -389,7 +386,7 @@ export const SalesChannelsManager = ({
           </div>
           <Button onClick={handleAddChannel} className="w-full">
             <Plus className="w-4 h-4 mr-2" />
-            Добавить канал
+            {t("salesChannels.addCta")}
           </Button>
         </div>
 
