@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X, Megaphone } from "lucide-react";
 import { NumericInput } from "@/components/ui/numeric-input";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export interface LeadSource {
   id: string;
@@ -23,12 +24,6 @@ interface LeadSourcesFormProps {
   totalRevenue?: number;
 }
 
-const typeOptions = [
-  { value: "paid", label: "Платный трафик" },
-  { value: "organic", label: "Органика" },
-  { value: "referral", label: "Реферальный" },
-  { value: "direct", label: "Прямой" },
-];
 
 const defaultSources: Omit<LeadSource, "id">[] = [
   { name: "Яндекс.Директ", type: "paid", leads: 0, cost: 0 },
