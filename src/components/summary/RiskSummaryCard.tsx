@@ -33,7 +33,7 @@ export const RiskSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <AlertTriangle className="w-4 h-4 text-primary" />
-            Риски
+            {t("summary.risks")}
           </CardTitle>
           <CardDescription>Недостаточно данных для оценки рисков.</CardDescription>
         </CardHeader>
@@ -101,7 +101,7 @@ export const RiskSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ShieldCheck className="w-4 h-4 text-success" />
-            Риски
+            {t("summary.risks")}
           </CardTitle>
           <CardDescription>
             Существенных рисков по введённым данным не обнаружено.
@@ -116,7 +116,7 @@ export const RiskSummaryCard = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <AlertTriangle className="w-4 h-4 text-primary" />
-          Риски
+          {t("summary.risks")}
         </CardTitle>
         <CardDescription>
           Автоматически выявленные риски на основе введённых данных и Cash Flow.

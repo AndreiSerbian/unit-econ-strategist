@@ -43,7 +43,7 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Building2 className="w-4 h-4 text-primary" />
-            Итоги по компании
+            {t("summary.company")}
           </CardTitle>
           <CardDescription>Недостаточно данных. Заполните вкладку «Моя компания».</CardDescription>
         </CardHeader>
@@ -73,7 +73,7 @@ export const CompanySummaryCard = ({ metrics, currency }: CompanySummaryCardProp
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Building2 className="w-4 h-4 text-primary" />
-          Итоги по компании
+          {t("summary.company")}
         </CardTitle>
         <CardDescription>
           Сводные показатели текущего сценария на основе введённых данных.

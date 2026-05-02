@@ -46,7 +46,7 @@ export const CashFlowSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Wallet className="w-4 h-4 text-primary" />
-            Итоги по Cash Flow
+            {t("summary.cashflow")}
           </CardTitle>
           <CardDescription>Загрузка…</CardDescription>
         </CardHeader>
@@ -60,7 +60,7 @@ export const CashFlowSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Wallet className="w-4 h-4 text-primary" />
-            Итоги по Cash Flow
+            {t("summary.cashflow")}
           </CardTitle>
           <CardDescription>
             Недостаточно данных. Перейдите на вкладку «Cash Flow» и заполните
@@ -101,7 +101,7 @@ export const CashFlowSummaryCard = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Wallet className="w-4 h-4 text-primary" />
-          Итоги по Cash Flow
+          {t("summary.cashflow")}
         </CardTitle>
         <CardDescription>
           Сводка по таймлайну текущего сценария.

@@ -24,7 +24,7 @@ export const RecommendationSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Lightbulb className="w-4 h-4 text-primary" />
-            Рекомендации
+            {t("summary.recommendations")}
           </CardTitle>
           <CardDescription>Недостаточно данных для рекомендаций.</CardDescription>
         </CardHeader>
@@ -92,7 +92,7 @@ export const RecommendationSummaryCard = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Lightbulb className="w-4 h-4 text-primary" />
-            Рекомендации
+            {t("summary.recommendations")}
           </CardTitle>
           <CardDescription>
             Метрики в норме. Сосредоточьтесь на масштабировании текущей модели.
@@ -107,7 +107,7 @@ export const RecommendationSummaryCard = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Lightbulb className="w-4 h-4 text-primary" />
-          Рекомендации
+          {t("summary.recommendations")}
         </CardTitle>
         <CardDescription>
           Автоматические рекомендации, привязанные к конкретным метрикам.
