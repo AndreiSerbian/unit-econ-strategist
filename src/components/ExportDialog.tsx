@@ -18,10 +18,10 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${projectName}_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `${effectiveProjectName}_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success("Данные экспортированы в JSON");
+    toast.success(t("exportDialog.successJson"));
   };
 
   const exportToCSV = () => {
@@ -99,10 +99,10 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${projectName}_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `${effectiveProjectName}_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success("Данные экспортированы в CSV");
+    toast.success(t("exportDialog.successCsv"));
   };
 
   return (
@@ -110,24 +110,24 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="whitespace-nowrap">
           <Download className="w-4 h-4 sm:mr-2" />
-          <span className="hidden sm:inline">Экспорт</span>
+          <span className="hidden sm:inline">{t("exportDialog.button")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Экспорт данных</DialogTitle>
+          <DialogTitle>{t("exportDialog.title")}</DialogTitle>
           <DialogDescription>
-            Выберите формат для экспорта данных анализа
+            {t("exportDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 mt-4">
           <Button onClick={exportToJSON} className="w-full justify-start" variant="outline">
             <FileText className="w-4 h-4 mr-2" />
-            Экспорт в JSON
+            {t("exportDialog.json")}
           </Button>
           <Button onClick={exportToCSV} className="w-full justify-start" variant="outline">
             <FileSpreadsheet className="w-4 h-4 mr-2" />
-            Экспорт в CSV (Excel)
+            {t("exportDialog.csv")}
           </Button>
         </div>
       </DialogContent>
