@@ -393,7 +393,7 @@ export const SalesChannelsManager = ({
         {/* Channels list */}
         {channels.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-medium text-sm">Настроенные каналы</h3>
+            <h3 className="font-medium text-sm">{t("salesChannels.configured")}</h3>
             {channels.map((channel) => {
               const Icon = getChannelIcon(channel.type);
               return (
@@ -427,7 +427,7 @@ export const SalesChannelsManager = ({
                   
                   <div className={`grid grid-cols-2 ${isSaaS ? 'sm:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-6'} gap-2 sm:gap-3 mt-3 sm:mt-4`}>
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Комиссия (%)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.commission")}</Label>
                       <NumericInput
                         value={channel.commissionPercent}
                         onChange={(value) => handleUpdateChannel(channel.id, { commissionPercent: validatePercent(value || 0) })}
@@ -438,7 +438,7 @@ export const SalesChannelsManager = ({
                     {!isSaaS && (
                       <>
                         <div>
-                          <Label className="text-[10px] sm:text-xs">Фулфилмент</Label>
+                          <Label className="text-[10px] sm:text-xs">{t("salesChannels.fulfillmentShort")}</Label>
                           <NumericInput
                             value={channel.fulfillmentCostPerUnit}
                             onChange={(value) => handleUpdateChannel(channel.id, { fulfillmentCostPerUnit: value || 0 })}
@@ -446,7 +446,7 @@ export const SalesChannelsManager = ({
                           />
                         </div>
                         <div>
-                          <Label className="text-[10px] sm:text-xs">Логистика</Label>
+                          <Label className="text-[10px] sm:text-xs">{t("salesChannels.logisticsShort")}</Label>
                           <NumericInput
                             value={channel.logisticsCostPerUnit}
                             onChange={(value) => handleUpdateChannel(channel.id, { logisticsCostPerUnit: value || 0 })}
@@ -456,7 +456,7 @@ export const SalesChannelsManager = ({
                       </>
                     )}
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Возвраты (%)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.returns")}</Label>
                       <NumericInput
                         value={channel.returnRatePercent}
                         onChange={(value) => handleUpdateChannel(channel.id, { returnRatePercent: validatePercent(value || 0) })}
@@ -464,7 +464,7 @@ export const SalesChannelsManager = ({
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Отсрочка (дни)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.delay")}</Label>
                       <NumericInput
                         value={channel.paymentDelayDays}
                         onChange={(value) => handleUpdateChannel(channel.id, { paymentDelayDays: validateDelayDays(value || 0) })}
@@ -472,7 +472,7 @@ export const SalesChannelsManager = ({
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] sm:text-xs">Скидка (%)</Label>
+                      <Label className="text-[10px] sm:text-xs">{t("salesChannels.discount")}</Label>
                       <NumericInput
                         value={channel.discountPercent || 0}
                         onChange={(value) => handleUpdateChannel(channel.id, { discountPercent: validatePercent(value || 0) })}
@@ -489,12 +489,9 @@ export const SalesChannelsManager = ({
         {channels.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <Store className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Нет настроенных каналов</p>
+            <p>{t("salesChannels.emptyTitle")}</p>
             <p className="text-sm">
-              {isSaaS 
-                ? "Добавьте каналы продаж для анализа unit-экономики"
-                : "Добавьте каналы продаж для анализа маржинальности"
-              }
+              {isSaaS ? t("salesChannels.emptyHintSaas") : t("salesChannels.emptyHintPhysical")}
             </p>
           </div>
         )}
