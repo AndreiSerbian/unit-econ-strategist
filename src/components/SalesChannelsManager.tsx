@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,20 +56,31 @@ interface ChannelTypeOption {
   legacy?: boolean;
 }
 
-// SaaS-relevant channel types
-// "Enterprise" replaces old "Розница B2B" for SaaS context
+// SaaS-relevant channel types — labels are localized via t() inside the component.
+// Descriptions are kept in RU as legacy fallback for tooltips not yet localized.
 const CHANNEL_TYPES: ChannelTypeOption[] = [
   { value: "website", label: "Свой сайт", icon: Globe, description: "Прямые продажи через свой сайт (Stripe, Paddle и др.)" },
   { value: "marketplace", label: "Маркетплейс", icon: ShoppingBag, description: "Продажи через SaaS-маркетплейсы (AppSumo, G2 и др.)" },
   { value: "distributor", label: "Дистрибьютор", icon: Truck, description: "Реселлеры и дистрибьюторы" },
   { value: "enterprise", label: "Enterprise", icon: Building2, description: "Корпоративные контракты с отсрочкой оплаты" },
-  { value: "retail", label: "Розница B2B", icon: Store, description: "Розничные B2B продажи", legacy: true }, // Kept for backward compatibility
+  { value: "retail", label: "Розница B2B", icon: Store, description: "Розничные B2B продажи", legacy: true },
   { value: "agent", label: "Агенты/Партнёры", icon: Handshake, description: "Affiliate и партнёрские программы" },
   { value: "direct_b2b", label: "Прямые B2B продажи", icon: Users, description: "Прямые контракты с бизнесами" },
-  // Legacy channels - hidden by default for SaaS but kept for backward compatibility
   { value: "franchise", label: "Франшиза", icon: Store, description: "Legacy: франчайзинговая модель", legacy: true },
   { value: "export", label: "Экспорт", icon: Ship, description: "Legacy: экспортные продажи", legacy: true },
 ];
+
+const CHANNEL_TYPE_LABEL_KEY: Record<SalesChannel["type"], string> = {
+  website: "salesChannels.typeWebsite",
+  marketplace: "salesChannels.typeMarketplace",
+  distributor: "salesChannels.typeDistributor",
+  enterprise: "salesChannels.typeEnterprise",
+  retail: "salesChannels.typeRetail",
+  agent: "salesChannels.typeAgent",
+  direct_b2b: "salesChannels.typeDirectB2b",
+  franchise: "salesChannels.typeFranchise",
+  export: "salesChannels.typeExport",
+};
 
 // SaaS-specific templates (no fulfillment/logistics costs)
 const CHANNEL_TEMPLATES: Record<string, Partial<SalesChannel>> = {
