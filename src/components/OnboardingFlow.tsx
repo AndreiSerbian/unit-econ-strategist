@@ -1,22 +1,23 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Package, 
-  BarChart3, 
-  Users, 
-  Map, 
-  TrendingUp, 
-  Brain, 
-  ChevronRight, 
+import {
+  Package,
+  BarChart3,
+  Users,
+  Map,
+  TrendingUp,
+  Brain,
+  ChevronRight,
   ChevronLeft,
   CheckCircle,
   Rocket,
-  Building2
+  Building2,
 } from "lucide-react";
 import { BusinessTypeSelector } from "./BusinessTypeSelector";
 import { businessTypes, type BusinessType } from "@/config/businessTypeMetrics";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface OnboardingStep {
   id: string;
@@ -32,108 +33,112 @@ interface OnboardingFlowProps {
 }
 
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>('ecommerce');
+  const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>("ecommerce");
 
-  const steps: OnboardingStep[] = [
-    {
-      id: "welcome",
-      title: "Добро пожаловать!",
-      description: "Платформа для анализа юнит-экономики и конкурентной стратегии",
-      icon: <Rocket className="w-12 h-12 text-primary" />,
-      details: [
-        "Рассчитывайте ключевые метрики бизнеса",
-        "Сравнивайте сценарии развития",
-        "Анализируйте конкурентов",
-        "Применяйте теорию игр для стратегии"
-      ]
-    },
-    {
-      id: "business-type",
-      title: "Тип бизнеса",
-      description: "Выберите тип вашего бизнеса для адаптации метрик",
-      icon: <Building2 className="w-12 h-12 text-primary" />,
-      details: [],
-      component: (
-        <BusinessTypeSelector 
-          selectedType={selectedBusinessType} 
-          onChange={setSelectedBusinessType} 
-        />
-      )
-    },
-    {
-      id: "products",
-      title: "1. Продукты",
-      description: "Начните с добавления ваших продуктов — это основа выручки",
-      icon: <Package className="w-12 h-12 text-primary" />,
-      details: [
-        "Добавьте товары или услуги компании",
-        "Укажите цену и себестоимость каждого продукта",
-        "Задайте количество продаж",
-        "Выручка рассчитается автоматически"
-      ]
-    },
-    {
-      id: "metrics",
-      title: "2. Показатели компании",
-      description: "Заполните метрики на основе данных о продуктах",
-      icon: <BarChart3 className="w-12 h-12 text-primary" />,
-      details: [
-        "Синхронизируйте выручку из продуктов",
-        "Добавьте расходы по категориям",
-        "Создавайте сценарии A и B для сравнения",
-        "Отслеживайте CAC, LTV, ROI и другие метрики"
-      ]
-    },
-    {
-      id: "competitors",
-      title: "3. Конкуренты",
-      description: "Добавьте информацию о конкурентах для сравнения",
-      icon: <Users className="w-12 h-12 text-primary" />,
-      details: [
-        "Создайте профили конкурентов",
-        "Укажите их продукты и цены",
-        "Заполните показатели для сравнения",
-        "Проведите SWOT-анализ"
-      ]
-    },
-    {
-      id: "market",
-      title: "4. Рынок",
-      description: "Оцените позицию компании на рынке",
-      icon: <Map className="w-12 h-12 text-primary" />,
-      details: [
-        "Укажите размер и рост рынка",
-        "Сравните доли рынка",
-        "Визуализируйте конкурентную карту",
-        "Определите лидеров отрасли"
-      ]
-    },
-    {
-      id: "analytics",
-      title: "5. Аналитика",
-      description: "Глубокий анализ и прогнозирование",
-      icon: <TrendingUp className="w-12 h-12 text-primary" />,
-      details: [
-        "Отслеживайте историю метрик",
-        "Прогнозируйте развитие бизнеса",
-        "Создавайте планы действий",
-        "Анализируйте чувствительность показателей"
-      ]
-    },
-    {
-      id: "theory",
-      title: "6. Теория игр",
-      description: "Стратегические модели конкуренции",
-      icon: <Brain className="w-12 h-12 text-primary" />,
-      details: [
-        "Матрица теории игр",
-        "Модели Курно и Бертрана",
-        "Симулятор конкурентных сценариев",
-        "Словарь конкурентных стратегий"
-      ]
-    }
-  ];
+  const steps: OnboardingStep[] = useMemo(
+    () => [
+      {
+        id: "welcome",
+        title: t("onboarding.welcomeTitle"),
+        description: t("onboarding.welcomeDesc"),
+        icon: <Rocket className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.welcomeBullet1"),
+          t("onboarding.welcomeBullet2"),
+          t("onboarding.welcomeBullet3"),
+          t("onboarding.welcomeBullet4"),
+        ],
+      },
+      {
+        id: "business-type",
+        title: t("onboarding.businessTypeTitle"),
+        description: t("onboarding.businessTypeDesc"),
+        icon: <Building2 className="w-12 h-12 text-primary" />,
+        details: [],
+        component: (
+          <BusinessTypeSelector
+            selectedType={selectedBusinessType}
+            onChange={setSelectedBusinessType}
+          />
+        ),
+      },
+      {
+        id: "products",
+        title: t("onboarding.productsTitle"),
+        description: t("onboarding.productsDesc"),
+        icon: <Package className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.productsBullet1"),
+          t("onboarding.productsBullet2"),
+          t("onboarding.productsBullet3"),
+          t("onboarding.productsBullet4"),
+        ],
+      },
+      {
+        id: "metrics",
+        title: t("onboarding.metricsTitle"),
+        description: t("onboarding.metricsDesc"),
+        icon: <BarChart3 className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.metricsBullet1"),
+          t("onboarding.metricsBullet2"),
+          t("onboarding.metricsBullet3"),
+          t("onboarding.metricsBullet4"),
+        ],
+      },
+      {
+        id: "competitors",
+        title: t("onboarding.competitorsTitle"),
+        description: t("onboarding.competitorsDesc"),
+        icon: <Users className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.competitorsBullet1"),
+          t("onboarding.competitorsBullet2"),
+          t("onboarding.competitorsBullet3"),
+          t("onboarding.competitorsBullet4"),
+        ],
+      },
+      {
+        id: "market",
+        title: t("onboarding.marketTitle"),
+        description: t("onboarding.marketDesc"),
+        icon: <Map className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.marketBullet1"),
+          t("onboarding.marketBullet2"),
+          t("onboarding.marketBullet3"),
+          t("onboarding.marketBullet4"),
+        ],
+      },
+      {
+        id: "analytics",
+        title: t("onboarding.analyticsTitle"),
+        description: t("onboarding.analyticsDesc"),
+        icon: <TrendingUp className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.analyticsBullet1"),
+          t("onboarding.analyticsBullet2"),
+          t("onboarding.analyticsBullet3"),
+          t("onboarding.analyticsBullet4"),
+        ],
+      },
+      {
+        id: "theory",
+        title: t("onboarding.theoryTitle"),
+        description: t("onboarding.theoryDesc"),
+        icon: <Brain className="w-12 h-12 text-primary" />,
+        details: [
+          t("onboarding.theoryBullet1"),
+          t("onboarding.theoryBullet2"),
+          t("onboarding.theoryBullet3"),
+          t("onboarding.theoryBullet4"),
+        ],
+      },
+    ],
+    [t, selectedBusinessType]
+  );
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -150,7 +155,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   };
 
   const step = steps[currentStep];
-  const selectedBusinessConfig = businessTypes.find(bt => bt.id === selectedBusinessType);
+  const selectedBusinessConfig = businessTypes.find((bt) => bt.id === selectedBusinessType);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
@@ -161,23 +166,22 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       >
         <Card className="shadow-2xl border-primary/20">
           <CardHeader className="text-center pb-2">
-            {/* Progress indicators */}
             <div className="flex justify-center gap-2 mb-6">
               {steps.map((_, index) => (
                 <div
                   key={index}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    index === currentStep 
-                      ? "w-8 bg-primary" 
-                      : index < currentStep 
-                        ? "w-2 bg-primary/60" 
-                        : "w-2 bg-muted"
+                    index === currentStep
+                      ? "w-8 bg-primary"
+                      : index < currentStep
+                      ? "w-2 bg-primary/60"
+                      : "w-2 bg-muted"
                   }`}
                 />
               ))}
             </div>
           </CardHeader>
-          
+
           <CardContent className="p-6 sm:p-8">
             <AnimatePresence mode="wait">
               <motion.div
@@ -189,9 +193,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 className="space-y-6"
               >
                 <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="p-4 rounded-full bg-primary/10">
-                    {step.icon}
-                  </div>
+                  <div className="p-4 rounded-full bg-primary/10">{step.icon}</div>
                   <div>
                     <CardTitle className="text-2xl sm:text-3xl mb-2">{step.title}</CardTitle>
                     <CardDescription className="text-base sm:text-lg">
@@ -203,21 +205,22 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 {step.component ? (
                   <div className="pt-4">
                     {step.component}
-                    {step.id === 'business-type' && selectedBusinessConfig && (
-                      <motion.div 
+                    {step.id === "business-type" && selectedBusinessConfig && (
+                      <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20"
                       >
                         <p className="text-sm font-medium mb-2">
-                          Выбрано: {selectedBusinessConfig.icon} {selectedBusinessConfig.label}
+                          {t("onboarding.selectedLabel")} {selectedBusinessConfig.icon}{" "}
+                          {selectedBusinessConfig.label}
                         </p>
                         <p className="text-xs text-muted-foreground mb-2">
-                          Ключевые метрики для этого типа бизнеса:
+                          {t("onboarding.keyMetricsForType")}
                         </p>
                         <div className="flex flex-wrap gap-1">
                           {selectedBusinessConfig.primaryMetrics.map((metric, idx) => (
-                            <span 
+                            <span
                               key={idx}
                               className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary"
                             >
@@ -255,19 +258,23 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 className="gap-2"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Назад</span>
+                <span className="hidden sm:inline">{t("onboarding.back")}</span>
               </Button>
 
               <span className="text-sm text-muted-foreground">
-                {currentStep + 1} / {steps.length}
+                {t("onboarding.progress", { current: currentStep + 1, total: steps.length })}
               </span>
 
               <Button onClick={nextStep} className="gap-2">
                 <span className="hidden sm:inline">
-                  {currentStep === steps.length - 1 ? "Начать работу" : "Далее"}
+                  {currentStep === steps.length - 1
+                    ? t("onboarding.startWork")
+                    : t("onboarding.next")}
                 </span>
                 <span className="sm:hidden">
-                  {currentStep === steps.length - 1 ? "Начать" : "Далее"}
+                  {currentStep === steps.length - 1
+                    ? t("onboarding.start")
+                    : t("onboarding.next")}
                 </span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -275,8 +282,12 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
             {currentStep === 0 && (
               <div className="text-center mt-4">
-                <Button variant="link" onClick={() => onComplete('ecommerce')} className="text-muted-foreground">
-                  Пропустить онбординг
+                <Button
+                  variant="link"
+                  onClick={() => onComplete("ecommerce")}
+                  className="text-muted-foreground"
+                >
+                  {t("onboarding.skip")}
                 </Button>
               </div>
             )}
