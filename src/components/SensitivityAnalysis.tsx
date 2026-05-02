@@ -124,17 +124,17 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            🎚️ Анализ чувствительности
+            🎚️ {t("sensitivityAnalysis.title")}
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
-            Изменяйте параметры и мгновенно оценивайте влияние на прибыль и ROI
+            {t("sensitivityAnalysis.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Средний чек</Label>
+                <Label className="text-sm sm:text-base">{t("sensitivityAnalysis.avgCheck")}</Label>
                 <div className="text-right">
                   <span className="text-sm font-mono font-semibold text-primary">
                     {avgCheckChange >= 0 ? "+" : ""}{avgCheckChange}%
@@ -156,7 +156,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Маркетинговые расходы</Label>
+                <Label className="text-sm sm:text-base">{t("sensitivityAnalysis.marketingCosts")}</Label>
                 <div className="text-right">
                   <span className="text-sm font-mono font-semibold text-secondary">
                     {marketingChange >= 0 ? "+" : ""}{marketingChange}%
@@ -178,7 +178,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Конверсия</Label>
+                <Label className="text-sm sm:text-base">{t("sensitivityAnalysis.conversion")}</Label>
                 <div className="text-right">
                   <span className="text-sm font-mono font-semibold text-accent">
                     {conversionChange >= 0 ? "+" : ""}{conversionChange}%
@@ -200,13 +200,13 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Количество клиентов</Label>
+                <Label className="text-sm sm:text-base">{t("sensitivityAnalysis.clientsCount")}</Label>
                 <div className="text-right">
                   <span className="text-sm font-mono font-semibold text-success">
                     {clientsChange >= 0 ? "+" : ""}{clientsChange}%
                   </span>
                   <p className="text-xs text-muted-foreground">
-                    {Math.round(currentMetrics.totalClients)} клиентов
+                    {Math.round(currentMetrics.totalClients)} {t("sensitivityAnalysis.clientsUnit")}
                   </p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
               onClick={resetAll}
               className="text-sm text-muted-foreground hover:text-foreground underline"
             >
-              Сбросить все параметры
+              {t("sensitivityAnalysis.resetAll")}
             </button>
           </div>
         </CardContent>
@@ -236,7 +236,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
-            💰 Влияние на финансовые показатели
+            💰 {t("sensitivityAnalysis.impactTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -244,7 +244,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
             <Card className={currentMetrics.revenue >= baseCalc.revenue ? "bg-success/5" : "bg-destructive/5"}>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs sm:text-sm text-muted-foreground">Выручка</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{t("sensitivityAnalysis.revenue")}</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
                     {currentMetrics.revenue.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                   </p>
@@ -265,7 +265,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
             <Card className={currentMetrics.profit >= baseCalc.profit ? "bg-success/5" : "bg-destructive/5"}>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs sm:text-sm text-muted-foreground">Прибыль</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{t("sensitivityAnalysis.profit")}</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
                     {currentMetrics.profit.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                   </p>
@@ -286,7 +286,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
             <Card className={currentMetrics.profitMargin >= baseCalc.profitMargin ? "bg-success/5" : "bg-destructive/5"}>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs sm:text-sm text-muted-foreground">Маржа прибыли</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{t("sensitivityAnalysis.profitMargin")}</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
                     {currentMetrics.profitMargin.toFixed(1)}%
                   </p>
@@ -307,7 +307,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
             <Card className={currentMetrics.breakEven <= baseCalc.breakEven ? "bg-success/5" : "bg-destructive/5"}>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs sm:text-sm text-muted-foreground">Безубыточность</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{t("sensitivityAnalysis.breakEven")}</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
                     {Math.round(currentMetrics.breakEven)} ед.
                   </p>
