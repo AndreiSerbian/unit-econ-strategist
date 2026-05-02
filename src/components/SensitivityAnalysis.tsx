@@ -297,7 +297,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                       <TrendingDown className="w-3 h-3 text-destructive" />
                     )}
                     <span className={currentMetrics.profitMargin >= baseCalc.profitMargin ? "text-success" : "text-destructive"}>
-                      {(currentMetrics.profitMargin - baseCalc.profitMargin).toFixed(1)} п.п.
+                      {(currentMetrics.profitMargin - baseCalc.profitMargin).toFixed(1)} {t("sensitivityAnalysis.pp")}
                     </span>
                   </div>
                 </div>
@@ -309,7 +309,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <div className="space-y-2">
                   <p className="text-xs sm:text-sm text-muted-foreground">{t("sensitivityAnalysis.breakEven")}</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
-                    {Math.round(currentMetrics.breakEven)} ед.
+                    {Math.round(currentMetrics.breakEven)} {t("sensitivityAnalysis.breakEvenUnit")}
                   </p>
                   <div className="flex items-center gap-1 text-xs">
                     {currentMetrics.breakEven <= baseCalc.breakEven ? (
@@ -435,7 +435,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                   <td className="text-right p-2 font-mono">{baseCalc.profitMargin.toFixed(1)}%</td>
                   <td className="text-right p-2 font-mono">{currentMetrics.profitMargin.toFixed(1)}%</td>
                   <td className={`text-right p-2 font-mono font-semibold ${currentMetrics.profitMargin >= baseCalc.profitMargin ? "text-success" : "text-destructive"}`}>
-                    {(currentMetrics.profitMargin - baseCalc.profitMargin).toFixed(1)} п.п.
+                    {(currentMetrics.profitMargin - baseCalc.profitMargin).toFixed(1)} {t("sensitivityAnalysis.pp")}
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
@@ -448,8 +448,8 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 </tr>
                 <tr className="hover:bg-muted/50">
                   <td className="p-2">Точка безубыточности</td>
-                  <td className="text-right p-2 font-mono">{Math.round(baseCalc.breakEven)} ед.</td>
-                  <td className="text-right p-2 font-mono">{Math.round(currentMetrics.breakEven)} ед.</td>
+                  <td className="text-right p-2 font-mono">{Math.round(baseCalc.breakEven)} {t("sensitivityAnalysis.breakEvenUnit")}</td>
+                  <td className="text-right p-2 font-mono">{Math.round(currentMetrics.breakEven)} {t("sensitivityAnalysis.breakEvenUnit")}</td>
                   <td className={`text-right p-2 font-mono font-semibold ${currentMetrics.breakEven <= baseCalc.breakEven ? "text-success" : "text-destructive"}`}>
                     {percentChange(currentMetrics.breakEven, baseCalc.breakEven).toFixed(1)}%
                   </td>
