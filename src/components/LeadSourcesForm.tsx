@@ -119,11 +119,11 @@ export const LeadSourcesForm = memo(({
         <CardTitle className="text-base flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Megaphone className="w-4 h-4 text-primary" />
-            Источники трафика
+            {t("leadSources.title")}
           </span>
           {localSources.length === 0 && (
             <Button variant="outline" size="sm" onClick={addDefaultSources}>
-              Добавить стандартные
+              {t("leadSources.addStandard")}
             </Button>
           )}
         </CardTitle>
@@ -132,19 +132,19 @@ export const LeadSourcesForm = memo(({
         {/* Итоги */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-muted/50 rounded-lg">
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Всего лидов</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.totalLeads")}</p>
             <p className="font-bold font-mono">{totalLeads.toLocaleString("ru-RU")}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Бюджет</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.budget")}</p>
             <p className="font-bold font-mono">{totalCost.toLocaleString("ru-RU")} {currency}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Средний CPL</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.avgCpl")}</p>
             <p className="font-bold font-mono">{avgCPL.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Оценочный CAC</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.estimatedCac")}</p>
             <p className="font-bold font-mono">
               {hasGlobalCAC
                 ? `${globalCAC.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
