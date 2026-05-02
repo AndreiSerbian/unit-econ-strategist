@@ -336,7 +336,7 @@ export const ProductsManagement = ({
         revenue = totalGMV * (avgTakeRate / 100);
         cost = products.reduce((sum, p) => sum + p.cost * p.quantity, 0);
         metrics.push(
-          { label: t("products.mrr").replace("MRR", "GMV"), value: `${totalGMV.toLocaleString("ru-RU")} ${currency}` },
+          { label: 'GMV', value: `${totalGMV.toLocaleString("ru-RU")} ${currency}` },
           { label: t("products.avgTakeRate"), value: `${avgTakeRate.toFixed(1)}%` },
         );
         break;
@@ -406,7 +406,7 @@ export const ProductsManagement = ({
             
             <Button onClick={handleAddProduct} className="w-full">
               <Plus className="w-4 h-4 mr-2" />
-              Добавить {productLabel.toLowerCase()}
+              {t("products.addProduct", { entity: productLabel.toLowerCase() })}
             </Button>
           </div>
         </CardContent>
@@ -415,7 +415,7 @@ export const ProductsManagement = ({
       {products.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Список {productLabelPlural.toLowerCase()}</CardTitle>
+            <CardTitle>{t("products.listTitle", { entity: productLabelPlural.toLowerCase() })}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -442,7 +442,7 @@ export const ProductsManagement = ({
                     className="p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2 mb-3">
-                      <h4 className="font-medium text-sm sm:text-base truncate">{product.name || 'Без названия'}</h4>
+                      <h4 className="font-medium text-sm sm:text-base truncate">{product.name || t("common.untitled")}</h4>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -477,7 +477,7 @@ export const ProductsManagement = ({
             </div>
 
             <div className="mt-6 p-3 sm:p-4 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg">
-              <h3 className="font-semibold mb-3 text-sm sm:text-base">Итоговые показатели</h3>
+              <h3 className="font-semibold mb-3 text-sm sm:text-base">{t("forms.totals")}</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {/* Additional metrics specific to business type */}
                 {additionalMetrics.map((metric, idx) => (
@@ -492,20 +492,20 @@ export const ProductsManagement = ({
                 {/* Standard revenue/cost/profit for all types */}
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    {businessType === 'saas' || businessType === 'freemium' ? 'Выручка (MRR)' : 'Выручка'}
+                    {businessType === 'saas' || businessType === 'freemium' ? t("forms.totalRevenueMrr") : t("forms.totalRevenue")}
                   </p>
                   <p className="text-base sm:text-xl font-bold text-primary font-mono">
                     {totalRevenue.toLocaleString("ru-RU")} {currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Себестоимость</p>
+                  <p className="text-sm text-muted-foreground">{t("forms.totalCost")}</p>
                   <p className="text-xl font-bold text-destructive font-mono">
                     {totalCost.toLocaleString("ru-RU")} {currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Прибыль</p>
+                  <p className="text-sm text-muted-foreground">{t("forms.totalProfit")}</p>
                   <p
                     className={`text-xl font-bold font-mono ${
                       totalProfit >= 0 ? "text-success" : "text-destructive"
