@@ -2,6 +2,7 @@ import { memo, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Target, DollarSign, Users, Percent, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import type { LeadSource } from "@/hooks/useProject";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface MarketingMetricsProps {
   marketingCosts: number;
@@ -33,6 +34,8 @@ export const MarketingMetrics = memo(({
   crmCosts = 0,
   marketingSalary = 0,
 }: MarketingMetricsProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const metrics = useMemo(() => {
     // CPL - Cost Per Lead
     const cpl = totalLeads > 0 ? marketingCosts / totalLeads : 0;
@@ -86,14 +89,14 @@ export const MarketingMetrics = memo(({
     return grouped;
   }, [leadSources]);
 
-  const formatNumber = (value: number) => value.toLocaleString("ru-RU", { maximumFractionDigits: 0 });
+  const formatNumber = (value: number) => value.toLocaleString(numLocale, { maximumFractionDigits: 0 });
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />
-          Маркетинговые метрики
+          {t("marketingMetrics.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -102,81 +105,86 @@ export const MarketingMetrics = memo(({
           <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20">
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-4 h-4 text-blue-500" />
-              <span className="text-xs text-muted-foreground">CPL</span>
+              <span className="text-xs text-muted-foreground">{t("marketingMetrics.cpl")}</span>
             </div>
             <p className="text-xl font-bold font-mono text-blue-500">
               {formatNumber(metrics.cpl)} {currency}
             </p>
-            <p className="text-[10px] text-muted-foreground">Стоимость лида</p>
+            <p className="text-[10px] text-muted-foreground">{t("marketingMetrics.cplDesc")}</p>
           </div>
 
           <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-purple-500" />
-              <span className="text-xs text-muted-foreground">CAC</span>
+              <span className="text-xs text-muted-foreground">{t("marketingMetrics.cac")}</span>
             </div>
             <p className="text-xl font-bold font-mono text-purple-500">
               {formatNumber(metrics.cac)} {currency}
             </p>
-            <p className="text-[10px] text-muted-foreground">Стоимость клиента</p>
+            <p className="text-[10px] text-muted-foreground">{t("marketingMetrics.cacDesc")}</p>
           </div>
 
           <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="w-4 h-4 text-green-500" />
-              <span className="text-xs text-muted-foreground">ROAS</span>
+              <span className="text-xs text-muted-foreground">{t("marketingMetrics.roas")}</span>
             </div>
             <p className="text-xl font-bold font-mono text-green-500">
               {metrics.roas.toFixed(2)}x
             </p>
-            <p className="text-[10px] text-muted-foreground">Возврат на рекламу</p>
+            <p className="text-[10px] text-muted-foreground">{t("marketingMetrics.roasDesc")}</p>
           </div>
 
           <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20">
             <div className="flex items-center gap-2 mb-2">
               <Percent className="w-4 h-4 text-amber-500" />
-              <span className="text-xs text-muted-foreground">Marketing ROI</span>
+              <span className="text-xs text-muted-foreground">{t("marketingMetrics.marketingRoi")}</span>
             </div>
             <p className={`text-xl font-bold font-mono ${metrics.marketingRoi >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {metrics.marketingRoi.toFixed(0)}%
             </p>
-            <p className="text-[10px] text-muted-foreground">Окупаемость маркетинга</p>
+            <p className="text-[10px] text-muted-foreground">{t("marketingMetrics.marketingRoiDesc")}</p>
           </div>
         </div>
 
         {/* Cost breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-sm font-medium mb-3">Структура расходов</p>
+            <p className="text-sm font-medium mb-3">{t("marketingMetrics.costStructure")}</p>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Закуп трафика</span>
+                <span className="text-muted-foreground">{t("marketingMetrics.trafficPurchase")}</span>
                 <span className="font-mono">{formatNumber(trafficPurchase)} {currency}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Подрядчики</span>
+                <span className="text-muted-foreground">{t("marketingMetrics.contractors")}</span>
                 <span className="font-mono">{formatNumber(contractorsPayment)} {currency}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">CRM и инструменты</span>
+                <span className="text-muted-foreground">{t("marketingMetrics.crmTools")}</span>
                 <span className="font-mono">{formatNumber(crmCosts)} {currency}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">ЗП маркетинга (фикс)</span>
+                <span className="text-muted-foreground">{t("marketingMetrics.marketingSalary")}</span>
                 <span className="font-mono">{formatNumber(marketingSalary)} {currency}</span>
               </div>
               <div className="border-t pt-2 mt-2 flex justify-between text-sm font-medium">
-                <span>Итого маркетинг</span>
+                <span>{t("marketingMetrics.totalMarketing")}</span>
                 <span className="font-mono text-primary">{formatNumber(marketingCosts)} {currency}</span>
               </div>
             </div>
           </div>
 
           <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-sm font-medium mb-3">Источники трафика</p>
+            <p className="text-sm font-medium mb-3">{t("marketingMetrics.trafficSources")}</p>
             <div className="space-y-2">
               {Object.entries(sourceBreakdown).map(([type, data]) => {
-                const label = { paid: 'Платный', organic: 'Органика', referral: 'Реферал', direct: 'Прямой' }[type];
+                const label = {
+                  paid: t("marketingMetrics.sourcePaid"),
+                  organic: t("marketingMetrics.sourceOrganic"),
+                  referral: t("marketingMetrics.sourceReferral"),
+                  direct: t("marketingMetrics.sourceDirect"),
+                }[type];
                 const cplBySource = data.leads > 0 ? data.cost / data.leads : 0;
                 
                 if (data.leads === 0) return null;
@@ -192,10 +200,10 @@ export const MarketingMetrics = memo(({
                       <span className="text-muted-foreground">{label}</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono">{data.leads.toLocaleString()} лидов</span>
+                      <span className="font-mono">{data.leads.toLocaleString(numLocale)} {t("marketingMetrics.leadsLabel")}</span>
                       {data.cost > 0 && (
                         <span className="text-xs text-muted-foreground ml-2">
-                          (CPL: {formatNumber(cplBySource)})
+                          ({t("marketingMetrics.cpl")}: {formatNumber(cplBySource)})
                         </span>
                       )}
                     </div>
@@ -210,18 +218,18 @@ export const MarketingMetrics = memo(({
         <div className="p-4 rounded-lg bg-gradient-to-r from-primary/5 to-secondary/5 border">
           <div className="flex items-center justify-between">
             <div className="text-center flex-1">
-              <p className="text-2xl font-bold font-mono">{totalLeads.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Лидов</p>
+              <p className="text-2xl font-bold font-mono">{totalLeads.toLocaleString(numLocale)}</p>
+              <p className="text-xs text-muted-foreground">{t("marketingMetrics.leads")}</p>
             </div>
             <ArrowUpRight className="w-6 h-6 text-muted-foreground" />
             <div className="text-center flex-1">
               <p className="text-2xl font-bold font-mono text-primary">{conversionRate.toFixed(1)}%</p>
-              <p className="text-xs text-muted-foreground">Конверсия</p>
+              <p className="text-xs text-muted-foreground">{t("marketingMetrics.conversion")}</p>
             </div>
             <ArrowUpRight className="w-6 h-6 text-muted-foreground" />
             <div className="text-center flex-1">
-              <p className="text-2xl font-bold font-mono text-green-500">{totalClients.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Клиентов</p>
+              <p className="text-2xl font-bold font-mono text-green-500">{totalClients.toLocaleString(numLocale)}</p>
+              <p className="text-xs text-muted-foreground">{t("marketingMetrics.clients")}</p>
             </div>
           </div>
         </div>

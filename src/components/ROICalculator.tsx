@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { TrendingUp, DollarSign, Calendar, Target, Truck } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -75,6 +76,8 @@ export const ROICalculator = ({
   scenarioB,
   currency,
 }: ROICalculatorProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [timePeriod, setTimePeriod] = useState(12);
   const [initialInvestment, setInitialInvestment] = useState(0);
 
@@ -202,7 +205,7 @@ export const ROICalculator = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            💰 Калькулятор ROI
+            💰 {t("roiCalculator.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -210,7 +213,7 @@ export const ROICalculator = ({
             <div className="space-y-2">
               <Label htmlFor="investment" className="flex items-center gap-1">
                 <DollarSign className="w-3 h-3" />
-                Начальные инвестиции ({currency})
+                {t("roiCalculator.initialInvestment", { currency })}
               </Label>
               <Input
                 id="investment"
@@ -224,7 +227,7 @@ export const ROICalculator = ({
             <div className="space-y-2">
               <Label htmlFor="period" className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                Период анализа (месяцев)
+                {t("roiCalculator.analysisPeriod")}
               </Label>
               <Input
                 id="period"
@@ -251,13 +254,13 @@ export const ROICalculator = ({
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground">Окупаемость</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{t("roiCalculator.payback")}</p>
                       <p className="text-base sm:text-lg font-semibold font-mono">
-                        {item.payback === Infinity ? '∞' : `${item.payback.toFixed(1)} мес.`}
+                        {item.payback === Infinity ? '∞' : t("roiCalculator.paybackMonths", { value: item.payback.toFixed(1) })}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground">Прибыль за период</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{t("roiCalculator.profitForPeriod")}</p>
                       <p className="text-base sm:text-lg font-semibold font-mono">
                         {item.totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} {currency}
                       </p>
@@ -274,13 +277,12 @@ export const ROICalculator = ({
          <CardHeader>
            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
              <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-             🚚 Вклад логистики в ROI
-           </CardTitle>
-         </CardHeader>
-         <CardContent className="space-y-4">
-           <p className="text-xs sm:text-sm text-muted-foreground">
-             Показывает, какую долю выручки и переменных расходов съедает логистика в каждом
-             сценарии.
+            🚚 {t("roiCalculator.logisticsTitle")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {t("roiCalculator.logisticsDesc")}
            </p>
            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
              {logisticsData.map((item) => (
@@ -290,39 +292,39 @@ export const ROICalculator = ({
                    {item.hasData ? (
                      <div className="space-y-1.5">
                        <div>
-                         <p className="text-[10px] sm:text-xs text-muted-foreground">
-                           Логистика за период
-                         </p>
-                         <p className="text-base sm:text-lg font-mono font-semibold">
-                           {item.logistics.toLocaleString("ru-RU", {
-                             maximumFractionDigits: 0,
-                           })}{" "}
-                           {currency}
-                         </p>
-                       </div>
-                       <div className="flex items-center justify-between gap-2">
-                         <div>
-                           <p className="text-[10px] sm:text-xs text-muted-foreground">
-                             Доля в выручке
-                           </p>
-                           <p className="text-sm sm:text-base font-mono">
-                             {item.logisticsVsRevenue.toFixed(1)}%
-                           </p>
-                         </div>
-                         <div>
-                           <p className="text-[10px] sm:text-xs text-muted-foreground">
-                             Доля в переменных расходах
-                           </p>
-                           <p className="text-sm sm:text-base font-mono">
-                             {item.logisticsVsVariable.toFixed(1)}%
-                           </p>
-                         </div>
-                       </div>
-                     </div>
-                   ) : (
-                     <p className="text-sm text-muted-foreground italic">
-                       Детализированные расходы не заполнены
-                     </p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">
+                            {t("roiCalculator.logisticsForPeriod")}
+                          </p>
+                          <p className="text-base sm:text-lg font-mono font-semibold">
+                            {item.logistics.toLocaleString(numLocale, {
+                              maximumFractionDigits: 0,
+                            })}{" "}
+                            {currency}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">
+                              {t("roiCalculator.shareInRevenue")}
+                            </p>
+                            <p className="text-sm sm:text-base font-mono">
+                              {item.logisticsVsRevenue.toFixed(1)}%
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">
+                              {t("roiCalculator.shareInVariable")}
+                            </p>
+                            <p className="text-sm sm:text-base font-mono">
+                              {item.logisticsVsVariable.toFixed(1)}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        {t("roiCalculator.noDetailedExpenses")}
+                      </p>
                    )}
                  </CardContent>
                </Card>
@@ -335,7 +337,7 @@ export const ROICalculator = ({
          <CardHeader>
            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
              <Target className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-             📈 Накопительный денежный поток
+             📈 {t("roiCalculator.cumulativeCashFlow")}
            </CardTitle>
          </CardHeader>
         <CardContent>
@@ -378,7 +380,7 @@ export const ROICalculator = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
-            💵 Ежемесячная прибыль по сценариям
+            💵 {t("roiCalculator.monthlyProfit")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -401,17 +403,17 @@ export const ROICalculator = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base sm:text-lg">📊 Сравнительная таблица ROI</CardTitle>
+          <CardTitle className="text-base sm:text-lg">📊 {t("roiCalculator.comparisonTable")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <table className="w-full text-xs sm:text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-2 font-semibold">Показатель</th>
-                  <th className="text-right p-2 font-semibold">Текущий</th>
-                  <th className="text-right p-2 font-semibold">Сценарий A</th>
-                  <th className="text-right p-2 font-semibold">Сценарий B</th>
+                  <th className="text-left p-2 font-semibold">{t("roiCalculator.metric")}</th>
+                  <th className="text-right p-2 font-semibold">{t("ltvCalculator.scenarioCurrent")}</th>
+                  <th className="text-right p-2 font-semibold">{t("ltvCalculator.scenarioA")}</th>
+                  <th className="text-right p-2 font-semibold">{t("ltvCalculator.scenarioB")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -428,7 +430,7 @@ export const ROICalculator = ({
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
-                  <td className="p-2">Период окупаемости (мес.)</td>
+                  <td className="p-2">{t("roiCalculator.paybackPeriodLabel")}</td>
                   <td className="text-right p-2 font-mono">
                     {roiData[0].payback === Infinity ? '∞' : roiData[0].payback.toFixed(1)}
                   </td>
@@ -440,7 +442,7 @@ export const ROICalculator = ({
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
-                  <td className="p-2">Прибыль за период ({currency})</td>
+                  <td className="p-2">{t("roiCalculator.profitForPeriodCurrency", { currency })}</td>
                   <td className="text-right p-2 font-mono">
                     {roiData[0].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
                   </td>
@@ -452,7 +454,7 @@ export const ROICalculator = ({
                   </td>
                 </tr>
                 <tr className="hover:bg-muted/50">
-                  <td className="p-2">Месячная прибыль ({currency})</td>
+                  <td className="p-2">{t("roiCalculator.monthlyProfitCurrency", { currency })}</td>
                   <td className="text-right p-2 font-mono">
                     {calculateMonthlyProfit(currentMetrics).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
                   </td>

@@ -6,7 +6,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format, addMonths } from "date-fns";
-import { ru } from "date-fns/locale";
+import { ru, ro as roLocale, enUS } from "date-fns/locale";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface MetricSnapshot {
   snapshot_date: string;
@@ -23,6 +24,9 @@ interface MetricForecastingProps {
 }
 
 export const MetricForecasting = ({ projectId, scenarioType }: MetricForecastingProps) => {
+  const { t, language } = useTranslation();
+  const dateLocale = language === "ru" ? ru : language === "ro" ? roLocale : enUS;
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [history, setHistory] = useState<MetricSnapshot[]>([]);
   const [selectedMetric, setSelectedMetric] = useState<string>("revenue");
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +99,7 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
 
     // Historical data
     const chartData: any[] = history.map((h, i) => ({
-      date: format(new Date(h.snapshot_date), 'dd MMM', { locale: ru }),
+      date: format(new Date(h.snapshot_date), 'dd MMM', { locale: dateLocale }),
       actual: h[metricKey] || 0,
       type: 'historical'
     }));
@@ -106,7 +110,7 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
       const confidenceMargin = 1.96 * stdDev; // 95% confidence interval
       
       chartData.push({
-        date: format(addMonths(lastDate, i), 'dd MMM', { locale: ru }),
+        date: format(addMonths(lastDate, i), 'dd MMM', { locale: dateLocale }),
         forecast: Math.max(0, forecastValue),
         upper: Math.max(0, forecastValue + confidenceMargin),
         lower: Math.max(0, forecastValue - confidenceMargin),
@@ -120,11 +124,11 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
   const { chartData, hasSufficientData } = generateForecast();
 
   const metricOptions = [
-    { value: "revenue", label: "Выручка", color: "#8b5cf6" },
-    { value: "profit", label: "Прибыль", color: "#10b981" },
-    { value: "cac", label: "CAC", color: "#f59e0b" },
-    { value: "cpl", label: "CPL", color: "#3b82f6" },
-    { value: "profit_margin", label: "Маржа %", color: "#ec4899" }
+    { value: "revenue", label: t("metricForecasting.metricRevenue"), color: "#8b5cf6" },
+    { value: "profit", label: t("metricForecasting.metricProfit"), color: "#10b981" },
+    { value: "cac", label: t("metricForecasting.metricCac"), color: "#f59e0b" },
+    { value: "cpl", label: t("metricForecasting.metricCpl"), color: "#3b82f6" },
+    { value: "profit_margin", label: t("metricForecasting.metricMargin"), color: "#ec4899" }
   ];
 
   const currentOption = metricOptions.find(opt => opt.value === selectedMetric);
@@ -134,16 +138,16 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          Прогнозирование метрик
+          {t("metricForecasting.title")}
         </CardTitle>
         <CardDescription>
-          Прогноз на основе линейной регрессии с доверительными интервалами
+          {t("metricForecasting.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Метрика:</label>
+            <label className="text-sm font-medium">{t("metricForecasting.metric")}</label>
             <Select value={selectedMetric} onValueChange={setSelectedMetric}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue />
@@ -159,7 +163,7 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
           </div>
           
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Период прогноза:</label>
+            <label className="text-sm font-medium">{t("metricForecasting.forecastPeriod")}</label>
             <Select 
               value={forecastPeriods.toString()} 
               onValueChange={(v) => setForecastPeriods(Number(v))}
@@ -168,10 +172,10 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 месяц</SelectItem>
-                <SelectItem value="3">3 месяца</SelectItem>
-                <SelectItem value="6">6 месяцев</SelectItem>
-                <SelectItem value="12">12 месяцев</SelectItem>
+                <SelectItem value="1">{t("metricForecasting.months1")}</SelectItem>
+                <SelectItem value="3">{t("metricForecasting.months3")}</SelectItem>
+                <SelectItem value="6">{t("metricForecasting.months6")}</SelectItem>
+                <SelectItem value="12">{t("metricForecasting.months12")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -179,13 +183,13 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
 
         {isLoading ? (
           <div className="h-[350px] flex items-center justify-center text-muted-foreground">
-            Загрузка данных...
+            {t("metricForecasting.loading")}
           </div>
         ) : !hasSufficientData ? (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Недостаточно данных для прогнозирования. Сохраните минимум 2 снимка метрик в разделе "История изменений метрик".
+              {t("metricForecasting.insufficientData")}
             </AlertDescription>
           </Alert>
         ) : (
@@ -206,16 +210,16 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
                         <p className="font-medium mb-2">{data.date}</p>
                         {data.actual !== undefined && (
                           <p className="text-sm" style={{ color: currentOption?.color }}>
-                            Факт: {data.actual.toLocaleString('ru-RU')}
+                            {t("metricForecasting.fact")}: {data.actual.toLocaleString(numLocale)}
                           </p>
                         )}
                         {data.forecast !== undefined && (
                           <>
                             <p className="text-sm" style={{ color: currentOption?.color }}>
-                              Прогноз: {data.forecast.toLocaleString('ru-RU')}
+                              {t("metricForecasting.forecast")}: {data.forecast.toLocaleString(numLocale)}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              95% ДИ: {data.lower.toLocaleString('ru-RU')} - {data.upper.toLocaleString('ru-RU')}
+                              {t("metricForecasting.confidenceInterval")}: {data.lower.toLocaleString(numLocale)} - {data.upper.toLocaleString(numLocale)}
                             </p>
                           </>
                         )}
@@ -232,7 +236,7 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
                 fill={currentOption?.color}
                 fillOpacity={0.1}
                 stroke="none"
-                name="Верхняя граница"
+                name={t("metricForecasting.upperBound")}
               />
               <Area
                 type="monotone"
@@ -240,12 +244,12 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
                 fill={currentOption?.color}
                 fillOpacity={0.1}
                 stroke="none"
-                name="Нижняя граница"
+                name={t("metricForecasting.lowerBound")}
               />
               <Line
                 type="monotone"
                 dataKey="actual"
-                name="Исторические данные"
+                name={t("metricForecasting.historical")}
                 stroke={currentOption?.color}
                 strokeWidth={2}
                 dot={{ r: 4 }}
@@ -253,7 +257,7 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
               <Line
                 type="monotone"
                 dataKey="forecast"
-                name="Прогноз"
+                name={t("metricForecasting.forecast")}
                 stroke={currentOption?.color}
                 strokeWidth={2}
                 strokeDasharray="5 5"
@@ -267,8 +271,7 @@ export const MetricForecasting = ({ projectId, scenarioType }: MetricForecasting
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="text-sm">
-              Прогноз основан на линейной регрессии исторических данных. 
-              Заштрихованная область показывает 95% доверительный интервал.
+              {t("metricForecasting.forecastNote")}
             </AlertDescription>
           </Alert>
         )}
