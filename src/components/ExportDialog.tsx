@@ -28,7 +28,9 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
     const scenarios = data.scenarios || {};
     const competitors = data.competitors || [];
     
-    let csv = "Тип,Сценарий,Выручка,Клиенты,Новые клиенты,Повторные клиенты,Конверсия,Средний чек,Постоянные расходы,Переменные расходы,Маркетинг,CAC,CPL,Точка безубыточности,Прибыль на платеж,Маржа прибыли\n";
+    const ed = (k: string) => t(`exportDialog.${k}`);
+
+    let csv = `${ed("csvType")},${ed("csvScenarioCol")},${ed("csvRevenue")},${ed("csvClients")},${ed("csvNewClients")},${ed("csvReturningClients")},${ed("csvConversion")},${ed("csvAvgCheck")},${ed("csvFixed")},${ed("csvVariable")},${ed("csvMarketing")},${ed("csvCac")},${ed("csvCpl")},${ed("csvBreakeven")},${ed("csvProfitPerPayment")},${ed("csvProfitMargin")}\n`;
     
     // Экспорт сценариев с детальными метриками
     Object.entries(scenarios).forEach(([type, metrics]: [string, any]) => {
@@ -40,11 +42,11 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
       const breakEven = metrics.avgCheck > 0 ? totalCosts / metrics.avgCheck : 0;
       const profitPerPayment = metrics.totalClients > 0 ? profit / metrics.totalClients : 0;
       
-      csv += `Сценарий,${type},${metrics.revenue},${metrics.totalClients},${metrics.newClients},${metrics.returningClients},${metrics.conversionRate}%,${metrics.avgCheck},${metrics.fixedCosts},${metrics.variableCosts},${metrics.marketingCosts},${cac.toFixed(2)},${cpl.toFixed(2)},${breakEven.toFixed(0)},${profitPerPayment.toFixed(2)},${profitMargin.toFixed(2)}%\n`;
+      csv += `${ed("csvScenario")},${type},${metrics.revenue},${metrics.totalClients},${metrics.newClients},${metrics.returningClients},${metrics.conversionRate}%,${metrics.avgCheck},${metrics.fixedCosts},${metrics.variableCosts},${metrics.marketingCosts},${cac.toFixed(2)},${cpl.toFixed(2)},${breakEven.toFixed(0)},${profitPerPayment.toFixed(2)},${profitMargin.toFixed(2)}%\n`;
     });
     
     // Экспорт конкурентов с детальными метриками
-    csv += "\nКонкурент,Выручка,Доля рынка,Цена,Качество,Маркетинг,Клиенты,Новые клиенты,Повторные клиенты,Конверсия,Средний чек,Постоянные расходы,Переменные расходы,CAC,CPL,Точка безубыточности,Прибыль на платеж,Маржа прибыли\n";
+    csv += `\n${ed("csvCompetitor")},${ed("csvRevenue")},${ed("csvMarketShare")},${ed("csvPrice")},${ed("csvQuality")},${ed("csvMarketing")},${ed("csvClients")},${ed("csvNewClients")},${ed("csvReturningClients")},${ed("csvConversion")},${ed("csvAvgCheck")},${ed("csvFixed")},${ed("csvVariable")},${ed("csvCac")},${ed("csvCpl")},${ed("csvBreakeven")},${ed("csvProfitPerPayment")},${ed("csvProfitMargin")}\n`;
     competitors.forEach((c: any) => {
       const totalClients = c.totalClients || 0;
       const newClients = c.newClients || 0;
@@ -69,28 +71,28 @@ export const ExportDialog = ({ data, projectName }: ExportDialogProps) => {
     // Экспорт детальных расходов конкурентов
     const competitorsWithDetails = competitors.filter((c: any) => c.detailedExpenses);
     if (competitorsWithDetails.length > 0) {
-      csv += "\n\nДетальные расходы конкурентов\n";
-      csv += "Конкурент,Категория,Статья расходов,Сумма\n";
+      csv += `\n\n${ed("csvCompetitorDetailsTitle")}\n`;
+      csv += `${ed("csvCompetitor")},${ed("csvCategory")},${ed("csvItem")},${ed("csvAmount")}\n`;
       
       competitorsWithDetails.forEach((c: any) => {
         const de = c.detailedExpenses;
         
-        csv += `${c.name},Постоянные,ЗП по старым клиентам,${de.fixedCosts.salaryOldClients}\n`;
-        csv += `${c.name},Постоянные,ЗП по новым клиентам,${de.fixedCosts.salaryNewClients}\n`;
-        csv += `${c.name},Постоянные,Оклад руководства,${de.fixedCosts.managementSalary}\n`;
-        csv += `${c.name},Постоянные,Оклад маркетинга,${de.fixedCosts.marketingSalary}\n`;
-        csv += `${c.name},Постоянные,Оклад производства,${de.fixedCosts.productionSalary}\n`;
-        csv += `${c.name},Постоянные,Аренда офиса,${de.fixedCosts.officeRent}\n`;
-        csv += `${c.name},Постоянные,Аренда склада,${de.fixedCosts.warehouseRent}\n`;
-        csv += `${c.name},Переменные - Маркетинг,Закупка трафика,${de.variableCosts.marketing.trafficPurchase}\n`;
-        csv += `${c.name},Переменные - Маркетинг,Оплата подрядчикам,${de.variableCosts.marketing.contractorsPayment}\n`;
-        csv += `${c.name},Переменные - Маркетинг,CRM расходы,${de.variableCosts.marketing.crmCosts}\n`;
-        csv += `${c.name},Переменные - ФОТ продаж,Бонусы по старым клиентам,${de.variableCosts.salesPayroll.bonusOldClients}\n`;
-        csv += `${c.name},Переменные - ФОТ продаж,Бонусы по новым клиентам,${de.variableCosts.salesPayroll.bonusNewClients}\n`;
-        csv += `${c.name},Переменные - Исполнение,Материалы,${de.variableCosts.production.materials}\n`;
-        csv += `${c.name},Переменные - Исполнение,Выплаты исполнителям,${de.variableCosts.production.curators}\n`;
-        csv += `${c.name},Переменные - Исполнение,Логистика,${de.variableCosts.production.logistics}\n`;
-        csv += `${c.name},Налоги,Налоги,${de.taxes}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvSalaryOldClients")},${de.fixedCosts.salaryOldClients}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvSalaryNewClients")},${de.fixedCosts.salaryNewClients}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvManagementSalary")},${de.fixedCosts.managementSalary}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvMarketingSalary")},${de.fixedCosts.marketingSalary}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvProductionSalary")},${de.fixedCosts.productionSalary}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvOfficeRent")},${de.fixedCosts.officeRent}\n`;
+        csv += `${c.name},${ed("csvFixedCosts")},${ed("csvWarehouseRent")},${de.fixedCosts.warehouseRent}\n`;
+        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvTrafficPurchase")},${de.variableCosts.marketing.trafficPurchase}\n`;
+        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvContractorsPayment")},${de.variableCosts.marketing.contractorsPayment}\n`;
+        csv += `${c.name},${ed("csvVariableMarketing")},${ed("csvCrmCosts")},${de.variableCosts.marketing.crmCosts}\n`;
+        csv += `${c.name},${ed("csvVariableSales")},${ed("csvBonusOldClients")},${de.variableCosts.salesPayroll.bonusOldClients}\n`;
+        csv += `${c.name},${ed("csvVariableSales")},${ed("csvBonusNewClients")},${de.variableCosts.salesPayroll.bonusNewClients}\n`;
+        csv += `${c.name},${ed("csvVariableProduction")},${ed("csvMaterials")},${de.variableCosts.production.materials}\n`;
+        csv += `${c.name},${ed("csvVariableProduction")},${ed("csvCurators")},${de.variableCosts.production.curators}\n`;
+        csv += `${c.name},${ed("csvVariableProduction")},${ed("csvLogistics")},${de.variableCosts.production.logistics}\n`;
+        csv += `${c.name},${ed("csvTaxes")},${ed("csvTaxes")},${de.taxes}\n`;
       });
     }
 
