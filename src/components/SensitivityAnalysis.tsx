@@ -140,7 +140,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                     {avgCheckChange >= 0 ? "+" : ""}{avgCheckChange}%
                   </span>
                   <p className="text-xs text-muted-foreground">
-                    {currentMetrics.avgCheck.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                    {currentMetrics.avgCheck.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                   </p>
                 </div>
               </div>
@@ -162,7 +162,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                     {marketingChange >= 0 ? "+" : ""}{marketingChange}%
                   </span>
                   <p className="text-xs text-muted-foreground">
-                    {currentMetrics.marketingCosts.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                    {currentMetrics.marketingCosts.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                   </p>
                 </div>
               </div>
@@ -246,7 +246,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <div className="space-y-2">
                   <p className="text-xs sm:text-sm text-muted-foreground">Выручка</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
-                    {currentMetrics.revenue.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                    {currentMetrics.revenue.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                   </p>
                   <div className="flex items-center gap-1 text-xs">
                     {currentMetrics.revenue >= baseCalc.revenue ? (
@@ -267,7 +267,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <div className="space-y-2">
                   <p className="text-xs sm:text-sm text-muted-foreground">Прибыль</p>
                   <p className="text-lg sm:text-xl font-bold font-mono">
-                    {currentMetrics.profit.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                    {currentMetrics.profit.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                   </p>
                   <div className="flex items-center gap-1 text-xs">
                     {currentMetrics.profit >= baseCalc.profit ? (
@@ -339,7 +339,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="change" label={{ value: "Изменение (%)", position: "insideBottom", offset: -5 }} />
                 <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: "insideLeft" }} />
-                <Tooltip formatter={(value: number) => `${value.toLocaleString()} ${currency}`} />
+                <Tooltip formatter={(value: number) => `${value.toLocaleString(numLocale)} ${currency}`} />
                 <Line type="monotone" dataKey="profit" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -356,7 +356,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="change" label={{ value: "Изменение (%)", position: "insideBottom", offset: -5 }} />
                 <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: "insideLeft" }} />
-                <Tooltip formatter={(value: number) => `${value.toLocaleString()} ${currency}`} />
+                <Tooltip formatter={(value: number) => `${value.toLocaleString(numLocale)} ${currency}`} />
                 <Line type="monotone" dataKey="profit" stroke="hsl(var(--secondary))" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -373,7 +373,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="change" label={{ value: "Изменение (%)", position: "insideBottom", offset: -5 }} />
                 <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: "insideLeft" }} />
-                <Tooltip formatter={(value: number) => `${value.toLocaleString()} ${currency}`} />
+                <Tooltip formatter={(value: number) => `${value.toLocaleString(numLocale)} ${currency}`} />
                 <Line type="monotone" dataKey="profit" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -390,7 +390,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="change" label={{ value: "Изменение (%)", position: "insideBottom", offset: -5 }} />
                 <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: "insideLeft" }} />
-                <Tooltip formatter={(value: number) => `${value.toLocaleString()} ${currency}`} />
+                <Tooltip formatter={(value: number) => `${value.toLocaleString(numLocale)} ${currency}`} />
                 <Line type="monotone" dataKey="profit" stroke="hsl(var(--success))" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -416,16 +416,16 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
               <tbody>
                 <tr className="border-b hover:bg-muted/50">
                   <td className="p-2">Выручка</td>
-                  <td className="text-right p-2 font-mono">{baseCalc.revenue.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</td>
-                  <td className="text-right p-2 font-mono">{currentMetrics.revenue.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</td>
+                  <td className="text-right p-2 font-mono">{baseCalc.revenue.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}</td>
+                  <td className="text-right p-2 font-mono">{currentMetrics.revenue.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}</td>
                   <td className={`text-right p-2 font-mono font-semibold ${currentMetrics.revenue >= baseCalc.revenue ? "text-success" : "text-destructive"}`}>
                     {percentChange(currentMetrics.revenue, baseCalc.revenue).toFixed(1)}%
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
                   <td className="p-2">Прибыль</td>
-                  <td className="text-right p-2 font-mono">{baseCalc.profit.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</td>
-                  <td className="text-right p-2 font-mono">{currentMetrics.profit.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</td>
+                  <td className="text-right p-2 font-mono">{baseCalc.profit.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}</td>
+                  <td className="text-right p-2 font-mono">{currentMetrics.profit.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}</td>
                   <td className={`text-right p-2 font-mono font-semibold ${currentMetrics.profit >= baseCalc.profit ? "text-success" : "text-destructive"}`}>
                     {percentChange(currentMetrics.profit, baseCalc.profit).toFixed(1)}%
                   </td>
@@ -440,8 +440,8 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
                   <td className="p-2">CAC</td>
-                  <td className="text-right p-2 font-mono">{baseCalc.cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</td>
-                  <td className="text-right p-2 font-mono">{currentMetrics.cac.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</td>
+                  <td className="text-right p-2 font-mono">{baseCalc.cac.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}</td>
+                  <td className="text-right p-2 font-mono">{currentMetrics.cac.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}</td>
                   <td className={`text-right p-2 font-mono font-semibold ${currentMetrics.cac <= baseCalc.cac ? "text-success" : "text-destructive"}`}>
                     {percentChange(currentMetrics.cac, baseCalc.cac).toFixed(1)}%
                   </td>
