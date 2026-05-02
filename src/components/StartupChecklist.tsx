@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ListChecks, X, Eye } from "lucide-react";
 import type { BusinessType } from "@/config/businessTypeMetrics";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface StartupChecklistProps {
   projectId: string | null;
@@ -12,61 +13,63 @@ interface StartupChecklistProps {
 
 interface ChecklistStep {
   id: string;
-  label: string;
+  labelKey: string;
 }
 
 const DEFAULT_STEPS: ChecklistStep[] = [
-  { id: "products", label: "Добавить продукты или услуги (вкладка «Моя компания»)" },
-  { id: "expenses", label: "Заполнить расходы (постоянные и переменные)" },
-  { id: "leads", label: "Указать источники привлечения клиентов" },
-  { id: "metrics", label: "Проверить рассчитанные показатели (вкладка «Показатели»)" },
-  { id: "scenarios", label: "Сравнить сценарии в разделе «Итоги»" },
-  { id: "summary", label: "Открыть вкладку «Итоги» для общего вывода" },
+  { id: "products", labelKey: "startupChecklist.defaultProducts" },
+  { id: "expenses", labelKey: "startupChecklist.defaultExpenses" },
+  { id: "leads", labelKey: "startupChecklist.defaultLeads" },
+  { id: "metrics", labelKey: "startupChecklist.defaultMetrics" },
+  { id: "scenarios", labelKey: "startupChecklist.defaultScenarios" },
+  { id: "summary", labelKey: "startupChecklist.defaultSummary" },
 ];
 
 const STEPS_BY_TYPE: Partial<Record<BusinessType, ChecklistStep[]>> = {
   saas: [
-    { id: "products", label: "Добавить SaaS-продукт и тарифы" },
-    { id: "expenses", label: "Заполнить расходы (постоянные и переменные)" },
-    { id: "leads", label: "Указать источники лидов и стоимость трафика" },
-    { id: "metrics", label: "Проверить показатели: MRR, churn, LTV/CAC" },
-    { id: "scenarios", label: "Сравнить сценарии: текущий, оптимистичный, пессимистичный" },
-    { id: "summary", label: "Открыть вкладку «Итоги»" },
+    { id: "products", labelKey: "startupChecklist.saasProducts" },
+    { id: "expenses", labelKey: "startupChecklist.saasExpenses" },
+    { id: "leads", labelKey: "startupChecklist.saasLeads" },
+    { id: "metrics", labelKey: "startupChecklist.saasMetrics" },
+    { id: "scenarios", labelKey: "startupChecklist.saasScenarios" },
+    { id: "summary", labelKey: "startupChecklist.saasSummary" },
   ],
   ecommerce: [
-    { id: "products", label: "Добавить товары (цена, себестоимость, объём продаж)" },
-    { id: "logistics", label: "Заполнить сырьё и логистику (если применимо)" },
-    { id: "expenses", label: "Указать постоянные и переменные расходы" },
-    { id: "leads", label: "Добавить источники лидов" },
-    { id: "metrics", label: "Проверить показатели и маржинальность" },
-    { id: "scenarios", label: "Сравнить сценарии в «Итогах»" },
+    { id: "products", labelKey: "startupChecklist.ecommerceProducts" },
+    { id: "logistics", labelKey: "startupChecklist.ecommerceLogistics" },
+    { id: "expenses", labelKey: "startupChecklist.ecommerceExpenses" },
+    { id: "leads", labelKey: "startupChecklist.ecommerceLeads" },
+    { id: "metrics", labelKey: "startupChecklist.ecommerceMetrics" },
+    { id: "scenarios", labelKey: "startupChecklist.ecommerceScenarios" },
   ],
   production: [
-    { id: "products", label: "Добавить производимые товары" },
-    { id: "materials", label: "Заполнить сырьё, материалы и логистику" },
-    { id: "expenses", label: "Указать постоянные и переменные расходы" },
-    { id: "leads", label: "Добавить каналы продаж и источники лидов" },
-    { id: "metrics", label: "Проверить себестоимость и маржу" },
-    { id: "scenarios", label: "Сравнить сценарии в «Итогах»" },
+    { id: "products", labelKey: "startupChecklist.productionProducts" },
+    { id: "materials", labelKey: "startupChecklist.productionMaterials" },
+    { id: "expenses", labelKey: "startupChecklist.productionExpenses" },
+    { id: "leads", labelKey: "startupChecklist.productionLeads" },
+    { id: "metrics", labelKey: "startupChecklist.productionMetrics" },
+    { id: "scenarios", labelKey: "startupChecklist.productionScenarios" },
   ],
   services: [
-    { id: "products", label: "Добавить услуги и модели биллинга (час/проект/ретейнер)" },
-    { id: "expenses", label: "Указать расходы и фонд оплаты труда" },
-    { id: "leads", label: "Добавить источники лидов" },
-    { id: "quality", label: "Оценить качество услуг (вкладка «Рынок»)" },
-    { id: "metrics", label: "Проверить utilization и эффективную ставку" },
-    { id: "scenarios", label: "Сравнить сценарии в «Итогах»" },
+    { id: "products", labelKey: "startupChecklist.servicesProducts" },
+    { id: "expenses", labelKey: "startupChecklist.servicesExpenses" },
+    { id: "leads", labelKey: "startupChecklist.servicesLeads" },
+    { id: "quality", labelKey: "startupChecklist.servicesQuality" },
+    { id: "metrics", labelKey: "startupChecklist.servicesMetrics" },
+    { id: "scenarios", labelKey: "startupChecklist.servicesScenarios" },
   ],
   marketplace: [
-    { id: "categories", label: "Добавить категории и take rate" },
-    { id: "leads", label: "Указать источники привлечения" },
-    { id: "expenses", label: "Заполнить операционные расходы" },
-    { id: "metrics", label: "Проверить GMV, take rate, маржу" },
-    { id: "scenarios", label: "Сравнить сценарии в «Итогах»" },
+    { id: "categories", labelKey: "startupChecklist.marketplaceCategories" },
+    { id: "leads", labelKey: "startupChecklist.marketplaceLeads" },
+    { id: "expenses", labelKey: "startupChecklist.marketplaceExpenses" },
+    { id: "metrics", labelKey: "startupChecklist.marketplaceMetrics" },
+    { id: "scenarios", labelKey: "startupChecklist.marketplaceScenarios" },
   ],
 };
 
 export const StartupChecklist = ({ projectId, businessType }: StartupChecklistProps) => {
+  const { t } = useTranslation();
+
   const storageKey = useMemo(
     () => `startup-checklist:${projectId ?? "default"}`,
     [projectId]
@@ -135,7 +138,7 @@ export const StartupChecklist = ({ projectId, businessType }: StartupChecklistPr
         className="text-muted-foreground"
       >
         <Eye className="w-3.5 h-3.5 mr-1.5" />
-        Показать чеклист «Что заполнить сначала»
+        {t("startupChecklist.showFull")}
       </Button>
     );
   }
@@ -147,14 +150,16 @@ export const StartupChecklist = ({ projectId, businessType }: StartupChecklistPr
           <div className="flex-1">
             <CardTitle className="text-base flex items-center gap-2">
               <ListChecks className="w-4 h-4 text-primary" />
-              Что заполнить сначала
+              {t("startupChecklist.title")}
               <span className="text-xs font-normal text-muted-foreground">
-                ({completedCount}/{steps.length})
+                {t("startupChecklist.progress", {
+                  done: completedCount,
+                  total: steps.length,
+                })}
               </span>
             </CardTitle>
             <CardDescription className="text-xs mt-1">
-              Подсказка для быстрого старта. Отметки ставятся вручную и не
-              влияют на расчёты.
+              {t("startupChecklist.description")}
             </CardDescription>
           </div>
           <Button
@@ -162,7 +167,7 @@ export const StartupChecklist = ({ projectId, businessType }: StartupChecklistPr
             size="icon"
             className="h-7 w-7 shrink-0"
             onClick={handleDismiss}
-            aria-label="Скрыть чеклист"
+            aria-label={t("startupChecklist.dismiss")}
           >
             <X className="w-4 h-4" />
           </Button>
@@ -185,7 +190,7 @@ export const StartupChecklist = ({ projectId, businessType }: StartupChecklistPr
                 }`}
               >
                 <span className="text-muted-foreground mr-1.5">{idx + 1}.</span>
-                {step.label}
+                {t(step.labelKey)}
               </label>
             </li>
           ))}
