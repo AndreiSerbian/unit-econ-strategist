@@ -321,8 +321,8 @@ export const ProductsManagement = ({
           }
 
           metrics.push(
-            { label: t("products.hoursPerWeek"), value: `${totalHours.toFixed(0)} ч` },
-            { label: t("products.billable"), value: `${totalBillable.toFixed(0)} ч` },
+            { label: t("products.hoursPerWeek"), value: `${totalHours.toFixed(0)} ${t("products.hoursShort")}` },
+            { label: t("products.billable"), value: `${totalBillable.toFixed(0)} ${t("products.hoursShort")}` },
             { label: t("products.utilization"), value: `${avgUtil.toFixed(0)}% (${utilStatus})`, color: utilColor }
           );
         }
