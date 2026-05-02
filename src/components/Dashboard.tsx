@@ -389,19 +389,20 @@ export const Dashboard = () => {
                 currency={currency}
                 onCurrencyChange={updateCurrency}
               />
-              <Button variant="ghost" size="sm" onClick={handleShowOnboarding} title="Показать онбординг">
+              <LanguageSwitcher />
+              <Button variant="ghost" size="sm" onClick={handleShowOnboarding} title={t("header.showOnboarding")}>
                 <HelpCircle className="w-4 h-4" />
               </Button>
               <ExportDialog data={exportData} />
               {user ? (
                 <Button variant="outline" size="sm" onClick={signOut} className="whitespace-nowrap">
                   <LogOut className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Выход</span>
+                  <span className="hidden sm:inline">{t("header.signOut")}</span>
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="whitespace-nowrap">
                   <LogIn className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Вход</span>
+                  <span className="hidden sm:inline">{t("header.signIn")}</span>
                 </Button>
               )}
             </div>
