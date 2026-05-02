@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { businessTypes, type BusinessType } from "@/config/businessTypeMetrics";
 import { CheckCircle } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface BusinessTypeSelectorProps {
   selectedType: BusinessType;
