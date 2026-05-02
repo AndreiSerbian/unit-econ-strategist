@@ -103,6 +103,7 @@ function useMarketShares<T extends { revenue?: number | null; marketShare?: numb
 export const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const {
