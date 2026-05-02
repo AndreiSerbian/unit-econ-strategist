@@ -371,10 +371,10 @@ export const Dashboard = () => {
                   RUB: "₽", USD: "$", EUR: "€", KZT: "₸", BYN: "Br", UAH: "₴",
                 };
                 return (
-                  <div className="hidden sm:flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent">
+                  <div className="hidden sm:flex items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent min-w-0">
                       <span>{config.icon}</span>
-                      <span className="font-medium">{config.label}</span>
+                      <span className="font-medium truncate">{t(`businessModels.${businessType}`)}</span>
                     </div>
                     <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium">
                       <span>{currencySymbols[currency] || currency}</span>

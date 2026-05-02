@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X, Megaphone } from "lucide-react";
 import { NumericInput } from "@/components/ui/numeric-input";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export interface LeadSource {
   id: string;
@@ -23,12 +24,6 @@ interface LeadSourcesFormProps {
   totalRevenue?: number;
 }
 
-const typeOptions = [
-  { value: "paid", label: "Платный трафик" },
-  { value: "organic", label: "Органика" },
-  { value: "referral", label: "Реферальный" },
-  { value: "direct", label: "Прямой" },
-];
 
 const defaultSources: Omit<LeadSource, "id">[] = [
   { name: "Яндекс.Директ", type: "paid", leads: 0, cost: 0 },
@@ -45,6 +40,13 @@ export const LeadSourcesForm = memo(({
   totalClients,
   totalRevenue,
 }: LeadSourcesFormProps) => {
+  const { t } = useTranslation();
+  const typeOptions = useMemo(() => ([
+    { value: "paid", label: t("leadSources.typePaid") },
+    { value: "organic", label: t("leadSources.typeOrganic") },
+    { value: "referral", label: t("leadSources.typeReferral") },
+    { value: "direct", label: t("leadSources.typeDirect") },
+  ]), [t]);
   // Локальное состояние, чтобы список и итоги обновлялись мгновенно,
   // даже если родитель по какой-то причине задерживает обновление метрик
   const [localSources, setLocalSources] = useState<LeadSource[]>(leadSources);
@@ -117,11 +119,11 @@ export const LeadSourcesForm = memo(({
         <CardTitle className="text-base flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Megaphone className="w-4 h-4 text-primary" />
-            Источники трафика
+            {t("leadSources.title")}
           </span>
           {localSources.length === 0 && (
             <Button variant="outline" size="sm" onClick={addDefaultSources}>
-              Добавить стандартные
+              {t("leadSources.addStandard")}
             </Button>
           )}
         </CardTitle>
@@ -130,19 +132,19 @@ export const LeadSourcesForm = memo(({
         {/* Итоги */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-muted/50 rounded-lg">
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Всего лидов</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.totalLeads")}</p>
             <p className="font-bold font-mono">{totalLeads.toLocaleString("ru-RU")}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Бюджет</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.budget")}</p>
             <p className="font-bold font-mono">{totalCost.toLocaleString("ru-RU")} {currency}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Средний CPL</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.avgCpl")}</p>
             <p className="font-bold font-mono">{avgCPL.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Оценочный CAC</p>
+            <p className="text-xs text-muted-foreground">{t("leadSources.estimatedCac")}</p>
             <p className="font-bold font-mono">
               {hasGlobalCAC
                 ? `${globalCAC.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ${currency}`
