@@ -37,7 +37,7 @@ export const RiskSummaryCard = ({
             <AlertTriangle className="w-4 h-4 text-primary" />
             {t("summary.risks")}
           </CardTitle>
-          <CardDescription>Недостаточно данных для оценки рисков.</CardDescription>
+          <CardDescription>{t("summary.notEnoughDataRisks")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -50,49 +50,49 @@ export const RiskSummaryCard = ({
     const ltvCac = calculateLTVCACRatio(metrics);
 
     if (margin < 0) {
-      risks.push({ level: "high", text: "Бизнес работает в убыток (отрицательная маржа)." });
+      risks.push({ level: "high", text: t("summary.riskNegativeMargin") });
     } else if (margin < 10) {
-      risks.push({ level: "medium", text: `Низкая маржа: ${margin.toFixed(1)}%.` });
+      risks.push({ level: "medium", text: t("summary.riskLowMargin").replace("{value}", margin.toFixed(1)) });
     }
 
     if (ltvCac > 0 && ltvCac < 1) {
-      risks.push({ level: "high", text: "Высокий риск: CAC превышает LTV." });
+      risks.push({ level: "high", text: t("summary.riskCacAboveLtv") });
     } else if (ltvCac > 0 && ltvCac < 3) {
       risks.push({
         level: "medium",
-        text: `LTV/CAC = ${ltvCac.toFixed(2)}× ниже целевого 3:1.`,
+        text: t("summary.riskLtvCacBelow").replace("{value}", ltvCac.toFixed(2)),
       });
     }
 
     if (metrics.totalClients > 0 && (metrics.newClients ?? 0) === 0) {
       risks.push({
         level: "medium",
-        text: "Нет новых клиентов — рост остановлен.",
+        text: t("summary.riskNoNewClients"),
       });
     }
 
     if (metrics.conversionRate !== undefined && metrics.conversionRate > 0 && metrics.conversionRate < 1) {
       risks.push({
         level: "medium",
-        text: `Низкая конверсия: ${metrics.conversionRate.toFixed(2)}%.`,
+        text: t("summary.riskLowConversion").replace("{value}", metrics.conversionRate.toFixed(2)),
       });
     }
   }
 
   if (cashflowSummary) {
     if (cashflowSummary.npv < 0) {
-      risks.push({ level: "high", text: "Отрицательный NPV проекта." });
+      risks.push({ level: "high", text: t("summary.riskNegativeNpv") });
     }
     if (weakestPeriodValue !== null && weakestPeriodValue < 0 && weakestPeriodLabel) {
       risks.push({
         level: "medium",
-        text: `Кассовый разрыв в периоде ${weakestPeriodLabel}.`,
+        text: t("summary.riskCashGap").replace("{label}", weakestPeriodLabel),
       });
     }
     if (cashflowSummary.paybackPeriod === undefined) {
       risks.push({
         level: "medium",
-        text: "Окупаемость не достигнута в горизонте планирования.",
+        text: t("summary.riskPaybackMissing"),
       });
     }
   }
@@ -106,7 +106,7 @@ export const RiskSummaryCard = ({
             {t("summary.risks")}
           </CardTitle>
           <CardDescription>
-            Существенных рисков по введённым данным не обнаружено.
+            {t("summary.risksNone")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -121,7 +121,7 @@ export const RiskSummaryCard = ({
           {t("summary.risks")}
         </CardTitle>
         <CardDescription>
-          Автоматически выявленные риски на основе введённых данных и Cash Flow.
+          {t("summary.risksDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>

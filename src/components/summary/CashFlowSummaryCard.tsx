@@ -19,13 +19,13 @@ const fmt = (v: number, currency: string) => {
   return `${Math.round(v).toLocaleString("ru-RU")} ${currency}`;
 };
 
-const pluralizePeriod = (n: number) => {
+const pluralizePeriod = (n: number, t: (k: string) => string) => {
   const abs = Math.abs(n) % 100;
   const last = abs % 10;
-  if (abs > 10 && abs < 20) return "периодов";
-  if (last === 1) return "период";
-  if (last >= 2 && last <= 4) return "периода";
-  return "периодов";
+  if (abs > 10 && abs < 20) return t("summary.periodMany");
+  if (last === 1) return t("summary.periodOne");
+  if (last >= 2 && last <= 4) return t("summary.periodFew");
+  return t("summary.periodMany");
 };
 
 export const CashFlowSummaryCard = ({
@@ -50,7 +50,7 @@ export const CashFlowSummaryCard = ({
             <Wallet className="w-4 h-4 text-primary" />
             {t("summary.cashflow")}
           </CardTitle>
-          <CardDescription>Загрузка…</CardDescription>
+          <CardDescription>{t("summary.loading")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -65,8 +65,7 @@ export const CashFlowSummaryCard = ({
             {t("summary.cashflow")}
           </CardTitle>
           <CardDescription>
-            Недостаточно данных. Перейдите на вкладку «Cash Flow» и заполните
-            значения по периодам.
+            {t("summary.notEnoughDataCashflow")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -74,26 +73,26 @@ export const CashFlowSummaryCard = ({
   }
 
   const items: Array<{ label: string; value: string; tone?: "positive" | "negative"; tooltipKey?: string }> = [
-    { label: "Всего притоков", value: fmt(summary!.totalInflow, currency), tone: "positive", tooltipKey: "totalInflow" },
-    { label: "Всего оттоков", value: fmt(summary!.totalOutflow, currency), tone: "negative", tooltipKey: "totalOutflow" },
+    { label: t("summary.totalInflow"), value: fmt(summary!.totalInflow, currency), tone: "positive", tooltipKey: "totalInflow" },
+    { label: t("summary.totalOutflow"), value: fmt(summary!.totalOutflow, currency), tone: "negative", tooltipKey: "totalOutflow" },
     {
-      label: "Чистый денежный поток",
+      label: t("summary.netCashFlow"),
       value: fmt(summary!.netCashFlow, currency),
       tone: summary!.netCashFlow >= 0 ? "positive" : "negative",
       tooltipKey: "netCashFlow",
     },
     {
-      label: "NPV (приведённая ценность)",
+      label: t("summary.npv"),
       value: fmt(summary!.npv, currency),
       tone: summary!.npv >= 0 ? "positive" : "negative",
       tooltipKey: "npv",
     },
     {
-      label: "Окупаемость",
+      label: t("summary.payback"),
       value:
         summary!.paybackPeriod !== undefined
-          ? `${summary!.paybackPeriod + 1} ${pluralizePeriod(summary!.paybackPeriod + 1)}`
-          : "Не достигнута",
+          ? `${summary!.paybackPeriod + 1} ${pluralizePeriod(summary!.paybackPeriod + 1, t)}`
+          : t("summary.paybackNotReached"),
       tooltipKey: "payback",
     },
   ];
@@ -106,7 +105,7 @@ export const CashFlowSummaryCard = ({
           {t("summary.cashflow")}
         </CardTitle>
         <CardDescription>
-          Сводка по таймлайну текущего сценария.
+          {t("summary.cashflowDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -139,21 +138,21 @@ export const CashFlowSummaryCard = ({
           <div className="flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-success mt-0.5" />
             <div>
-              <div className="text-[11px] text-muted-foreground">Главный источник притока</div>
+              <div className="text-[11px] text-muted-foreground">{t("summary.topInflow")}</div>
               <div className="text-sm font-medium">{topInflowName ?? "—"}</div>
             </div>
           </div>
           <div className="flex items-start gap-2">
             <TrendingDown className="w-4 h-4 text-destructive mt-0.5" />
             <div>
-              <div className="text-[11px] text-muted-foreground">Главная статья оттока</div>
+              <div className="text-[11px] text-muted-foreground">{t("summary.topOutflow")}</div>
               <div className="text-sm font-medium">{topOutflowName ?? "—"}</div>
             </div>
           </div>
           <div className="flex items-start gap-2">
             <Wallet className="w-4 h-4 text-muted-foreground mt-0.5" />
             <div>
-              <div className="text-[11px] text-muted-foreground">Самый слабый период</div>
+              <div className="text-[11px] text-muted-foreground">{t("summary.weakestPeriod")}</div>
               <div className="text-sm font-medium">
                 {weakestPeriodLabel
                   ? `${weakestPeriodLabel} (${

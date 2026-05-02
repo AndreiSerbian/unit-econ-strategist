@@ -6,6 +6,7 @@ import { FileText, Save, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ScenarioSummaryProps {
   projectId?: string;
@@ -26,6 +27,7 @@ export const ScenarioSummary = ({
   scenarioLabel,
   metrics 
 }: ScenarioSummaryProps) => {
+  const { t } = useTranslation();
   const [summary, setSummary] = useState("");
   const [recommendations, setRecommendations] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -60,7 +62,7 @@ export const ScenarioSummary = ({
 
   const saveSummary = async () => {
     if (!projectId) {
-      toast.error("Проект не выбран");
+      toast.error(t("summary.noProject"));
       return;
     }
 
@@ -79,10 +81,10 @@ export const ScenarioSummary = ({
 
       if (error) throw error;
       
-      toast.success("Резюме сохранено");
+      toast.success(t("summary.saved"));
     } catch (error) {
       console.error('Error saving summary:', error);
-      toast.error("Ошибка при сохранении резюме");
+      toast.error(t("summary.saveError"));
     } finally {
       setIsSaving(false);
     }
@@ -97,30 +99,30 @@ export const ScenarioSummary = ({
 
     // Analyze profit margin
     if (metrics.profitMargin < 0) {
-      recs.push("⚠️ Отрицательная маржа: необходимо срочно оптимизировать расходы или увеличить выручку");
+      recs.push(t("summary.recNegativeMargin"));
     } else if (metrics.profitMargin < 10) {
-      recs.push("⚡ Низкая маржа (< 10%): рассмотрите возможность повышения цен или снижения затрат");
+      recs.push(t("summary.recLowMargin"));
     } else if (metrics.profitMargin > 30) {
-      recs.push("✅ Отличная маржа (> 30%): хорошая возможность для масштабирования");
+      recs.push(t("summary.recHighMargin"));
     }
 
     // Analyze CAC
     if (metrics.cac > metrics.revenue / 10) {
-      recs.push("💰 Высокая стоимость привлечения клиента: оптимизируйте маркетинговые каналы");
+      recs.push(t("summary.recHighCac"));
     }
 
     // Analyze break-even
     if (metrics.breakEven < 0) {
-      recs.push(`📉 До точки безубыточности не хватает ${Math.abs(metrics.breakEven)} клиентов`);
+      recs.push(t("summary.recBreakevenMissing").replace("{n}", String(Math.abs(metrics.breakEven))));
     } else if (metrics.breakEven > 0) {
-      recs.push(`📈 Бизнес прибыльный, превышение точки безубыточности на ${metrics.breakEven} клиентов`);
+      recs.push(t("summary.recBreakevenAbove").replace("{n}", String(metrics.breakEven)));
     } else {
-      recs.push("⚖️ Бизнес находится в точке безубыточности");
+      recs.push(t("summary.recBreakevenAt"));
     }
 
     setRecommendations(recs.join("\n\n"));
     setIsGenerating(false);
-    toast.success("Рекомендации сгенерированы");
+    toast.success(t("summary.generated"));
   };
 
   return (
@@ -128,18 +130,18 @@ export const ScenarioSummary = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Резюме: {scenarioLabel}
+          {t("summary.title").replace("{label}", scenarioLabel)}
         </CardTitle>
         <CardDescription>
-          Запишите выводы и рекомендации по сценарию
+          {t("summary.titleHint")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="summary">Общее резюме</Label>
+          <Label htmlFor="summary">{t("summary.generalSummary")}</Label>
           <Textarea
             id="summary"
-            placeholder="Опишите основные выводы по данному сценарию..."
+            placeholder={t("summary.summaryPlaceholder")}
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             className="min-h-[120px]"
@@ -148,7 +150,7 @@ export const ScenarioSummary = ({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="recommendations">Рекомендации</Label>
+            <Label htmlFor="recommendations">{t("summary.recommendationsLabel")}</Label>
             {metrics && (
               <Button
                 variant="outline"
@@ -157,13 +159,13 @@ export const ScenarioSummary = ({
                 disabled={isGenerating}
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                Сгенерировать
+                {t("summary.generate")}
               </Button>
             )}
           </div>
           <Textarea
             id="recommendations"
-            placeholder="Рекомендации по улучшению показателей..."
+            placeholder={t("summary.recsPlaceholder")}
             value={recommendations}
             onChange={(e) => setRecommendations(e.target.value)}
             className="min-h-[150px]"
@@ -176,7 +178,7 @@ export const ScenarioSummary = ({
           className="w-full"
         >
           <Save className="h-4 w-4 mr-2" />
-          {isSaving ? "Сохранение..." : "Сохранить резюме"}
+          {isSaving ? t("summary.saving") : t("summary.saveSummary")}
         </Button>
       </CardContent>
     </Card>
