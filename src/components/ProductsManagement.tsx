@@ -21,8 +21,8 @@ import { LogisticsTariffsData } from "@/hooks/useProject";
 import { 
   BusinessType, 
   getBusinessTypeConfig, 
-  getProductLabel,
-  ProductField 
+  ProductField,
+  resolveI18nText,
 } from "@/config/businessTypeMetrics";
 import { ServicesProductCard, ServiceProduct } from "@/components/services";
 
@@ -130,8 +130,8 @@ export const ProductsManagement = ({
   const { t } = useTranslation();
   const config = useMemo(() => getBusinessTypeConfig(businessType), [businessType]);
   const fields = config.productFields;
-  const productLabel = getProductLabel(businessType);
-  const productLabelPlural = getProductLabel(businessType, true);
+  const productLabel = resolveI18nText(t, config.productLabel, config.productLabelKey);
+  const productLabelPlural = resolveI18nText(t, config.productLabelPlural, config.productLabelPluralKey);
 
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>(() => 
     getDefaultProductValues(businessType)
