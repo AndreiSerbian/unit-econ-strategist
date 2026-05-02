@@ -493,31 +493,31 @@ export const Dashboard = () => {
               <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 h-auto p-1 gap-1">
                 <TabsTrigger value="company" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Building2 className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center break-words">Моя компания</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center break-words">{t("navigation.myCompany")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="metrics" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <BarChart3 className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Показатели</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.metrics")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="cashflow" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Wallet className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Cash Flow</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.cashFlow")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="competitors" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Users className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Конкуренты</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.competitors")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="market" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Map className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Рынок</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.market")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="summary" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <FileText className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Итоги</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.results")}</span>
                 </TabsTrigger>
                 <TabsTrigger value="theory" className="flex flex-col items-center gap-0.5 py-2 px-1 text-xs min-h-[48px]">
                   <Brain className="w-4 h-4 shrink-0" />
-                  <span className="text-[9px] sm:text-xs leading-tight text-center">Теория</span>
+                  <span className="text-[9px] sm:text-xs leading-tight text-center">{t("navigation.theory")}</span>
                 </TabsTrigger>
               </TabsList>
 
