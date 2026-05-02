@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Activity, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface Metrics {
   revenue: number;
@@ -23,6 +24,8 @@ interface SensitivityAnalysisProps {
 }
 
 export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalysisProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [avgCheckChange, setAvgCheckChange] = useState(0);
   const [marketingChange, setMarketingChange] = useState(0);
   const [conversionChange, setConversionChange] = useState(0);
