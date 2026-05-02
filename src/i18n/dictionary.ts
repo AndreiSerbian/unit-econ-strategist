@@ -952,11 +952,6 @@ const ru: DictionaryShape = {
     quarterShort: "квартал",
     yearShort: "год",
   },
-  scenarios: {
-    current: "Текущий",
-    optimistic: "Оптимистичный",
-    pessimistic: "Пессимистичный",
-  },
   cashFlowDiagram: {
     title: "Движение денежных средств",
     profit: "Прибыль",
