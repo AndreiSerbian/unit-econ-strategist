@@ -604,6 +604,8 @@ const ru: DictionaryShape = {
   },
   scenarios: {
     current: "Текущий",
+    optimistic: "Оптимистичный",
+    pessimistic: "Пессимистичный",
     scenarioA: "Сценарий A",
     scenarioB: "Сценарий B",
   },
