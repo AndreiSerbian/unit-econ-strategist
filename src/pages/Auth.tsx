@@ -8,9 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Brain } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,10 +38,10 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast.success("Успешный вход!");
+      toast.success(t("auth.signInSuccess"));
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Ошибка входа");
+      toast.error(error?.message || t("auth.signInError"));
     } finally {
       setLoading(false);
     }
@@ -60,10 +62,10 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast.success("Регистрация успешна! Проверьте почту для подтверждения.");
+      toast.success(t("auth.signUpSuccess"));
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Ошибка регистрации");
+      toast.error(error?.message || t("auth.signUpError"));
     } finally {
       setLoading(false);
     }
@@ -77,45 +79,45 @@ const Auth = () => {
             <Brain className="w-12 h-12 text-primary" />
           </div>
           <CardTitle className="text-3xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Добро пожаловать
+            {t("auth.welcomeTitle")}
           </CardTitle>
           <CardDescription>
-            Войдите или создайте аккаунт для сохранения проектов
+            {t("auth.welcomeDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Вход</TabsTrigger>
-              <TabsTrigger value="signup">Регистрация</TabsTrigger>
+              <TabsTrigger value="signin">{t("auth.tabSignIn")}</TabsTrigger>
+              <TabsTrigger value="signup">{t("auth.tabSignUp")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
+                  <Label htmlFor="signin-email">{t("auth.email")}</Label>
                   <Input
                     id="signin-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signin-password">Пароль</Label>
+                  <Label htmlFor="signin-password">{t("auth.password")}</Label>
                   <Input
                     id="signin-password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t("auth.passwordPlaceholder")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Вход..." : "Войти"}
+                  {loading ? t("auth.signInLoading") : t("auth.signInBtn")}
                 </Button>
               </form>
             </TabsContent>
@@ -123,33 +125,33 @@ const Auth = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-email">{t("auth.email")}</Label>
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Пароль</Label>
+                  <Label htmlFor="signup-password">{t("auth.password")}</Label>
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t("auth.passwordPlaceholder")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Минимум 6 символов
+                    {t("auth.passwordHint")}
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Регистрация..." : "Создать аккаунт"}
+                  {loading ? t("auth.signUpLoading") : t("auth.signUpBtn")}
                 </Button>
               </form>
             </TabsContent>

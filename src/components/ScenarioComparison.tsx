@@ -7,6 +7,7 @@ import { FileText, Save, Sparkles, TrendingUp, TrendingDown, Minus } from "lucid
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ScenarioMetrics {
   revenue: number;
@@ -46,23 +47,16 @@ const TrendIcon = ({ value }: { value: number }) => {
   return <Minus className="w-3 h-3 text-muted-foreground" />;
 };
 
-const MetricCell = ({ label, value, formatted }: { label: string; value: number; formatted: string }) => (
-  <div className="text-center space-y-1">
-    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
-    <p className="text-sm font-mono font-semibold">{formatted}</p>
-    <TrendIcon value={value} />
-  </div>
-);
-
 export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioComparisonProps) => {
+  const { t } = useTranslation();
   const [summaries, setSummaries] = useState<Record<string, SummaryState>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [activeScenario, setActiveScenario] = useState<string | null>(null);
 
   const activeScenarios = scenarios.filter(s => s.hasData);
 
   useEffect(() => {
     if (projectId) loadSummaries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const loadSummaries = async () => {
@@ -88,7 +82,7 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
   };
 
   const saveSummary = async (scenarioType: string) => {
-    if (!projectId) { toast.error("Проект не выбран"); return; }
+    if (!projectId) { toast.error(t("scenarioComparisonExt.toastNoProject")); return; }
     setIsSaving(true);
     try {
       const s = summaries[scenarioType] || { summary: "", recommendations: "" };
@@ -101,9 +95,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
           recommendations: s.recommendations,
         }, { onConflict: 'project_id,scenario_type' });
       if (error) throw error;
-      toast.success("Резюме сохранено");
+      toast.success(t("scenarioComparisonExt.toastSaved"));
     } catch {
-      toast.error("Ошибка при сохранении");
+      toast.error(t("scenarioComparisonExt.toastSaveError"));
     } finally {
       setIsSaving(false);
     }
@@ -114,15 +108,15 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
     const m = scenario.metrics;
     const recs: string[] = [];
 
-    if (m.profitMargin < 0) recs.push("⚠️ Отрицательная маржа: необходимо срочно оптимизировать расходы или увеличить выручку");
-    else if (m.profitMargin < 10) recs.push("⚡ Низкая маржа (< 10%): рассмотрите возможность повышения цен или снижения затрат");
-    else if (m.profitMargin > 30) recs.push("✅ Отличная маржа (> 30%): хорошая возможность для масштабирования");
+    if (m.profitMargin < 0) recs.push(t("scenarioComparisonExt.recNegativeMargin"));
+    else if (m.profitMargin < 10) recs.push(t("scenarioComparisonExt.recLowMargin"));
+    else if (m.profitMargin > 30) recs.push(t("scenarioComparisonExt.recGreatMargin"));
 
-    if (m.cac > m.revenue / 10) recs.push("💰 Высокая стоимость привлечения клиента: оптимизируйте маркетинговые каналы");
+    if (m.cac > m.revenue / 10) recs.push(t("scenarioComparisonExt.recHighCac"));
 
-    if (m.breakEven < 0) recs.push(`📉 До точки безубыточности не хватает ${Math.abs(m.breakEven)} клиентов`);
-    else if (m.breakEven > 0) recs.push(`📈 Бизнес прибыльный, превышение точки безубыточности на ${m.breakEven} клиентов`);
-    else recs.push("⚖️ Бизнес находится в точке безубыточности");
+    if (m.breakEven < 0) recs.push(t("scenarioComparisonExt.recBelowBE", { count: Math.abs(m.breakEven) }));
+    else if (m.breakEven > 0) recs.push(t("scenarioComparisonExt.recAboveBE", { count: m.breakEven }));
+    else recs.push(t("scenarioComparisonExt.recAtBE"));
 
     setSummaries(prev => ({
       ...prev,
@@ -131,7 +125,7 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
         recommendations: recs.join("\n\n"),
       },
     }));
-    toast.success("Рекомендации сгенерированы");
+    toast.success(t("scenarioComparisonExt.toastGenerated"));
   };
 
   const updateField = (scenarioType: string, field: keyof SummaryState, value: string) => {
@@ -150,12 +144,12 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Сравнение сценариев
+            {t("scenarioComparisonExt.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Заполните показатели хотя бы для одного сценария, чтобы увидеть сравнение.
+            {t("scenarioComparisonExt.empty")}
           </p>
         </CardContent>
       </Card>
@@ -167,10 +161,10 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Сравнение сценариев
+          {t("scenarioComparisonExt.title")}
         </CardTitle>
         <CardDescription>
-          Сравнение ключевых метрик по всем активным сценариям
+          {t("scenarioComparisonExt.subtitle")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -179,7 +173,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-2 pr-4 text-xs text-muted-foreground font-medium">Метрика</th>
+                <th className="text-left py-2 pr-4 text-xs text-muted-foreground font-medium">
+                  {t("scenarioComparisonExt.metric")}
+                </th>
                 {activeScenarios.map(s => (
                   <th key={s.type} className="text-center py-2 px-3 text-xs font-medium">
                     <Badge variant={s.type === 'current' ? 'default' : 'secondary'} className="text-[10px]">
@@ -191,7 +187,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
             </thead>
             <tbody>
               <tr className="border-b border-border/50">
-                <td className="py-2 pr-4 text-xs text-muted-foreground">Выручка</td>
+                <td className="py-2 pr-4 text-xs text-muted-foreground">
+                  {t("scenarioComparisonExt.revenue")}
+                </td>
                 {activeScenarios.map(s => (
                   <td key={s.type} className="text-center py-2 px-3 font-mono text-xs">
                     {s.metrics ? formatNumber(s.metrics.revenue, currency) : '—'}
@@ -199,7 +197,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
                 ))}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 pr-4 text-xs text-muted-foreground">Прибыль</td>
+                <td className="py-2 pr-4 text-xs text-muted-foreground">
+                  {t("scenarioComparisonExt.profit")}
+                </td>
                 {activeScenarios.map(s => (
                   <td key={s.type} className="text-center py-2 px-3 font-mono text-xs">
                     <span className={s.metrics && s.metrics.profit < 0 ? 'text-destructive' : ''}>
@@ -209,7 +209,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
                 ))}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 pr-4 text-xs text-muted-foreground">Маржа</td>
+                <td className="py-2 pr-4 text-xs text-muted-foreground">
+                  {t("scenarioComparisonExt.margin")}
+                </td>
                 {activeScenarios.map(s => (
                   <td key={s.type} className="text-center py-2 px-3 font-mono text-xs">
                     <span className={s.metrics && s.metrics.profitMargin < 0 ? 'text-destructive' : ''}>
@@ -227,7 +229,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
                 ))}
               </tr>
               <tr>
-                <td className="py-2 pr-4 text-xs text-muted-foreground">Безубыточность (Δ клиенты)</td>
+                <td className="py-2 pr-4 text-xs text-muted-foreground">
+                  {t("scenarioComparisonExt.breakeven")}
+                </td>
                 {activeScenarios.map(s => (
                   <td key={s.type} className="text-center py-2 px-3 font-mono text-xs">
                     {s.metrics ? (
@@ -245,7 +249,9 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
 
         {/* Scenario notes */}
         <div className="space-y-4">
-          <Label className="text-sm font-medium">Резюме и рекомендации по сценариям</Label>
+          <Label className="text-sm font-medium">
+            {t("scenarioComparisonExt.summaryLabel")}
+          </Label>
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(activeScenarios.length, 3)}, 1fr)` }}>
             {activeScenarios.map(s => {
               const state = summaries[s.type] || { summary: "", recommendations: "" };
@@ -259,7 +265,7 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
                       {s.metrics && (
                         <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px]" onClick={() => generateRecommendations(s)}>
                           <Sparkles className="h-3 w-3 mr-1" />
-                          Авто
+                          {t("scenarioComparisonExt.auto")}
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px]" onClick={() => saveSummary(s.type)} disabled={isSaving}>
@@ -268,13 +274,13 @@ export const ScenarioComparison = ({ projectId, scenarios, currency }: ScenarioC
                     </div>
                   </div>
                   <Textarea
-                    placeholder="Общее резюме..."
+                    placeholder={t("scenarioComparisonExt.summaryPlaceholder")}
                     value={state.summary}
                     onChange={e => updateField(s.type, 'summary', e.target.value)}
                     className="min-h-[80px] text-xs"
                   />
                   <Textarea
-                    placeholder="Рекомендации..."
+                    placeholder={t("scenarioComparisonExt.recommendationsPlaceholder")}
                     value={state.recommendations}
                     onChange={e => updateField(s.type, 'recommendations', e.target.value)}
                     className="min-h-[80px] text-xs"
