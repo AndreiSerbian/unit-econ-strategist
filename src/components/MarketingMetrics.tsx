@@ -43,7 +43,7 @@ export const MarketingMetrics = memo(({
     // CAC - Customer Acquisition Cost
     const cac = newClients > 0 ? marketingCosts / newClients : 0;
     
-    // ROAS - Return on Ad Spend (только платный трафик)
+    // ROAS - Return on Ad Spend (paid traffic only)
     const paidCosts = leadSources
       .filter(s => s.type === 'paid')
       .reduce((sum, s) => sum + s.cost, 0);
