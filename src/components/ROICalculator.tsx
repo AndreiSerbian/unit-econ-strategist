@@ -351,21 +351,24 @@ export const ROICalculator = ({
               <Legend />
               <Line
                 type="monotone"
-                dataKey="Текущий"
+                dataKey="current"
+                name={t("ltvCalculator.scenarioCurrent")}
                 stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
               <Line
                 type="monotone"
-                dataKey="Сценарий A"
+                dataKey="scenarioA"
+                name={t("ltvCalculator.scenarioA")}
                 stroke="hsl(var(--secondary))"
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
               <Line
                 type="monotone"
-                dataKey="Сценарий B"
+                dataKey="scenarioB"
+                name={t("ltvCalculator.scenarioB")}
                 stroke="hsl(var(--accent))"
                 strokeWidth={2}
                 dot={{ r: 3 }}
