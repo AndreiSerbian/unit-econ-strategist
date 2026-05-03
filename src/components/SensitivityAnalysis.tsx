@@ -42,10 +42,10 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
     const newConversion = baseMetrics.conversionRate * (1 + conversionMult / 100);
     const newTotalClients = baseMetrics.totalClients * (1 + clientsMult / 100);
     
-    // Пересчитываем выручку с учетом новых параметров
+    // Recalculate revenue using the new parameters
     const newRevenue = newAvgCheck * newTotalClients;
     
-    // Переменные расходы корректируются пропорционально изменению клиентов
+    // Variable costs scale proportionally with client count
     const newVariableCosts = baseMetrics.variableCosts * (1 + clientsMult / 100);
     
     const totalCosts = baseMetrics.fixedCosts + newVariableCosts + newMarketingCosts;
@@ -75,7 +75,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
 
   const baseCalc = calculateMetrics(0, 0, 0, 0);
 
-  // Генерация данных для графиков зависимости прибыли от каждого параметра
+  // Generate data for profit-vs-parameter sensitivity charts
   const generateSensitivityData = () => {
     const avgCheckData = [];
     const marketingData = [];
