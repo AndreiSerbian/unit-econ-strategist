@@ -207,20 +207,17 @@ export const CashFlowDiagram = memo(({
   const { t, language } = useTranslation();
   const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const fc2 = (v: number) => formatCurrency(v, currency, numLocale);
-
+  
   const flowData = useMemo(() => {
-    // Calculate lead sources breakdown
     const paidLeads = leadSources.filter(s => s.type === 'paid').reduce((sum, s) => sum + s.leads, 0);
     const organicLeads = leadSources.filter(s => s.type === 'organic').reduce((sum, s) => sum + s.leads, 0);
     const totalLeads = leadSources.reduce((sum, s) => sum + s.leads, 0);
     const leadSourceCosts = leadSources.reduce((sum, s) => sum + s.cost, 0);
     
-    // Calculate expenses breakdown
     const totalExpenses = fixedCosts + variableCosts;
     const profit = revenue - totalExpenses;
     const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
     
-    // Detailed expense breakdown
     let salaries = 0;
     let rent = 0;
     let marketing = marketingCosts;
@@ -277,54 +274,51 @@ export const CashFlowDiagram = memo(({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DollarSign className="w-5 h-5 text-primary" />
-          Движение денежных средств
+          {t("cashFlowDiagram.title")}
           <Badge variant={profit >= 0 ? "default" : "destructive"} className="ml-2">
-            {profit >= 0 ? "Прибыль" : "Убыток"}: {formatCurrency(Math.abs(profit), currency)}
+            {profit >= 0 ? t("cashFlowDiagram.profit") : t("cashFlowDiagram.loss")}: {fc2(Math.abs(profit))}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Main Flow Visualization */}
         <div className="flex flex-col items-center gap-4">
-          {/* Entry Points - Revenue Sources */}
           <div className="flex flex-wrap items-center justify-center gap-2">
             <FlowNode
               icon={<Megaphone className="w-5 h-5" />}
-              label="Платный трафик"
-              value={`${flowData.paidLeads} лидов`}
-              subLabel={formatCurrency(flowData.leadSourceCosts, currency)}
+              label={t("cashFlowDiagram.paidTraffic")}
+              value={t("cashFlowDiagram.leadsUnit", { count: flowData.paidLeads })}
+              subLabel={fc2(flowData.leadSourceCosts)}
               delay={0}
             />
             <FlowNode
               icon={<TrendingUp className="w-5 h-5" />}
-              label="Органика"
-              value={`${flowData.organicLeads} лидов`}
-              subLabel="бесплатно"
+              label={t("cashFlowDiagram.organic")}
+              value={t("cashFlowDiagram.leadsUnit", { count: flowData.organicLeads })}
+              subLabel={t("cashFlowDiagram.organicFree")}
               delay={0.1}
             />
             <FlowArrow label="CPL" delay={0.2} />
             <FlowNode
               icon={<Users className="w-5 h-5" />}
-              label="Всего лидов"
+              label={t("cashFlowDiagram.totalLeads")}
               value={`${flowData.totalLeads}`}
               delay={0.3}
             />
           </div>
           
-          <FlowArrow direction="down" label="Конверсия" delay={0.4} />
+          <FlowArrow direction="down" label={t("cashFlowDiagram.conversion")} delay={0.4} />
           
-          {/* Clients & Revenue */}
           <div className="flex flex-wrap items-center justify-center gap-2">
             <FlowNode
               icon={<ShoppingCart className="w-5 h-5" />}
-              label="Новые клиенты"
+              label={t("cashFlowDiagram.newClients")}
               value={`${newClients}`}
               variant="income"
               delay={0.5}
             />
             <FlowNode
               icon={<Wallet className="w-5 h-5" />}
-              label="Повторные"
+              label={t("cashFlowDiagram.returning")}
               value={`${returningClients}`}
               variant="income"
               delay={0.6}
@@ -332,16 +326,15 @@ export const CashFlowDiagram = memo(({
             <FlowArrow delay={0.7} />
             <FlowNode
               icon={<DollarSign className="w-5 h-5" />}
-              label="Выручка"
-              value={formatCurrency(revenue, currency)}
+              label={t("cashFlowDiagram.revenue")}
+              value={fc2(revenue)}
               variant="income"
               delay={0.8}
             />
           </div>
           
-          <FlowArrow direction="down" label="Расходы" delay={0.9} />
+          <FlowArrow direction="down" label={t("cashFlowDiagram.expensesArrow")} delay={0.9} />
           
-          {/* Expenses */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -351,17 +344,17 @@ export const CashFlowDiagram = memo(({
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-semibold text-sm flex items-center gap-2">
                 <Building2 className="w-4 h-4" />
-                Структура расходов
+                {t("cashFlowDiagram.expensesStructure")}
               </h4>
               <span className="text-sm text-muted-foreground">
-                Всего: {formatCurrency(totalExpenses, currency)}
+                {t("cashFlowDiagram.totalLabel", { value: fc2(totalExpenses) })}
               </span>
             </div>
             
             <div className="grid gap-3">
               <ExpenseBar
                 icon={<Users className="w-3 h-3" />}
-                label="ФОТ (Зарплаты)"
+                label={t("cashFlowDiagram.expSalaries")}
                 value={expenseBreakdown.salaries}
                 total={totalExpenses}
                 color="bg-chart-1"
@@ -369,7 +362,7 @@ export const CashFlowDiagram = memo(({
               />
               <ExpenseBar
                 icon={<Megaphone className="w-3 h-3" />}
-                label="Маркетинг"
+                label={t("cashFlowDiagram.expMarketing")}
                 value={expenseBreakdown.marketing}
                 total={totalExpenses}
                 color="bg-chart-2"
@@ -377,7 +370,7 @@ export const CashFlowDiagram = memo(({
               />
               <ExpenseBar
                 icon={<Package className="w-3 h-3" />}
-                label="Производство"
+                label={t("cashFlowDiagram.expProduction")}
                 value={expenseBreakdown.production}
                 total={totalExpenses}
                 color="bg-chart-3"
@@ -385,7 +378,7 @@ export const CashFlowDiagram = memo(({
               />
               <ExpenseBar
                 icon={<Building2 className="w-3 h-3" />}
-                label="Аренда"
+                label={t("cashFlowDiagram.expRent")}
                 value={expenseBreakdown.rent}
                 total={totalExpenses}
                 color="bg-chart-4"
@@ -393,7 +386,7 @@ export const CashFlowDiagram = memo(({
               />
               <ExpenseBar
                 icon={<Percent className="w-3 h-3" />}
-                label="Налоги"
+                label={t("cashFlowDiagram.expTaxes")}
                 value={expenseBreakdown.taxes}
                 total={totalExpenses}
                 color="bg-chart-5"
@@ -401,7 +394,7 @@ export const CashFlowDiagram = memo(({
               />
               <ExpenseBar
                 icon={<Truck className="w-3 h-3" />}
-                label="Прочее"
+                label={t("cashFlowDiagram.expOther")}
                 value={expenseBreakdown.other}
                 total={totalExpenses}
                 color="bg-chart-6"
@@ -412,7 +405,6 @@ export const CashFlowDiagram = memo(({
           
           <FlowArrow direction="down" delay={1.7} />
           
-          {/* Profit/Loss Result */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -421,16 +413,15 @@ export const CashFlowDiagram = memo(({
           >
             <FlowNode
               icon={profit >= 0 ? <PiggyBank className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
-              label={profit >= 0 ? "Чистая прибыль" : "Убыток"}
-              value={formatCurrency(Math.abs(profit), currency)}
-              subLabel={`${profitMargin >= 0 ? "+" : ""}${profitMargin.toFixed(1)}% маржа`}
+              label={profit >= 0 ? t("cashFlowDiagram.netProfit") : t("cashFlowDiagram.loss")}
+              value={fc2(Math.abs(profit))}
+              subLabel={t("cashFlowDiagram.marginSuffix", { value: `${profitMargin >= 0 ? "+" : ""}${profitMargin.toFixed(1)}` })}
               variant={profit >= 0 ? "profit" : "expense"}
               delay={1.9}
             />
           </motion.div>
         </div>
         
-        {/* Summary Stats */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -440,32 +431,23 @@ export const CashFlowDiagram = memo(({
           <div className="text-center">
             <p className="text-xs text-muted-foreground">CAC</p>
             <p className="font-bold text-primary">
-              {totalClients > 0 
-                ? formatCurrency(marketingCosts / totalClients, currency)
-                : "—"
-              }
+              {totalClients > 0 ? fc2(marketingCosts / totalClients) : "—"}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Средний чек</p>
+            <p className="text-xs text-muted-foreground">{t("cashFlowDiagram.avgCheck")}</p>
             <p className="font-bold text-primary">
-              {totalClients > 0 
-                ? formatCurrency(revenue / totalClients, currency)
-                : "—"
-              }
+              {totalClients > 0 ? fc2(revenue / totalClients) : "—"}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Прибыль/клиент</p>
+            <p className="text-xs text-muted-foreground">{t("cashFlowDiagram.profitPerClient")}</p>
             <p className={`font-bold ${profit >= 0 ? "text-success" : "text-destructive"}`}>
-              {totalClients > 0 
-                ? formatCurrency(profit / totalClients, currency)
-                : "—"
-              }
+              {totalClients > 0 ? fc2(profit / totalClients) : "—"}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">Рентабельность</p>
+            <p className="text-xs text-muted-foreground">{t("cashFlowDiagram.profitability")}</p>
             <p className={`font-bold ${profitMargin >= 0 ? "text-success" : "text-destructive"}`}>
               {profitMargin.toFixed(1)}%
             </p>
