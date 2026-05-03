@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Metrics, Competitor } from "@/hooks/useProject";
 import { calculateProfit, calculateProfitMargin, calculateCAC } from "@/utils/metricsCalculations";
 import { AlertCircle, TrendingUp, TrendingDown, Minus, CheckCircle, Zap } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface CompetitiveSimulatorProps {
   myCompany: Metrics;
@@ -28,18 +29,12 @@ interface SimulationRound {
   competitorAvgPrice: number;
 }
 
-interface Strategy {
-  type: 'cooperate' | 'defect';
-  label: string;
-  description: string;
-}
-
-const STRATEGIES: Strategy[] = [
-  { type: 'cooperate', label: 'Сотрудничество', description: 'Держать цены стабильными' },
-  { type: 'defect', label: 'Предательство', description: 'Снизить цены агрессивно' },
-];
-
 export const CompetitiveSimulator = ({ myCompany, competitors, currency }: CompetitiveSimulatorProps) => {
+  const { t, language } = useTranslation();
+  const localeMap: Record<string, string> = { ru: "ru-RU", en: "en-US", ro: "ro-RO" };
+  const locale = localeMap[language] ?? "en-US";
+  const fmt = (n: number) => Math.round(n).toLocaleString(locale);
+
   // Price War State
   const [priceReduction, setPriceReduction] = useState(10);
   const [marketingIncrease, setMarketingIncrease] = useState(15);
@@ -72,20 +67,16 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
     let currentMarketShare = 100 / (competitors.length + 1);
 
     for (let i = 1; i <= rounds; i++) {
-      // Apply price reduction and marketing increase
       currentPrice = currentPrice * (1 - priceReduction / 100);
       currentMarketing = currentMarketing * (1 + marketingIncrease / 100);
-      
-      // Market share increases with lower prices and more marketing
+
       const marketShareGain = (priceReduction / 10) * 0.5 + (marketingIncrease / 10) * 0.3;
       currentMarketShare = Math.min(currentMarketShare * (1 + marketShareGain / 100), 40);
 
-      // Calculate new metrics
       const newRevenue = (myCompany.revenue || 0) * (1 + marketShareGain / 100);
       const newProfit = newRevenue - (myCompany.fixedCosts || 0) - currentMarketing - (myCompany.variableCosts || 0);
       const newMargin = (newProfit / newRevenue) * 100;
 
-      // Competitors react by also reducing prices (lag by 1 round)
       const competitorPriceReduction = i > 1 ? priceReduction * 0.7 : 0;
       const competitorProfit = baseProfit * (1 - competitorPriceReduction / 100) * (1 - marketShareGain / 200);
       const competitorMargin = baseMargin * (1 - competitorPriceReduction / 100);
@@ -106,16 +97,14 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
   };
 
   const runCooperation = () => {
-    // Cooperation scenario: stable prices, shared marketing insights
     const revenueBoost = cooperationBonus / 100;
-    const costReduction = cooperationBonus / 150; // Sharing resources reduces costs
+    const costReduction = cooperationBonus / 150;
 
     const newRevenue = (myCompany.revenue || 0) * (1 + revenueBoost);
     const newCosts = ((myCompany.fixedCosts || 0) + (myCompany.marketingCosts || 0) + (myCompany.variableCosts || 0)) * (1 - costReduction);
     const newProfit = newRevenue - newCosts;
     const newMargin = (newProfit / newRevenue) * 100;
 
-    // Competitors also benefit
     const competitorRevenue = (myCompany.revenue || 0) * 0.9 * (1 + revenueBoost);
     const competitorCosts = newCosts * 0.85;
     const competitorProfit = competitorRevenue - competitorCosts;
@@ -146,19 +135,17 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
 
   const playTitForTatRound = (myAction: 'cooperate' | 'defect') => {
     const lastRound = titForTatHistory[titForTatHistory.length - 1];
-    
+
     let competitorAction: 'cooperate' | 'defect';
-    
+
     if (competitorStrategy === 'always-cooperate') {
       competitorAction = 'cooperate';
     } else if (competitorStrategy === 'always-defect') {
       competitorAction = 'defect';
     } else {
-      // Tit-for-Tat: copy opponent's last move
       competitorAction = lastRound ? lastRound.myAction : 'cooperate';
     }
 
-    // Payoff matrix
     const payoffs = {
       'cooperate-cooperate': { me: baseProfit * 1.05, competitor: baseProfit * 1.05 },
       'cooperate-defect': { me: baseProfit * 0.7, competitor: baseProfit * 1.2 },
@@ -186,58 +173,59 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
   };
 
   const generateRecommendations = () => {
-    const recommendations = [];
+    const recommendations: Array<{ type: 'warning' | 'success' | 'info'; title: string; description: string; strategy: string; }> = [];
 
-    // Analyze current position
     const myMarketShare = 100 / (competitors.length + 1);
-    const avgCompetitorRevenue = competitors.reduce((sum, c) => sum + (c.revenue || 0), 0) / competitors.length;
+    const avgCompetitorRevenue = competitors.length
+      ? competitors.reduce((sum, c) => sum + (c.revenue || 0), 0) / competitors.length
+      : 0;
     const myRevenue = myCompany.revenue || 0;
     const isMarketLeader = myRevenue > avgCompetitorRevenue;
 
     if (baseMargin < 15) {
       recommendations.push({
         type: 'warning',
-        title: 'Низкая маржинальность',
-        description: 'Ваша маржа ниже 15%. Избегайте ценовых войн - они могут привести к убыткам.',
-        strategy: 'Сфокусируйтесь на дифференциации продукта и повышении воспринимаемой ценности.'
+        title: t('theory.simRecLowMarginTitle'),
+        description: t('theory.simRecLowMarginDesc'),
+        strategy: t('theory.simRecLowMarginStrategy'),
       });
     }
 
     if (isMarketLeader) {
       recommendations.push({
         type: 'success',
-        title: 'Лидер рынка',
-        description: 'Вы опережаете конкурентов по выручке.',
-        strategy: 'Кооперация выгодна - вы можете задавать правила игры. Рассмотрите стратегию "живи и дай жить другим".'
+        title: t('theory.simRecLeaderTitle'),
+        description: t('theory.simRecLeaderDesc'),
+        strategy: t('theory.simRecLeaderStrategy'),
       });
     } else {
       recommendations.push({
         type: 'info',
-        title: 'Догоняющая позиция',
-        description: 'Ваша выручка ниже среднего конкурента.',
-        strategy: 'Рассмотрите агрессивную стратегию захвата доли рынка, но следите за точкой безубыточности.'
+        title: t('theory.simRecCatchUpTitle'),
+        description: t('theory.simRecCatchUpDesc'),
+        strategy: t('theory.simRecCatchUpStrategy'),
       });
     }
 
     if (myMarketShare < 20 && competitors.length > 2) {
       recommendations.push({
         type: 'info',
-        title: 'Фрагментированный рынок',
-        description: 'Рынок разделён между многими игроками.',
-        strategy: 'Рекомендуем стратегию Tit-for-Tat: отвечайте на действия конкурентов симметрично, но начинайте с кооперации.'
+        title: t('theory.simRecFragmentedTitle'),
+        description: t('theory.simRecFragmentedDesc'),
+        strategy: t('theory.simRecFragmentedStrategy'),
       });
     }
 
     const cac = calculateCAC(myCompany);
     const ltv = (myCompany.customerLifetimeMonths || 12) * (myCompany.purchaseFrequency || 1) * (myCompany.avgCheck || 0);
-    const ltvCacRatio = ltv / cac;
+    const ltvCacRatio = cac > 0 ? ltv / cac : 0;
 
-    if (ltvCacRatio < 3) {
+    if (ltvCacRatio < 3 && cac > 0) {
       recommendations.push({
         type: 'warning',
-        title: 'Низкий LTV/CAC',
-        description: `Ваш показатель LTV/CAC = ${ltvCacRatio.toFixed(1)} (норма > 3).`,
-        strategy: 'Ценовая война противопоказана. Инвестируйте в удержание клиентов и повышение LTV.'
+        title: t('theory.simRecLowLtvCacTitle'),
+        description: t('theory.simRecLowLtvCacDesc', { ratio: ltvCacRatio.toFixed(1) }),
+        strategy: t('theory.simRecLowLtvCacStrategy'),
       });
     }
 
@@ -246,58 +234,59 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
 
   const recommendations = generateRecommendations();
 
-  // Compare all scenarios
+  const lastPW = priceWarResults[priceWarResults.length - 1];
+
   const scenarioComparison = [
     {
-      name: 'Текущее состояние',
+      name: t('theory.simScenBaseline'),
       profit: baseProfit,
       margin: baseMargin,
-      risk: 'Низкий',
-      recommendation: 'Базовая линия для сравнения'
+      risk: t('theory.simRiskLow'),
+      recommendation: t('theory.simRecBaselineDesc'),
     },
     {
-      name: 'Ценовая война (5 раундов)',
-      profit: priceWarResults.length > 0 ? priceWarResults[priceWarResults.length - 1].myProfit : 0,
-      margin: priceWarResults.length > 0 ? priceWarResults[priceWarResults.length - 1].myMargin : 0,
-      risk: 'Высокий',
-      recommendation: priceWarResults.length > 0 && priceWarResults[priceWarResults.length - 1].myProfit < baseProfit 
-        ? 'Убыточно - не рекомендуется' 
-        : 'Возможно при высокой марже'
+      name: t('theory.simScenPriceWar', { rounds }),
+      profit: lastPW ? lastPW.myProfit : 0,
+      margin: lastPW ? lastPW.myMargin : 0,
+      risk: t('theory.simRiskHigh'),
+      recommendation: lastPW && lastPW.myProfit < baseProfit
+        ? t('theory.simRecPriceWarLossDesc')
+        : t('theory.simRecPriceWarOkDesc'),
     },
     {
-      name: 'Кооперация',
+      name: t('theory.simScenCooperation'),
       profit: cooperationResults?.after.myProfit || 0,
       margin: cooperationResults?.after.myMargin || 0,
-      risk: 'Средний',
+      risk: t('theory.simRiskMid'),
       recommendation: cooperationResults && cooperationResults.after.myProfit > baseProfit
-        ? 'Выгодно для всех участников'
-        : 'Запустите симуляцию'
+        ? t('theory.simRecCoopOkDesc')
+        : t('theory.simRecRunSim'),
     },
     {
-      name: 'Tit-for-Tat',
-      profit: titForTatHistory.length > 0 
+      name: t('theory.simScenTitForTat'),
+      profit: titForTatHistory.length > 0
         ? titForTatHistory.reduce((sum, r) => sum + r.myProfit, 0) / titForTatHistory.length
         : 0,
       margin: baseMargin,
-      risk: 'Низкий',
+      risk: t('theory.simRiskLow'),
       recommendation: titForTatHistory.length > 0
-        ? 'Адаптивная стратегия'
-        : 'Запустите симуляцию'
-    }
+        ? t('theory.simRecTitAdaptive')
+        : t('theory.simRecRunSim'),
+    },
   ];
+
+  const riskLowLabel = t('theory.simRiskLow');
+  const riskMidLabel = t('theory.simRiskMid');
 
   return (
     <div className="space-y-6">
-      {/* Automatic Recommendations */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
-            Автоматические рекомендации
+            {t('theory.simAutoRecsTitle')}
           </CardTitle>
-          <CardDescription>
-            Анализ вашей текущей позиции и рекомендуемые стратегии
-          </CardDescription>
+          <CardDescription>{t('theory.simAutoRecsDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {recommendations.map((rec, idx) => (
@@ -323,25 +312,23 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
 
       <Tabs defaultValue="price-war" className="w-full">
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-          <TabsTrigger value="price-war">Ценовая война</TabsTrigger>
-          <TabsTrigger value="cooperation">Кооперация</TabsTrigger>
-          <TabsTrigger value="tit-for-tat">Tit-for-Tat</TabsTrigger>
-          <TabsTrigger value="comparison">Сравнение</TabsTrigger>
+          <TabsTrigger value="price-war">{t('theory.simTabPriceWar')}</TabsTrigger>
+          <TabsTrigger value="cooperation">{t('theory.simTabCooperation')}</TabsTrigger>
+          <TabsTrigger value="tit-for-tat">{t('theory.simTabTitForTat')}</TabsTrigger>
+          <TabsTrigger value="comparison">{t('theory.simTabComparison')}</TabsTrigger>
         </TabsList>
 
         {/* Price War Tab */}
         <TabsContent value="price-war" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Симуляция ценовой войны</CardTitle>
-              <CardDescription>
-                Многораундовая симуляция ценовой конкуренции с реакцией конкурентов
-              </CardDescription>
+              <CardTitle>{t('theory.simPriceWarCardTitle')}</CardTitle>
+              <CardDescription>{t('theory.simPriceWarCardDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Снижение цены (%)</Label>
+                  <Label>{t('theory.simPriceReduction')}</Label>
                   <Slider
                     value={[priceReduction]}
                     onValueChange={(v) => setPriceReduction(v[0])}
@@ -353,7 +340,7 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Рост маркетинга (%)</Label>
+                  <Label>{t('theory.simMarketingIncrease')}</Label>
                   <Slider
                     value={[marketingIncrease]}
                     onValueChange={(v) => setMarketingIncrease(v[0])}
@@ -365,7 +352,7 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Количество раундов</Label>
+                  <Label>{t('theory.simRounds')}</Label>
                   <Input
                     type="number"
                     value={rounds}
@@ -377,37 +364,37 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
               </div>
 
               <Button onClick={runPriceWar} className="w-full">
-                Запустить симуляцию
+                {t('theory.simRun')}
               </Button>
 
-              {priceWarResults.length > 0 && (
+              {priceWarResults.length > 0 && lastPW && (
                 <>
                   <div className="space-y-4">
-                    <h4 className="font-semibold">Динамика прибыли</h4>
+                    <h4 className="font-semibold">{t('theory.simProfitDynamics')}</h4>
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={priceWarResults}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="round" label={{ value: 'Раунд', position: 'insideBottom', offset: -5 }} />
-                        <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: 'insideLeft' }} />
+                        <XAxis dataKey="round" label={{ value: t('theory.simRound'), position: 'insideBottom', offset: -5 }} />
+                        <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="myProfit" stroke="hsl(var(--primary))" name="Моя прибыль" strokeWidth={2} />
-                        <Line type="monotone" dataKey="competitorAvgProfit" stroke="hsl(var(--destructive))" name="Конкуренты" strokeWidth={2} />
+                        <Line type="monotone" dataKey="myProfit" stroke="hsl(var(--primary))" name={t('theory.simMyProfit')} strokeWidth={2} />
+                        <Line type="monotone" dataKey="competitorAvgProfit" stroke="hsl(var(--destructive))" name={t('theory.simCompetitorProfit')} strokeWidth={2} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-semibold">Динамика маржи</h4>
+                    <h4 className="font-semibold">{t('theory.simMarginDynamics')}</h4>
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={priceWarResults}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="round" label={{ value: 'Раунд', position: 'insideBottom', offset: -5 }} />
-                        <YAxis label={{ value: 'Маржа (%)', angle: -90, position: 'insideLeft' }} />
+                        <XAxis dataKey="round" label={{ value: t('theory.simRound'), position: 'insideBottom', offset: -5 }} />
+                        <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="myMargin" stroke="hsl(var(--primary))" name="Моя маржа" strokeWidth={2} />
-                        <Line type="monotone" dataKey="competitorAvgMargin" stroke="hsl(var(--destructive))" name="Конкуренты" strokeWidth={2} />
+                        <Line type="monotone" dataKey="myMargin" stroke="hsl(var(--primary))" name={t('theory.simMyMargin')} strokeWidth={2} />
+                        <Line type="monotone" dataKey="competitorAvgMargin" stroke="hsl(var(--destructive))" name={t('theory.simCompetitorProfit')} strokeWidth={2} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -415,58 +402,50 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Card>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Финальная прибыль</CardTitle>
+                        <CardTitle className="text-sm">{t('theory.simFinalProfit')}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-2xl font-bold">
-                          {priceWarResults[priceWarResults.length - 1].myProfit.toLocaleString()} {currency}
-                        </p>
-                        <p className={`text-sm ${priceWarResults[priceWarResults.length - 1].myProfit < baseProfit ? 'text-destructive' : 'text-green-500'}`}>
-                          {priceWarResults[priceWarResults.length - 1].myProfit < baseProfit ? '↓' : '↑'} 
-                          {' '}{Math.abs(((priceWarResults[priceWarResults.length - 1].myProfit - baseProfit) / baseProfit * 100)).toFixed(1)}%
+                        <p className="text-2xl font-bold">{fmt(lastPW.myProfit)} {currency}</p>
+                        <p className={`text-sm ${lastPW.myProfit < baseProfit ? 'text-destructive' : 'text-green-500'}`}>
+                          {lastPW.myProfit < baseProfit ? '↓' : '↑'}{' '}
+                          {Math.abs(((lastPW.myProfit - baseProfit) / baseProfit * 100)).toFixed(1)}%
                         </p>
                       </CardContent>
                     </Card>
 
                     <Card>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Финальная маржа</CardTitle>
+                        <CardTitle className="text-sm">{t('theory.simFinalMargin')}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-2xl font-bold">
-                          {priceWarResults[priceWarResults.length - 1].myMargin.toFixed(1)}%
-                        </p>
-                        <p className={`text-sm ${priceWarResults[priceWarResults.length - 1].myMargin < baseMargin ? 'text-destructive' : 'text-green-500'}`}>
-                          {priceWarResults[priceWarResults.length - 1].myMargin < baseMargin ? '↓' : '↑'}
-                          {' '}{Math.abs(priceWarResults[priceWarResults.length - 1].myMargin - baseMargin).toFixed(1)}%
+                        <p className="text-2xl font-bold">{lastPW.myMargin.toFixed(1)}%</p>
+                        <p className={`text-sm ${lastPW.myMargin < baseMargin ? 'text-destructive' : 'text-green-500'}`}>
+                          {lastPW.myMargin < baseMargin ? '↓' : '↑'}{' '}
+                          {Math.abs(lastPW.myMargin - baseMargin).toFixed(1)}%
                         </p>
                       </CardContent>
                     </Card>
 
                     <Card>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Финальная цена</CardTitle>
+                        <CardTitle className="text-sm">{t('theory.simFinalPrice')}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-2xl font-bold">
-                          {priceWarResults[priceWarResults.length - 1].myPrice.toLocaleString()} {currency}
-                        </p>
+                        <p className="text-2xl font-bold">{fmt(lastPW.myPrice)} {currency}</p>
                         <p className="text-sm text-destructive">
-                          ↓ {((1 - priceWarResults[priceWarResults.length - 1].myPrice / basePrice) * 100).toFixed(1)}%
+                          ↓ {((1 - lastPW.myPrice / basePrice) * 100).toFixed(1)}%
                         </p>
                       </CardContent>
                     </Card>
 
                     <Card>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Доля рынка</CardTitle>
+                        <CardTitle className="text-sm">{t('theory.simMarketShareLabel')}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-2xl font-bold">
-                          {priceWarResults[priceWarResults.length - 1].myMarketShare.toFixed(1)}%
-                        </p>
+                        <p className="text-2xl font-bold">{lastPW.myMarketShare.toFixed(1)}%</p>
                         <p className="text-sm text-green-500">
-                          ↑ {(priceWarResults[priceWarResults.length - 1].myMarketShare - 100 / (competitors.length + 1)).toFixed(1)}%
+                          ↑ {(lastPW.myMarketShare - 100 / (competitors.length + 1)).toFixed(1)}%
                         </p>
                       </CardContent>
                     </Card>
@@ -481,14 +460,12 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
         <TabsContent value="cooperation" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Симуляция кооперации</CardTitle>
-              <CardDescription>
-                Моделирование взаимной выгоды при совместных действиях
-              </CardDescription>
+              <CardTitle>{t('theory.simCooperationCardTitle')}</CardTitle>
+              <CardDescription>{t('theory.simCooperationCardDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label>Бонус от кооперации (%)</Label>
+                <Label>{t('theory.simCooperationBonus')}</Label>
                 <Slider
                   value={[cooperationBonus]}
                   onValueChange={(v) => setCooperationBonus(v[0])}
@@ -497,12 +474,12 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                   step={1}
                 />
                 <p className="text-sm text-muted-foreground">
-                  {cooperationBonus}% - совместный рост выручки за счёт рыночных синергий
+                  {t('theory.simCooperationHint', { value: cooperationBonus })}
                 </p>
               </div>
 
               <Button onClick={runCooperation} className="w-full">
-                Рассчитать эффект кооперации
+                {t('theory.simRunCooperation')}
               </Button>
 
               {cooperationResults && (
@@ -510,54 +487,48 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">До кооперации</CardTitle>
+                        <CardTitle className="text-base">{t('theory.simBefore')}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm">Моя прибыль:</span>
-                          <span className="font-semibold">{cooperationResults.before.myProfit.toLocaleString()} {currency}</span>
+                          <span className="text-sm">{t('theory.simMyProfitLabel')}</span>
+                          <span className="font-semibold">{fmt(cooperationResults.before.myProfit)} {currency}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm">Моя маржа:</span>
+                          <span className="text-sm">{t('theory.simMyMarginLabel')}</span>
                           <span className="font-semibold">{cooperationResults.before.myMargin.toFixed(1)}%</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm">Прибыль конкурента:</span>
-                          <span className="font-semibold">{cooperationResults.before.competitorProfit.toLocaleString()} {currency}</span>
+                          <span className="text-sm">{t('theory.simCompetitorProfitLabel')}</span>
+                          <span className="font-semibold">{fmt(cooperationResults.before.competitorProfit)} {currency}</span>
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">После кооперации</CardTitle>
+                        <CardTitle className="text-base">{t('theory.simAfter')}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm">Моя прибыль:</span>
+                          <span className="text-sm">{t('theory.simMyProfitLabel')}</span>
                           <span className="font-semibold text-green-500">
-                            {cooperationResults.after.myProfit.toLocaleString()} {currency}
-                            <span className="text-xs ml-1">
-                              (+{cooperationResults.improvements.myProfitChange.toFixed(1)}%)
-                            </span>
+                            {fmt(cooperationResults.after.myProfit)} {currency}
+                            <span className="text-xs ml-1">(+{cooperationResults.improvements.myProfitChange.toFixed(1)}%)</span>
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm">Моя маржа:</span>
+                          <span className="text-sm">{t('theory.simMyMarginLabel')}</span>
                           <span className="font-semibold text-green-500">
                             {cooperationResults.after.myMargin.toFixed(1)}%
-                            <span className="text-xs ml-1">
-                              (+{cooperationResults.improvements.myMarginChange.toFixed(1)}%)
-                            </span>
+                            <span className="text-xs ml-1">(+{cooperationResults.improvements.myMarginChange.toFixed(1)}%)</span>
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm">Прибыль конкурента:</span>
+                          <span className="text-sm">{t('theory.simCompetitorProfitLabel')}</span>
                           <span className="font-semibold text-green-500">
-                            {cooperationResults.after.competitorProfit.toLocaleString()} {currency}
-                            <span className="text-xs ml-1">
-                              (+{cooperationResults.improvements.competitorProfitChange.toFixed(1)}%)
-                            </span>
+                            {fmt(cooperationResults.after.competitorProfit)} {currency}
+                            <span className="text-xs ml-1">(+{cooperationResults.improvements.competitorProfitChange.toFixed(1)}%)</span>
                           </span>
                         </div>
                       </CardContent>
@@ -567,12 +538,9 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                   <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
                     <h4 className="font-semibold mb-2 flex items-center gap-2">
                       <CheckCircle className="h-5 w-5 text-green-500" />
-                      Взаимная выгода
+                      {t('theory.simMutualBenefitTitle')}
                     </h4>
-                    <p className="text-sm text-muted-foreground">
-                      Кооперация увеличивает прибыль обеих сторон. Это win-win стратегия, 
-                      особенно эффективная на стабильных рынках с высокими барьерами входа.
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('theory.simMutualBenefitDesc')}</p>
                   </div>
                 </>
               )}
@@ -584,35 +552,33 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
         <TabsContent value="tit-for-tat" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Стратегия Tit-for-Tat</CardTitle>
-              <CardDescription>
-                Пошаговая симуляция с выбором действий и реакцией конкурента
-              </CardDescription>
+              <CardTitle>{t('theory.simTitForTatCardTitle')}</CardTitle>
+              <CardDescription>{t('theory.simTitForTatCardDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label>Стратегия конкурента</Label>
-                <div className="flex gap-2">
+                <Label>{t('theory.simCompetitorStrategy')}</Label>
+                <div className="flex gap-2 flex-wrap">
                   <Button
                     variant={competitorStrategy === 'tit-for-tat' ? 'default' : 'outline'}
                     onClick={() => setCompetitorStrategy('tit-for-tat')}
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                   >
-                    Tit-for-Tat
+                    {t('theory.simStratTitForTat')}
                   </Button>
                   <Button
                     variant={competitorStrategy === 'always-cooperate' ? 'default' : 'outline'}
                     onClick={() => setCompetitorStrategy('always-cooperate')}
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                   >
-                    Всегда кооперация
+                    {t('theory.simStratAlwaysCooperate')}
                   </Button>
                   <Button
                     variant={competitorStrategy === 'always-defect' ? 'default' : 'outline'}
                     onClick={() => setCompetitorStrategy('always-defect')}
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                   >
-                    Всегда агрессия
+                    {t('theory.simStratAlwaysDefect')}
                   </Button>
                 </div>
               </div>
@@ -625,8 +591,8 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                 >
                   <div className="text-center">
                     <CheckCircle className="h-6 w-6 mx-auto mb-2 text-green-500" />
-                    <div className="font-semibold">Кооперация</div>
-                    <div className="text-xs text-muted-foreground">Держать цены стабильными</div>
+                    <div className="font-semibold">{t('theory.simYouCoop')}</div>
+                    <div className="text-xs text-muted-foreground">{t('theory.simYouCoopDesc')}</div>
                   </div>
                 </Button>
 
@@ -637,8 +603,8 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                 >
                   <div className="text-center">
                     <TrendingDown className="h-6 w-6 mx-auto mb-2 text-destructive" />
-                    <div className="font-semibold">Агрессия</div>
-                    <div className="text-xs text-muted-foreground">Снизить цены</div>
+                    <div className="font-semibold">{t('theory.simYouDefect')}</div>
+                    <div className="text-xs text-muted-foreground">{t('theory.simYouDefectDesc')}</div>
                   </div>
                 </Button>
               </div>
@@ -646,32 +612,34 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
               {titForTatHistory.length > 0 && (
                 <>
                   <Button onClick={resetTitForTat} variant="outline" className="w-full">
-                    Сбросить симуляцию
+                    {t('theory.simResetSim')}
                   </Button>
 
                   <div className="space-y-4">
-                    <h4 className="font-semibold">История раундов</h4>
+                    <h4 className="font-semibold">{t('theory.simHistoryTitle')}</h4>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {titForTatHistory.map((round) => (
                         <div key={round.round} className="p-3 bg-muted rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-semibold">Раунд {round.round}</span>
-                            <div className="flex gap-4 text-sm">
+                          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                            <span className="font-semibold">{t('theory.simRound')} {round.round}</span>
+                            <div className="flex gap-4 text-sm flex-wrap">
                               <span>
-                                Вы: <Badge variant={round.myAction === 'cooperate' ? 'default' : 'destructive'}>
-                                  {round.myAction === 'cooperate' ? 'Кооперация' : 'Агрессия'}
+                                {t('theory.simYouShort')}{' '}
+                                <Badge variant={round.myAction === 'cooperate' ? 'default' : 'destructive'}>
+                                  {round.myAction === 'cooperate' ? t('theory.simYouCoop') : t('theory.simYouDefect')}
                                 </Badge>
                               </span>
                               <span>
-                                Конкурент: <Badge variant={round.competitorAction === 'cooperate' ? 'default' : 'destructive'}>
-                                  {round.competitorAction === 'cooperate' ? 'Кооперация' : 'Агрессия'}
+                                {t('theory.simCompetitorShort')}{' '}
+                                <Badge variant={round.competitorAction === 'cooperate' ? 'default' : 'destructive'}>
+                                  {round.competitorAction === 'cooperate' ? t('theory.simYouCoop') : t('theory.simYouDefect')}
                                 </Badge>
                               </span>
                             </div>
                           </div>
-                          <div className="flex justify-between text-sm">
-                            <span>Ваша прибыль: {round.myProfit.toLocaleString()} {currency}</span>
-                            <span>Прибыль конкурента: {round.competitorProfit.toLocaleString()} {currency}</span>
+                          <div className="flex justify-between text-sm flex-wrap gap-2">
+                            <span>{t('theory.simYourProfit')}: {fmt(round.myProfit)} {currency}</span>
+                            <span>{t('theory.simCompProfit')}: {fmt(round.competitorProfit)} {currency}</span>
                           </div>
                         </div>
                       ))}
@@ -680,18 +648,18 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                     <div className="grid grid-cols-2 gap-4">
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">Средняя прибыль</CardTitle>
+                          <CardTitle className="text-sm">{t('theory.simAvgProfit')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <p className="text-2xl font-bold">
-                            {(titForTatHistory.reduce((sum, r) => sum + r.myProfit, 0) / titForTatHistory.length).toLocaleString()} {currency}
+                            {fmt(titForTatHistory.reduce((sum, r) => sum + r.myProfit, 0) / titForTatHistory.length)} {currency}
                           </p>
                         </CardContent>
                       </Card>
 
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">Всего раундов</CardTitle>
+                          <CardTitle className="text-sm">{t('theory.simTotalRounds')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <p className="text-2xl font-bold">{titForTatHistory.length}</p>
@@ -702,12 +670,12 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={titForTatHistory}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="round" label={{ value: 'Раунд', position: 'insideBottom', offset: -5 }} />
-                        <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: 'insideLeft' }} />
+                        <XAxis dataKey="round" label={{ value: t('theory.simRound'), position: 'insideBottom', offset: -5 }} />
+                        <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="myProfit" stroke="hsl(var(--primary))" name="Моя прибыль" strokeWidth={2} />
-                        <Line type="monotone" dataKey="competitorProfit" stroke="hsl(var(--destructive))" name="Конкурент" strokeWidth={2} />
+                        <Line type="monotone" dataKey="myProfit" stroke="hsl(var(--primary))" name={t('theory.simMyProfit')} strokeWidth={2} />
+                        <Line type="monotone" dataKey="competitorProfit" stroke="hsl(var(--destructive))" name={t('theory.simCompetitorProfit')} strokeWidth={2} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -721,21 +689,19 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
         <TabsContent value="comparison" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Сравнение всех сценариев</CardTitle>
-              <CardDescription>
-                Анализ эффективности различных конкурентных стратегий
-              </CardDescription>
+              <CardTitle>{t('theory.simComparisonCardTitle')}</CardTitle>
+              <CardDescription>{t('theory.simComparisonCardDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-2">Сценарий</th>
-                      <th className="text-right p-2">Прибыль ({currency})</th>
-                      <th className="text-right p-2">Маржа (%)</th>
-                      <th className="text-center p-2">Риск</th>
-                      <th className="text-left p-2">Рекомендация</th>
+                      <th className="text-left p-2">{t('theory.simScenarioCol')}</th>
+                      <th className="text-right p-2">{t('theory.simProfitCol', { currency })}</th>
+                      <th className="text-right p-2">{t('theory.simMarginCol')}</th>
+                      <th className="text-center p-2">{t('theory.simRiskCol')}</th>
+                      <th className="text-left p-2">{t('theory.simRecCol')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -743,15 +709,15 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
                       <tr key={idx} className="border-b">
                         <td className="p-2 font-medium">{scenario.name}</td>
                         <td className="text-right p-2">
-                          {scenario.profit > 0 ? scenario.profit.toLocaleString() : '-'}
+                          {scenario.profit > 0 ? fmt(scenario.profit) : '-'}
                         </td>
                         <td className="text-right p-2">
                           {scenario.margin > 0 ? scenario.margin.toFixed(1) : '-'}
                         </td>
                         <td className="text-center p-2">
                           <Badge variant={
-                            scenario.risk === 'Низкий' ? 'default' :
-                            scenario.risk === 'Средний' ? 'secondary' :
+                            scenario.risk === riskLowLabel ? 'default' :
+                            scenario.risk === riskMidLabel ? 'secondary' :
                             'destructive'
                           }>
                             {scenario.risk}
@@ -767,12 +733,12 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
               </div>
 
               <div className="space-y-4">
-                <h4 className="font-semibold">Сравнение прибыли по сценариям</h4>
+                <h4 className="font-semibold">{t('theory.simProfitByScenario')}</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={scenarioComparison.filter(s => s.profit > 0)}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" angle={-15} textAnchor="end" height={80} />
-                    <YAxis label={{ value: `Прибыль (${currency})`, angle: -90, position: 'insideLeft' }} />
+                    <YAxis />
                     <Tooltip />
                     <Bar dataKey="profit" fill="hsl(var(--primary))" />
                   </BarChart>
@@ -780,13 +746,13 @@ export const CompetitiveSimulator = ({ myCompany, competitors, currency }: Compe
               </div>
 
               <div className="p-4 bg-muted rounded-lg">
-                <h4 className="font-semibold mb-2">Итоговые рекомендации</h4>
+                <h4 className="font-semibold mb-2">{t('theory.simFinalRecsTitle')}</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• <strong>Высокая маржа (&gt;20%):</strong> Можно рассматривать агрессивные стратегии</li>
-                  <li>• <strong>Средняя маржа (10-20%):</strong> Рекомендуется адаптивная стратегия Tit-for-Tat</li>
-                  <li>• <strong>Низкая маржа (&lt;10%):</strong> Приоритет - кооперация и дифференциация</li>
-                  <li>• <strong>Фрагментированный рынок:</strong> Кооперация может быть выгодна всем игрокам</li>
-                  <li>• <strong>Концентрированный рынок:</strong> Ценовая война приведёт к общим потерям</li>
+                  <li>• {t('theory.simFinalRec1')}</li>
+                  <li>• {t('theory.simFinalRec2')}</li>
+                  <li>• {t('theory.simFinalRec3')}</li>
+                  <li>• {t('theory.simFinalRec4')}</li>
+                  <li>• {t('theory.simFinalRec5')}</li>
                 </ul>
               </div>
             </CardContent>
