@@ -86,6 +86,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     (path: string, vars?: Record<string, string | number>) => {
       const direct = lookup(language, path);
       if (direct !== undefined) return applyVars(direct, vars);
+      // Fallback chain: selected -> English -> key.
+      // We deliberately do NOT fall back to Russian so that EN/RO never
+      // silently render Cyrillic when a key is missing.
+      const englishFallback = lookup("en", path);
+      if (englishFallback !== undefined) return applyVars(englishFallback, vars);
+      // Final fallback to default (RU) only if English also missing.
       const fallback = lookup(DEFAULT_LANGUAGE, path);
       if (fallback !== undefined) return applyVars(fallback, vars);
       return path;
