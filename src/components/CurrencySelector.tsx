@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface CurrencySelectorProps {
   currency: string;
@@ -15,44 +16,37 @@ interface CurrencySelectorProps {
   isAuthenticated: boolean;
 }
 
+const CURRENCY_CODES = ["RUB", "USD", "EUR", "KZT", "BYN", "UAH", "MDL", "RON"] as const;
+
 export const CurrencySelector = ({
   currency,
   onCurrencyChange,
-  isAuthenticated,
 }: CurrencySelectorProps) => {
-  const currencies = [
-    { value: "RUB", label: "₽ Рубль (RUB)" },
-    { value: "USD", label: "$ Доллар (USD)" },
-    { value: "EUR", label: "€ Евро (EUR)" },
-    { value: "KZT", label: "₸ Тенге (KZT)" },
-    { value: "BYN", label: "Br Белорусский рубль (BYN)" },
-    { value: "UAH", label: "₴ Гривна (UAH)" },
-    { value: "MDL", label: "L Молдавский лей (MDL)" },
-    { value: "RON", label: "lei Румынский лей (RON)" },
-  ];
+  const { t } = useTranslation();
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-primary" />
-          Валюта
+          {t("projectSettings.currencyLabel")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <Label htmlFor="currency">Выберите валюту</Label>
-          <Select
-            value={currency}
-            onValueChange={onCurrencyChange}
-          >
+          <Label htmlFor="currency">{t("projectSettings.currencyLabel")}</Label>
+          <Select value={currency} onValueChange={onCurrencyChange}>
             <SelectTrigger id="currency">
-              <SelectValue placeholder="Выберите валюту" />
+              {/* Show only the short ISO code on the trigger to avoid
+                  visual duplication like "MDL  L Молдавский лей (MDL)". */}
+              <SelectValue placeholder={t("projectSettings.currencyLabel")}>
+                {currency}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {currencies.map((curr) => (
-                <SelectItem key={curr.value} value={curr.value}>
-                  {curr.label}
+              {CURRENCY_CODES.map((code) => (
+                <SelectItem key={code} value={code}>
+                  {t(`currencies.${code}`)}
                 </SelectItem>
               ))}
             </SelectContent>
