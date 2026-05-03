@@ -140,7 +140,7 @@ export const LogisticsTariffs = ({
                     key={type}
                     className="grid grid-cols-4 gap-2 items-center p-2 bg-muted/30 rounded-lg"
                   >
-                    <span className="font-medium text-sm">{TRANSPORT_LABELS[type]}</span>
+                    <span className="font-medium text-sm">{t(TRANSPORT_KEYS[type])}</span>
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground">
                         {currency}/кг×км
