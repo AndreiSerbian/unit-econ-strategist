@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Trophy, TrendingUp, TrendingDown, Target, DollarSign, Users, Percent } from "lucide-react";
 import { Metrics, Competitor } from "@/hooks/useProject";
 import { calculateProfit, calculateProfitMargin, calculateCAC, calculateLTV, calculateLTVCACRatio } from "@/utils/metricsCalculations";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface CompetitiveRankingProps {
   myCompany: Metrics;
@@ -20,16 +21,17 @@ interface RankingMetric {
 }
 
 export const CompetitiveRanking = ({ myCompany, competitors, currency }: CompetitiveRankingProps) => {
+  const { t } = useTranslation();
   const metrics: RankingMetric[] = [
     {
-      name: 'Выручка',
+      name: t('ranking.metricRevenue'),
       icon: <DollarSign className="h-4 w-4" />,
       getValue: (c) => c.revenue || 0,
       format: (v) => `${v.toLocaleString()} ${currency}`,
       higherIsBetter: true,
     },
     {
-      name: 'Прибыль',
+      name: t('ranking.metricProfit'),
       icon: <TrendingUp className="h-4 w-4" />,
       getValue: (c) => {
         if (c.detailedExpenses) {
@@ -41,7 +43,7 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       higherIsBetter: true,
     },
     {
-      name: 'Маржа',
+      name: t('ranking.metricMargin'),
       icon: <Percent className="h-4 w-4" />,
       getValue: (c) => {
         if (c.detailedExpenses) {
@@ -53,7 +55,7 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       higherIsBetter: true,
     },
     {
-      name: 'CAC',
+      name: t('ranking.metricCAC'),
       icon: <Target className="h-4 w-4" />,
       getValue: (c) => {
         if (c.detailedExpenses && c.newClients && c.newClients > 0) {
@@ -65,7 +67,7 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       higherIsBetter: false,
     },
     {
-      name: 'LTV',
+      name: t('ranking.metricLTV'),
       icon: <DollarSign className="h-4 w-4" />,
       getValue: (c) => {
         if (c.customerLifetimeMonths && c.purchaseFrequency && c.avgCheck) {
@@ -77,7 +79,7 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       higherIsBetter: true,
     },
     {
-      name: 'LTV/CAC',
+      name: t('ranking.metricLTVCAC'),
       icon: <TrendingUp className="h-4 w-4" />,
       getValue: (c) => {
         if (c.detailedExpenses && c.newClients && c.newClients > 0 && c.customerLifetimeMonths && c.purchaseFrequency && c.avgCheck) {
@@ -89,14 +91,14 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       higherIsBetter: true,
     },
     {
-      name: 'Доля рынка',
+      name: t('ranking.metricMarketShare'),
       icon: <Users className="h-4 w-4" />,
       getValue: (c) => c.marketShare || 0,
       format: (v) => `${v.toFixed(1)}%`,
       higherIsBetter: true,
     },
     {
-      name: 'Качество',
+      name: t('ranking.metricQuality'),
       icon: <Trophy className="h-4 w-4" />,
       getValue: (c) => c.quality || 0,
       format: (v) => `${v.toFixed(0)}/100`,
@@ -104,9 +106,10 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
     },
   ];
 
+  const myCompanyName = t('metricAnalyzer.youLabel');
   // Add my company to the list
   const allCompanies = [
-    { ...myCompany, name: 'Моя компания', isMe: true },
+    { ...myCompany, name: myCompanyName, isMe: true },
     ...competitors.map(c => ({ ...c, isMe: false })),
   ];
 
@@ -176,29 +179,29 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-5 w-5" />
-            Общий рейтинг конкурентоспособности
+            {t('ranking.overallTitle')}
           </CardTitle>
           <CardDescription>
-            Ваша позиция среди {allCompanies.length} компаний на рынке
+            {t('ranking.overallDesc', { count: allCompanies.length })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Ваша позиция</CardTitle>
+                <CardTitle className="text-sm">{t('ranking.yourPosition')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
                   {getRankBadge(myOverallRank, allCompanies.length)}
-                  <span className="text-muted-foreground text-sm">из {allCompanies.length}</span>
+                  <span className="text-muted-foreground text-sm">{t('ranking.of')} {allCompanies.length}</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Общий балл</CardTitle>
+                <CardTitle className="text-sm">{t('ranking.overallScore')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">{myOverallScore.toFixed(0)}/100</p>
@@ -207,30 +210,30 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Статус</CardTitle>
+                <CardTitle className="text-sm">{t('ranking.status')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {myOverallRank === 1 && (
-                  <Badge className="bg-green-500">Лидер рынка</Badge>
+                  <Badge className="bg-green-500">{t('ranking.leader')}</Badge>
                 )}
                 {myOverallRank === 2 && (
-                  <Badge className="bg-blue-500">Сильный игрок</Badge>
+                  <Badge className="bg-blue-500">{t('ranking.strongPlayer')}</Badge>
                 )}
                 {myOverallRank === 3 && (
-                  <Badge className="bg-orange-500">Претендент</Badge>
+                  <Badge className="bg-orange-500">{t('ranking.challenger')}</Badge>
                 )}
                 {myOverallRank > 3 && myOverallRank <= Math.ceil(allCompanies.length / 2) && (
-                  <Badge variant="secondary">Середняк</Badge>
+                  <Badge variant="secondary">{t('ranking.middle')}</Badge>
                 )}
                 {myOverallRank > Math.ceil(allCompanies.length / 2) && (
-                  <Badge variant="destructive">Аутсайдер</Badge>
+                  <Badge variant="destructive">{t('ranking.laggard')}</Badge>
                 )}
               </CardContent>
             </Card>
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold">Рейтинг компаний</h4>
+            <h4 className="font-semibold">{t('ranking.rankingList')}</h4>
             {overallScores.map((item, index) => (
               <div 
                 key={item.company.name}
@@ -261,9 +264,9 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       {/* Detailed Metrics Rankings */}
       <Card>
         <CardHeader>
-          <CardTitle>Детальные рейтинги по метрикам</CardTitle>
+          <CardTitle>{t('ranking.detailsTitle')}</CardTitle>
           <CardDescription>
-            Сравнение по ключевым показателям эффективности
+            {t('ranking.detailsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -271,13 +274,13 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-3 font-semibold">Метрика</th>
+                  <th className="text-left p-3 font-semibold">{t('ranking.colMetric')}</th>
                   {allCompanies.map((company, idx) => (
                     <th 
                       key={idx} 
                       className={`text-center p-3 font-semibold ${company.isMe ? 'text-primary' : ''}`}
                     >
-                      {company.isMe ? '🏢 Вы' : company.name}
+                      {company.isMe ? t('ranking.youShort') : company.name}
                     </th>
                   ))}
                 </tr>
@@ -342,7 +345,7 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
       {/* Strategic Insights */}
       <Card>
         <CardHeader>
-          <CardTitle>Стратегические выводы</CardTitle>
+          <CardTitle>{t('ranking.insightsTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {rankings.map((ranking, idx) => {
@@ -358,10 +361,9 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
                   <div className="flex items-start gap-2">
                     <TrendingUp className="h-5 w-5 text-green-500 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-green-500">{ranking.metric.name}: Лидерство</h4>
+                      <h4 className="font-semibold text-green-500">{t('ranking.leadershipTitle', { metric: ranking.metric.name })}</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Вы лидируете по показателю {ranking.metric.name} ({ranking.metric.format(myRank.value)}). 
-                        Поддерживайте преимущество и используйте его как конкурентное преимущество.
+                        {t('ranking.leadershipBody', { metric: ranking.metric.name, value: ranking.metric.format(myRank.value) })}
                       </p>
                     </div>
                   </div>
@@ -375,10 +377,9 @@ export const CompetitiveRanking = ({ myCompany, competitors, currency }: Competi
                   <div className="flex items-start gap-2">
                     <TrendingDown className="h-5 w-5 text-destructive mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-destructive">{ranking.metric.name}: Отставание</h4>
+                      <h4 className="font-semibold text-destructive">{t('ranking.laggingTitle', { metric: ranking.metric.name })}</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Ваш показатель {ranking.metric.name} ({ranking.metric.format(myRank.value)}) отстаёт от конкурентов. 
-                        Это критическая область для улучшения.
+                        {t('ranking.laggingBody', { metric: ranking.metric.name, value: ranking.metric.format(myRank.value) })}
                       </p>
                     </div>
                   </div>
