@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { Trophy, TrendingUp, Settings } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface Competitor {
   id: string;
@@ -33,6 +34,8 @@ export const CompetitiveScoreCalculator = ({
   competitors,
   currency,
 }: CompetitiveScoreCalculatorProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [weights, setWeights] = useState({
     quality: 25,
     pricing: 25,
@@ -118,28 +121,28 @@ export const CompetitiveScoreCalculator = ({
   // Данные для радарной диаграммы (сравнение топ-3 компаний)
   const radarData = [
     {
-      metric: "Качество",
+      metric: t("competitiveScore.radarQuality"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.quality;
         return acc;
       }, {} as any),
     },
     {
-      metric: "Ценообразование",
+      metric: t("competitiveScore.radarPricing"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.pricing;
         return acc;
       }, {} as any),
     },
     {
-      metric: "Маркетинг",
+      metric: t("competitiveScore.radarMarketing"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.marketing;
         return acc;
       }, {} as any),
     },
     {
-      metric: "Доля рынка",
+      metric: t("competitiveScore.radarMarketShare"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.marketShare;
         return acc;
@@ -164,7 +167,7 @@ export const CompetitiveScoreCalculator = ({
       {hasIncompleteData && (
         <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-            ⚠️ Данные вашей компании неполные. Заполните метрики (выручка, средний чек, маркетинговые расходы) во вкладке "Метрики" для корректного расчёта.
+            {t("competitiveScore.incompleteWarning")}
           </p>
         </div>
       )}
@@ -172,17 +175,17 @@ export const CompetitiveScoreCalculator = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            ⚖️ Настройка весовых коэффициентов
+            {t("competitiveScore.weightsTitle")}
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
-            Настройте важность каждого параметра для расчета интегрального показателя конкурентоспособности
+            {t("competitiveScore.weightsDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Качество продукта</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.qualityWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-primary">
                   {weights.quality}% ({((weights.quality / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -199,7 +202,7 @@ export const CompetitiveScoreCalculator = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Ценообразование</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.pricingWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-secondary">
                   {weights.pricing}% ({((weights.pricing / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -216,7 +219,7 @@ export const CompetitiveScoreCalculator = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Маркетинг</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.marketingWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-accent">
                   {weights.marketing}% ({((weights.marketing / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -233,7 +236,7 @@ export const CompetitiveScoreCalculator = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Доля рынка</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.marketShareWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-success">
                   {weights.marketShare}% ({((weights.marketShare / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -251,7 +254,7 @@ export const CompetitiveScoreCalculator = ({
 
           <div className="pt-4 border-t">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Общая сумма весов:</span>
+              <span className="text-sm text-muted-foreground">{t("competitiveScore.weightsTotal")}</span>
               <span className="text-lg font-bold font-mono">{totalWeight}%</span>
             </div>
           </div>
@@ -262,10 +265,10 @@ export const CompetitiveScoreCalculator = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-warning" />
-            🏆 Рейтинг конкурентоспособности
+            {t("competitiveScore.rankingTitle")}
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
-            Интегральный показатель конкурентоспособности на основе заданных весов
+            {t("competitiveScore.rankingDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -282,13 +285,13 @@ export const CompetitiveScoreCalculator = ({
                       <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
                         <p className="font-semibold mb-2">{data.name}</p>
                         <p className="text-sm mb-1">
-                          Интегральный показатель: <span className="font-bold">{data.score}</span>
+                          {t("competitiveScore.integralScore")} <span className="font-bold">{data.score}</span>
                         </p>
                         <div className="text-xs space-y-1 mt-2 pt-2 border-t">
-                          <p>Качество: {data.quality} (факт: {data.rawData.quality}/20)</p>
-                          <p>Цена: {data.pricing} (факт: {data.rawData.pricing.toLocaleString()} {currency})</p>
-                          <p>Маркетинг: {data.marketing} (факт: {data.rawData.marketingSpend.toLocaleString()} {currency})</p>
-                          <p>Доля рынка: {data.marketShare} (факт: {data.rawData.marketShare}%)</p>
+                          <p>{t("competitiveScore.qualityFact", { norm: data.quality, raw: data.rawData.quality })}</p>
+                          <p>{t("competitiveScore.priceFact", { norm: data.pricing, raw: data.rawData.pricing.toLocaleString(numLocale), currency })}</p>
+                          <p>{t("competitiveScore.marketingFact", { norm: data.marketing, raw: data.rawData.marketingSpend.toLocaleString(numLocale), currency })}</p>
+                          <p>{t("competitiveScore.marketShareFact", { norm: data.marketShare, raw: data.rawData.marketShare })}</p>
                         </div>
                       </div>
                     );
@@ -306,10 +309,10 @@ export const CompetitiveScoreCalculator = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-            🎯 Сравнительный анализ топ-3 компаний
+            {t("competitiveScore.top3Title")}
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
-            Многомерное сравнение лидеров по всем параметрам (нормализованные значения 0-100)
+            {t("competitiveScore.top3Desc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -338,20 +341,20 @@ export const CompetitiveScoreCalculator = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base sm:text-lg">📊 Детальный рейтинг компаний</CardTitle>
+          <CardTitle className="text-base sm:text-lg">{t("competitiveScore.detailedTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <table className="w-full text-xs sm:text-sm min-w-[700px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-2 font-semibold">Место</th>
-                  <th className="text-left p-2 font-semibold">Компания</th>
-                  <th className="text-right p-2 font-semibold">Интегральный показатель</th>
-                  <th className="text-right p-2 font-semibold">Качество</th>
-                  <th className="text-right p-2 font-semibold">Цена</th>
-                  <th className="text-right p-2 font-semibold">Маркетинг</th>
-                  <th className="text-right p-2 font-semibold">Доля рынка</th>
+                  <th className="text-left p-2 font-semibold">{t("competitiveScore.place")}</th>
+                  <th className="text-left p-2 font-semibold">{t("competitiveScore.company")}</th>
+                  <th className="text-right p-2 font-semibold">{t("competitiveScore.integralCol")}</th>
+                  <th className="text-right p-2 font-semibold">{t("competitiveScore.qualityCol")}</th>
+                  <th className="text-right p-2 font-semibold">{t("competitiveScore.priceCol")}</th>
+                  <th className="text-right p-2 font-semibold">{t("competitiveScore.marketingCol")}</th>
+                  <th className="text-right p-2 font-semibold">{t("competitiveScore.marketShareCol")}</th>
                 </tr>
               </thead>
               <tbody>
