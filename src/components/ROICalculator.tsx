@@ -117,10 +117,10 @@ export const ROICalculator = ({
       }
 
       data.push({
-        month: `М${month}`,
-        "Текущий": Math.round(currentCumulative),
-        "Сценарий A": Math.round(scenarioACumulative),
-        "Сценарий B": Math.round(scenarioBCumulative),
+        month: `${t("roiCalculator.monthAbbr")}${month}`,
+        current: Math.round(currentCumulative),
+        scenarioA: Math.round(scenarioACumulative),
+        scenarioB: Math.round(scenarioBCumulative),
       });
     }
 
@@ -135,10 +135,10 @@ export const ROICalculator = ({
 
     for (let month = 1; month <= Math.min(timePeriod, 12); month++) {
       data.push({
-        month: `М${month}`,
-        "Текущий": Math.round(currentMonthlyProfit),
-        "Сценарий A": Math.round(scenarioAMonthlyProfit),
-        "Сценарий B": Math.round(scenarioBMonthlyProfit),
+        month: `${t("roiCalculator.monthAbbr")}${month}`,
+        current: Math.round(currentMonthlyProfit),
+        scenarioA: Math.round(scenarioAMonthlyProfit),
+        scenarioB: Math.round(scenarioBMonthlyProfit),
       });
     }
 
@@ -147,28 +147,27 @@ export const ROICalculator = ({
 
   const roiData = [
     {
-      scenario: "Текущий",
+      scenario: t("ltvCalculator.scenarioCurrent"),
       roi: calculateROI(currentMetrics),
       payback: calculatePaybackPeriod(currentMetrics),
       totalProfit: calculateMonthlyProfit(currentMetrics) * timePeriod,
     },
     {
-      scenario: "Сценарий A",
+      scenario: t("ltvCalculator.scenarioA"),
       roi: calculateROI(scenarioA),
       payback: calculatePaybackPeriod(scenarioA),
       totalProfit: calculateMonthlyProfit(scenarioA) * timePeriod,
     },
     {
-      scenario: "Сценарий B",
+      scenario: t("ltvCalculator.scenarioB"),
       roi: calculateROI(scenarioB),
       payback: calculatePaybackPeriod(scenarioB),
       totalProfit: calculateMonthlyProfit(scenarioB) * timePeriod,
     },
   ];
  
-  // Получение статистики по логистике с fallback на 0, если detailedExpenses отсутствует
+  // Logistics stats with fallback to 0 when detailedExpenses is missing
   const getLogisticsStats = (metrics: Metrics) => {
-    // Если detailedExpenses не указаны, возвращаем нули
     const logistics = metrics.detailedExpenses?.variableCosts.production.logistics ?? 0;
     const revenue = metrics.revenue || 0;
     const variableCosts = metrics.variableCosts || 0;
@@ -186,15 +185,15 @@ export const ROICalculator = ({
  
    const logisticsData = [
      {
-       scenario: "Текущий",
+       scenario: t("ltvCalculator.scenarioCurrent"),
        ...getLogisticsStats(currentMetrics),
      },
      {
-       scenario: "Сценарий A",
+       scenario: t("ltvCalculator.scenarioA"),
        ...getLogisticsStats(scenarioA),
      },
      {
-       scenario: "Сценарий B",
+       scenario: t("ltvCalculator.scenarioB"),
        ...getLogisticsStats(scenarioB),
      },
    ];
@@ -352,21 +351,24 @@ export const ROICalculator = ({
               <Legend />
               <Line
                 type="monotone"
-                dataKey="Текущий"
+                dataKey="current"
+                name={t("ltvCalculator.scenarioCurrent")}
                 stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
               <Line
                 type="monotone"
-                dataKey="Сценарий A"
+                dataKey="scenarioA"
+                name={t("ltvCalculator.scenarioA")}
                 stroke="hsl(var(--secondary))"
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
               <Line
                 type="monotone"
-                dataKey="Сценарий B"
+                dataKey="scenarioB"
+                name={t("ltvCalculator.scenarioB")}
                 stroke="hsl(var(--accent))"
                 strokeWidth={2}
                 dot={{ r: 3 }}
@@ -393,9 +395,9 @@ export const ROICalculator = ({
                 formatter={(value: number) => `${value.toLocaleString()} ${currency}`}
               />
               <Legend />
-              <Bar dataKey="Текущий" fill="hsl(var(--primary))" />
-              <Bar dataKey="Сценарий A" fill="hsl(var(--secondary))" />
-              <Bar dataKey="Сценарий B" fill="hsl(var(--accent))" />
+              <Bar dataKey="current" name={t("ltvCalculator.scenarioCurrent")} fill="hsl(var(--primary))" />
+              <Bar dataKey="scenarioA" name={t("ltvCalculator.scenarioA")} fill="hsl(var(--secondary))" />
+              <Bar dataKey="scenarioB" name={t("ltvCalculator.scenarioB")} fill="hsl(var(--accent))" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

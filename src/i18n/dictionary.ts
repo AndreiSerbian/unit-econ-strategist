@@ -1315,6 +1315,7 @@ const ru: DictionaryShape = {
     cplWith: "CPL ({currency})",
   },
   roiCalculator: {
+    monthAbbr: "М",
     title: "Калькулятор ROI",
     initialInvestment: "Начальные инвестиции ({currency})",
     analysisPeriod: "Период анализа (месяцев)",
@@ -2768,6 +2769,7 @@ const en: DictionaryShape = {
     cplWith: "CPL ({currency})",
   },
   roiCalculator: {
+    monthAbbr: "M",
     title: "ROI Calculator",
     initialInvestment: "Initial investment ({currency})",
     analysisPeriod: "Analysis period (months)",
@@ -4221,6 +4223,7 @@ const ro: DictionaryShape = {
     cplWith: "CPL ({currency})",
   },
   roiCalculator: {
+    monthAbbr: "L",
     title: "Calculator ROI",
     initialInvestment: "Investiție inițială ({currency})",
     analysisPeriod: "Perioada de analiză (luni)",
