@@ -1,4 +1,5 @@
 import { memo, useCallback, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -191,8 +192,19 @@ export const MetricsForm = memo(({
   calculateProfit,
 }: MetricsFormProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showFunnel, setShowFunnel] = useState(true);
   const config = getBusinessTypeConfig(businessType);
+
+  const handleSaveOrSignIn = useCallback(() => {
+    if (isAuthenticated) {
+      onSave();
+    } else {
+      const redirect = encodeURIComponent(location.pathname + location.search);
+      navigate(`/auth?redirect=${redirect}`);
+    }
+  }, [isAuthenticated, onSave, navigate, location.pathname, location.search]);
   
   const handleMetricChange = useCallback(
     (field: keyof Metrics) =>
@@ -921,9 +933,8 @@ export const MetricsForm = memo(({
           </Button>
         )}
         <Button 
-          onClick={onSave}
+          onClick={handleSaveOrSignIn}
           className={onClear && scenario !== "current" ? "flex-1" : "w-full"}
-          disabled={!isAuthenticated}
         >
           <Save className="w-4 h-4 mr-2" />
           {isAuthenticated ? t("forms.saveScenario") : t("forms.signInToSave")}

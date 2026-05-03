@@ -6,36 +6,41 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Lightbulb, AlertCircle, TrendingUp } from 'lucide-react';
 import type { Hypothesis } from '@/utils/metricAnalysis';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface HypothesesCardsProps {
   hypotheses: Hypothesis[];
 }
 
-const priorityConfig = {
-  high: {
-    icon: <AlertCircle className="h-4 w-4" />,
-    label: 'Высокий',
-    className: 'bg-red-500/10 text-red-700 border-red-500/30'
-  },
-  medium: {
-    icon: <Lightbulb className="h-4 w-4" />,
-    label: 'Средний',
-    className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30'
-  },
-  low: {
-    icon: <TrendingUp className="h-4 w-4" />,
-    label: 'Низкий',
-    className: 'bg-blue-500/10 text-blue-700 border-blue-500/30'
-  }
-};
+function buildPriorityConfig(t: (k: string) => string) {
+  return {
+    high: {
+      icon: <AlertCircle className="h-4 w-4" />,
+      label: t('metricAnalyzer.priorityHigh'),
+      className: 'bg-red-500/10 text-red-700 border-red-500/30'
+    },
+    medium: {
+      icon: <Lightbulb className="h-4 w-4" />,
+      label: t('metricAnalyzer.priorityMedium'),
+      className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30'
+    },
+    low: {
+      icon: <TrendingUp className="h-4 w-4" />,
+      label: t('metricAnalyzer.priorityLow'),
+      className: 'bg-blue-500/10 text-blue-700 border-blue-500/30'
+    }
+  };
+}
 
 export function HypothesesCards({ hypotheses }: HypothesesCardsProps) {
+  const { t } = useTranslation();
+  const priorityConfig = buildPriorityConfig(t);
   if (hypotheses.length === 0) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
           <Lightbulb className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>Гипотезы будут сгенерированы после анализа данных</p>
+          <p>{t('metricAnalyzer.hypothesesEmpty')}</p>
         </CardContent>
       </Card>
     );

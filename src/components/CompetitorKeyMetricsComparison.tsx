@@ -77,6 +77,7 @@ export const CompetitorKeyMetricsComparison = ({
   competitors,
   currency,
 }: CompetitorKeyMetricsComparisonProps) => {
+  const { t } = useTranslation();
   const calculateCAC = (company: CompetitorData) => {
     if (!company.detailedExpenses || !company.newClients || company.newClients === 0) return 0;
 
@@ -146,32 +147,35 @@ export const CompetitorKeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            📊 Сравнение ключевых метрик с конкурентами
+            {t("comparison.chartCompetitorsCacCpl")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Добавьте детальные показатели конкурентам для сравнения метрик
+            {t("comparison.noCompetitorMetrics")}
           </p>
         </CardContent>
       </Card>
     );
   }
 
+  const breakevenKey = t("comparison.breakevenLabel");
+  const marginKey = t("comparison.marginPercent");
+
   const comparisonData = [
     {
-      company: myCompany.name || "Моя компания",
+      company: myCompany.name || t("metricAnalyzer.youLabel"),
       CAC: Math.round(calculateCAC(myCompany)),
       CPL: Math.round(calculateCPL(myCompany)),
-      "Точка безубыточности": Math.round(calculateBreakeven(myCompany)),
-      "Маржа (%)": parseFloat(calculateProfitMargin(myCompany).toFixed(1)),
+      [breakevenKey]: Math.round(calculateBreakeven(myCompany)),
+      [marginKey]: parseFloat(calculateProfitMargin(myCompany).toFixed(1)),
     },
     ...competitorsWithMetrics.map((competitor) => ({
       company: competitor.name,
       CAC: Math.round(calculateCAC(competitor)),
       CPL: Math.round(calculateCPL(competitor)),
-      "Точка безубыточности": Math.round(calculateBreakeven(competitor)),
-      "Маржа (%)": parseFloat(calculateProfitMargin(competitor).toFixed(1)),
+      [breakevenKey]: Math.round(calculateBreakeven(competitor)),
+      [marginKey]: parseFloat(calculateProfitMargin(competitor).toFixed(1)),
     })),
   ];
 
@@ -181,7 +185,7 @@ export const CompetitorKeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            📊 CAC и CPL: сравнение с конкурентами
+            {t("comparison.chartCompetitorsCacCpl")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -203,7 +207,7 @@ export const CompetitorKeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-            🎯 Точка безубыточности и маржа прибыли
+            {t("comparison.chartCompetitorsBreakeven")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -217,11 +221,11 @@ export const CompetitorKeyMetricsComparison = ({
               <Legend />
               <Bar
                 yAxisId="left"
-                dataKey="Точка безубыточности"
+                dataKey={breakevenKey}
                 fill="hsl(var(--accent))"
-                name="Точка безубыточности (кл.)"
+                name={t("comparison.breakevenUnits")}
               />
-              <Bar yAxisId="right" dataKey="Маржа (%)" fill="hsl(var(--success))" name="Маржа (%)" />
+              <Bar yAxisId="right" dataKey={marginKey} fill="hsl(var(--success))" name={t("comparison.marginPercent")} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -231,7 +235,7 @@ export const CompetitorKeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
-            💰 Сравнительная таблица показателей
+            {t("comparison.tableTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -239,11 +243,11 @@ export const CompetitorKeyMetricsComparison = ({
             <table className="w-full text-xs sm:text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-2 font-semibold">Компания</th>
-                  <th className="text-right p-2 font-semibold">CAC</th>
-                  <th className="text-right p-2 font-semibold">CPL</th>
-                  <th className="text-right p-2 font-semibold">Безубыточность</th>
-                  <th className="text-right p-2 font-semibold">Маржа</th>
+                  <th className="text-left p-2 font-semibold">{t("comparison.colCompany")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.colCAC")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.colCPL")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.colBreakeven")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.colMargin")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -260,9 +264,9 @@ export const CompetitorKeyMetricsComparison = ({
                       {item.CPL.toLocaleString()} {currency}
                     </td>
                     <td className="text-right p-2 font-mono">
-                      {item["Точка безубыточности"].toLocaleString()} кл.
+                      {(item[breakevenKey] as number).toLocaleString()} {t("comparison.units")}
                     </td>
-                    <td className="text-right p-2 font-mono">{item["Маржа (%)"].toFixed(1)}%</td>
+                    <td className="text-right p-2 font-mono">{(item[marginKey] as number).toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
