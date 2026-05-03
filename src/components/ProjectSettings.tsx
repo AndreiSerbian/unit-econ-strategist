@@ -103,6 +103,7 @@ export const ProjectSettings = ({
     setIsOpen(open);
     if (open) {
       setSelectedType(currentBusinessType);
+      setPendingCurrency(currency);
     }
   };
 
