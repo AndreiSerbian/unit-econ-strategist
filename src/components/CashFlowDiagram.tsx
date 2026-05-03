@@ -78,14 +78,14 @@ interface CashFlowDiagramProps {
   currency: string;
 }
 
-const formatCurrency = (value: number, currency: string) => {
+const formatCurrency = (value: number, currency: string, locale: string = "ru-RU") => {
   if (value >= 1000000) {
     return `${(value / 1000000).toFixed(1)}M ${currency}`;
   }
   if (value >= 1000) {
     return `${(value / 1000).toFixed(0)}K ${currency}`;
   }
-  return `${value.toLocaleString("ru-RU")} ${currency}`;
+  return `${value.toLocaleString(locale)} ${currency}`;
 };
 
 const FlowNode = memo(({ 
