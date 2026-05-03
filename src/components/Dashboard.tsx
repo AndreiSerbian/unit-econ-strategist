@@ -1015,7 +1015,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.2}>
                     <CompetitiveMap
                       myCompany={{
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue,
                         marketShare: myMarketShare,
                         totalClients: currentMetrics.totalClients,
@@ -1052,7 +1052,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.35}>
                     <CompetitiveScoreCalculator
                       myCompany={{
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue || 0,
                         marketShare: myMarketShare,
                         pricing: currentMetrics.avgCheck || 0,
@@ -1073,7 +1073,7 @@ export const Dashboard = () => {
                     <CompetitorKeyMetricsComparison
                       myCompany={{
                         id: "my-company",
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue,
                         totalClients: currentMetrics.totalClients,
                         newClients: currentMetrics.newClients,
@@ -1097,7 +1097,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.45}>
                     <BusinessTypeMetricsComparison
                       myCompany={{
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue,
                         totalClients: currentMetrics.totalClients,
                         newClients: currentMetrics.newClients,
@@ -1124,12 +1124,12 @@ export const Dashboard = () => {
                 {/* Quality comparison (MOVED from Competitors) */}
                 {competitors.length > 0 && businessType === 'services' && (
                   <AnimatedCard delay={0.5}>
-                    <ServiceQualityAssessment products={products} competitors={competitors} companyName="Моя компания" />
+                    <ServiceQualityAssessment products={products} competitors={competitors} companyName={t("dashboardExt.myCompanyName")} />
                   </AnimatedCard>
                 )}
                 {competitors.length > 0 && businessType !== 'services' && (
                   <AnimatedCard delay={0.5}>
-                    <QualityComparison products={products} competitors={competitors} companyName="Моя компания" />
+                    <QualityComparison products={products} competitors={competitors} companyName={t("dashboardExt.myCompanyName")} />
                   </AnimatedCard>
                 )}
 
@@ -1138,7 +1138,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.55}>
                     <SWOTAnalysis
                       projectId={projectId}
-                      myCompany={{ name: "Моя компания" }}
+                      myCompany={{ name: t("dashboardExt.myCompanyName") }}
                       competitors={competitors.map(c => ({ id: c.id, name: c.name }))}
                     />
                   </AnimatedCard>
