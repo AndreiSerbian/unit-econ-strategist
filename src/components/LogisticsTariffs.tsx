@@ -50,12 +50,12 @@ interface LogisticsTariffsProps {
   currency: string;
 }
 
-const TRANSPORT_LABELS: Record<string, string> = {
-  auto: "Авто",
-  rail: "Ж/Д",
-  air: "Авиа",
-  sea: "Морской",
-  local: "Локальный",
+const TRANSPORT_KEYS: Record<string, string> = {
+  auto: "rawMaterials.transportAuto",
+  rail: "rawMaterials.transportRail",
+  air: "rawMaterials.transportAir",
+  sea: "rawMaterials.transportSea",
+  local: "rawMaterials.transportLocal",
 };
 
 export const LogisticsTariffs = ({
