@@ -1315,6 +1315,7 @@ const ru: DictionaryShape = {
     cplWith: "CPL ({currency})",
   },
   roiCalculator: {
+    monthAbbr: "М",
     title: "Калькулятор ROI",
     initialInvestment: "Начальные инвестиции ({currency})",
     analysisPeriod: "Период анализа (месяцев)",
