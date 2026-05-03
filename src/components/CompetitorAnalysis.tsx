@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Building2, ChevronDown, Package, BarChart3 } from "lucide-react";
 import { CompetitorMetrics } from "./CompetitorMetrics";
 import { CompetitorExpensesCharts } from "./CompetitorExpensesCharts";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface DetailedExpenses {
   fixedCosts: {
