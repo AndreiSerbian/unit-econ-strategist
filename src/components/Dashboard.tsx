@@ -224,9 +224,9 @@ export const Dashboard = () => {
     if (!date) return null;
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (diff < 60) return 'только что';
-    if (diff < 3600) return `${Math.floor(diff / 60)} мин. назад`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} ч. назад`;
+    if (diff < 60) return t("dashboardExt.justNow");
+    if (diff < 3600) return t("dashboardExt.minutesAgo", { n: Math.floor(diff / 60) });
+    if (diff < 86400) return t("dashboardExt.hoursAgo", { n: Math.floor(diff / 3600) });
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
 
@@ -637,50 +637,56 @@ export const Dashboard = () => {
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                           <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                          Структура логистики
+                          {t("dashboardExt.logisticsStructure")}
                         </CardTitle>
                         <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-                          Автоматический расчёт логистики по сырью и продуктам плюс ручные расходы склада и доставки.
+                          {t("dashboardExt.logisticsStructureHint")}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Итого логистика</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.totalLogistics")}</p>
                             <p className="text-lg sm:text-xl font-mono font-semibold">
                               {(productionLogisticsExpense || autoLogisticsTotal).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
                               {currentMetrics.revenue > 0 && (productionLogisticsExpense || autoLogisticsTotal) > 0
-                                ? `${logisticsVsRevenue.toFixed(1)}% от выручки`
-                                : "Доля в выручке будет показана после заполнения продаж"}
+                                ? t("dashboardExt.shareInRevenue", { percent: logisticsVsRevenue.toFixed(1) })
+                                : t("dashboardExt.shareInRevenuePending")}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Сырьё → производство</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.materialsToProduction")}</p>
                             <p className="text-base sm:text-lg font-mono font-semibold">
                               {totalMaterialLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
-                              {logisticsSplitTotal > 0 ? `${getLogisticsShare(totalMaterialLogistics).toFixed(1)}% общей логистики` : "0% общей логистики"}
+                              {logisticsSplitTotal > 0
+                                ? t("dashboardExt.shareOfTotal", { percent: getLogisticsShare(totalMaterialLogistics).toFixed(1) })
+                                : t("dashboardExt.shareOfTotalZero")}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Продукты → клиент</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.productsToCustomer")}</p>
                             <p className="text-base sm:text-lg font-mono font-semibold">
                               {totalProductLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
-                              {logisticsSplitTotal > 0 ? `${getLogisticsShare(totalProductLogistics).toFixed(1)}% общей логистики` : "0% общей логистики"}
+                              {logisticsSplitTotal > 0
+                                ? t("dashboardExt.shareOfTotal", { percent: getLogisticsShare(totalProductLogistics).toFixed(1) })
+                                : t("dashboardExt.shareOfTotalZero")}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Ручные расходы склада и доставки</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.manualWarehouseDelivery")}</p>
                             <p className="text-base sm:text-lg font-mono font-semibold">
                               {manualLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
-                              {logisticsSplitTotal > 0 ? `${getLogisticsShare(manualLogistics).toFixed(1)}% общей логистики` : "0% общей логистики"}
+                              {logisticsSplitTotal > 0
+                                ? t("dashboardExt.shareOfTotal", { percent: getLogisticsShare(manualLogistics).toFixed(1) })
+                                : t("dashboardExt.shareOfTotalZero")}
                             </p>
                           </div>
                         </div>
@@ -711,10 +717,9 @@ export const Dashboard = () => {
                 <AnimatedCard delay={0.28}>
                   <Card className="shadow-lg">
                     <CardHeader>
-                      <CardTitle>Основные показатели бизнеса</CardTitle>
+                      <CardTitle>{t("dashboardExt.keyBusinessMetricsTitle")}</CardTitle>
                       <CardDescription>
-                        Внесите ключевые метрики вашей компании для расчета юнит-экономики.
-                        {products.length > 0 && " Используйте кнопку синхронизации для загрузки данных из продуктов."}
+                        {t("dashboardExt.keyBusinessMetricsHint")}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -958,9 +963,9 @@ export const Dashboard = () => {
                     <CardHeader>
                       <div className="flex items-start justify-between gap-2 flex-wrap">
                         <div>
-                          <CardTitle>Анализ конкурентов</CardTitle>
+                          <CardTitle>{t("dashboardExt.competitorAnalysisTitle")}</CardTitle>
                           <CardDescription>
-                            Добавьте информацию о конкурентах для сравнительного анализа. Все данные вводятся в выбранной валюте.
+                            {t("dashboardExt.competitorAnalysisHint")}
                           </CardDescription>
                         </div>
                         <SubjectiveEstimateBadge />
@@ -993,7 +998,7 @@ export const Dashboard = () => {
               {/* ===== TAB 5: РЫНОК (all comparative analytics) ===== */}
               <TabsContent value="market" className="space-y-6">
                 <div className="flex items-center justify-end -mb-2">
-                  <SubjectiveEstimateBadge label="Раздел основан на экспертных оценках" />
+                  <SubjectiveEstimateBadge label={t("dashboardExt.expertEstimateNote")} />
                 </div>
                 <AnimatedCard delay={0.1}>
                   <MarketOverview
@@ -1010,7 +1015,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.2}>
                     <CompetitiveMap
                       myCompany={{
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue,
                         marketShare: myMarketShare,
                         totalClients: currentMetrics.totalClients,
@@ -1047,7 +1052,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.35}>
                     <CompetitiveScoreCalculator
                       myCompany={{
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue || 0,
                         marketShare: myMarketShare,
                         pricing: currentMetrics.avgCheck || 0,
@@ -1068,7 +1073,7 @@ export const Dashboard = () => {
                     <CompetitorKeyMetricsComparison
                       myCompany={{
                         id: "my-company",
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue,
                         totalClients: currentMetrics.totalClients,
                         newClients: currentMetrics.newClients,
@@ -1092,7 +1097,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.45}>
                     <BusinessTypeMetricsComparison
                       myCompany={{
-                        name: "Моя компания",
+                        name: t("dashboardExt.myCompanyName"),
                         revenue: currentMetrics.revenue,
                         totalClients: currentMetrics.totalClients,
                         newClients: currentMetrics.newClients,
@@ -1119,12 +1124,12 @@ export const Dashboard = () => {
                 {/* Quality comparison (MOVED from Competitors) */}
                 {competitors.length > 0 && businessType === 'services' && (
                   <AnimatedCard delay={0.5}>
-                    <ServiceQualityAssessment products={products} competitors={competitors} companyName="Моя компания" />
+                    <ServiceQualityAssessment products={products} competitors={competitors} companyName={t("dashboardExt.myCompanyName")} />
                   </AnimatedCard>
                 )}
                 {competitors.length > 0 && businessType !== 'services' && (
                   <AnimatedCard delay={0.5}>
-                    <QualityComparison products={products} competitors={competitors} companyName="Моя компания" />
+                    <QualityComparison products={products} competitors={competitors} companyName={t("dashboardExt.myCompanyName")} />
                   </AnimatedCard>
                 )}
 
@@ -1133,7 +1138,7 @@ export const Dashboard = () => {
                   <AnimatedCard delay={0.55}>
                     <SWOTAnalysis
                       projectId={projectId}
-                      myCompany={{ name: "Моя компания" }}
+                      myCompany={{ name: t("dashboardExt.myCompanyName") }}
                       competitors={competitors.map(c => ({ id: c.id, name: c.name }))}
                     />
                   </AnimatedCard>
@@ -1176,7 +1181,7 @@ export const Dashboard = () => {
                     scenarios={[
                       {
                         type: "current",
-                        label: "Текущая ситуация",
+                        label: t("dashboardExt.currentSituation"),
                         hasData: !!currentMetrics.detailedExpenses,
                         metrics: currentMetrics.detailedExpenses ? {
                           revenue: currentMetrics.revenue,
@@ -1188,7 +1193,7 @@ export const Dashboard = () => {
                       },
                       {
                         type: "scenarioA",
-                        label: "Сценарий А",
+                        label: t("dashboardExt.scenarioALabel"),
                         hasData: !!scenarioA.detailedExpenses,
                         metrics: scenarioA.detailedExpenses ? {
                           revenue: scenarioA.revenue,
@@ -1200,7 +1205,7 @@ export const Dashboard = () => {
                       },
                       {
                         type: "scenarioB",
-                        label: "Сценарий Б",
+                        label: t("dashboardExt.scenarioBLabel"),
                         hasData: !!scenarioB.detailedExpenses,
                         metrics: scenarioB.detailedExpenses ? {
                           revenue: scenarioB.revenue,
@@ -1256,7 +1261,7 @@ export const Dashboard = () => {
                 <Collapsible>
                   <CollapsibleTrigger asChild>
                     <Button variant="outline" className="w-full flex items-center justify-between">
-                      <span>Дополнительно: история и прогноз</span>
+                      <span>{t("dashboardExt.additionalAnalytics")}</span>
                       <ChevronDown className="w-4 h-4" />
                     </Button>
                   </CollapsibleTrigger>

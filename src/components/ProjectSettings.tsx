@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { businessTypes, type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
 import { useTranslation } from "@/i18n/useTranslation";
+import { toast } from "sonner";
 
 interface ProjectSettingsProps {
   currentBusinessType: BusinessType;
@@ -50,6 +51,7 @@ export const ProjectSettings = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<BusinessType>(currentBusinessType);
   const [showWarning, setShowWarning] = useState(false);
+  const [pendingCurrency, setPendingCurrency] = useState<string>(currency);
 
   const currentConfig = getBusinessTypeConfig(currentBusinessType);
   const newConfig = getBusinessTypeConfig(selectedType);
@@ -58,16 +60,36 @@ export const ProjectSettings = ({
     setSelectedType(type);
   };
 
+  const handleCurrencySelect = (next: string) => {
+    setPendingCurrency(next);
+  };
+
   const handleSave = () => {
-    if (selectedType !== currentBusinessType) {
+    const currencyChanged = pendingCurrency !== currency;
+    const typeChanged = selectedType !== currentBusinessType;
+
+    if (currencyChanged) {
+      onCurrencyChange(pendingCurrency);
+      toast.success(t("settings.toasts.currencyChanged"));
+    }
+
+    if (typeChanged) {
+      // Defer business type change until user confirms in the warning dialog.
       setShowWarning(true);
-    } else {
+      return;
+    }
+
+    if (currencyChanged || !typeChanged) {
+      if (!currencyChanged) {
+        toast.success(t("settings.toasts.settingsUpdated"));
+      }
       setIsOpen(false);
     }
   };
 
   const handleConfirmChange = () => {
     onBusinessTypeChange(selectedType);
+    toast.success(t("settings.toasts.businessTypeChanged"));
     setShowWarning(false);
     setIsOpen(false);
   };
@@ -81,6 +103,7 @@ export const ProjectSettings = ({
     setIsOpen(open);
     if (open) {
       setSelectedType(currentBusinessType);
+      setPendingCurrency(currency);
     }
   };
 
@@ -109,7 +132,7 @@ export const ProjectSettings = ({
                   <SelectValue>
                     <div className="flex items-center gap-2">
                       <span>{newConfig.icon}</span>
-                      <span>{newConfig.label}</span>
+                      <span>{t(`businessModels.${selectedType}`)}</span>
                     </div>
                   </SelectValue>
                 </SelectTrigger>
@@ -119,8 +142,10 @@ export const ProjectSettings = ({
                       <div className="flex items-center gap-2">
                         <span>{type.icon}</span>
                         <div>
-                          <div className="font-medium">{type.label}</div>
-                          <div className="text-xs text-muted-foreground">{type.description}</div>
+                          <div className="font-medium">{t(`businessModels.${type.id}`)}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {t(`businessModelsDescription.${type.id}`)}
+                          </div>
                         </div>
                       </div>
                     </SelectItem>
@@ -145,17 +170,23 @@ export const ProjectSettings = ({
               {/* Current metrics preview */}
               <div className="text-sm text-muted-foreground">
                 <p className="font-medium mb-2">
-                  {t("projectSettings.keyMetricsForLabel", { type: newConfig.label })}
+                  {t("projectSettings.keyMetricsForLabel", {
+                    type: t(`businessModels.${selectedType}`),
+                  })}
                 </p>
                 <div className="flex flex-wrap gap-1">
-                  {newConfig.primaryMetrics.map((metric) => (
-                    <span
-                      key={metric}
-                      className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
-                    >
-                      {metric}
-                    </span>
-                  ))}
+                  {newConfig.primaryMetrics.map((metric) => {
+                    const key = `keyIndicators.${metric}`;
+                    const translated = t(key);
+                    return (
+                      <span
+                        key={metric}
+                        className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
+                      >
+                        {translated === key ? metric : translated}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -163,9 +194,11 @@ export const ProjectSettings = ({
             {/* Currency Selection */}
             <div className="space-y-3">
               <Label>{t("projectSettings.currencyLabel")}</Label>
-              <Select value={currency} onValueChange={onCurrencyChange}>
+              <Select value={pendingCurrency} onValueChange={handleCurrencySelect}>
                 <SelectTrigger>
-                  <SelectValue />
+                  {/* Show only the ISO code in the trigger to avoid duplicated
+                      labels like "MDL  L Молдавский лей (MDL)". */}
+                  <SelectValue>{pendingCurrency}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {CURRENCY_CODES.map((code) => (

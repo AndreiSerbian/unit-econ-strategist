@@ -166,4 +166,16 @@ All colors MUST be HSL.
   input[type="number"] {
     -moz-appearance: textfield;
   }
+
+  /* Ensure Radix Select / DropdownMenu items keep readable contrast on hover.
+     Without this some custom themes can render highlighted item text in the
+     same color as the highlight background, making the option invisible. */
+  [data-radix-select-item][data-highlighted],
+  [data-radix-dropdown-menu-item][data-highlighted],
+  [role="option"][data-highlighted],
+  [role="menuitem"][data-highlighted] {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    outline: none;
+  }
 }
