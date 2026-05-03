@@ -261,7 +261,7 @@ export const ROICalculator = ({
                     <div>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">{t("roiCalculator.profitForPeriod")}</p>
                       <p className="text-base sm:text-lg font-semibold font-mono">
-                        {item.totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} {currency}
+                        {item.totalProfit.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                       </p>
                     </div>
                   </div>
@@ -446,25 +446,25 @@ export const ROICalculator = ({
                 <tr className="border-b hover:bg-muted/50">
                   <td className="p-2">{t("roiCalculator.profitForPeriodCurrency", { currency })}</td>
                   <td className="text-right p-2 font-mono">
-                    {roiData[0].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                    {roiData[0].totalProfit.toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   </td>
                   <td className="text-right p-2 font-mono">
-                    {roiData[1].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                    {roiData[1].totalProfit.toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   </td>
                   <td className="text-right p-2 font-mono">
-                    {roiData[2].totalProfit.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                    {roiData[2].totalProfit.toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   </td>
                 </tr>
                 <tr className="hover:bg-muted/50">
                   <td className="p-2">{t("roiCalculator.monthlyProfitCurrency", { currency })}</td>
                   <td className="text-right p-2 font-mono">
-                    {calculateMonthlyProfit(currentMetrics).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                    {calculateMonthlyProfit(currentMetrics).toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   </td>
                   <td className="text-right p-2 font-mono">
-                    {calculateMonthlyProfit(scenarioA).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                    {calculateMonthlyProfit(scenarioA).toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   </td>
                   <td className="text-right p-2 font-mono">
-                    {calculateMonthlyProfit(scenarioB).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                    {calculateMonthlyProfit(scenarioB).toLocaleString(numLocale, { maximumFractionDigits: 0 })}
                   </td>
                 </tr>
               </tbody>

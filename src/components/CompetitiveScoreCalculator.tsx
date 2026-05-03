@@ -62,7 +62,7 @@ export const CompetitiveScoreCalculator = ({
       ...competitors,
     ];
 
-    // Находим min/max для нормализации
+    // Find min/max for normalization
     const qualities = allCompanies.map(c => c.quality);
     const pricings = allCompanies.map(c => c.pricing);
     const marketings = allCompanies.map(c => c.marketingSpend);
@@ -77,16 +77,16 @@ export const CompetitiveScoreCalculator = ({
     const minMarketShare = Math.min(...marketShares);
     const maxMarketShare = Math.max(...marketShares);
 
-    // Рассчитываем интегральный показатель для каждой компании
+    // Calculate integral score for each company
     const scores = allCompanies.map((company) => {
-      // Нормализуем значения (0-100)
+      // Normalize values (0-100)
       const normalizedQuality = normalizeValue(company.quality, minQuality, maxQuality);
-      // Для цены - чем ниже, тем лучше (инвертируем)
+      // For price - lower is better (invert)
       const normalizedPricing = 100 - normalizeValue(company.pricing, minPricing, maxPricing);
       const normalizedMarketing = normalizeValue(company.marketingSpend, minMarketing, maxMarketing);
       const normalizedMarketShare = normalizeValue(company.marketShare, minMarketShare, maxMarketShare);
 
-      // Взвешенная сумма
+      // Weighted sum
       const totalWeight = weights.quality + weights.pricing + weights.marketing + weights.marketShare;
       const score =
         (normalizedQuality * weights.quality +
@@ -111,14 +111,14 @@ export const CompetitiveScoreCalculator = ({
       };
     });
 
-    // Сортируем по убыванию интегрального показателя
+    // Sort by descending integral score
     return scores.sort((a, b) => b.score - a.score);
   };
 
   const scores = calculateCompetitiveScore();
   const totalWeight = weights.quality + weights.pricing + weights.marketing + weights.marketShare;
 
-  // Данные для радарной диаграммы (сравнение топ-3 компаний)
+  // Data for radar chart (top-3 companies comparison)
   const radarData = [
     {
       metric: t("competitiveScore.radarQuality"),
