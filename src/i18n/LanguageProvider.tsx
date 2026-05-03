@@ -37,11 +37,35 @@ function readStoredLanguage(): Language {
 }
 
 function lookup(lang: Language, path: string): string | undefined {
-  const [section, key] = path.split(".");
-  if (!section || !key) return undefined;
-  const sec = dictionary[lang]?.[section];
-  if (!sec) return undefined;
-  return sec[key];
+  const segments = path.split(".");
+  if (segments.length < 2) return undefined;
+  const root = dictionary[lang];
+  if (!root) return undefined;
+
+  // Strategy 1: full nested walk through arbitrary depth.
+  // Works for both 2-level (`section.key`) and deeper (`section.a.b.c`) paths.
+  let nested: any = root;
+  for (const seg of segments) {
+    if (nested == null || typeof nested !== "object") {
+      nested = undefined;
+      break;
+    }
+    nested = nested[seg];
+  }
+  if (typeof nested === "string") return nested;
+
+  // Strategy 2: flat dotted-key fallback inside section.
+  // Supports dictionaries that store keys like `strategies["price-war.name"]`
+  // — the section is the first segment and the rest is the literal key.
+  const [section, ...rest] = segments;
+  const sec = root[section] as Record<string, unknown> | undefined;
+  if (sec && rest.length > 0) {
+    const flatKey = rest.join(".");
+    const flat = sec[flatKey];
+    if (typeof flat === "string") return flat;
+  }
+
+  return undefined;
 }
 
 function applyVars(
