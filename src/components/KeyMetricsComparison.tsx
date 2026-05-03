@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingUp, Target, BarChart3, DollarSign } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface DetailedExpenses {
   fixedCosts: {
@@ -72,47 +73,34 @@ export const KeyMetricsComparison = ({
   scenarioB,
   currency,
 }: KeyMetricsComparisonProps) => {
+  const { t } = useTranslation();
+
   const calculateCAC = (metrics: Metrics) => {
     if (!metrics.detailedExpenses || metrics.newClients === 0) return 0;
-
     const marketing =
       metrics.detailedExpenses.variableCosts.marketing.trafficPurchase +
       metrics.detailedExpenses.variableCosts.marketing.contractorsPayment +
       metrics.detailedExpenses.variableCosts.marketing.crmCosts +
-      metrics.detailedExpenses.variableCosts.marketing.customCategories.reduce(
-        (sum, c) => sum + c.value,
-        0
-      );
-
+      metrics.detailedExpenses.variableCosts.marketing.customCategories.reduce((s, c) => s + c.value, 0);
     const salesCost =
       metrics.detailedExpenses.variableCosts.salesPayroll.bonusNewClients +
-      metrics.detailedExpenses.variableCosts.salesPayroll.customCategories.reduce(
-        (sum, c) => sum + c.value,
-        0
-      );
-
+      metrics.detailedExpenses.variableCosts.salesPayroll.customCategories.reduce((s, c) => s + c.value, 0);
     return (marketing + salesCost) / metrics.newClients;
   };
 
   const calculateCPL = (metrics: Metrics) => {
     if (!metrics.detailedExpenses) return 0;
-
     const marketing =
       metrics.detailedExpenses.variableCosts.marketing.trafficPurchase +
       metrics.detailedExpenses.variableCosts.marketing.contractorsPayment +
       metrics.detailedExpenses.variableCosts.marketing.crmCosts +
-      metrics.detailedExpenses.variableCosts.marketing.customCategories.reduce(
-        (sum, c) => sum + c.value,
-        0
-      );
-
+      metrics.detailedExpenses.variableCosts.marketing.customCategories.reduce((s, c) => s + c.value, 0);
     const leads = metrics.newClients / (metrics.conversionRate / 100 || 1);
     return leads > 0 ? marketing / leads : 0;
   };
 
   const calculateBreakeven = (metrics: Metrics) => {
     if (!metrics.detailedExpenses) return 0;
-
     const fixedTotal =
       metrics.detailedExpenses.fixedCosts.salaryOldClients +
       metrics.detailedExpenses.fixedCosts.salaryNewClients +
@@ -126,52 +114,52 @@ export const KeyMetricsComparison = ({
       metrics.detailedExpenses.fixedCosts.banking +
       metrics.detailedExpenses.fixedCosts.subscriptions +
       metrics.detailedExpenses.fixedCosts.utilities +
-      metrics.detailedExpenses.fixedCosts.customCategories.reduce((sum, c) => sum + c.value, 0);
-
+      metrics.detailedExpenses.fixedCosts.customCategories.reduce((s, c) => s + c.value, 0);
     const variablePerClient = metrics.totalClients > 0 ? metrics.variableCosts / metrics.totalClients : 0;
     const contribution = metrics.avgCheck - variablePerClient;
-
     return contribution > 0 ? fixedTotal / contribution : 0;
   };
 
   const calculateProfitPerPayment = (metrics: Metrics) => {
     if (metrics.totalClients === 0) return 0;
     const totalCosts = metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts;
-    const profit = metrics.revenue - totalCosts;
-    return profit / metrics.totalClients;
+    return (metrics.revenue - totalCosts) / metrics.totalClients;
   };
 
   const calculateProfitMargin = (metrics: Metrics) => {
     if (metrics.revenue === 0) return 0;
     const totalCosts = metrics.fixedCosts + metrics.variableCosts + metrics.marketingCosts;
-    const profit = metrics.revenue - totalCosts;
-    return (profit / metrics.revenue) * 100;
+    return ((metrics.revenue - totalCosts) / metrics.revenue) * 100;
   };
+
+  const breakevenName = t("comparison.breakevenLabel");
+  const profitPerPaymentName = t("comparison.profitPerPayment");
+  const marginName = t("comparison.marginPercent");
 
   const comparisonData = [
     {
-      scenario: "Текущий",
+      scenario: t("comparison.scenarioCurrent"),
       CAC: Math.round(calculateCAC(currentMetrics)),
       CPL: Math.round(calculateCPL(currentMetrics)),
-      "Точка безубыточности": Math.round(calculateBreakeven(currentMetrics)),
-      "Прибыль на оплату": Math.round(calculateProfitPerPayment(currentMetrics)),
-      "Маржа (%)": parseFloat(calculateProfitMargin(currentMetrics).toFixed(1)),
+      [breakevenName]: Math.round(calculateBreakeven(currentMetrics)),
+      [profitPerPaymentName]: Math.round(calculateProfitPerPayment(currentMetrics)),
+      [marginName]: parseFloat(calculateProfitMargin(currentMetrics).toFixed(1)),
     },
     {
-      scenario: "Сценарий A",
+      scenario: t("comparison.scenarioA"),
       CAC: Math.round(calculateCAC(scenarioA)),
       CPL: Math.round(calculateCPL(scenarioA)),
-      "Точка безубыточности": Math.round(calculateBreakeven(scenarioA)),
-      "Прибыль на оплату": Math.round(calculateProfitPerPayment(scenarioA)),
-      "Маржа (%)": parseFloat(calculateProfitMargin(scenarioA).toFixed(1)),
+      [breakevenName]: Math.round(calculateBreakeven(scenarioA)),
+      [profitPerPaymentName]: Math.round(calculateProfitPerPayment(scenarioA)),
+      [marginName]: parseFloat(calculateProfitMargin(scenarioA).toFixed(1)),
     },
     {
-      scenario: "Сценарий B",
+      scenario: t("comparison.scenarioB"),
       CAC: Math.round(calculateCAC(scenarioB)),
       CPL: Math.round(calculateCPL(scenarioB)),
-      "Точка безубыточности": Math.round(calculateBreakeven(scenarioB)),
-      "Прибыль на оплату": Math.round(calculateProfitPerPayment(scenarioB)),
-      "Маржа (%)": parseFloat(calculateProfitMargin(scenarioB).toFixed(1)),
+      [breakevenName]: Math.round(calculateBreakeven(scenarioB)),
+      [profitPerPaymentName]: Math.round(calculateProfitPerPayment(scenarioB)),
+      [marginName]: parseFloat(calculateProfitMargin(scenarioB).toFixed(1)),
     },
   ];
 
@@ -181,7 +169,7 @@ export const KeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            📊 CAC и CPL по сценариям
+            {t("comparison.chartCacCplTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -203,7 +191,7 @@ export const KeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-            🎯 Точка безубыточности и прибыльность
+            {t("comparison.chartBreakevenProfitTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -215,18 +203,8 @@ export const KeyMetricsComparison = ({
               <YAxis yAxisId="right" orientation="right" />
               <Tooltip />
               <Legend />
-              <Bar
-                yAxisId="left"
-                dataKey="Точка безубыточности"
-                fill="hsl(var(--accent))"
-                name="Точка безубыточности (кл.)"
-              />
-              <Bar
-                yAxisId="right"
-                dataKey="Прибыль на оплату"
-                fill="hsl(var(--success))"
-                name={`Прибыль на оплату (${currency})`}
-              />
+              <Bar yAxisId="left" dataKey={breakevenName} fill="hsl(var(--accent))" name={t("comparison.breakevenUnits")} />
+              <Bar yAxisId="right" dataKey={profitPerPaymentName} fill="hsl(var(--success))" name={`${profitPerPaymentName} (${currency})`} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -236,7 +214,7 @@ export const KeyMetricsComparison = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
-            💰 Сравнительная таблица показателей
+            {t("comparison.tableTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -244,81 +222,42 @@ export const KeyMetricsComparison = ({
             <table className="w-full text-xs sm:text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-2 font-semibold">Показатель</th>
-                  <th className="text-right p-2 font-semibold">Текущий</th>
-                  <th className="text-right p-2 font-semibold">Сценарий A</th>
-                  <th className="text-right p-2 font-semibold">Сценарий B</th>
+                  <th className="text-left p-2 font-semibold">{t("comparison.colIndicator")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.scenarioCurrent")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.scenarioA")}</th>
+                  <th className="text-right p-2 font-semibold">{t("comparison.scenarioB")}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b hover:bg-muted/50">
-                  <td className="p-2 flex items-center gap-1">
-                    <Target className="w-3 h-3" />
-                    CAC
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[0].CAC.toLocaleString()} {currency}
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[1].CAC.toLocaleString()} {currency}
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[2].CAC.toLocaleString()} {currency}
-                  </td>
+                  <td className="p-2 flex items-center gap-1"><Target className="w-3 h-3" />CAC</td>
+                  <td className="text-right p-2 font-mono">{comparisonData[0].CAC.toLocaleString()} {currency}</td>
+                  <td className="text-right p-2 font-mono">{comparisonData[1].CAC.toLocaleString()} {currency}</td>
+                  <td className="text-right p-2 font-mono">{comparisonData[2].CAC.toLocaleString()} {currency}</td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
-                  <td className="p-2 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    CPL
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[0].CPL.toLocaleString()} {currency}
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[1].CPL.toLocaleString()} {currency}
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[2].CPL.toLocaleString()} {currency}
-                  </td>
+                  <td className="p-2 flex items-center gap-1"><TrendingUp className="w-3 h-3" />CPL</td>
+                  <td className="text-right p-2 font-mono">{comparisonData[0].CPL.toLocaleString()} {currency}</td>
+                  <td className="text-right p-2 font-mono">{comparisonData[1].CPL.toLocaleString()} {currency}</td>
+                  <td className="text-right p-2 font-mono">{comparisonData[2].CPL.toLocaleString()} {currency}</td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
-                  <td className="p-2 flex items-center gap-1">
-                    <BarChart3 className="w-3 h-3" />
-                    Точка безубыточности
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[0]["Точка безубыточности"].toLocaleString()} кл.
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[1]["Точка безубыточности"].toLocaleString()} кл.
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[2]["Точка безубыточности"].toLocaleString()} кл.
-                  </td>
+                  <td className="p-2 flex items-center gap-1"><BarChart3 className="w-3 h-3" />{breakevenName}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[0][breakevenName] as number).toLocaleString()} {t("comparison.units")}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[1][breakevenName] as number).toLocaleString()} {t("comparison.units")}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[2][breakevenName] as number).toLocaleString()} {t("comparison.units")}</td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50">
-                  <td className="p-2 flex items-center gap-1">
-                    <DollarSign className="w-3 h-3" />
-                    Прибыль на оплату
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[0]["Прибыль на оплату"].toLocaleString()} {currency}
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[1]["Прибыль на оплату"].toLocaleString()} {currency}
-                  </td>
-                  <td className="text-right p-2 font-mono">
-                    {comparisonData[2]["Прибыль на оплату"].toLocaleString()} {currency}
-                  </td>
+                  <td className="p-2 flex items-center gap-1"><DollarSign className="w-3 h-3" />{profitPerPaymentName}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[0][profitPerPaymentName] as number).toLocaleString()} {currency}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[1][profitPerPaymentName] as number).toLocaleString()} {currency}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[2][profitPerPaymentName] as number).toLocaleString()} {currency}</td>
                 </tr>
                 <tr className="hover:bg-muted/50">
-                  <td className="p-2 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    Маржа прибыли
-                  </td>
-                  <td className="text-right p-2 font-mono">{comparisonData[0]["Маржа (%)"].toFixed(1)}%</td>
-                  <td className="text-right p-2 font-mono">{comparisonData[1]["Маржа (%)"].toFixed(1)}%</td>
-                  <td className="text-right p-2 font-mono">{comparisonData[2]["Маржа (%)"].toFixed(1)}%</td>
+                  <td className="p-2 flex items-center gap-1"><TrendingUp className="w-3 h-3" />{marginName}</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[0][marginName] as number).toFixed(1)}%</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[1][marginName] as number).toFixed(1)}%</td>
+                  <td className="text-right p-2 font-mono">{(comparisonData[2][marginName] as number).toFixed(1)}%</td>
                 </tr>
               </tbody>
             </table>

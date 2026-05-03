@@ -143,7 +143,7 @@ export const LogisticsTariffs = ({
                     <span className="font-medium text-sm">{t(TRANSPORT_KEYS[type])}</span>
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground">
-                        {currency}/кг×км
+                        {t("logisticsExt.unitPerKgKm", { currency })}
                       </Label>
                       <NumericInput
                         value={tariffs[type].perKgKm}
@@ -153,7 +153,7 @@ export const LogisticsTariffs = ({
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground">
-                        {currency}/м³×км
+                        {t("logisticsExt.unitPerM3Km", { currency })}
                       </Label>
                       <NumericInput
                         value={tariffs[type].perM3Km}
@@ -191,7 +191,7 @@ export const LogisticsTariffs = ({
                       <span className="font-medium text-sm">{DELIVERY_LABELS[type]}</span>
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">
-                          {currency}/кг
+                          {t("logisticsExt.unitPerKg", { currency })}
                         </Label>
                         <NumericInput
                           value={tariffs[type].perKg}
@@ -201,7 +201,7 @@ export const LogisticsTariffs = ({
                       </div>
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">
-                          {currency}/м³
+                          {t("logisticsExt.unitPerM3", { currency })}
                         </Label>
                         <NumericInput
                           value={tariffs[type].perM3}
