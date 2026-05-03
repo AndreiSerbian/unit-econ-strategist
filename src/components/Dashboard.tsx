@@ -963,9 +963,9 @@ export const Dashboard = () => {
                     <CardHeader>
                       <div className="flex items-start justify-between gap-2 flex-wrap">
                         <div>
-                          <CardTitle>Анализ конкурентов</CardTitle>
+                          <CardTitle>{t("dashboardExt.competitorAnalysisTitle")}</CardTitle>
                           <CardDescription>
-                            Добавьте информацию о конкурентах для сравнительного анализа. Все данные вводятся в выбранной валюте.
+                            {t("dashboardExt.competitorAnalysisHint")}
                           </CardDescription>
                         </div>
                         <SubjectiveEstimateBadge />
@@ -998,7 +998,7 @@ export const Dashboard = () => {
               {/* ===== TAB 5: РЫНОК (all comparative analytics) ===== */}
               <TabsContent value="market" className="space-y-6">
                 <div className="flex items-center justify-end -mb-2">
-                  <SubjectiveEstimateBadge label="Раздел основан на экспертных оценках" />
+                  <SubjectiveEstimateBadge label={t("dashboardExt.expertEstimateNote")} />
                 </div>
                 <AnimatedCard delay={0.1}>
                   <MarketOverview
@@ -1181,7 +1181,7 @@ export const Dashboard = () => {
                     scenarios={[
                       {
                         type: "current",
-                        label: "Текущая ситуация",
+                        label: t("dashboardExt.currentSituation"),
                         hasData: !!currentMetrics.detailedExpenses,
                         metrics: currentMetrics.detailedExpenses ? {
                           revenue: currentMetrics.revenue,
@@ -1193,7 +1193,7 @@ export const Dashboard = () => {
                       },
                       {
                         type: "scenarioA",
-                        label: "Сценарий А",
+                        label: t("dashboardExt.scenarioALabel"),
                         hasData: !!scenarioA.detailedExpenses,
                         metrics: scenarioA.detailedExpenses ? {
                           revenue: scenarioA.revenue,
@@ -1205,7 +1205,7 @@ export const Dashboard = () => {
                       },
                       {
                         type: "scenarioB",
-                        label: "Сценарий Б",
+                        label: t("dashboardExt.scenarioBLabel"),
                         hasData: !!scenarioB.detailedExpenses,
                         metrics: scenarioB.detailedExpenses ? {
                           revenue: scenarioB.revenue,
@@ -1261,7 +1261,7 @@ export const Dashboard = () => {
                 <Collapsible>
                   <CollapsibleTrigger asChild>
                     <Button variant="outline" className="w-full flex items-center justify-between">
-                      <span>Дополнительно: история и прогноз</span>
+                      <span>{t("dashboardExt.additionalAnalytics")}</span>
                       <ChevronDown className="w-4 h-4" />
                     </Button>
                   </CollapsibleTrigger>
