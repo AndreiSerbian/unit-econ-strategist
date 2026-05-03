@@ -147,19 +147,19 @@ export const ROICalculator = ({
 
   const roiData = [
     {
-      scenario: "Текущий",
+      scenario: t("ltvCalculator.scenarioCurrent"),
       roi: calculateROI(currentMetrics),
       payback: calculatePaybackPeriod(currentMetrics),
       totalProfit: calculateMonthlyProfit(currentMetrics) * timePeriod,
     },
     {
-      scenario: "Сценарий A",
+      scenario: t("ltvCalculator.scenarioA"),
       roi: calculateROI(scenarioA),
       payback: calculatePaybackPeriod(scenarioA),
       totalProfit: calculateMonthlyProfit(scenarioA) * timePeriod,
     },
     {
-      scenario: "Сценарий B",
+      scenario: t("ltvCalculator.scenarioB"),
       roi: calculateROI(scenarioB),
       payback: calculatePaybackPeriod(scenarioB),
       totalProfit: calculateMonthlyProfit(scenarioB) * timePeriod,
