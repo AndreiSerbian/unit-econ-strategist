@@ -2769,6 +2769,7 @@ const en: DictionaryShape = {
     cplWith: "CPL ({currency})",
   },
   roiCalculator: {
+    monthAbbr: "M",
     title: "ROI Calculator",
     initialInvestment: "Initial investment ({currency})",
     analysisPeriod: "Analysis period (months)",
