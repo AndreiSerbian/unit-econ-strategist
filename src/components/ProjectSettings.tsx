@@ -194,11 +194,11 @@ export const ProjectSettings = ({
             {/* Currency Selection */}
             <div className="space-y-3">
               <Label>{t("projectSettings.currencyLabel")}</Label>
-              <Select value={currency} onValueChange={onCurrencyChange}>
+              <Select value={pendingCurrency} onValueChange={handleCurrencySelect}>
                 <SelectTrigger>
                   {/* Show only the ISO code in the trigger to avoid duplicated
                       labels like "MDL  L Молдавский лей (MDL)". */}
-                  <SelectValue>{currency}</SelectValue>
+                  <SelectValue>{pendingCurrency}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {CURRENCY_CODES.map((code) => (
