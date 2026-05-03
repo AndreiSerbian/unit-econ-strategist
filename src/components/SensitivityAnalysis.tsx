@@ -75,7 +75,7 @@ export const SensitivityAnalysis = ({ baseMetrics, currency }: SensitivityAnalys
 
   const baseCalc = calculateMetrics(0, 0, 0, 0);
 
-  // Генерация данных для графиков зависимости прибыли от каждого параметра
+  // Generate data for profit-vs-parameter sensitivity charts
   const generateSensitivityData = () => {
     const avgCheckData = [];
     const marketingData = [];
