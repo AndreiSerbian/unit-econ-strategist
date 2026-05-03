@@ -32,6 +32,9 @@ interface MarketData {
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--destructive))', 'hsl(var(--warning))', 'hsl(var(--success))'];
 
 export const MarketOverview = ({ projectId, myCompanyRevenue, competitors, currency }: MarketOverviewProps) => {
+  const { t, language } = useTranslation();
+  const localeMap: Record<string, string> = { ru: "ru-RU", en: "en-US", ro: "ro-RO" };
+  const locale = localeMap[language] ?? "en-US";
   const [marketData, setMarketData] = useState<MarketData>({
     marketSize: 0,
     marketGrowthRate: 0,
