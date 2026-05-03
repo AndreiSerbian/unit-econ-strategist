@@ -2318,8 +2318,8 @@ export type Database = {
       seed_moldova_ecommerce_demo: {
         Args: { p_project_id: string }
         Returns: {
-          competitor_id: string
-          name: string
+          out_competitor_id: string
+          out_name: string
         }[]
       }
       seed_reference_catalog: {
