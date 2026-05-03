@@ -187,6 +187,18 @@ export const CompetitorAnalysis = ({
   currency,
   businessType,
 }: CompetitorAnalysisProps) => {
+  const { t, language } = useTranslation();
+  const localeMap: Record<string, string> = { ru: "ru-RU", en: "en-US", ro: "ro-RO" };
+  const locale = localeMap[language] ?? "en-US";
+  const channelLabel = (ch: string): string => {
+    switch (ch) {
+      case "Онлайн": return t("competitorAnalysis.channelOnline");
+      case "Розница": return t("competitorAnalysis.channelRetail");
+      case "Дистрибьюторы": return t("competitorAnalysis.channelDistributors");
+      case "B2B": return t("competitorAnalysis.channelB2B");
+      default: return ch;
+    }
+  };
   const currencySymbol = getCurrencySymbol(currency);
   const [newCompetitor, setNewCompetitor] = useState<Omit<Competitor, "id">>({
     name: "",
