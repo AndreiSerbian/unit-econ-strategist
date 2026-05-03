@@ -2315,6 +2315,13 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: number
       }
+      seed_moldova_ecommerce_demo: {
+        Args: { p_project_id: string }
+        Returns: {
+          out_competitor_id: string
+          out_name: string
+        }[]
+      }
       seed_reference_catalog: {
         Args: { p_project_id: string }
         Returns: undefined
