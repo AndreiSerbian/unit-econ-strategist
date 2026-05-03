@@ -204,7 +204,10 @@ export const CashFlowDiagram = memo(({
   marketingCosts,
   currency,
 }: CashFlowDiagramProps) => {
-  
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
+  const fc2 = (v: number) => formatCurrency(v, currency, numLocale);
+
   const flowData = useMemo(() => {
     // Calculate lead sources breakdown
     const paidLeads = leadSources.filter(s => s.type === 'paid').reduce((sum, s) => sum + s.leads, 0);
