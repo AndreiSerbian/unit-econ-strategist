@@ -6,13 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Info, TrendingUp, TrendingDown, Target, DollarSign, Package } from "lucide-react";
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export const GameTheoryMatrix = () => {
-  // Classical Payoff Matrix
-  const strategies = {
-    ours: ["Снизить цену", "Сохранить цену", "Повысить качество"],
-    competitors: ["Снизить цену", "Сохранить цену", "Повысить качество"],
-  };
+  const { t } = useTranslation();
+
+  // Strategy labels via i18n
+  const stratLabels = [
+    t("theory.actionLowerPrice"),
+    t("theory.actionKeepPrice"),
+    t("theory.actionRaiseQuality"),
+  ];
 
   const payoffMatrix = [
     [
@@ -32,24 +36,16 @@ export const GameTheoryMatrix = () => {
     ],
   ];
 
-  const findNashEquilibrium = () => {
-    return { row: 1, col: 1 };
-  };
+  const nashEq = { row: 1, col: 1 };
 
-  const nashEq = findNashEquilibrium();
-
-  // Cournot Model (Quantity Competition)
+  // Cournot Model
   const [cournotQ1, setCournotQ1] = useState(50);
   const [cournotQ2, setCournotQ2] = useState(50);
   const [cournotMarketPrice, setCournotMarketPrice] = useState(100);
   const [cournotCost, setCournotCost] = useState(20);
 
-  const calculateCournotEquilibrium = () => {
-    // Simplified Cournot model: Q* = (a - c) / 3
-    // Where a = market price intercept, c = marginal cost
-    const qStar = (cournotMarketPrice - cournotCost) / 3;
-    return qStar;
-  };
+  const calculateCournotEquilibrium = () =>
+    (cournotMarketPrice - cournotCost) / 3;
 
   const calculateCournotProfit = (q1: number, q2: number) => {
     const totalQ = q1 + q2;
@@ -62,20 +58,17 @@ export const GameTheoryMatrix = () => {
   const cournotResult = calculateCournotProfit(cournotQ1, cournotQ2);
   const cournotEquilibrium = calculateCournotEquilibrium();
 
-  // Generate Cournot reaction curves
   const cournotReactionData = Array.from({ length: 21 }, (_, i) => {
     const q2 = i * 5;
     const bestResponseQ1 = Math.max(0, (cournotMarketPrice - cournotCost - q2) / 2);
-    const bestResponseQ2 = Math.max(0, (cournotMarketPrice - cournotCost - cournotQ1) / 2);
     return {
       q2,
       reactionQ1: bestResponseQ1,
-      reactionQ2: bestResponseQ2,
       equilibrium: cournotEquilibrium,
     };
   });
 
-  // Bertrand Model (Price Competition)
+  // Bertrand Model
   const [bertrandP1, setBertrandP1] = useState(50);
   const [bertrandP2, setBertrandP2] = useState(50);
   const [bertrandMC, setBertrandMC] = useState(20);
@@ -83,31 +76,28 @@ export const GameTheoryMatrix = () => {
 
   const calculateBertrandOutcome = (p1: number, p2: number) => {
     const mc = bertrandMC;
-    
     if (p1 < mc || p2 < mc) {
-      return { q1: 0, q2: 0, profit1: 0, profit2: 0, marketCaptured: "Цены ниже себестоимости" };
+      return { q1: 0, q2: 0, profit1: 0, profit2: 0, marketCaptured: t("theory.bertrandBelowCost") };
     }
-    
     if (p1 < p2) {
       const q1 = bertrandMarketDemand;
       const profit1 = (p1 - mc) * q1;
-      return { q1, q2: 0, profit1, profit2: 0, marketCaptured: "Фирма 1 захватывает весь рынок" };
+      return { q1, q2: 0, profit1, profit2: 0, marketCaptured: t("theory.bertrandFirm1Wins") };
     } else if (p2 < p1) {
       const q2 = bertrandMarketDemand;
       const profit2 = (p2 - mc) * q2;
-      return { q1: 0, q2, profit1: 0, profit2, marketCaptured: "Фирма 2 захватывает весь рынок" };
+      return { q1: 0, q2, profit1: 0, profit2, marketCaptured: t("theory.bertrandFirm2Wins") };
     } else {
       const q1 = bertrandMarketDemand / 2;
       const q2 = bertrandMarketDemand / 2;
       const profit1 = (p1 - mc) * q1;
       const profit2 = (p2 - mc) * q2;
-      return { q1, q2, profit1, profit2, marketCaptured: "Рынок делится поровну" };
+      return { q1, q2, profit1, profit2, marketCaptured: t("theory.bertrandSplit") };
     }
   };
 
   const bertrandResult = calculateBertrandOutcome(bertrandP1, bertrandP2);
 
-  // Generate Bertrand price dynamics
   const bertrandPriceData = Array.from({ length: 20 }, (_, i) => {
     const p = bertrandMC + i * 5;
     const result1 = calculateBertrandOutcome(p, bertrandP2);
@@ -122,10 +112,10 @@ export const GameTheoryMatrix = () => {
   return (
     <Tabs defaultValue="payoff" className="space-y-6">
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="payoff">Матрица выплат</TabsTrigger>
-        <TabsTrigger value="cournot">Модель Курно</TabsTrigger>
-        <TabsTrigger value="bertrand">Модель Бертрана</TabsTrigger>
-        <TabsTrigger value="concepts">Концепции</TabsTrigger>
+        <TabsTrigger value="payoff">{t("theory.tabPayoff")}</TabsTrigger>
+        <TabsTrigger value="cournot">{t("theory.tabCournot")}</TabsTrigger>
+        <TabsTrigger value="bertrand">{t("theory.tabBertrand")}</TabsTrigger>
+        <TabsTrigger value="concepts">{t("theory.tabConcepts")}</TabsTrigger>
       </TabsList>
 
       {/* Classical Payoff Matrix */}
@@ -135,9 +125,9 @@ export const GameTheoryMatrix = () => {
             <div className="flex items-start gap-2">
               <Info className="w-5 h-5 text-info mt-1" />
               <div>
-                <CardTitle>Матрица выплат (Классическая теория игр)</CardTitle>
+                <CardTitle>{t("theory.payoffTitle")}</CardTitle>
                 <CardDescription className="mt-2">
-                  Анализ стратегических взаимодействий. Первое число - ваша прибыль, второе - прибыль конкурента.
+                  {t("theory.payoffDesc")}
                 </CardDescription>
               </div>
             </div>
@@ -148,24 +138,23 @@ export const GameTheoryMatrix = () => {
                 <thead>
                   <tr>
                     <th className="border border-border p-4 bg-muted/50"></th>
-                    {strategies.competitors.map((strategy, idx) => (
+                    {stratLabels.map((strategy, idx) => (
                       <th key={idx} className="border border-border p-4 bg-secondary/10 font-semibold text-sm">
-                        Конкурент: {strategy}
+                        {t("theory.competitorLabel")}: {strategy}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {strategies.ours.map((ourStrategy, rowIdx) => (
+                  {stratLabels.map((ourStrategy, rowIdx) => (
                     <tr key={rowIdx}>
                       <td className="border border-border p-4 bg-primary/10 font-semibold text-sm">
-                        Вы: {ourStrategy}
+                        {t("theory.youLabel")}: {ourStrategy}
                       </td>
-                      {strategies.competitors.map((_, colIdx) => {
+                      {stratLabels.map((_, colIdx) => {
                         const payoff = payoffMatrix[rowIdx][colIdx];
                         const isNash = rowIdx === nashEq.row && colIdx === nashEq.col;
                         const isOptimal = payoff.us >= 7 && payoff.them >= 7;
-                        
                         return (
                           <td
                             key={colIdx}
@@ -181,12 +170,12 @@ export const GameTheoryMatrix = () => {
                               </div>
                               {isNash && (
                                 <Badge variant="outline" className="text-xs bg-info/20 border-info">
-                                  Равновесие Нэша
+                                  {t("theory.nashEquilibrium")}
                                 </Badge>
                               )}
                               {isOptimal && (
                                 <Badge variant="outline" className="text-xs bg-success/20 border-success">
-                                  Оптимум Парето
+                                  {t("theory.paretoOptimum")}
                                 </Badge>
                               )}
                             </div>
@@ -206,18 +195,18 @@ export const GameTheoryMatrix = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-success" />
-                Доминирующая стратегия
+                {t("theory.dominantStrategy")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Анализ показывает оптимальный выбор:
+                {t("theory.dominantStrategyDesc")}
               </p>
               <div className="space-y-2">
                 <div className="p-3 bg-success/10 rounded-lg">
-                  <p className="font-semibold text-success">Повышение качества</p>
+                  <p className="font-semibold text-success">{t("theory.dominantPick")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Наилучший долгосрочный результат при взаимодействии с конкурентами
+                    {t("theory.dominantPickDesc")}
                   </p>
                 </div>
               </div>
@@ -228,18 +217,18 @@ export const GameTheoryMatrix = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingDown className="w-4 h-4 text-destructive" />
-                Риски
+                {t("theory.risksTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Потенциальные угрозы:
+                {t("theory.risksDesc")}
               </p>
               <div className="space-y-2">
                 <div className="p-3 bg-destructive/10 rounded-lg">
-                  <p className="font-semibold text-destructive">Ценовая война</p>
+                  <p className="font-semibold text-destructive">{t("theory.priceWar")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Взаимное снижение цен приводит к минимальной прибыли для обеих сторон
+                    {t("theory.priceWarDesc")}
                   </p>
                 </div>
               </div>
@@ -255,9 +244,9 @@ export const GameTheoryMatrix = () => {
             <div className="flex items-start gap-2">
               <Package className="w-5 h-5 text-accent mt-1" />
               <div>
-                <CardTitle>Модель Курно (Конкуренция по объёму)</CardTitle>
+                <CardTitle>{t("theory.cournotTitle")}</CardTitle>
                 <CardDescription className="mt-2">
-                  Олигополия с конкуренцией по количеству производимой продукции. Фирмы одновременно выбирают объёмы выпуска.
+                  {t("theory.cournotDesc")}
                 </CardDescription>
               </div>
             </div>
@@ -265,7 +254,7 @@ export const GameTheoryMatrix = () => {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="cournot-q1">Объём фирмы 1 (Q₁)</Label>
+                <Label htmlFor="cournot-q1">{t("theory.cournotQ1")}</Label>
                 <Input
                   id="cournot-q1"
                   type="number"
@@ -275,7 +264,7 @@ export const GameTheoryMatrix = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cournot-q2">Объём фирмы 2 (Q₂)</Label>
+                <Label htmlFor="cournot-q2">{t("theory.cournotQ2")}</Label>
                 <Input
                   id="cournot-q2"
                   type="number"
@@ -285,7 +274,7 @@ export const GameTheoryMatrix = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cournot-price">Макс. цена рынка</Label>
+                <Label htmlFor="cournot-price">{t("theory.cournotMaxPrice")}</Label>
                 <Input
                   id="cournot-price"
                   type="number"
@@ -295,7 +284,7 @@ export const GameTheoryMatrix = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cournot-cost">Предельные издержки</Label>
+                <Label htmlFor="cournot-cost">{t("theory.cournotMC")}</Label>
                 <Input
                   id="cournot-cost"
                   type="number"
@@ -308,19 +297,19 @@ export const GameTheoryMatrix = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-card border">
-                <p className="text-sm text-muted-foreground mb-1">Рыночная цена</p>
+                <p className="text-sm text-muted-foreground mb-1">{t("theory.marketPrice")}</p>
                 <p className="text-2xl font-bold font-mono text-primary">
                   {cournotResult.price.toFixed(2)}
                 </p>
               </div>
               <div className="p-4 rounded-lg bg-card border">
-                <p className="text-sm text-muted-foreground mb-1">Прибыль фирмы 1</p>
+                <p className="text-sm text-muted-foreground mb-1">{t("theory.profitFirm1")}</p>
                 <p className="text-2xl font-bold font-mono text-success">
                   {cournotResult.profit1.toFixed(2)}
                 </p>
               </div>
               <div className="p-4 rounded-lg bg-card border">
-                <p className="text-sm text-muted-foreground mb-1">Прибыль фирмы 2</p>
+                <p className="text-sm text-muted-foreground mb-1">{t("theory.profitFirm2")}</p>
                 <p className="text-2xl font-bold font-mono text-secondary">
                   {cournotResult.profit2.toFixed(2)}
                 </p>
@@ -330,31 +319,31 @@ export const GameTheoryMatrix = () => {
             <div className="p-4 rounded-lg bg-info/10 border border-info/20">
               <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
                 <Target className="w-4 h-4" />
-                Равновесие Курно-Нэша
+                {t("theory.cournotEqTitle")}
               </h4>
               <p className="text-sm text-muted-foreground">
-                Оптимальный объём производства для каждой фирмы: <span className="font-mono font-bold text-info">{cournotEquilibrium.toFixed(2)}</span> единиц
+                {t("theory.cournotEqLine", { value: cournotEquilibrium.toFixed(2) })}
               </p>
               <p className="text-xs text-muted-foreground mt-2">
-                При равновесии ни одна фирма не может увеличить прибыль, изменив только свой объём производства
+                {t("theory.cournotEqHint")}
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Кривые реакции фирм</h4>
+              <h4 className="font-semibold mb-3">{t("theory.reactionCurves")}</h4>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={cournotReactionData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="q2" label={{ value: 'Q₂ (Объём фирмы 2)', position: 'insideBottom', offset: -5 }} className="text-xs" />
-                  <YAxis label={{ value: 'Q₁ (Объём фирмы 1)', angle: -90, position: 'insideLeft' }} className="text-xs" />
+                  <XAxis dataKey="q2" className="text-xs" />
+                  <YAxis className="text-xs" />
                   <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
                   <Legend />
-                  <Line type="monotone" dataKey="reactionQ1" name="Реакция фирмы 1" stroke="hsl(var(--primary))" strokeWidth={2} />
-                  <Line type="monotone" dataKey="equilibrium" name="Равновесие" stroke="hsl(var(--success))" strokeWidth={2} strokeDasharray="5 5" />
+                  <Line type="monotone" dataKey="reactionQ1" name={t("theory.reactionFirm1")} stroke="hsl(var(--primary))" strokeWidth={2} />
+                  <Line type="monotone" dataKey="equilibrium" name={t("theory.equilibrium")} stroke="hsl(var(--success))" strokeWidth={2} strokeDasharray="5 5" />
                 </LineChart>
               </ResponsiveContainer>
               <p className="text-xs text-muted-foreground mt-2 text-center">
-                Кривая реакции показывает оптимальный выбор объёма одной фирмы в зависимости от выбора другой
+                {t("theory.reactionHint")}
               </p>
             </div>
           </CardContent>
@@ -368,9 +357,9 @@ export const GameTheoryMatrix = () => {
             <div className="flex items-start gap-2">
               <DollarSign className="w-5 h-5 text-secondary mt-1" />
               <div>
-                <CardTitle>Модель Бертрана (Ценовая конкуренция)</CardTitle>
+                <CardTitle>{t("theory.bertrandTitle")}</CardTitle>
                 <CardDescription className="mt-2">
-                  Олигополия с конкуренцией по цене. Потребители покупают у фирмы с наименьшей ценой.
+                  {t("theory.bertrandDesc")}
                 </CardDescription>
               </div>
             </div>
@@ -378,7 +367,7 @@ export const GameTheoryMatrix = () => {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="bertrand-p1">Цена фирмы 1 (P₁)</Label>
+                <Label htmlFor="bertrand-p1">{t("theory.bertrandP1")}</Label>
                 <Input
                   id="bertrand-p1"
                   type="number"
@@ -388,7 +377,7 @@ export const GameTheoryMatrix = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bertrand-p2">Цена фирмы 2 (P₂)</Label>
+                <Label htmlFor="bertrand-p2">{t("theory.bertrandP2")}</Label>
                 <Input
                   id="bertrand-p2"
                   type="number"
@@ -398,7 +387,7 @@ export const GameTheoryMatrix = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bertrand-mc">Предельные издержки</Label>
+                <Label htmlFor="bertrand-mc">{t("theory.cournotMC")}</Label>
                 <Input
                   id="bertrand-mc"
                   type="number"
@@ -408,7 +397,7 @@ export const GameTheoryMatrix = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bertrand-demand">Спрос рынка</Label>
+                <Label htmlFor="bertrand-demand">{t("theory.bertrandDemand")}</Label>
                 <Input
                   id="bertrand-demand"
                   type="number"
@@ -421,58 +410,58 @@ export const GameTheoryMatrix = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-lg bg-card border">
-                <p className="text-sm text-muted-foreground mb-1">Прибыль фирмы 1</p>
+                <p className="text-sm text-muted-foreground mb-1">{t("theory.profitFirm1")}</p>
                 <p className="text-2xl font-bold font-mono text-success">
                   {bertrandResult.profit1.toFixed(2)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Объём: {bertrandResult.q1.toFixed(0)} ед.
+                  {t("theory.volumeUnits", { value: bertrandResult.q1.toFixed(0) })}
                 </p>
               </div>
               <div className="p-4 rounded-lg bg-card border">
-                <p className="text-sm text-muted-foreground mb-1">Прибыль фирмы 2</p>
+                <p className="text-sm text-muted-foreground mb-1">{t("theory.profitFirm2")}</p>
                 <p className="text-2xl font-bold font-mono text-secondary">
                   {bertrandResult.profit2.toFixed(2)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Объём: {bertrandResult.q2.toFixed(0)} ед.
+                  {t("theory.volumeUnits", { value: bertrandResult.q2.toFixed(0) })}
                 </p>
               </div>
             </div>
 
             <div className={`p-4 rounded-lg border ${
-              bertrandP1 === bertrandP2 && bertrandP1 === bertrandMC 
-                ? 'bg-info/10 border-info/20' 
+              bertrandP1 === bertrandP2 && bertrandP1 === bertrandMC
+                ? 'bg-info/10 border-info/20'
                 : 'bg-warning/10 border-warning/20'
             }`}>
               <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
                 <Target className="w-4 h-4" />
-                Результат конкуренции
+                {t("theory.competitionResult")}
               </h4>
               <p className="text-sm font-semibold mb-1">{bertrandResult.marketCaptured}</p>
               <p className="text-xs text-muted-foreground">
-                {bertrandP1 === bertrandP2 && bertrandP1 === bertrandMC 
-                  ? "⚖️ Равновесие Бертрана достигнуто: обе фирмы устанавливают цену = предельным издержкам"
-                  : "⚠️ Равновесие не достигнуто: фирмы могут увеличить прибыль изменением цены"
+                {bertrandP1 === bertrandP2 && bertrandP1 === bertrandMC
+                  ? t("theory.bertrandEqOK")
+                  : t("theory.bertrandEqWarn")
                 }
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Зависимость прибыли от цены</h4>
+              <h4 className="font-semibold mb-3">{t("theory.profitVsPrice")}</h4>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={bertrandPriceData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="price" label={{ value: 'Цена', position: 'insideBottom', offset: -5 }} className="text-xs" />
-                  <YAxis label={{ value: 'Прибыль', angle: -90, position: 'insideLeft' }} className="text-xs" />
+                  <XAxis dataKey="price" className="text-xs" />
+                  <YAxis className="text-xs" />
                   <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
                   <Legend />
-                  <Line type="monotone" dataKey="profit1IfP1" name="Прибыль фирмы 1" stroke="hsl(var(--success))" strokeWidth={2} />
-                  <Line type="monotone" dataKey="profit2IfP2" name="Прибыль фирмы 2" stroke="hsl(var(--secondary))" strokeWidth={2} />
+                  <Line type="monotone" dataKey="profit1IfP1" name={t("theory.profitFirm1")} stroke="hsl(var(--success))" strokeWidth={2} />
+                  <Line type="monotone" dataKey="profit2IfP2" name={t("theory.profitFirm2")} stroke="hsl(var(--secondary))" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
               <p className="text-xs text-muted-foreground mt-2 text-center">
-                Парадокс Бертрана: ценовая конкуренция приводит к нулевой прибыли при цене = издержкам
+                {t("theory.bertrandParadox")}
               </p>
             </div>
           </CardContent>
@@ -483,53 +472,38 @@ export const GameTheoryMatrix = () => {
       <TabsContent value="concepts">
         <Card>
           <CardHeader>
-            <CardTitle>Ключевые концепции теории игр</CardTitle>
+            <CardTitle>{t("theory.conceptsTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <h4 className="font-semibold text-sm flex items-center gap-2">
-                <Badge variant="outline" className="bg-info/20 border-info">Равновесие Нэша</Badge>
+                <Badge variant="outline" className="bg-info/20 border-info">{t("theory.nashEquilibrium")}</Badge>
               </h4>
-              <p className="text-sm text-muted-foreground">
-                Ситуация, в которой ни один игрок не может улучшить свой результат, изменив только свою стратегию.
-                Применимо ко всем трём моделям: классическая матрица, Курно, Бертран.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("theory.nashDesc")}</p>
             </div>
             <div className="space-y-2">
               <h4 className="font-semibold text-sm flex items-center gap-2">
-                <Badge variant="outline" className="bg-success/20 border-success">Оптимум Парето</Badge>
+                <Badge variant="outline" className="bg-success/20 border-success">{t("theory.paretoOptimum")}</Badge>
               </h4>
-              <p className="text-sm text-muted-foreground">
-                Состояние, при котором невозможно улучшить положение одного игрока без ухудшения положения другого.
-                Достигается при взаимном повышении качества в классической матрице.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("theory.paretoDesc")}</p>
             </div>
             <div className="space-y-2">
               <h4 className="font-semibold text-sm flex items-center gap-2">
-                <Badge variant="outline" className="bg-accent/20 border-accent">Модель Курно</Badge>
+                <Badge variant="outline" className="bg-accent/20 border-accent">{t("theory.tabCournot")}</Badge>
               </h4>
-              <p className="text-sm text-muted-foreground">
-                Олигополия с конкуренцией по количеству. Фирмы одновременно выбирают объёмы производства.
-                Равновесие: Q* = (a - c) / (n + 1), где n — число фирм, a — максимальная цена, c — издержки.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("theory.cournotConceptDesc")}</p>
             </div>
             <div className="space-y-2">
               <h4 className="font-semibold text-sm flex items-center gap-2">
-                <Badge variant="outline" className="bg-secondary/20 border-secondary">Модель Бертрана</Badge>
+                <Badge variant="outline" className="bg-secondary/20 border-secondary">{t("theory.tabBertrand")}</Badge>
               </h4>
-              <p className="text-sm text-muted-foreground">
-                Олигополия с ценовой конкуренцией. Покупатели выбирают продавца с минимальной ценой.
-                Парадокс Бертрана: даже при двух фирмах цена падает до предельных издержек (P = MC).
-              </p>
+              <p className="text-sm text-muted-foreground">{t("theory.bertrandConceptDesc")}</p>
             </div>
             <div className="space-y-2">
               <h4 className="font-semibold text-sm flex items-center gap-2">
-                <Badge variant="outline" className="bg-warning/20 border-warning">Доминирующая стратегия</Badge>
+                <Badge variant="outline" className="bg-warning/20 border-warning">{t("theory.dominantStrategy")}</Badge>
               </h4>
-              <p className="text-sm text-muted-foreground">
-                Стратегия, которая даёт наилучший результат независимо от действий других игроков.
-                Если она существует, она является оптимальным выбором.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("theory.dominantConceptDesc")}</p>
             </div>
           </CardContent>
         </Card>
