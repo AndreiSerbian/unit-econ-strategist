@@ -34,6 +34,8 @@ export const CompetitiveScoreCalculator = ({
   competitors,
   currency,
 }: CompetitiveScoreCalculatorProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const [weights, setWeights] = useState({
     quality: 25,
     pricing: 25,
