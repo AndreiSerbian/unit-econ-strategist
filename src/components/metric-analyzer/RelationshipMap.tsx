@@ -9,6 +9,7 @@ import type { ConsistencyCheckResult } from '@/utils/metricAnalysis';
 import type { MetricRelationship } from '@/config/metricRelationships';
 import { getRelationshipsForBusinessType } from '@/config/metricRelationships';
 import type { BusinessType } from '@/config/businessTypeMetrics';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface RelationshipMapProps {
   businessType: BusinessType;
@@ -30,6 +31,7 @@ const statusColors = {
 };
 
 export function RelationshipMap({ businessType, checks }: RelationshipMapProps) {
+  const { t } = useTranslation();
   const { primaryRelationships } = getRelationshipsForBusinessType(businessType);
   
   const getCheckForRelationship = (id: string) => 
@@ -39,9 +41,9 @@ export function RelationshipMap({ businessType, checks }: RelationshipMapProps) 
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          Карта связей метрик
+          {t('metricAnalyzer.relationshipMapTitle')}
           <Badge variant="outline" className="font-normal">
-            {primaryRelationships.length} связок
+            {t('metricAnalyzer.relationshipsBadge', { count: primaryRelationships.length })}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -72,7 +74,7 @@ export function RelationshipMap({ businessType, checks }: RelationshipMapProps) 
               </div>
               {rel.severity === 'critical' && (
                 <Badge variant="destructive" className="text-xs">
-                  Критично
+                  {t('metricAnalyzer.severityCritical')}
                 </Badge>
               )}
             </div>
@@ -81,7 +83,7 @@ export function RelationshipMap({ businessType, checks }: RelationshipMapProps) 
         
         {primaryRelationships.length > 6 && (
           <p className="text-xs text-muted-foreground text-center pt-2">
-            +{primaryRelationships.length - 6} связок (см. таблицу)
+            {t('metricAnalyzer.moreLinks', { count: primaryRelationships.length - 6 })}
           </p>
         )}
       </CardContent>

@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import type { ConsistencyCheckResult } from '@/utils/metricAnalysis';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface MissingDataPanelProps {
   checks: ConsistencyCheckResult[];
 }
 
 export function MissingDataPanel({ checks }: MissingDataPanelProps) {
+  const { t } = useTranslation();
   const missingChecks = checks.filter(c => c.status === 'missing');
   
   // Collect all unique missing metrics
@@ -48,15 +50,15 @@ export function MissingDataPanel({ checks }: MissingDataPanelProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2 text-yellow-700">
           <AlertCircle className="h-4 w-4" />
-          Недостающие данные
+          {t('metricAnalyzer.missingTitle')}
           <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">
-            {missingArray.length} метрик
+            {t('metricAnalyzer.missingMetricsBadge', { count: missingArray.length })}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          Заполните следующие метрики для полного анализа:
+          {t('metricAnalyzer.missingHint')}
         </p>
         
         <div className="grid gap-2">
@@ -70,7 +72,7 @@ export function MissingDataPanel({ checks }: MissingDataPanelProps) {
               </Badge>
               <ArrowRight className="h-3 w-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">
-                Разблокирует {impactByMetric[metric]?.length || 0} проверок
+                {t('metricAnalyzer.unlocksChecks', { count: impactByMetric[metric]?.length || 0 })}
               </span>
             </div>
           ))}
@@ -78,7 +80,7 @@ export function MissingDataPanel({ checks }: MissingDataPanelProps) {
         
         {missingArray.length > 6 && (
           <p className="text-xs text-muted-foreground text-center">
-            +{missingArray.length - 6} метрик
+            {t('metricAnalyzer.moreMetrics', { count: missingArray.length - 6 })}
           </p>
         )}
       </CardContent>

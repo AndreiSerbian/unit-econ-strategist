@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { CompetitorComparisonResult } from '@/utils/metricAnalysis';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface CompetitorsComparisonProps {
   comparisons: CompetitorComparisonResult[];
@@ -17,6 +18,7 @@ export function CompetitorsComparison({
   comparisons, 
   selectedCompetitorId 
 }: CompetitorsComparisonProps) {
+  const { t } = useTranslation();
   const filteredComparisons = selectedCompetitorId
     ? comparisons.filter(c => c.competitorId === selectedCompetitorId)
     : comparisons;
@@ -34,7 +36,7 @@ export function CompetitorsComparison({
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Нет данных для сравнения с конкурентами
+          {t('metricAnalyzer.noCompetitorData')}
         </CardContent>
       </Card>
     );
@@ -46,9 +48,9 @@ export function CompetitorsComparison({
         <Card key={competitorId}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center justify-between">
-              <span>vs {name}</span>
+              <span>{t('metricAnalyzer.vsLabel')} {name}</span>
               <Badge variant="outline">
-                {items.filter(i => (i.gap || 0) > 0).length} преимуществ
+                {t('metricAnalyzer.advantages', { count: items.filter(i => (i.gap || 0) > 0).length })}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -86,7 +88,7 @@ export function CompetitorsComparison({
                     className="h-2"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Вы: {item.myValue?.toLocaleString() || '—'}</span>
+                    <span>{t('metricAnalyzer.youLabel')}: {item.myValue?.toLocaleString() || '—'}</span>
                     <span>{name}: {item.competitorValue?.toLocaleString() || '—'}</span>
                   </div>
                 </div>
