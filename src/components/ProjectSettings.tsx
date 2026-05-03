@@ -109,7 +109,7 @@ export const ProjectSettings = ({
                   <SelectValue>
                     <div className="flex items-center gap-2">
                       <span>{newConfig.icon}</span>
-                      <span>{newConfig.label}</span>
+                      <span>{t(`businessModels.${selectedType}`)}</span>
                     </div>
                   </SelectValue>
                 </SelectTrigger>
@@ -119,8 +119,10 @@ export const ProjectSettings = ({
                       <div className="flex items-center gap-2">
                         <span>{type.icon}</span>
                         <div>
-                          <div className="font-medium">{type.label}</div>
-                          <div className="text-xs text-muted-foreground">{type.description}</div>
+                          <div className="font-medium">{t(`businessModels.${type.id}`)}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {t(`businessModelsDescription.${type.id}`)}
+                          </div>
                         </div>
                       </div>
                     </SelectItem>
@@ -145,17 +147,23 @@ export const ProjectSettings = ({
               {/* Current metrics preview */}
               <div className="text-sm text-muted-foreground">
                 <p className="font-medium mb-2">
-                  {t("projectSettings.keyMetricsForLabel", { type: newConfig.label })}
+                  {t("projectSettings.keyMetricsForLabel", {
+                    type: t(`businessModels.${selectedType}`),
+                  })}
                 </p>
                 <div className="flex flex-wrap gap-1">
-                  {newConfig.primaryMetrics.map((metric) => (
-                    <span
-                      key={metric}
-                      className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
-                    >
-                      {metric}
-                    </span>
-                  ))}
+                  {newConfig.primaryMetrics.map((metric) => {
+                    const key = `keyIndicators.${metric}`;
+                    const translated = t(key);
+                    return (
+                      <span
+                        key={metric}
+                        className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
+                      >
+                        {translated === key ? metric : translated}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -165,7 +173,9 @@ export const ProjectSettings = ({
               <Label>{t("projectSettings.currencyLabel")}</Label>
               <Select value={currency} onValueChange={onCurrencyChange}>
                 <SelectTrigger>
-                  <SelectValue />
+                  {/* Show only the ISO code in the trigger to avoid duplicated
+                      labels like "MDL  L Молдавский лей (MDL)". */}
+                  <SelectValue>{currency}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {CURRENCY_CODES.map((code) => (
