@@ -121,28 +121,28 @@ export const CompetitiveScoreCalculator = ({
   // Данные для радарной диаграммы (сравнение топ-3 компаний)
   const radarData = [
     {
-      metric: "Качество",
+      metric: t("competitiveScore.radarQuality"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.quality;
         return acc;
       }, {} as any),
     },
     {
-      metric: "Ценообразование",
+      metric: t("competitiveScore.radarPricing"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.pricing;
         return acc;
       }, {} as any),
     },
     {
-      metric: "Маркетинг",
+      metric: t("competitiveScore.radarMarketing"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.marketing;
         return acc;
       }, {} as any),
     },
     {
-      metric: "Доля рынка",
+      metric: t("competitiveScore.radarMarketShare"),
       ...scores.slice(0, 3).reduce((acc, company, idx) => {
         acc[company.name] = company.marketShare;
         return acc;
