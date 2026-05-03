@@ -8,6 +8,7 @@ import { TrendingUp, Globe, BarChart3, PieChart, Save, Calculator, Edit3 } from 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface Competitor {
   id: string;
