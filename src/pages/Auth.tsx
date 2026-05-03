@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,19 +12,32 @@ import { useTranslation } from "@/i18n/useTranslation";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const redirectTarget = (() => {
+    const raw = searchParams.get("redirect");
+    if (!raw) return "/";
+    try {
+      const decoded = decodeURIComponent(raw);
+      // Only allow same-origin relative paths
+      return decoded.startsWith("/") && !decoded.startsWith("//") ? decoded : "/";
+    } catch {
+      return "/";
+    }
+  })();
+
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/");
+        navigate(redirectTarget);
       }
     });
-  }, [navigate]);
+  }, [navigate, redirectTarget]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
