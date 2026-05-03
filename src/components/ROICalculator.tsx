@@ -166,9 +166,8 @@ export const ROICalculator = ({
     },
   ];
  
-  // Получение статистики по логистике с fallback на 0, если detailedExpenses отсутствует
+  // Logistics stats with fallback to 0 when detailedExpenses is missing
   const getLogisticsStats = (metrics: Metrics) => {
-    // Если detailedExpenses не указаны, возвращаем нули
     const logistics = metrics.detailedExpenses?.variableCosts.production.logistics ?? 0;
     const revenue = metrics.revenue || 0;
     const variableCosts = metrics.variableCosts || 0;
@@ -186,15 +185,15 @@ export const ROICalculator = ({
  
    const logisticsData = [
      {
-       scenario: "Текущий",
+       scenario: t("ltvCalculator.scenarioCurrent"),
        ...getLogisticsStats(currentMetrics),
      },
      {
-       scenario: "Сценарий A",
+       scenario: t("ltvCalculator.scenarioA"),
        ...getLogisticsStats(scenarioA),
      },
      {
-       scenario: "Сценарий B",
+       scenario: t("ltvCalculator.scenarioB"),
        ...getLogisticsStats(scenarioB),
      },
    ];
