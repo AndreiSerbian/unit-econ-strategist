@@ -395,9 +395,9 @@ export const ROICalculator = ({
                 formatter={(value: number) => `${value.toLocaleString()} ${currency}`}
               />
               <Legend />
-              <Bar dataKey="Текущий" fill="hsl(var(--primary))" />
-              <Bar dataKey="Сценарий A" fill="hsl(var(--secondary))" />
-              <Bar dataKey="Сценарий B" fill="hsl(var(--accent))" />
+              <Bar dataKey="current" name={t("ltvCalculator.scenarioCurrent")} fill="hsl(var(--primary))" />
+              <Bar dataKey="scenarioA" name={t("ltvCalculator.scenarioA")} fill="hsl(var(--secondary))" />
+              <Bar dataKey="scenarioB" name={t("ltvCalculator.scenarioB")} fill="hsl(var(--accent))" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
