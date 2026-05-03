@@ -167,7 +167,7 @@ export const CompetitiveScoreCalculator = ({
       {hasIncompleteData && (
         <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-            ⚠️ Данные вашей компании неполные. Заполните метрики (выручка, средний чек, маркетинговые расходы) во вкладке "Метрики" для корректного расчёта.
+            {t("competitiveScore.incompleteWarning")}
           </p>
         </div>
       )}
@@ -175,17 +175,17 @@ export const CompetitiveScoreCalculator = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            ⚖️ Настройка весовых коэффициентов
+            {t("competitiveScore.weightsTitle")}
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
-            Настройте важность каждого параметра для расчета интегрального показателя конкурентоспособности
+            {t("competitiveScore.weightsDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Качество продукта</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.qualityWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-primary">
                   {weights.quality}% ({((weights.quality / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -202,7 +202,7 @@ export const CompetitiveScoreCalculator = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Ценообразование</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.pricingWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-secondary">
                   {weights.pricing}% ({((weights.pricing / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -219,7 +219,7 @@ export const CompetitiveScoreCalculator = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Маркетинг</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.marketingWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-accent">
                   {weights.marketing}% ({((weights.marketing / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -236,7 +236,7 @@ export const CompetitiveScoreCalculator = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="text-sm sm:text-base">Доля рынка</Label>
+                <Label className="text-sm sm:text-base">{t("competitiveScore.marketShareWeight")}</Label>
                 <span className="text-sm font-mono font-semibold text-success">
                   {weights.marketShare}% ({((weights.marketShare / totalWeight) * 100).toFixed(0)}%)
                 </span>
@@ -254,7 +254,7 @@ export const CompetitiveScoreCalculator = ({
 
           <div className="pt-4 border-t">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Общая сумма весов:</span>
+              <span className="text-sm text-muted-foreground">{t("competitiveScore.weightsTotal")}</span>
               <span className="text-lg font-bold font-mono">{totalWeight}%</span>
             </div>
           </div>
