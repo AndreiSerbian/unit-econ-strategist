@@ -1571,6 +1571,8 @@ const ru: DictionaryShape = {
     hoursAgo: "{n} ч. назад",
   },
 };
+
+const en: DictionaryShape = {
   header: {
     subtitle: "Unit economics and game theory analysis platform",
     showOnboarding: "Show onboarding",
