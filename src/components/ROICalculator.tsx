@@ -117,10 +117,10 @@ export const ROICalculator = ({
       }
 
       data.push({
-        month: `М${month}`,
-        "Текущий": Math.round(currentCumulative),
-        "Сценарий A": Math.round(scenarioACumulative),
-        "Сценарий B": Math.round(scenarioBCumulative),
+        month: `${t("roiCalculator.monthAbbr")}${month}`,
+        current: Math.round(currentCumulative),
+        scenarioA: Math.round(scenarioACumulative),
+        scenarioB: Math.round(scenarioBCumulative),
       });
     }
 
