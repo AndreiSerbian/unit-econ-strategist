@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { businessTypes, type BusinessType, getBusinessTypeConfig } from "@/config/businessTypeMetrics";
 import { useTranslation } from "@/i18n/useTranslation";
+import { toast } from "sonner";
 
 interface ProjectSettingsProps {
   currentBusinessType: BusinessType;
@@ -50,6 +51,7 @@ export const ProjectSettings = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<BusinessType>(currentBusinessType);
   const [showWarning, setShowWarning] = useState(false);
+  const [pendingCurrency, setPendingCurrency] = useState<string>(currency);
 
   const currentConfig = getBusinessTypeConfig(currentBusinessType);
   const newConfig = getBusinessTypeConfig(selectedType);
@@ -58,16 +60,36 @@ export const ProjectSettings = ({
     setSelectedType(type);
   };
 
+  const handleCurrencySelect = (next: string) => {
+    setPendingCurrency(next);
+  };
+
   const handleSave = () => {
-    if (selectedType !== currentBusinessType) {
+    const currencyChanged = pendingCurrency !== currency;
+    const typeChanged = selectedType !== currentBusinessType;
+
+    if (currencyChanged) {
+      onCurrencyChange(pendingCurrency);
+      toast.success(t("settings.toasts.currencyChanged"));
+    }
+
+    if (typeChanged) {
+      // Defer business type change until user confirms in the warning dialog.
       setShowWarning(true);
-    } else {
+      return;
+    }
+
+    if (currencyChanged || !typeChanged) {
+      if (!currencyChanged) {
+        toast.success(t("settings.toasts.settingsUpdated"));
+      }
       setIsOpen(false);
     }
   };
 
   const handleConfirmChange = () => {
     onBusinessTypeChange(selectedType);
+    toast.success(t("settings.toasts.businessTypeChanged"));
     setShowWarning(false);
     setIsOpen(false);
   };
