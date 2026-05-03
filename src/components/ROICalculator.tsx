@@ -135,10 +135,10 @@ export const ROICalculator = ({
 
     for (let month = 1; month <= Math.min(timePeriod, 12); month++) {
       data.push({
-        month: `М${month}`,
-        "Текущий": Math.round(currentMonthlyProfit),
-        "Сценарий A": Math.round(scenarioAMonthlyProfit),
-        "Сценарий B": Math.round(scenarioBMonthlyProfit),
+        month: `${t("roiCalculator.monthAbbr")}${month}`,
+        current: Math.round(currentMonthlyProfit),
+        scenarioA: Math.round(scenarioAMonthlyProfit),
+        scenarioB: Math.round(scenarioBMonthlyProfit),
       });
     }
 
