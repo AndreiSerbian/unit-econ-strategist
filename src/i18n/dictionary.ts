@@ -1569,6 +1569,14 @@ const ru: DictionaryShape = {
     justNow: "только что",
     minutesAgo: "{n} мин. назад",
     hoursAgo: "{n} ч. назад",
+    competitorAnalysisTitle: "Анализ конкурентов",
+    competitorAnalysisHint: "Добавьте информацию о конкурентах для сравнительного анализа. Все данные вводятся в выбранной валюте.",
+    expertEstimateNote: "Раздел основан на экспертных оценках",
+    myCompanyName: "Моя компания",
+    currentSituation: "Текущая ситуация",
+    scenarioALabel: "Сценарий А",
+    scenarioBLabel: "Сценарий Б",
+    additionalAnalytics: "Дополнительно: история и прогноз",
   },
 };
 
@@ -3127,6 +3135,14 @@ const en: DictionaryShape = {
     justNow: "just now",
     minutesAgo: "{n} min ago",
     hoursAgo: "{n} h ago",
+    competitorAnalysisTitle: "Competitor Analysis",
+    competitorAnalysisHint: "Add competitor information for comparative analysis. All values are entered in the selected currency.",
+    expertEstimateNote: "This section is based on expert estimates",
+    myCompanyName: "My company",
+    currentSituation: "Current situation",
+    scenarioALabel: "Scenario A",
+    scenarioBLabel: "Scenario B",
+    additionalAnalytics: "More: history and forecast",
   },
 };
 
@@ -4685,6 +4701,14 @@ const ro: DictionaryShape = {
     justNow: "chiar acum",
     minutesAgo: "acum {n} min",
     hoursAgo: "acum {n} h",
+    competitorAnalysisTitle: "Analiza concurenților",
+    competitorAnalysisHint: "Adaugă informații despre concurenți pentru analiza comparativă. Toate valorile se introduc în moneda selectată.",
+    expertEstimateNote: "Secțiune bazată pe estimări de experți",
+    myCompanyName: "Compania mea",
+    currentSituation: "Situația actuală",
+    scenarioALabel: "Scenariul A",
+    scenarioBLabel: "Scenariul B",
+    additionalAnalytics: "Suplimentar: istoric și prognoză",
   },
 };
 
