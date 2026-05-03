@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export interface LogisticsTariffsData {
   // Rate per kg per km for each transport type
@@ -57,19 +58,20 @@ const TRANSPORT_LABELS: Record<string, string> = {
   local: "Локальный",
 };
 
-const DELIVERY_LABELS: Record<string, string> = {
-  courier: "Курьер",
-  pickup: "Самовывоз",
-  transport_company: "Транспортная компания",
-  own_delivery: "Своя доставка",
-};
-
 export const LogisticsTariffs = ({
   tariffs,
   setTariffs,
   currency,
 }: LogisticsTariffsProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+
+  const DELIVERY_LABELS: Record<string, string> = {
+    courier: t("logisticsExt.deliveryCourier"),
+    pickup: t("logisticsExt.deliveryPickup"),
+    transport_company: t("logisticsExt.deliveryTransportCompany"),
+    own_delivery: t("logisticsExt.deliveryOwnDelivery"),
+  };
 
   const updateTransportTariff = (
     type: keyof Pick<LogisticsTariffsData, "auto" | "rail" | "air" | "sea" | "local">,
@@ -101,7 +103,7 @@ export const LogisticsTariffs = ({
             <Button variant="ghost" className="w-full justify-between p-0 h-auto hover:bg-transparent">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Truck className="w-5 h-5 text-primary" />
-                Тарифы логистики
+                {t("logisticsExt.title")}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -109,8 +111,8 @@ export const LogisticsTariffs = ({
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>
-                        Настройте тарифы для автоматического расчёта стоимости логистики.
-                        Формула: базовая ставка + (вес × тариф за кг) + (объём × тариф за м³)
+                        {t("logisticsExt.tooltip")}{" "}
+                        {t("logisticsExt.formulaShort")}
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -130,7 +132,7 @@ export const LogisticsTariffs = ({
             {/* Transport tariffs for raw materials */}
             <div className="space-y-3">
               <h4 className="font-medium text-sm text-muted-foreground">
-                Транспортировка сырья (за единицу × расстояние)
+                {t("logisticsExt.materialsHeader")}
               </h4>
               <div className="grid grid-cols-1 gap-3">
                 {(["auto", "rail", "air", "sea", "local"] as const).map((type) => (
@@ -161,7 +163,7 @@ export const LogisticsTariffs = ({
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground">
-                        База ({currency})
+                        {t("logisticsExt.baseLabel", { currency })}
                       </Label>
                       <NumericInput
                         value={tariffs[type].baseRate}
@@ -177,7 +179,7 @@ export const LogisticsTariffs = ({
             {/* Delivery tariffs for products */}
             <div className="space-y-3">
               <h4 className="font-medium text-sm text-muted-foreground">
-                Доставка продуктов клиенту (за единицу)
+                {t("logisticsExt.productsHeader")}
               </h4>
               <div className="grid grid-cols-1 gap-3">
                 {(["courier", "pickup", "transport_company", "own_delivery"] as const).map(
@@ -209,7 +211,7 @@ export const LogisticsTariffs = ({
                       </div>
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">
-                          База ({currency})
+                          {t("logisticsExt.baseLabel", { currency })}
                         </Label>
                         <NumericInput
                           value={tariffs[type].baseRate}
@@ -224,9 +226,9 @@ export const LogisticsTariffs = ({
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Формула для сырья: база + (вес × тариф/кг × расстояние) + (объём × тариф/м³ × расстояние)
+              {t("logisticsExt.formulaMaterials")}
               <br />
-              Формула для продуктов: база + (вес × тариф/кг) + (объём × тариф/м³)
+              {t("logisticsExt.formulaProducts")}
             </p>
           </CardContent>
         </CollapsibleContent>
