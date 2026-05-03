@@ -224,9 +224,9 @@ export const Dashboard = () => {
     if (!date) return null;
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (diff < 60) return 'только что';
-    if (diff < 3600) return `${Math.floor(diff / 60)} мин. назад`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} ч. назад`;
+    if (diff < 60) return t("dashboardExt.justNow");
+    if (diff < 3600) return t("dashboardExt.minutesAgo", { n: Math.floor(diff / 60) });
+    if (diff < 86400) return t("dashboardExt.hoursAgo", { n: Math.floor(diff / 3600) });
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
 
@@ -637,50 +637,56 @@ export const Dashboard = () => {
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                           <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                          Структура логистики
+                          {t("dashboardExt.logisticsStructure")}
                         </CardTitle>
                         <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-                          Автоматический расчёт логистики по сырью и продуктам плюс ручные расходы склада и доставки.
+                          {t("dashboardExt.logisticsStructureHint")}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Итого логистика</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.totalLogistics")}</p>
                             <p className="text-lg sm:text-xl font-mono font-semibold">
                               {(productionLogisticsExpense || autoLogisticsTotal).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
                               {currentMetrics.revenue > 0 && (productionLogisticsExpense || autoLogisticsTotal) > 0
-                                ? `${logisticsVsRevenue.toFixed(1)}% от выручки`
-                                : "Доля в выручке будет показана после заполнения продаж"}
+                                ? t("dashboardExt.shareInRevenue", { percent: logisticsVsRevenue.toFixed(1) })
+                                : t("dashboardExt.shareInRevenuePending")}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Сырьё → производство</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.materialsToProduction")}</p>
                             <p className="text-base sm:text-lg font-mono font-semibold">
                               {totalMaterialLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
-                              {logisticsSplitTotal > 0 ? `${getLogisticsShare(totalMaterialLogistics).toFixed(1)}% общей логистики` : "0% общей логистики"}
+                              {logisticsSplitTotal > 0
+                                ? t("dashboardExt.shareOfTotal", { percent: getLogisticsShare(totalMaterialLogistics).toFixed(1) })
+                                : t("dashboardExt.shareOfTotalZero")}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Продукты → клиент</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.productsToCustomer")}</p>
                             <p className="text-base sm:text-lg font-mono font-semibold">
                               {totalProductLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
-                              {logisticsSplitTotal > 0 ? `${getLogisticsShare(totalProductLogistics).toFixed(1)}% общей логистики` : "0% общей логистики"}
+                              {logisticsSplitTotal > 0
+                                ? t("dashboardExt.shareOfTotal", { percent: getLogisticsShare(totalProductLogistics).toFixed(1) })
+                                : t("dashboardExt.shareOfTotalZero")}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Ручные расходы склада и доставки</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">{t("dashboardExt.manualWarehouseDelivery")}</p>
                             <p className="text-base sm:text-lg font-mono font-semibold">
                               {manualLogistics.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
                             </p>
                             <p className="text-[10px] sm:text-xs text-muted-foreground">
-                              {logisticsSplitTotal > 0 ? `${getLogisticsShare(manualLogistics).toFixed(1)}% общей логистики` : "0% общей логистики"}
+                              {logisticsSplitTotal > 0
+                                ? t("dashboardExt.shareOfTotal", { percent: getLogisticsShare(manualLogistics).toFixed(1) })
+                                : t("dashboardExt.shareOfTotalZero")}
                             </p>
                           </div>
                         </div>
@@ -711,10 +717,9 @@ export const Dashboard = () => {
                 <AnimatedCard delay={0.28}>
                   <Card className="shadow-lg">
                     <CardHeader>
-                      <CardTitle>Основные показатели бизнеса</CardTitle>
+                      <CardTitle>{t("dashboardExt.keyBusinessMetricsTitle")}</CardTitle>
                       <CardDescription>
-                        Внесите ключевые метрики вашей компании для расчета юнит-экономики.
-                        {products.length > 0 && " Используйте кнопку синхронизации для загрузки данных из продуктов."}
+                        {t("dashboardExt.keyBusinessMetricsHint")}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
