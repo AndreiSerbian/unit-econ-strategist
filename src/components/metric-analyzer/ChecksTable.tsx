@@ -14,40 +14,45 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, CheckCircle2, XCircle, HelpCircle } from 'lucide-react';
 import type { ConsistencyCheckResult } from '@/utils/metricAnalysis';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ChecksTableProps {
   checks: ConsistencyCheckResult[];
   showOnlyProblems?: boolean;
 }
 
-const statusConfig = {
-  ok: { 
-    icon: <CheckCircle2 className="h-4 w-4" />, 
-    label: 'ОК', 
-    variant: 'default' as const,
-    className: 'bg-green-500/10 text-green-700 border-green-500/30'
-  },
-  warning: { 
-    icon: <AlertTriangle className="h-4 w-4" />, 
-    label: 'Внимание', 
-    variant: 'secondary' as const,
-    className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30'
-  },
-  contradiction: { 
-    icon: <XCircle className="h-4 w-4" />, 
-    label: 'Проблема', 
-    variant: 'destructive' as const,
-    className: 'bg-red-500/10 text-red-700 border-red-500/30'
-  },
-  missing: { 
-    icon: <HelpCircle className="h-4 w-4" />, 
-    label: 'Нет данных', 
-    variant: 'outline' as const,
-    className: 'bg-muted text-muted-foreground'
-  }
-};
+function buildStatusConfig(t: (k: string) => string) {
+  return {
+    ok: { 
+      icon: <CheckCircle2 className="h-4 w-4" />, 
+      label: t('metricAnalyzer.statusOk'), 
+      variant: 'default' as const,
+      className: 'bg-green-500/10 text-green-700 border-green-500/30'
+    },
+    warning: { 
+      icon: <AlertTriangle className="h-4 w-4" />, 
+      label: t('metricAnalyzer.statusWarning'), 
+      variant: 'secondary' as const,
+      className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30'
+    },
+    contradiction: { 
+      icon: <XCircle className="h-4 w-4" />, 
+      label: t('metricAnalyzer.statusContradiction'), 
+      variant: 'destructive' as const,
+      className: 'bg-red-500/10 text-red-700 border-red-500/30'
+    },
+    missing: { 
+      icon: <HelpCircle className="h-4 w-4" />, 
+      label: t('metricAnalyzer.statusMissing'), 
+      variant: 'outline' as const,
+      className: 'bg-muted text-muted-foreground'
+    }
+  };
+}
 
 export function ChecksTable({ checks, showOnlyProblems = false }: ChecksTableProps) {
+  const { t } = useTranslation();
+  const statusConfig = buildStatusConfig(t);
   const filteredChecks = showOnlyProblems 
     ? checks.filter(c => c.status !== 'ok')
     : checks;
@@ -61,7 +66,7 @@ export function ChecksTable({ checks, showOnlyProblems = false }: ChecksTablePro
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          {showOnlyProblems ? 'Проблем не обнаружено' : 'Нет данных для анализа'}
+          {showOnlyProblems ? t('metricAnalyzer.noProblems') : t('metricAnalyzer.noData')}
         </CardContent>
       </Card>
     );
@@ -71,10 +76,10 @@ export function ChecksTable({ checks, showOnlyProblems = false }: ChecksTablePro
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span>Результаты проверок</span>
+          <span>{t('metricAnalyzer.checksTitle')}</span>
           <div className="flex gap-2 flex-wrap">
             <Badge variant="outline" className="bg-green-500/10 text-green-700 text-xs">
-              {checks.filter(c => c.status === 'ok').length} ОК
+              {checks.filter(c => c.status === 'ok').length} {t('metricAnalyzer.statusOk')}
             </Badge>
             <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 text-xs">
               {checks.filter(c => c.status === 'warning').length} ⚠
@@ -123,10 +128,10 @@ export function ChecksTable({ checks, showOnlyProblems = false }: ChecksTablePro
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Статус</TableHead>
-                <TableHead className="w-[180px]">Проверка</TableHead>
-                <TableHead>Результат</TableHead>
-                <TableHead className="w-[100px] text-right">Значение</TableHead>
+                <TableHead className="w-[100px]">{t('metricAnalyzer.colStatus')}</TableHead>
+                <TableHead className="w-[180px]">{t('metricAnalyzer.colCheck')}</TableHead>
+                <TableHead>{t('metricAnalyzer.colResult')}</TableHead>
+                <TableHead className="w-[100px] text-right">{t('metricAnalyzer.colValue')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

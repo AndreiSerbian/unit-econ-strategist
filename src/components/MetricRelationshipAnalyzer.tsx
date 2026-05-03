@@ -19,6 +19,7 @@ import {
   HypothesesCards,
   MissingDataPanel
 } from '@/components/metric-analyzer';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface MetricRelationshipAnalyzerProps {
   metrics: Metrics;
@@ -34,6 +35,7 @@ export function MetricRelationshipAnalyzer({
   currency
 }: MetricRelationshipAnalyzerProps) {
   const [selectedCompetitor, setSelectedCompetitor] = useState<string>('all');
+  const { t } = useTranslation();
   
   const analysis = useMemo(() => 
     analyzeMetrics(metrics, competitors, businessType),
@@ -50,17 +52,17 @@ export function MetricRelationshipAnalyzer({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
-            Анализ связей метрик
+            {t('metricAnalyzer.title')}
           </CardTitle>
           <div className="flex items-center gap-2">
             {hasProblems && (
               <Badge variant="destructive" className="gap-1">
                 <AlertCircle className="h-3 w-3" />
-                {summary.contradictionCount + summary.warningCount} проблем
+                {t('metricAnalyzer.problemsBadge', { count: summary.contradictionCount + summary.warningCount })}
               </Badge>
             )}
             <Badge variant="outline">
-              {summary.okCount}/{summary.totalChecks} ОК
+              {t('metricAnalyzer.okBadge', { ok: summary.okCount, total: summary.totalChecks })}
             </Badge>
           </div>
         </div>
@@ -71,19 +73,19 @@ export function MetricRelationshipAnalyzer({
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="gap-1">
               <Activity className="h-4 w-4" />
-              Обзор
+              {t('metricAnalyzer.tabOverview')}
             </TabsTrigger>
             <TabsTrigger value="checks" className="gap-1">
               <AlertCircle className="h-4 w-4" />
-              Проверки
+              {t('metricAnalyzer.tabChecks')}
             </TabsTrigger>
             <TabsTrigger value="competitors" className="gap-1">
               <Users className="h-4 w-4" />
-              Конкуренты
+              {t('metricAnalyzer.tabCompetitors')}
             </TabsTrigger>
             <TabsTrigger value="hypotheses" className="gap-1">
               <Lightbulb className="h-4 w-4" />
-              Гипотезы
+              {t('metricAnalyzer.tabHypotheses')}
             </TabsTrigger>
           </TabsList>
           
@@ -105,10 +107,10 @@ export function MetricRelationshipAnalyzer({
             {competitors.length > 0 && (
               <Select value={selectedCompetitor} onValueChange={setSelectedCompetitor}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Выберите конкурента" />
+                  <SelectValue placeholder={t('metricAnalyzer.selectCompetitor')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Все конкуренты</SelectItem>
+                  <SelectItem value="all">{t('metricAnalyzer.allCompetitors')}</SelectItem>
                   {competitors.map(c => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
