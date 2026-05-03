@@ -318,25 +318,25 @@ export const CompetitorAnalysis = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="w-5 h-5" />
-            Добавить конкурента
+            {t("competitorAnalysis.addCompetitor")}
           </CardTitle>
           <CardDescription>
-            Заполните информацию о конкуренте для анализа
+            {t("competitorAnalysis.addCompetitorDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label htmlFor="competitor-name">Название компании</Label>
+              <Label htmlFor="competitor-name">{t("competitorAnalysis.companyName")}</Label>
               <Input
                 id="competitor-name"
                 value={newCompetitor.name}
                 onChange={(e) => updateNewCompetitor("name", e.target.value)}
-                placeholder="Название конкурента"
+                placeholder={t("competitorAnalysis.companyNamePlaceholder")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-revenue">Выручка ({currencySymbol})</Label>
+              <Label htmlFor="competitor-revenue">{t("competitorAnalysis.revenue", { currency: currencySymbol })}</Label>
               <Input
                 id="competitor-revenue"
                 type="number"
@@ -346,7 +346,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-marketShare">Доля рынка (%)</Label>
+              <Label htmlFor="competitor-marketShare">{t("competitorAnalysis.marketShare")}</Label>
               <Input
                 id="competitor-marketShare"
                 type="number"
@@ -357,7 +357,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-pricing">Средняя цена ({currencySymbol})</Label>
+              <Label htmlFor="competitor-pricing">{t("competitorAnalysis.pricing", { currency: currencySymbol })}</Label>
               <Input
                 id="competitor-pricing"
                 type="number"
@@ -367,7 +367,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-quality">Качество продукта (1-20)</Label>
+              <Label htmlFor="competitor-quality">{t("competitorAnalysis.quality")}</Label>
               <Input
                 id="competitor-quality"
                 type="number"
@@ -379,7 +379,7 @@ export const CompetitorAnalysis = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competitor-marketing">Расходы на маркетинг ({currencySymbol})</Label>
+              <Label htmlFor="competitor-marketing">{t("competitorAnalysis.marketingSpend", { currency: currencySymbol })}</Label>
               <Input
                 id="competitor-marketing"
                 type="number"
@@ -391,14 +391,14 @@ export const CompetitorAnalysis = ({
           </div>
           <Button onClick={addCompetitor} className="w-full">
             <Plus className="w-4 h-4 mr-2" />
-            Добавить конкурента
+            {t("competitorAnalysis.addCompetitor")}
           </Button>
         </CardContent>
       </Card>
 
       {competitors.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Список конкурентов</h3>
+          <h3 className="text-lg font-semibold">{t("competitorAnalysis.competitorsList")}</h3>
           <div className="grid grid-cols-1 gap-4">
             {competitors.map((competitor) => {
               const isExpanded = expandedCompetitors.has(competitor.id);
@@ -429,19 +429,19 @@ export const CompetitorAnalysis = ({
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
                       <div className="flex flex-col sm:flex-row sm:justify-between">
-                        <span className="text-muted-foreground">Выручка:</span>
-                        <span className="font-semibold font-mono">{competitor.revenue.toLocaleString("ru-RU")} {currencySymbol}</span>
+                        <span className="text-muted-foreground">{t("competitorAnalysis.revenueLabel")}</span>
+                        <span className="font-semibold font-mono">{competitor.revenue.toLocaleString(locale)} {currencySymbol}</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between">
-                        <span className="text-muted-foreground">Доля рынка:</span>
+                        <span className="text-muted-foreground">{t("competitorAnalysis.marketShareLabel")}</span>
                         <span className="font-semibold font-mono">{competitor.marketShare}%</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between">
-                        <span className="text-muted-foreground">Ср. цена:</span>
-                        <span className="font-semibold font-mono">{competitor.pricing.toLocaleString("ru-RU")} {currencySymbol}</span>
+                        <span className="text-muted-foreground">{t("competitorAnalysis.avgPriceLabel")}</span>
+                        <span className="font-semibold font-mono">{competitor.pricing.toLocaleString(locale)} {currencySymbol}</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between">
-                        <span className="text-muted-foreground">Качество:</span>
+                        <span className="text-muted-foreground">{t("competitorAnalysis.qualityLabel")}</span>
                         <span className="font-semibold font-mono">{competitor.quality}/20</span>
                       </div>
                     </div>
@@ -450,7 +450,7 @@ export const CompetitorAnalysis = ({
                       <CollapsibleTrigger asChild>
                         <Button variant="outline" className="w-full">
                           <BarChart3 className="w-4 h-4 mr-2" />
-                          Детальные показатели и метрики
+                          {t("competitorAnalysis.detailedMetrics")}
                           <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${expandedMetrics.has(competitor.id) ? "rotate-180" : ""}`} />
                         </Button>
                       </CollapsibleTrigger>
@@ -476,7 +476,7 @@ export const CompetitorAnalysis = ({
                       <CollapsibleTrigger asChild>
                         <Button variant="outline" className="w-full">
                           <Package className="w-4 h-4 mr-2" />
-                          Продукты конкурента ({(competitor.products || []).length})
+                          {t("competitorAnalysis.competitorProducts", { count: (competitor.products || []).length })}
                           <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                         </Button>
                       </CollapsibleTrigger>
@@ -487,19 +487,19 @@ export const CompetitorAnalysis = ({
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                               <div className="space-y-2">
                                 <Label htmlFor={`product-name-${competitor.id}`} className="text-xs">
-                                  Название продукта
+                                  {t("competitorAnalysis.productName")}
                                 </Label>
                                 <Input
                                   id={`product-name-${competitor.id}`}
                                   value={currentProduct?.name || ""}
                                   onChange={(e) => updateNewProduct(competitor.id, "name", e.target.value)}
-                                  placeholder="Название"
+                                  placeholder={t("competitorAnalysis.productNamePlaceholder")}
                                   className="h-9"
                                 />
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor={`product-price-${competitor.id}`} className="text-xs">
-                                  Цена ({currencySymbol})
+                                  {t("competitorAnalysis.productPrice", { currency: currencySymbol })}
                                 </Label>
                                 <Input
                                   id={`product-price-${competitor.id}`}
@@ -514,7 +514,7 @@ export const CompetitorAnalysis = ({
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor={`product-sales-${competitor.id}`} className="text-xs">
-                                  Продажи/год (шт)
+                                  {t("competitorAnalysis.productSales")}
                                 </Label>
                                 <Input
                                   id={`product-sales-${competitor.id}`}
@@ -529,7 +529,7 @@ export const CompetitorAnalysis = ({
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-xs">Каналы продаж</Label>
+                              <Label className="text-xs">{t("competitorAnalysis.salesChannels")}</Label>
                               <div className="flex flex-wrap gap-3">
                                 {SALES_CHANNELS.map((channel) => (
                                   <div key={channel} className="flex items-center space-x-2">
@@ -542,7 +542,7 @@ export const CompetitorAnalysis = ({
                                       htmlFor={`${competitor.id}-${channel}`}
                                       className="text-sm cursor-pointer"
                                     >
-                                      {channel}
+                                      {channelLabel(channel)}
                                     </label>
                                   </div>
                                 ))}
@@ -554,7 +554,7 @@ export const CompetitorAnalysis = ({
                               className="w-full"
                             >
                               <Plus className="w-3 h-3 mr-2" />
-                              Добавить продукт
+                              {t("competitorAnalysis.addProduct")}
                             </Button>
                           </CardContent>
                         </Card>
@@ -573,13 +573,13 @@ export const CompetitorAnalysis = ({
                                       </div>
                                       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                         <div>
-                                          Цена: <span className="font-mono font-medium text-foreground">{product.price.toLocaleString("ru-RU")} {currencySymbol}</span>
+                                          {t("competitorAnalysis.productPriceLine")} <span className="font-mono font-medium text-foreground">{product.price.toLocaleString(locale)} {currencySymbol}</span>
                                         </div>
                                         <div>
-                                          Продажи: <span className="font-mono font-medium text-foreground">{product.annualSales.toLocaleString("ru-RU")} шт/год</span>
+                                          {t("competitorAnalysis.productSalesLine")} <span className="font-mono font-medium text-foreground">{product.annualSales.toLocaleString(locale)} {t("competitorAnalysis.productSalesUnit")}</span>
                                         </div>
                                         <div>
-                                          Выручка: <span className="font-mono font-medium text-foreground">{product.annualRevenue.toLocaleString("ru-RU")} {currencySymbol}</span>
+                                          {t("competitorAnalysis.productRevenueLine")} <span className="font-mono font-medium text-foreground">{product.annualRevenue.toLocaleString(locale)} {currencySymbol}</span>
                                         </div>
                                       </div>
                                       {product.salesChannels.length > 0 && (
@@ -589,7 +589,7 @@ export const CompetitorAnalysis = ({
                                               key={channel}
                                               className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs"
                                             >
-                                              {channel}
+                                              {channelLabel(channel)}
                                             </span>
                                           ))}
                                         </div>
@@ -609,14 +609,14 @@ export const CompetitorAnalysis = ({
                             ))}
                             <div className="pt-2 border-t">
                               <div className="flex justify-between text-sm font-semibold">
-                                <span>Итого выручка по продуктам:</span>
-                                <span className="font-mono">{totalProductRevenue.toLocaleString("ru-RU")} {currencySymbol}</span>
+                                <span>{t("competitorAnalysis.productsTotalRevenue")}</span>
+                                <span className="font-mono">{totalProductRevenue.toLocaleString(locale)} {currencySymbol}</span>
                               </div>
                             </div>
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground text-center py-4">
-                            Продукты не добавлены
+                            {t("competitorAnalysis.noProducts")}
                           </p>
                         )}
                       </CollapsibleContent>
@@ -634,7 +634,7 @@ export const CompetitorAnalysis = ({
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Building2 className="w-12 h-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              Пока нет добавленных конкурентов. Добавьте первого конкурента для анализа.
+              {t("competitorAnalysis.emptyState")}
             </p>
           </CardContent>
         </Card>
