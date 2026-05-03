@@ -4223,6 +4223,7 @@ const ro: DictionaryShape = {
     cplWith: "CPL ({currency})",
   },
   roiCalculator: {
+    monthAbbr: "L",
     title: "Calculator ROI",
     initialInvestment: "Investiție inițială ({currency})",
     analysisPeriod: "Perioada de analiză (luni)",
