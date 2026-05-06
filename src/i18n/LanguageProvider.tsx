@@ -144,6 +144,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   }, []);
 
   useEffect(() => {
+    _currentLanguage = language;
     if (typeof document !== "undefined") {
       document.documentElement.lang = language;
     }
