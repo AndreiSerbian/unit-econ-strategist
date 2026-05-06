@@ -70,26 +70,22 @@ export const ProjectSettings = ({
 
     if (currencyChanged) {
       onCurrencyChange(pendingCurrency);
-      toast.success(t("settings.toasts.currencyChanged"));
+      // toast emitted by useProject.updateCurrency
     }
 
     if (typeChanged) {
-      // Defer business type change until user confirms in the warning dialog.
       setShowWarning(true);
       return;
     }
 
     if (currencyChanged || !typeChanged) {
-      if (!currencyChanged) {
-        toast.success(t("settings.toasts.settingsUpdated"));
-      }
       setIsOpen(false);
     }
   };
 
   const handleConfirmChange = () => {
     onBusinessTypeChange(selectedType);
-    toast.success(t("settings.toasts.businessTypeChanged"));
+    // toast emitted by useProject.updateBusinessType
     setShowWarning(false);
     setIsOpen(false);
   };

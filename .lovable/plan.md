@@ -1,55 +1,67 @@
-# Multilingual Onboarding — Gap Fixes
+## Final localization & UX cleanup
 
-## Current state (verified)
+One pass, no checkpoints. Adds keys to ru/en/ro, replaces hardcoded RU strings with `t(...)`, removes duplicate toasts, and fixes the Theory simulation grid.
 
-The onboarding (`src/components/OnboardingFlow.tsx`, mounted from `Dashboard.tsx`) is **already fully wired into the i18n system**: all titles, descriptions, bullets, buttons (`Back`, `Next`, `Start`, `Skip`, progress) read from `onboarding.*` keys that already exist in RU, EN, and RO inside `src/i18n/dictionary.ts` (lines 716, 2612, 4505). No hardcoded Russian remains in the onboarding component. The global header `LanguageSwitcher` already changes onboarding text live via `LanguageProvider` (priority: user-selected → localStorage → DEFAULT_LANGUAGE = `ru`).
+### 1. My Company tab
 
-So this task is **not** "translate onboarding" — it's closing three concrete gaps the spec calls for.
+**`src/components/saas-products/SaasKpiCards.tsx`** and `SaasProductsManager.tsx`, `SaasProductCard.tsx`, `PlanRow.tsx`
+- Replace hardcoded labels (`MRR подписок`, `Активные подписчики`, `ARPU`, `Месячная выручка`, `Средний чек`, plan field labels) with `t("saas.*")`.
+- Fix mixed strings `MRR (Месячная выручка)` and `ARPU (Средний чек)` → use single key per language; in EN/RO drop the parenthetical or translate it.
 
-## Gaps to fix
+**`src/components/ProductsManagement.tsx`**
+- Replace remaining hardcoded headings, buttons, empty states, badges (`Покупатели`, `Выручка`, `Активные подписчики`, etc.) with `t("products.*")`.
+- Audit child cards (`services/ServicesProductCard.tsx`, `marketplace/CategoryCard.tsx`, `token-saas/*`) for any RU labels surfaced in My Company view.
 
-### 1. Language selector inside the onboarding (Welcome step)
-- Add a `LanguageSwitcher` (reuse existing component) on step 0 (`welcome`), placed under the welcome icon/title block.
-- Selecting a language calls `setLanguage(...)` from the existing context (no new state system) and immediately re-renders all step text.
-- Fires `onboarding_language_selected` analytics event with `source: "onboarding_selector"`.
+**`src/config/businessTypeMetrics.ts`**
+- All `label:` / `description:` / option labels for SaaS, E-commerce, Production, Services, Freemium, Sharing, Marketplace currently hardcoded RU. Add `labelKey`/`descriptionKey` everywhere they're missing and resolve via `t()` at render sites (`BusinessTypeSelector.tsx`, `BusinessTypeMetricsComparison.tsx`, `CompanyMetrics.tsx`).
+- Stable IDs (`saas`, `ecommerce`, etc.) stay as-is.
 
-### 2. Browser-language detection on first visit
-Update `src/i18n/LanguageProvider.tsx` `readStoredLanguage()`:
-- If `localStorage[LANGUAGE_STORAGE_KEY]` is **set**, use it (respects user choice — never override).
-- If **unset**, read `navigator.language` / `navigator.languages`. Map prefix → `ru` | `en` | `ro`. Anything else → existing `DEFAULT_LANGUAGE` fallback.
-- Do **not** persist the detected language until the user explicitly picks one (so the global default-language behavior elsewhere isn't affected).
-- Emit `onboarding_language_selected` with `source: "browser"` once on first onboarding mount when detection occurred.
+### 2. Competitors & Market
 
-### 3. Lightweight analytics event handler
-Create `src/utils/onboardingAnalytics.ts` exporting a single `trackOnboardingEvent(name, payload)` that:
-- Builds the standard payload `{ language, step, totalSteps, completionPercentage, timestamp }` (or the language-selected variant).
-- Currently logs via `console.debug` and dispatches `window.dispatchEvent(new CustomEvent("onboarding:event", { detail }))` so a real analytics layer can subscribe later.
-- No external SDK, no Supabase writes.
+**`src/components/CompetitorCharts.tsx`** — titles (`Выручка по продуктам`, `Сравнение выручки и маркетинговых расходов`), legends (`выручка`, `маркетинг`), tooltips, empty states → `t("competitorCharts.*")`. Keep `dataKey` literal, only translate `name`.
 
-Wire calls inside `OnboardingFlow.tsx`:
-- mount → `onboarding_started`
-- `nextStep` (non-final) → `onboarding_step_completed`
-- `nextStep` (final) → `onboarding_finished`
-- skip link / Skip button → `onboarding_skipped`
-- language change inside onboarding → `onboarding_language_selected`
+**`src/components/CompetitorAnalysis.tsx`** — section titles `Финансовые показатели конкурентов`, `Сравнение по ключевым показателям` → `t("competitorAnalysis.*")`.
 
-## Files to change
+**`src/components/MarketOverview.tsx`** — `Доля рынка`, `Распределение рыночных долей`, `Многофакторный анализ` → `t("market.*")`. Improve multifactor chart label readability: shorter localized labels + `tick={{ fontSize: 11 }}` and increased radius padding.
 
-- `src/components/OnboardingFlow.tsx` — add `LanguageSwitcher` on welcome step; add analytics calls; on first selection, persist via existing `setLanguage`.
-- `src/i18n/LanguageProvider.tsx` — extend `readStoredLanguage()` with `navigator.language` detection (only when nothing stored).
-- `src/utils/onboardingAnalytics.ts` — new file, ~30 lines.
-- `src/i18n/dictionary.ts` — add 1 string per locale: `onboarding.languageSelectorTitle` ("Choose your language" / "Выберите язык" / "Alege limba"). All other keys already exist.
+**`src/components/CompetitiveMap.tsx` / `CompetitorMetrics.tsx` / `BusinessTypeMetricsComparison.tsx`** — sweep remaining RU strings.
 
-## Out of scope (confirmed)
+### 3. Theory tab
 
-- No redesign, no new modal wrapper (current full-screen flow preserved).
-- No changes to checklist, Dashboard tabs, business logic, persistence keys, or Supabase schema.
-- No new global language system — reuse `LanguageProvider`.
+**`src/components/GameTheoryMatrix.tsx`**
+- Wrap the 4 simulation buttons in `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3`.
+- Localize button labels and matrix cell descriptions.
 
-## Acceptance
+**`src/components/StrategyDictionary.tsx`**
+- Move strategy data (title, description, risks, impact, category, section headings) into structured dictionary entries: `strategies.<id>.title`, `.description`, `.risks`, `.impact`, `.category`. Code references stable `id` only.
+- Render via `t()` lookup; fallback to RU if key missing.
 
-- Switching language via the new in-onboarding selector or the global header updates all step text instantly.
-- Fresh browser (no `unitEconomicsLanguage` in localStorage) with `navigator.language = "ro-RO"` opens onboarding in Romanian; with `en-US` → English; otherwise → Russian.
-- A user-selected language is never overridden by browser detection on later visits.
-- All five `onboarding_*` events fire and are visible in console / `window` event listener with the documented payload shape.
-- Romanian text doesn't overflow on 375px viewport (current layout already wraps; selector added inline won't change this).
+### 4. Settings
+
+**`src/components/ProjectSettings.tsx`** and `CurrencySelector.tsx`
+- Find duplicate `toast(...)` calls (one Russian literal + one `t("system.toasts.settingsChange")`). Remove the literal RU one. Same audit in `CompetitorAnalysis.tsx` for currency/competitor action toasts.
+- Localize Services/Freemium key metric badges (driven by businessType config fix in §1).
+
+### 5. Dictionary additions (`src/i18n/dictionary.ts`)
+
+New namespaces (ru/en/ro):
+- `saas.*` (mrr, arpu, activeSubscribers, monthlyRevenue, avgCheck, plan field labels)
+- `products.*` (extend existing)
+- `businessTypeMetrics.*` extensions for every option/field label currently hardcoded
+- `competitorCharts.*` (revenueByProducts, revenueVsMarketing, legendRevenue, legendMarketing, …)
+- `competitorAnalysis.financialMetrics`, `keyMetricsComparison`
+- `market.share`, `market.shareDistribution`, `market.multifactor`
+- `theory.simulation.*` (button labels)
+- `strategies.<id>.{title,description,risks,impact,category}` for each strategy in `StrategyDictionary`
+
+### 6. QA
+
+- Manual switch RU → EN → RO on each tab; confirm no Cyrillic in EN/RO except user-entered names.
+- Trigger settings save, currency change, competitor add → exactly one toast in active language.
+- Verify Theory grid at 375 / 768 / 1280 viewports.
+
+### Out of scope
+No changes to calculations, schema, or stored IDs. User-entered strings (company/competitor/product names) untouched.
+
+### Files to edit
+`src/i18n/dictionary.ts`, `src/config/businessTypeMetrics.ts`, `src/components/saas-products/{SaasKpiCards,SaasProductsManager,SaasProductCard,PlanRow}.tsx`, `src/components/ProductsManagement.tsx`, `src/components/BusinessTypeSelector.tsx`, `src/components/BusinessTypeMetricsComparison.tsx`, `src/components/CompanyMetrics.tsx`, `src/components/CompetitorCharts.tsx`, `src/components/CompetitorAnalysis.tsx`, `src/components/CompetitorMetrics.tsx`, `src/components/CompetitiveMap.tsx`, `src/components/MarketOverview.tsx`, `src/components/GameTheoryMatrix.tsx`, `src/components/StrategyDictionary.tsx`, `src/components/ProjectSettings.tsx`, `src/components/CurrencySelector.tsx`.

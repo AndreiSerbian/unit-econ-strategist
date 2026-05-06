@@ -86,9 +86,9 @@ export const businessTypes: BusinessTypeConfig[] = [
     primaryMetrics: ['MRR', 'ARR', 'Churn Rate', 'ARPU', 'LTV'],
     additionalMetrics: ['Retention Rate', 'Expansion Revenue', 'NRR'],
     labels: {
-      revenue: 'MRR (Месячная выручка)',
+      revenue: 'MRR',
       clients: 'Активные подписчики',
-      avgCheck: 'ARPU (Средний чек)',
+      avgCheck: 'ARPU',
       conversion: 'Trial → Paid конверсия',
       retention: 'Retention Rate',
     },

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
 import { Users, Package, TrendingUp, Share2 } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface CompetitorProduct {
   id: string;
@@ -38,6 +39,7 @@ const getCurrencySymbol = (curr: string) => {
 };
 
 export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorChartsProps) => {
+  const { t } = useTranslation();
   const currencySymbol = getCurrencySymbol(currency);
 
   if (competitors.length === 0) {
@@ -124,10 +126,10 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5 text-secondary" />
-            Сравнение выручки и маркетинговых расходов
+            {t("competitorCharts.revenueTitle")}
           </CardTitle>
           <CardDescription>
-            Финансовые показатели конкурентов
+            {t("competitorCharts.revenueDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -144,8 +146,8 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
                 }}
               />
               <Legend />
-              <Bar dataKey="выручка" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="маркетинг" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="выручка" name={t("competitorCharts.revenue")} fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="маркетинг" name={t("competitorCharts.marketing")} fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -154,8 +156,8 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Доля рынка</CardTitle>
-            <CardDescription>Распределение рыночных долей</CardDescription>
+            <CardTitle>{t("competitorCharts.marketShareTitle")}</CardTitle>
+            <CardDescription>{t("competitorCharts.marketShareDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
@@ -170,7 +172,7 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
                     borderRadius: '8px',
                   }}
                 />
-                <Bar dataKey="доляРынка" fill="hsl(var(--accent))" radius={[0, 8, 8, 0]} />
+                <Bar dataKey="доляРынка" name={t("competitorCharts.marketShare")} fill="hsl(var(--accent))" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -179,8 +181,8 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
         {radarData.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Многофакторный анализ</CardTitle>
-              <CardDescription>Сравнение по ключевым показателям</CardDescription>
+              <CardTitle>{t("competitorCharts.multifactorTitle")}</CardTitle>
+              <CardDescription>{t("competitorCharts.multifactorDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
@@ -189,21 +191,21 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
                   <PolarAngleAxis dataKey="competitor" stroke="hsl(var(--foreground))" />
                   <PolarRadiusAxis stroke="hsl(var(--foreground))" />
                   <Radar
-                    name="Цена"
+                    name={t("competitorCharts.price")}
                     dataKey="цена"
                     stroke="hsl(var(--primary))"
                     fill="hsl(var(--primary))"
                     fillOpacity={0.3}
                   />
                   <Radar
-                    name="Качество"
+                    name={t("competitorCharts.quality")}
                     dataKey="качество"
                     stroke="hsl(var(--secondary))"
                     fill="hsl(var(--secondary))"
                     fillOpacity={0.3}
                   />
                   <Radar
-                    name="Доля рынка"
+                    name={t("competitorCharts.marketShare")}
                     dataKey="доляРынка"
                     stroke="hsl(var(--accent))"
                     fill="hsl(var(--accent))"
