@@ -20,6 +20,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { translate } from "@/i18n/LanguageProvider";
 import type { BusinessType } from "@/config/businessTypeMetrics";
 
 export interface ExpenseCategory {
@@ -828,12 +829,12 @@ export const useProject = (userId: string | undefined) => {
       setHasUnsavedChanges(false);
       setLastSavedAt(new Date());
       if (showToast) {
-        toast.success("Данные сохранены в облако");
+        toast.success(translate("system.toasts.cloudSaved"));
       }
     } catch (error) {
       console.error("Save error:", error);
       if (showToast) {
-        toast.error("Ошибка сохранения в облако");
+        toast.error(translate("system.toasts.cloudSaveError"));
       }
     } finally {
       setIsSaving(false);
@@ -1196,7 +1197,7 @@ export const useProject = (userId: string | undefined) => {
       }
     } catch (error: any) {
       console.error("Error loading project:", error);
-      toast.error("Ошибка загрузки проекта");
+      toast.error(translate("system.toasts.projectLoadError"));
     } finally {
       setLoading(false);
     }
@@ -1244,10 +1245,10 @@ export const useProject = (userId: string | undefined) => {
       if (error) throw error;
       markAsSavedToCloud(userId);
       setHasUnsavedChanges(false);
-      toast.success("Сценарий сохранен");
+      toast.success(translate("system.toasts.scenarioSaved"));
     } catch (error: any) {
       console.error("Error saving scenario:", error);
-      toast.error("Ошибка сохранения");
+      toast.error(translate("system.toasts.saveError"));
     }
   };
 
@@ -1256,7 +1257,7 @@ export const useProject = (userId: string | undefined) => {
       // Local storage mode
       const newCompetitor = { ...competitor, id: Date.now().toString() };
       setCompetitors([...competitors, newCompetitor]);
-      toast.success("Конкурент добавлен");
+      toast.success(translate("system.toasts.competitorAdded"));
       return;
     }
 
@@ -1297,10 +1298,10 @@ export const useProject = (userId: string | undefined) => {
         ...extractCompetitorMetrics(competitor),
       };
       setCompetitors(prev => [...prev, newCompetitor]);
-      toast.success("Конкурент добавлен");
+      toast.success(translate("system.toasts.competitorAdded"));
     } catch (error: any) {
       console.error("Error saving competitor:", error);
-      toast.error("Ошибка сохранения конкурента");
+      toast.error(translate("system.toasts.competitorSaveError"));
     }
   };
 
@@ -1308,7 +1309,7 @@ export const useProject = (userId: string | undefined) => {
     if (!userId) {
       // Local storage mode
       setCompetitors(competitors.map((c) => (c.id === competitorId ? { ...c, ...updates } : c)));
-      toast.success("Конкурент обновлён");
+      toast.success(translate("system.toasts.competitorUpdated"));
       return;
     }
 
@@ -1350,7 +1351,7 @@ export const useProject = (userId: string | undefined) => {
       // Don't show toast for every update (too noisy)
     } catch (error: any) {
       console.error("Error updating competitor:", error);
-      toast.error("Ошибка обновления конкурента");
+      toast.error(translate("system.toasts.competitorUpdateError"));
     }
   };
 
@@ -1358,7 +1359,7 @@ export const useProject = (userId: string | undefined) => {
     if (!userId) {
       // Local storage mode
       setCompetitors(competitors.filter((c) => c.id !== competitorId));
-      toast.success("Конкурент удален");
+      toast.success(translate("system.toasts.competitorDeleted"));
       return;
     }
 
@@ -1370,10 +1371,10 @@ export const useProject = (userId: string | undefined) => {
 
       if (error) throw error;
       setCompetitors(competitors.filter((c) => c.id !== competitorId));
-      toast.success("Конкурент удален");
+      toast.success(translate("system.toasts.competitorDeleted"));
     } catch (error: any) {
       console.error("Error deleting competitor:", error);
-      toast.error("Ошибка удаления");
+      toast.error(translate("system.toasts.deleteError"));
     }
   };
 
@@ -1382,7 +1383,7 @@ export const useProject = (userId: string | undefined) => {
       // Local storage mode
       const newProduct = { ...product, id: Date.now().toString() };
       setProducts([...products, newProduct]);
-      toast.success("Продукт добавлен");
+      toast.success(translate("system.toasts.productAdded"));
       return;
     }
 
@@ -1507,17 +1508,17 @@ export const useProject = (userId: string | undefined) => {
         defectRate: mapNum(product.defectRate),
       };
       setProducts(prev => [...prev, newProduct]);
-      toast.success("Продукт добавлен");
+      toast.success(translate("system.toasts.productAdded"));
     } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error("Ошибка сохранения продукта");
+      toast.error(translate("system.toasts.productSaveError"));
     }
   };
 
   const updateProduct = async (productId: string, updates: Partial<Product>) => {
     if (!userId) {
       setProducts(products.map((p) => (p.id === productId ? { ...p, ...updates } : p)));
-      toast.success("Продукт обновлён");
+      toast.success(translate("system.toasts.productUpdated"));
       return;
     }
 
@@ -1612,10 +1613,10 @@ export const useProject = (userId: string | undefined) => {
       }
 
       setProducts(products.map((p) => (p.id === productId ? { ...p, ...updates } : p)));
-      toast.success("Продукт обновлён");
+      toast.success(translate("system.toasts.productUpdated"));
     } catch (error: any) {
       console.error("Error updating product:", error);
-      toast.error("Ошибка обновления продукта");
+      toast.error(translate("system.toasts.productUpdateError"));
     }
   };
 
@@ -1623,7 +1624,7 @@ export const useProject = (userId: string | undefined) => {
     if (!userId) {
       // Local storage mode
       setProducts(products.filter((p) => p.id !== productId));
-      toast.success("Продукт удален");
+      toast.success(translate("system.toasts.productDeleted"));
       return;
     }
 
@@ -1635,10 +1636,10 @@ export const useProject = (userId: string | undefined) => {
 
       if (error) throw error;
       setProducts(products.filter((p) => p.id !== productId));
-      toast.success("Продукт удален");
+      toast.success(translate("system.toasts.productDeleted"));
     } catch (error: any) {
       console.error("Error deleting product:", error);
-      toast.error("Ошибка удаления");
+      toast.error(translate("system.toasts.deleteError"));
     }
   };
   const addCompetitorProduct = async (
@@ -1662,7 +1663,7 @@ export const useProject = (userId: string | undefined) => {
       );
 
       setCompetitors(updatedCompetitors);
-      toast.success("Продукт конкурента добавлен");
+      toast.success(translate("system.toasts.competitorProductAdded"));
       return;
     }
 
@@ -1697,10 +1698,10 @@ export const useProject = (userId: string | undefined) => {
       );
 
       setCompetitors(updatedCompetitors);
-      toast.success("Продукт конкурента добавлен");
+      toast.success(translate("system.toasts.competitorProductAdded"));
     } catch (error: any) {
       console.error("Error adding competitor product:", error);
-      toast.error("Ошибка добавления продукта конкурента");
+      toast.error(translate("system.toasts.competitorProductAddError"));
     }
   };
 
@@ -1717,7 +1718,7 @@ export const useProject = (userId: string | undefined) => {
       );
 
       setCompetitors(updatedCompetitors);
-      toast.success("Продукт конкурента удален");
+      toast.success(translate("system.toasts.competitorProductDeleted"));
       return;
     }
 
@@ -1735,10 +1736,10 @@ export const useProject = (userId: string | undefined) => {
       );
 
       setCompetitors(updatedCompetitors);
-      toast.success("Продукт конкурента удален");
+      toast.success(translate("system.toasts.competitorProductDeleted"));
     } catch (error: any) {
       console.error("Error deleting competitor product:", error);
-      toast.error("Ошибка удаления продукта конкурента");
+      toast.error(translate("system.toasts.competitorProductDeleteError"));
     }
   };
 
@@ -1746,7 +1747,7 @@ export const useProject = (userId: string | undefined) => {
     if (!userId) {
       // Local storage mode
       setCurrency(newCurrency);
-      toast.success("Валюта обновлена");
+      toast.success(translate("system.toasts.currencyUpdated"));
       return;
     }
 
@@ -1760,10 +1761,10 @@ export const useProject = (userId: string | undefined) => {
 
       if (error) throw error;
       setCurrency(newCurrency);
-      toast.success("Валюта обновлена");
+      toast.success(translate("system.toasts.currencyUpdated"));
     } catch (error: any) {
       console.error("Error updating currency:", error);
-      toast.error("Ошибка обновления валюты");
+      toast.error(translate("system.toasts.currencyUpdateError"));
     }
   };
 
@@ -1771,7 +1772,7 @@ export const useProject = (userId: string | undefined) => {
     if (!userId) {
       // Local storage mode
       setBusinessType(newType);
-      toast.success("Тип бизнеса обновлён");
+      toast.success(translate("system.toasts.businessTypeUpdated"));
       return;
     }
 
@@ -1785,10 +1786,10 @@ export const useProject = (userId: string | undefined) => {
 
       if (error) throw error;
       setBusinessType(newType);
-      toast.success("Тип бизнеса обновлён");
+      toast.success(translate("system.toasts.businessTypeUpdated"));
     } catch (error: any) {
       console.error("Error updating business type:", error);
-      toast.error("Ошибка обновления типа бизнеса");
+      toast.error(translate("system.toasts.businessTypeUpdateError"));
     }
   };
 
@@ -1904,7 +1905,7 @@ export const useProject = (userId: string | undefined) => {
 
     setter(updatedMetrics);
 
-    toast.success("Метрики обновлены на основе продуктов");
+    toast.success(translate("system.toasts.metricsUpdated"));
   };
 
   // Функции очистки данных
@@ -1934,7 +1935,7 @@ export const useProject = (userId: string | undefined) => {
     setProducts([]);
     setProductMaterials([]);
     setProductChannelAllocations([]);
-    toast.success("Продукты очищены");
+    toast.success(translate("system.toasts.productsCleared"));
   }, [projectId, userId]);
 
   const clearMaterials = useCallback(async () => {
@@ -1959,7 +1960,7 @@ export const useProject = (userId: string | undefined) => {
     
     setMaterials([]);
     setProductMaterials([]);
-    toast.success("Сырьё очищено");
+    toast.success(translate("system.toasts.materialsCleared"));
   }, [projectId, userId]);
 
   const clearCompetitors = useCallback(async () => {
@@ -1975,14 +1976,14 @@ export const useProject = (userId: string | undefined) => {
     }
     
     setCompetitors([]);
-    toast.success("Конкуренты очищены");
+    toast.success(translate("system.toasts.competitorsCleared"));
   }, [projectId, userId]);
 
   const clearMetrics = useCallback(() => {
     setCurrentMetrics(initialMetrics);
     setScenarioA(initialMetrics);
     setScenarioB(initialMetrics);
-    toast.success("Показатели очищены");
+    toast.success(translate("system.toasts.metricsCleared"));
   }, []);
 
   const clearSalesChannels = useCallback(async () => {
@@ -2004,7 +2005,7 @@ export const useProject = (userId: string | undefined) => {
     
     setSalesChannels([]);
     setProductChannelAllocations([]);
-    toast.success("Каналы продаж очищены");
+    toast.success(translate("system.toasts.channelsCleared"));
   }, [projectId, userId]);
 
   const clearAllData = useCallback(async () => {
@@ -2046,7 +2047,7 @@ export const useProject = (userId: string | undefined) => {
     // Очистка localStorage
     localStorage.removeItem(getStorageKey(userId));
     
-    toast.success("Все данные очищены");
+    toast.success(translate("system.toasts.allCleared"));
   }, [userId, projectId]);
 
   return {
