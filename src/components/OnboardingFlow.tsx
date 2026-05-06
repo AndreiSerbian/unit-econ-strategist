@@ -1,5 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/types";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { trackOnboardingEvent } from "@/utils/onboardingAnalytics";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
