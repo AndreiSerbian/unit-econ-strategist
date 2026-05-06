@@ -156,8 +156,8 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Доля рынка</CardTitle>
-            <CardDescription>Распределение рыночных долей</CardDescription>
+            <CardTitle>{t("competitorCharts.marketShareTitle")}</CardTitle>
+            <CardDescription>{t("competitorCharts.marketShareDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
@@ -172,7 +172,7 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
                     borderRadius: '8px',
                   }}
                 />
-                <Bar dataKey="доляРынка" fill="hsl(var(--accent))" radius={[0, 8, 8, 0]} />
+                <Bar dataKey="доляРынка" name={t("competitorCharts.marketShare")} fill="hsl(var(--accent))" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -181,8 +181,8 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
         {radarData.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Многофакторный анализ</CardTitle>
-              <CardDescription>Сравнение по ключевым показателям</CardDescription>
+              <CardTitle>{t("competitorCharts.multifactorTitle")}</CardTitle>
+              <CardDescription>{t("competitorCharts.multifactorDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
