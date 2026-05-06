@@ -126,10 +126,10 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5 text-secondary" />
-            Сравнение выручки и маркетинговых расходов
+            {t("competitorCharts.revenueTitle")}
           </CardTitle>
           <CardDescription>
-            Финансовые показатели конкурентов
+            {t("competitorCharts.revenueDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
