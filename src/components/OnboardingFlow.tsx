@@ -360,7 +360,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
               <div className="text-center mt-4">
                 <Button
                   variant="link"
-                  onClick={() => onComplete("ecommerce")}
+                  onClick={handleSkip}
                   className="text-muted-foreground"
                 >
                   {t("onboarding.skip")}
