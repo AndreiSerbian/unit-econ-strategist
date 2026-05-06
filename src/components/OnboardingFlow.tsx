@@ -268,6 +268,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                       {step.description}
                     </CardDescription>
                   </div>
+                  {step.id === "welcome" && (
+                    <div className="flex flex-col items-center gap-2 pt-2">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {t("onboarding.languageSelectorTitle")}
+                      </p>
+                      <LanguageSwitcher />
+                    </div>
+                  )}
                 </div>
 
                 {step.component ? (
