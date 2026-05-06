@@ -39,6 +39,7 @@ const getCurrencySymbol = (curr: string) => {
 };
 
 export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorChartsProps) => {
+  const { t } = useTranslation();
   const currencySymbol = getCurrencySymbol(currency);
 
   if (competitors.length === 0) {
