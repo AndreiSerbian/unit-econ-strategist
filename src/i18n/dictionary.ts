@@ -243,6 +243,7 @@ const ru: DictionaryShape = {
     negativeMargin: "Отрицательная маржа — убыточная модель",
     lowMargin: "Низкая маржа (<10%)",
   },
+  expenses: {
     fixedTitle: "📊 Постоянные расходы",
     variableTitle: "📈 Переменные расходы",
     fotGroup: "Оклады и ставки (постоянный ФОТ)",
