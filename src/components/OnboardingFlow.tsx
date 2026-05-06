@@ -1,5 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n/types";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { trackOnboardingEvent } from "@/utils/onboardingAnalytics";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,9 +36,54 @@ interface OnboardingFlowProps {
 }
 
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>("ecommerce");
+  const prevLanguageRef = useRef(language);
+  const startedRef = useRef(false);
+
+  // Fire onboarding_started once and emit a language_selected event when
+  // the initial language came from browser detection (no stored choice).
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    const totalSteps = 8; // matches steps array length below
+    let storedLang: string | null = null;
+    try {
+      storedLang = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (!storedLang) {
+      trackOnboardingEvent("onboarding_language_selected", {
+        language,
+        step: 0,
+        totalSteps,
+        selectedLanguage: language,
+        source: "browser",
+      });
+    }
+    trackOnboardingEvent("onboarding_started", {
+      language,
+      step: 0,
+      totalSteps,
+    });
+  }, [language]);
+
+  // Emit language_selected when user changes language while in onboarding.
+  useEffect(() => {
+    if (prevLanguageRef.current !== language) {
+      trackOnboardingEvent("onboarding_language_selected", {
+        language,
+        step: currentStep,
+        totalSteps: 8,
+        previousLanguage: prevLanguageRef.current,
+        selectedLanguage: language,
+        source: "onboarding_selector",
+      });
+      prevLanguageRef.current = language;
+    }
+  }, [language, currentStep]);
 
   const steps: OnboardingStep[] = useMemo(
     () => [
@@ -141,9 +189,20 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   );
 
   const nextStep = () => {
+    const totalSteps = steps.length;
     if (currentStep < steps.length - 1) {
+      trackOnboardingEvent("onboarding_step_completed", {
+        language,
+        step: currentStep,
+        totalSteps,
+      });
       setCurrentStep(currentStep + 1);
     } else {
+      trackOnboardingEvent("onboarding_finished", {
+        language,
+        step: currentStep,
+        totalSteps,
+      });
       onComplete(selectedBusinessType);
     }
   };
@@ -152,6 +211,15 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const handleSkip = () => {
+    trackOnboardingEvent("onboarding_skipped", {
+      language,
+      step: currentStep,
+      totalSteps: steps.length,
+    });
+    onComplete("ecommerce");
   };
 
   const step = steps[currentStep];
@@ -200,6 +268,14 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                       {step.description}
                     </CardDescription>
                   </div>
+                  {step.id === "welcome" && (
+                    <div className="flex flex-col items-center gap-2 pt-2">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {t("onboarding.languageSelectorTitle")}
+                      </p>
+                      <LanguageSwitcher />
+                    </div>
+                  )}
                 </div>
 
                 {step.component ? (
@@ -284,7 +360,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
               <div className="text-center mt-4">
                 <Button
                   variant="link"
-                  onClick={() => onComplete("ecommerce")}
+                  onClick={handleSkip}
                   className="text-muted-foreground"
                 >
                   {t("onboarding.skip")}

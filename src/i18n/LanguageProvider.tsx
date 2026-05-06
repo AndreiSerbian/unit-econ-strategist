@@ -23,6 +23,20 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
+function detectBrowserLanguage(): Language | null {
+  if (typeof navigator === "undefined") return null;
+  const candidates: string[] = [];
+  if (Array.isArray(navigator.languages)) candidates.push(...navigator.languages);
+  if (navigator.language) candidates.push(navigator.language);
+  for (const raw of candidates) {
+    const prefix = raw.toLowerCase().split("-")[0];
+    if ((SUPPORTED_LANGUAGES as string[]).includes(prefix)) {
+      return prefix as Language;
+    }
+  }
+  return null;
+}
+
 function readStoredLanguage(): Language {
   if (typeof window === "undefined") return DEFAULT_LANGUAGE;
   try {
@@ -33,6 +47,9 @@ function readStoredLanguage(): Language {
   } catch {
     /* ignore */
   }
+  // No explicit user choice yet — try browser language detection (do not persist).
+  const detected = detectBrowserLanguage();
+  if (detected) return detected;
   return DEFAULT_LANGUAGE;
 }
 
