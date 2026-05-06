@@ -189,9 +189,20 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   );
 
   const nextStep = () => {
+    const totalSteps = steps.length;
     if (currentStep < steps.length - 1) {
+      trackOnboardingEvent("onboarding_step_completed", {
+        language,
+        step: currentStep,
+        totalSteps,
+      });
       setCurrentStep(currentStep + 1);
     } else {
+      trackOnboardingEvent("onboarding_finished", {
+        language,
+        step: currentStep,
+        totalSteps,
+      });
       onComplete(selectedBusinessType);
     }
   };
@@ -200,6 +211,15 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const handleSkip = () => {
+    trackOnboardingEvent("onboarding_skipped", {
+      language,
+      step: currentStep,
+      totalSteps: steps.length,
+    });
+    onComplete("ecommerce");
   };
 
   const step = steps[currentStep];
