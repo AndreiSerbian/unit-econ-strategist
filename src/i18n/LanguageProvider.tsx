@@ -85,6 +85,32 @@ function lookup(lang: Language, path: string): string | undefined {
   return undefined;
 }
 
+// Mutable holder for the currently active language so non-React code (hooks, utils)
+// can produce localized strings (e.g. toast messages).
+let _currentLanguage: Language = DEFAULT_LANGUAGE;
+
+export function getActiveLanguage(): Language {
+  return _currentLanguage;
+}
+
+/**
+ * Static translator usable outside React. Falls back EN → RU → key.
+ * Prefer the `t` from useTranslation() inside components.
+ */
+export function translate(
+  path: string,
+  vars?: Record<string, string | number>
+): string {
+  const lang = _currentLanguage;
+  const direct = lookup(lang, path);
+  if (direct !== undefined) return applyVars(direct, vars);
+  const en = lookup("en", path);
+  if (en !== undefined) return applyVars(en, vars);
+  const ru = lookup(DEFAULT_LANGUAGE, path);
+  if (ru !== undefined) return applyVars(ru, vars);
+  return path;
+}
+
 function applyVars(
   template: string,
   vars?: Record<string, string | number>
