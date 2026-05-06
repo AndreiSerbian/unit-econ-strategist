@@ -191,21 +191,21 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
                   <PolarAngleAxis dataKey="competitor" stroke="hsl(var(--foreground))" />
                   <PolarRadiusAxis stroke="hsl(var(--foreground))" />
                   <Radar
-                    name="Цена"
+                    name={t("competitorCharts.price")}
                     dataKey="цена"
                     stroke="hsl(var(--primary))"
                     fill="hsl(var(--primary))"
                     fillOpacity={0.3}
                   />
                   <Radar
-                    name="Качество"
+                    name={t("competitorCharts.quality")}
                     dataKey="качество"
                     stroke="hsl(var(--secondary))"
                     fill="hsl(var(--secondary))"
                     fillOpacity={0.3}
                   />
                   <Radar
-                    name="Доля рынка"
+                    name={t("competitorCharts.marketShare")}
                     dataKey="доляРынка"
                     stroke="hsl(var(--accent))"
                     fill="hsl(var(--accent))"
