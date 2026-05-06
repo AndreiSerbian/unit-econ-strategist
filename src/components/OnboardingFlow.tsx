@@ -36,9 +36,54 @@ interface OnboardingFlowProps {
 }
 
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>("ecommerce");
+  const prevLanguageRef = useRef(language);
+  const startedRef = useRef(false);
+
+  // Fire onboarding_started once and emit a language_selected event when
+  // the initial language came from browser detection (no stored choice).
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    const totalSteps = 8; // matches steps array length below
+    let storedLang: string | null = null;
+    try {
+      storedLang = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (!storedLang) {
+      trackOnboardingEvent("onboarding_language_selected", {
+        language,
+        step: 0,
+        totalSteps,
+        selectedLanguage: language,
+        source: "browser",
+      });
+    }
+    trackOnboardingEvent("onboarding_started", {
+      language,
+      step: 0,
+      totalSteps,
+    });
+  }, [language]);
+
+  // Emit language_selected when user changes language while in onboarding.
+  useEffect(() => {
+    if (prevLanguageRef.current !== language) {
+      trackOnboardingEvent("onboarding_language_selected", {
+        language,
+        step: currentStep,
+        totalSteps: 8,
+        previousLanguage: prevLanguageRef.current,
+        selectedLanguage: language,
+        source: "onboarding_selector",
+      });
+      prevLanguageRef.current = language;
+    }
+  }, [language, currentStep]);
 
   const steps: OnboardingStep[] = useMemo(
     () => [
