@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
 import { Users, Package, TrendingUp, Share2 } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface CompetitorProduct {
   id: string;
