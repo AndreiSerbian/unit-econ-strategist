@@ -146,8 +146,8 @@ export const CompetitorCharts = ({ competitors, currency = "RUB" }: CompetitorCh
                 }}
               />
               <Legend />
-              <Bar dataKey="выручка" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="маркетинг" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="выручка" name={t("competitorCharts.revenue")} fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="маркетинг" name={t("competitorCharts.marketing")} fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
