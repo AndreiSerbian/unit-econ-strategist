@@ -939,7 +939,6 @@ export const Dashboard = () => {
                             currentMetrics.detailedExpenses.fixedCosts.officeRent +
                             currentMetrics.detailedExpenses.fixedCosts.warehouseRent
                           ),
-                          marketing: currentMetrics.marketingCosts,
                           other: (
                             currentMetrics.detailedExpenses.fixedCosts.internet +
                             currentMetrics.detailedExpenses.fixedCosts.communication +
@@ -948,6 +947,8 @@ export const Dashboard = () => {
                             currentMetrics.detailedExpenses.fixedCosts.utilities
                           ),
                         },
+                        // FIN-002 — Marketing as variable line, single source = marketingCosts
+                        variableMarketing: currentMetrics.marketingCosts,
                         taxes: currentMetrics.detailedExpenses.taxes,
                         horizonPeriods: 12,
                       } : undefined
