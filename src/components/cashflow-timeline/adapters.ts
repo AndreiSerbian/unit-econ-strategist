@@ -491,16 +491,20 @@ export interface ExpensesInput {
   fixedCosts: {
     salaries: number;
     rent: number;
-    marketing: number;
     other: number;
   };
+  /**
+   * FIN-002 — Marketing is acquisition-related (variable), not fixed.
+   * Emitted as its own variable outflow line, not inside fixedCosts.
+   */
+  variableMarketing?: number;
   taxes: number;
   horizonPeriods: number;
 }
 
 export function expensesAdapter(input: ExpensesInput): AdapterLine[] {
   const lines: AdapterLine[] = [];
-  const { fixedCosts, taxes, horizonPeriods } = input;
+  const { fixedCosts, variableMarketing = 0, taxes, horizonPeriods } = input;
 
   if (fixedCosts.salaries > 0) {
     lines.push({
@@ -522,12 +526,13 @@ export function expensesAdapter(input: ExpensesInput): AdapterLine[] {
     });
   }
 
-  if (fixedCosts.marketing > 0) {
+  // FIN-002 — Marketing as its own variable outflow line, never as fixed.
+  if (variableMarketing > 0) {
     lines.push({
       name: 'Маркетинг',
       lineType: 'outflow',
       category: 'marketing',
-      values: new Array(horizonPeriods).fill(fixedCosts.marketing),
+      values: new Array(horizonPeriods).fill(variableMarketing),
       sourceAdapter: null,
     });
   }

@@ -196,9 +196,10 @@ export const CompanyMetrics = ({
       detailedExpenses.variableCosts.production.equipmentRepair +
       detailedExpenses.variableCosts.production.customCategories.reduce((sum, c) => sum + c.value, 0);
 
+    // FIN-003 — Taxes are tracked separately (Cash Flow line + detailedExpenses.taxes).
+    // Do NOT include them in aggregate variableCosts to avoid double counting.
     const otherTotal =
-      detailedExpenses.variableCosts.other.customCategories.reduce((sum, c) => sum + c.value, 0) +
-      detailedExpenses.taxes;
+      detailedExpenses.variableCosts.other.customCategories.reduce((sum, c) => sum + c.value, 0);
 
     const variableTotal = salesTotal + productionTotal + otherTotal;
 

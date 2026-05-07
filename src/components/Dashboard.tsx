@@ -185,7 +185,10 @@ export const Dashboard = () => {
     }
   }, []);
 
-  // ===== REVENUE BRIDGE =====
+  // ===== REVENUE BRIDGE (FIN-008) =====
+  // My Company products/services are the source of truth for revenue
+  // across ALL product-driven business types. Manual revenue in MetricsForm
+  // remains an override only when no product/service data exists.
   useEffect(() => {
     if (businessType !== 'saas' || !saasAggregateKPIs) return;
     const saasRevenue = saasAggregateKPIs.totalRevenue || 0;
@@ -209,6 +212,33 @@ export const Dashboard = () => {
       setCurrentMetrics(prev => ({ ...prev, revenue: tokenRevenue }));
     }
   }, [businessType, tokenScenarioMetrics?.totalPackageRevenue]);
+
+  // FIN-008 — Symmetric bridge for product-driven types previously left manual:
+  // services, ecommerce, production, sharing, freemium.
+  useEffect(() => {
+    const productDriven: BusinessType[] = [
+      'services', 'ecommerce', 'production', 'sharing', 'freemium',
+    ] as BusinessType[];
+    if (!productDriven.includes(businessType)) return;
+    if (!products || products.length === 0) return;
+
+    let derived = 0;
+    if (businessType === 'sharing') {
+      // Match ProductsManagement formula (price × utilization% × ~720h × qty)
+      derived = products.reduce((sum, p: any) => {
+        const hourly = (p.price || 0) * ((p.utilizationRate ?? 0) / 100) * 720;
+        return sum + hourly * (p.quantity || 0);
+      }, 0);
+    } else {
+      derived = products.reduce(
+        (sum, p: any) => sum + (p.price || 0) * (p.quantity || 0),
+        0,
+      );
+    }
+    if (derived > 0 && derived !== currentMetrics.revenue) {
+      setCurrentMetrics(prev => ({ ...prev, revenue: derived }));
+    }
+  }, [businessType, products]);
 
   const handleOnboardingComplete = (selectedType: BusinessType) => {
     localStorage.setItem(ONBOARDING_KEY, "true");
@@ -316,9 +346,9 @@ export const Dashboard = () => {
       detailedExpenses.variableCosts.production.equipmentRepair +
       detailedExpenses.variableCosts.production.customCategories.reduce((sum: number, c: any) => sum + c.value, 0);
 
+    // FIN-003 — Taxes excluded from variable aggregate (single source = Cash Flow / detailedExpenses.taxes)
     const otherTotal =
-      detailedExpenses.variableCosts.other.customCategories.reduce((sum: number, c: any) => sum + c.value, 0) +
-      detailedExpenses.taxes;
+      detailedExpenses.variableCosts.other.customCategories.reduce((sum: number, c: any) => sum + c.value, 0);
 
     const variableTotal = salesTotal + productionTotal + otherTotal;
 
@@ -939,7 +969,6 @@ export const Dashboard = () => {
                             currentMetrics.detailedExpenses.fixedCosts.officeRent +
                             currentMetrics.detailedExpenses.fixedCosts.warehouseRent
                           ),
-                          marketing: currentMetrics.marketingCosts,
                           other: (
                             currentMetrics.detailedExpenses.fixedCosts.internet +
                             currentMetrics.detailedExpenses.fixedCosts.communication +
@@ -948,6 +977,8 @@ export const Dashboard = () => {
                             currentMetrics.detailedExpenses.fixedCosts.utilities
                           ),
                         },
+                        // FIN-002 — Marketing as variable line, single source = marketingCosts
+                        variableMarketing: currentMetrics.marketingCosts,
                         taxes: currentMetrics.detailedExpenses.taxes,
                         horizonPeriods: 12,
                       } : undefined
