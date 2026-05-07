@@ -105,7 +105,10 @@ export function useSaasProducts(projectId: string) {
     const totalRevenue = subscriptionMRR + oneTimeRevenue;
     const totalVariableCost = variableCostSubscription + variableCostOneTime;
     const grossProfit = totalRevenue - totalVariableCost;
-    const grossMarginPercent = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+    // FIN-004 — This is contribution margin (Revenue − all variable costs),
+    // not strict gross margin (Revenue − COGS). `grossMarginPercent` is kept
+    // as a legacy alias of the same number.
+    const contributionMarginPercent = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
 
     return {
       subscriptionMRR,
@@ -113,7 +116,8 @@ export function useSaasProducts(projectId: string) {
       totalRevenue,
       totalVariableCost,
       grossProfit,
-      grossMarginPercent,
+      grossMarginPercent: contributionMarginPercent,
+      contributionMarginPercent,
       totalSubscribers,
       totalFreeTierUsers,
       totalBuyers,
@@ -130,7 +134,8 @@ export function useSaasProducts(projectId: string) {
         totalRevenue: acc.totalRevenue + kpis.totalRevenue,
         totalVariableCost: acc.totalVariableCost + kpis.totalVariableCost,
         grossProfit: acc.grossProfit + kpis.grossProfit,
-        grossMarginPercent: 0, // Will recalculate below
+        grossMarginPercent: 0,
+        contributionMarginPercent: 0, // Recalculated below
         totalSubscribers: acc.totalSubscribers + kpis.totalSubscribers,
         totalFreeTierUsers: acc.totalFreeTierUsers + kpis.totalFreeTierUsers,
         totalBuyers: acc.totalBuyers + kpis.totalBuyers,
@@ -142,6 +147,7 @@ export function useSaasProducts(projectId: string) {
       totalVariableCost: 0,
       grossProfit: 0,
       grossMarginPercent: 0,
+      contributionMarginPercent: 0,
       totalSubscribers: 0,
       totalFreeTierUsers: 0,
       totalBuyers: 0,
@@ -153,7 +159,7 @@ export function useSaasProducts(projectId: string) {
     const margin = aggregateKPIs.totalRevenue > 0 
       ? (aggregateKPIs.grossProfit / aggregateKPIs.totalRevenue) * 100 
       : 0;
-    return { ...aggregateKPIs, grossMarginPercent: margin };
+    return { ...aggregateKPIs, grossMarginPercent: margin, contributionMarginPercent: margin };
   }, [aggregateKPIs]);
 
   // Add product
