@@ -36,8 +36,15 @@ export interface ProductKPIs {
   oneTimeRevenue: number;
   totalRevenue: number;
   totalVariableCost: number;
+  /** Revenue − Variable Costs. NOTE: contribution profit, not strict gross profit. */
   grossProfit: number;
+  /**
+   * FIN-004 — Contribution margin %, kept under legacy name for backward compatibility.
+   * @deprecated Prefer `contributionMarginPercent`.
+   */
   grossMarginPercent: number;
+  /** Contribution margin % = (Revenue − Variable Costs) / Revenue. */
+  contributionMarginPercent: number;
   totalSubscribers: number;
   totalFreeTierUsers: number;
   totalBuyers: number;
