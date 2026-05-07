@@ -316,9 +316,9 @@ export const Dashboard = () => {
       detailedExpenses.variableCosts.production.equipmentRepair +
       detailedExpenses.variableCosts.production.customCategories.reduce((sum: number, c: any) => sum + c.value, 0);
 
+    // FIN-003 — Taxes excluded from variable aggregate (single source = Cash Flow / detailedExpenses.taxes)
     const otherTotal =
-      detailedExpenses.variableCosts.other.customCategories.reduce((sum: number, c: any) => sum + c.value, 0) +
-      detailedExpenses.taxes;
+      detailedExpenses.variableCosts.other.customCategories.reduce((sum: number, c: any) => sum + c.value, 0);
 
     const variableTotal = salesTotal + productionTotal + otherTotal;
 
