@@ -491,9 +491,13 @@ export interface ExpensesInput {
   fixedCosts: {
     salaries: number;
     rent: number;
-    marketing: number;
     other: number;
   };
+  /**
+   * FIN-002 — Marketing is acquisition-related (variable), not fixed.
+   * Emitted as its own variable outflow line, not inside fixedCosts.
+   */
+  variableMarketing?: number;
   taxes: number;
   horizonPeriods: number;
 }
