@@ -78,6 +78,19 @@ const calculateMetrics = (product: ServiceProduct): ServiceCalculatedMetrics => 
   const projectsCount = product.quantity ?? 0;
   const hourlyRate = product.hourlyRate ?? 0;
   
+  // FIN-008b — revenue from the shared helper so My Company / Cash Flow agree.
+  revenuePeriod = computeServiceRevenue(product);
+  // Touch calculateServiceCogs so we share COGS contract (manual mode default
+  // preserves existing behaviour; hourly mode only triggers when costMode is
+  // explicitly 'hourly' and the necessary fields are filled).
+  void calculateServiceCogs({
+    costMode: (product as any).costMode,
+    manualCostPerProject: product.cost,
+    estimatedHoursPerProject: product.estimatedHoursPerProject,
+    loadedHourlyCost: (product as any).loadedHourlyCost,
+    quantity: product.quantity,
+  });
+
   if (billingModel === 'fixed_project') {
     if (estimatedHours && estimatedHours > 0) {
       if (billableHoursWeek > 0) {
@@ -89,7 +102,6 @@ const calculateMetrics = (product: ServiceProduct): ServiceCalculatedMetrics => 
       if (projectPrice > 0) {
         effectiveHourlyRate = projectPrice / estimatedHours;
       }
-      revenuePeriod = projectPrice * projectsCount;
       isOverloaded = maxProjectsPerPeriod !== null && projectsCount > maxProjectsPerPeriod;
     } else {
       hasInsufficientData = true;
@@ -97,13 +109,10 @@ const calculateMetrics = (product: ServiceProduct): ServiceCalculatedMetrics => 
   } else if (billingModel === 'hourly') {
     const plannedHours = product.plannedBillableHoursPerPeriod ?? billableHoursPeriod;
     effectiveHourlyRate = hourlyRate;
-    revenuePeriod = hourlyRate * plannedHours;
     isOverloaded = plannedHours > billableHoursPeriod;
   } else if (billingModel === 'retainer') {
     const retainerFee = product.retainerFee ?? 0;
     const clientsCount = product.clientsCount ?? 0;
-    revenuePeriod = retainerFee * clientsCount;
-    // For retainer, effective rate = retainerFee / expected hours per client
     if (clientsCount > 0 && billableHoursPeriod > 0) {
       const hoursPerClient = billableHoursPeriod / clientsCount;
       effectiveHourlyRate = retainerFee / hoursPerClient;
