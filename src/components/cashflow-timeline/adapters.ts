@@ -8,6 +8,8 @@ import type {
   SourceAdapter 
 } from './types';
 import { paymentDelayToPeriodShift } from './types';
+import { computeServiceRevenue } from '@/components/services/revenue';
+import { calculateServiceCogs } from '@/utils/serviceCogs';
 
 // ============================================================
 // MARKETPLACE ADAPTER
