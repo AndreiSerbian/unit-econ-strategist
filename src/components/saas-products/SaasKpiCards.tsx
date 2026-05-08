@@ -15,9 +15,12 @@ export function SaasKpiCards({ kpis, currency }: SaasKpiCardsProps) {
     return value.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
   };
 
-  const marginWarning = kpis.grossMarginPercent < 0
+  // FIN-004 — Prefer contributionMarginPercent; grossMarginPercent kept only as deprecated alias.
+  const marginPct = kpis.contributionMarginPercent ?? kpis.grossMarginPercent;
+
+  const marginWarning = marginPct < 0
     ? { severity: 'error' as const, message: t('saasKpi.negativeMargin') }
-    : kpis.grossMarginPercent < 10 && kpis.totalRevenue > 0
+    : marginPct < 10 && kpis.totalRevenue > 0
     ? { severity: 'warning' as const, message: t('saasKpi.lowMargin') }
     : null;
 
@@ -27,7 +30,7 @@ export function SaasKpiCards({ kpis, currency }: SaasKpiCardsProps) {
     { label: t('saasKpi.totalRevenue'), value: kpis.totalRevenue, icon: DollarSign, colorClass: 'text-primary', bgClass: 'bg-primary/10', suffix: currency },
     { label: t('saasKpi.variableCosts'), value: kpis.totalVariableCost, icon: TrendingDown, colorClass: 'text-destructive', bgClass: 'bg-destructive/10', suffix: currency },
     { label: t('saasKpi.grossProfit'), value: kpis.grossProfit, icon: TrendingUp, colorClass: kpis.grossProfit >= 0 ? 'text-primary' : 'text-destructive', bgClass: kpis.grossProfit >= 0 ? 'bg-primary/10' : 'bg-destructive/10', suffix: currency },
-    { label: t('saasKpi.margin'), value: kpis.grossMarginPercent, icon: Percent, colorClass: kpis.grossMarginPercent >= 0 ? 'text-primary' : 'text-destructive', bgClass: kpis.grossMarginPercent >= 0 ? 'bg-primary/10' : 'bg-destructive/10', suffix: '%', decimals: 1 },
+    { label: t('saasKpi.contributionMargin'), value: marginPct, icon: Percent, colorClass: marginPct >= 0 ? 'text-primary' : 'text-destructive', bgClass: marginPct >= 0 ? 'bg-primary/10' : 'bg-destructive/10', suffix: '%', decimals: 1 },
   ];
 
   const userCards = [

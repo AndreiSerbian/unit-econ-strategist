@@ -19,12 +19,12 @@ interface DetailedExpenses {
       trafficPurchase: number;
       contractorsPayment: number;
       crmCosts: number;
-      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean; countsAsAcquisitionCost?: boolean }>;
     };
     salesPayroll: {
       bonusOldClients: number;
       bonusNewClients: number;
-      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean; countsAsAcquisitionCost?: boolean }>;
     };
     production: {
       materials: number;
@@ -69,25 +69,34 @@ interface Metrics {
 const sumDetailedMarketing = (m: Metrics): number => {
   const d = m.detailedExpenses;
   if (!d) return 0;
+  // FIN-001b — marketing custom categories default to acquisition-related,
+  // but a user can opt out per-category via countsAsAcquisitionCost === false.
+  const customAcq = d.variableCosts.marketing.customCategories.reduce((s, c) => {
+    const counts = c.countsAsAcquisitionCost ?? true;
+    return counts ? s + c.value : s;
+  }, 0);
   return (
     d.variableCosts.marketing.trafficPurchase +
     d.variableCosts.marketing.contractorsPayment +
     d.variableCosts.marketing.crmCosts +
-    d.variableCosts.marketing.customCategories.reduce((s, c) => s + c.value, 0)
+    customAcq
   );
 };
 
 /**
  * Sales commissions paid for newly acquired customers only.
  * (Bonuses tied to retained/old clients are NOT acquisition.)
+ * FIN-001b — sales custom categories are NOT acquisition by default;
+ * each category can opt-in via countsAsAcquisitionCost === true.
  */
 const sumSalesCommissionsForNewClients = (m: Metrics): number => {
   const d = m.detailedExpenses;
   if (!d) return 0;
-  return (
-    d.variableCosts.salesPayroll.bonusNewClients +
-    d.variableCosts.salesPayroll.customCategories.reduce((s, c) => s + c.value, 0)
-  );
+  const customAcq = d.variableCosts.salesPayroll.customCategories.reduce((s, c) => {
+    const counts = c.countsAsAcquisitionCost === true;
+    return counts ? s + c.value : s;
+  }, 0);
+  return d.variableCosts.salesPayroll.bonusNewClients + customAcq;
 };
 
 /**

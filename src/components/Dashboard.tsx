@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import logoImage from "@/assets/logo-clean.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,6 +78,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
+import { resolveRevenue } from "@/utils/revenueResolver";
+import { detectFinancialWarnings } from "@/utils/financialWarnings";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useSaasProducts } from "@/hooks/useSaasProducts";
@@ -185,60 +187,43 @@ export const Dashboard = () => {
     }
   }, []);
 
-  // ===== REVENUE BRIDGE (FIN-008) =====
-  // My Company products/services are the source of truth for revenue
-  // across ALL product-driven business types. Manual revenue in MetricsForm
-  // remains an override only when no product/service data exists.
+  // ===== REVENUE BRIDGE (FIN-008) — single centralized resolver =====
+  // Replaces the previous four competing useEffects (SaaS / Marketplace /
+  // Token / product-driven) with one effect that calls resolveRevenue and
+  // honours revenueSource ('auto' | 'manual'). Manual values are never
+  // silently overwritten.
   useEffect(() => {
-    if (businessType !== 'saas' || !saasAggregateKPIs) return;
-    const saasRevenue = saasAggregateKPIs.totalRevenue || 0;
-    if (saasRevenue > 0 && saasRevenue !== currentMetrics.revenue) {
-      setCurrentMetrics(prev => ({ ...prev, revenue: saasRevenue }));
-    }
-  }, [businessType, saasAggregateKPIs?.totalRevenue]);
+    const result = resolveRevenue({
+      businessType,
+      products,
+      saasAggregateKPIs,
+      marketplaceTotals,
+      tokenScenarioMetrics,
+      currentMetrics,
+    });
+    if (result.revenueSource !== 'auto') return;
+    if (result.calculatedRevenue <= 0) return;
+    if (result.calculatedRevenue === currentMetrics.revenue) return;
+    setCurrentMetrics(prev => ({
+      ...prev,
+      revenue: result.calculatedRevenue,
+      revenueSource: 'auto',
+    }));
+  }, [
+    businessType,
+    products,
+    saasAggregateKPIs?.totalRevenue,
+    marketplaceTotals?.totalPlatformRevenue,
+    tokenScenarioMetrics?.totalPackageRevenue,
+    currentMetrics.revenueSource,
+  ]);
 
-  useEffect(() => {
-    if (businessType !== 'marketplace' || !marketplaceTotals) return;
-    const mktRevenue = marketplaceTotals.totalPlatformRevenue || 0;
-    if (mktRevenue > 0 && mktRevenue !== currentMetrics.revenue) {
-      setCurrentMetrics(prev => ({ ...prev, revenue: mktRevenue }));
-    }
-  }, [businessType, marketplaceTotals?.totalPlatformRevenue]);
-
-  useEffect(() => {
-    if (businessType !== 'token_saas') return;
-    const tokenRevenue = tokenScenarioMetrics?.totalPackageRevenue || 0;
-    if (tokenRevenue > 0 && tokenRevenue !== currentMetrics.revenue) {
-      setCurrentMetrics(prev => ({ ...prev, revenue: tokenRevenue }));
-    }
-  }, [businessType, tokenScenarioMetrics?.totalPackageRevenue]);
-
-  // FIN-008 — Symmetric bridge for product-driven types previously left manual:
-  // services, ecommerce, production, sharing, freemium.
-  useEffect(() => {
-    const productDriven: BusinessType[] = [
-      'services', 'ecommerce', 'production', 'sharing', 'freemium',
-    ] as BusinessType[];
-    if (!productDriven.includes(businessType)) return;
-    if (!products || products.length === 0) return;
-
-    let derived = 0;
-    if (businessType === 'sharing') {
-      // Match ProductsManagement formula (price × utilization% × ~720h × qty)
-      derived = products.reduce((sum, p: any) => {
-        const hourly = (p.price || 0) * ((p.utilizationRate ?? 0) / 100) * 720;
-        return sum + hourly * (p.quantity || 0);
-      }, 0);
-    } else {
-      derived = products.reduce(
-        (sum, p: any) => sum + (p.price || 0) * (p.quantity || 0),
-        0,
-      );
-    }
-    if (derived > 0 && derived !== currentMetrics.revenue) {
-      setCurrentMetrics(prev => ({ ...prev, revenue: derived }));
-    }
-  }, [businessType, products]);
+  // FIN-005/006/007 — produce diagnostic financial warnings (detection only).
+  const financialWarnings = useMemo(
+    () => detectFinancialWarnings(currentMetrics, products, businessType),
+    [currentMetrics, products, businessType],
+  );
+  void financialWarnings; // available for future UI surfacing
 
   const handleOnboardingComplete = (selectedType: BusinessType) => {
     localStorage.setItem(ONBOARDING_KEY, "true");
