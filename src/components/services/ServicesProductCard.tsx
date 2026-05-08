@@ -20,6 +20,8 @@ import {
 import { Trash2, Clock, TrendingUp, AlertTriangle, CheckCircle, HelpCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ServiceProduct, ServiceCalculatedMetrics, BillingModel, PlanningPeriod } from "./types";
+import { computeServiceRevenue } from "./revenue";
+import { calculateServiceCogs } from "@/utils/serviceCogs";
 
 interface ServicesProductCardProps {
   product: ServiceProduct;
