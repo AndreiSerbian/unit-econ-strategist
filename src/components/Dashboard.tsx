@@ -78,6 +78,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
+import { resolveRevenue } from "@/utils/revenueResolver";
+import { detectFinancialWarnings } from "@/utils/financialWarnings";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useSaasProducts } from "@/hooks/useSaasProducts";
