@@ -4122,6 +4122,7 @@ const ro: DictionaryShape = {
     variableCosts: "Cheltuieli variabile",
     grossProfit: "Profit brut",
     margin: "Marjă",
+    contributionMargin: "Marjă de contribuție",
     paidSubscribers: "Abonați plătitori",
     freeUsers: "Utilizatori gratuiți",
     oneTimeBuyers: "Cumpărători unici",
