@@ -237,6 +237,7 @@ const ru: DictionaryShape = {
     variableCosts: "Переменные расходы",
     grossProfit: "Валовая прибыль",
     margin: "Маржа",
+    contributionMargin: "Маржинальность вклада",
     paidSubscribers: "Платных подписчиков",
     freeUsers: "Бесплатных пользователей",
     oneTimeBuyers: "Разовых покупателей",
