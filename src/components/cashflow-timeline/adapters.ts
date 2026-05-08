@@ -267,9 +267,17 @@ export interface ServicesInput {
     quantity: number; // projects/contracts per period
     billingModel: 'fixed_project' | 'hourly' | 'retainer';
     estimatedHoursPerProject?: number;
+    plannedBillableHoursPerPeriod?: number;
+    billablePercent?: number;
     hourlyRate?: number;
     retainerFee?: number;
     clientsCount?: number;
+    // Optional COGS-mode fields (FIN-005/006)
+    costMode?: 'manual' | 'hourly';
+    loadedHourlyCost?: number | null;
+    subcontractorCostPerProject?: number | null;
+    projectMaterialsPerProject?: number | null;
+    projectLogisticsPerProject?: number | null;
   }>;
   horizonPeriods: number;
   planningPeriod: PlanningPeriod;
@@ -283,17 +291,20 @@ export function servicesAdapter(input: ServicesInput): AdapterLine[] {
   const costByPeriod = new Array(horizonPeriods).fill(0);
 
   for (const service of services) {
-    let periodRevenue = 0;
-    let periodCost = service.cost * service.quantity;
-
-    if (service.billingModel === 'fixed_project') {
-      periodRevenue = service.price * service.quantity;
-    } else if (service.billingModel === 'hourly') {
-      const hours = (service.estimatedHoursPerProject ?? 0) * service.quantity;
-      periodRevenue = hours * (service.hourlyRate ?? 0);
-    } else if (service.billingModel === 'retainer') {
-      periodRevenue = (service.retainerFee ?? 0) * (service.clientsCount ?? 0);
-    }
+    // FIN-008b — single source-of-truth revenue helper.
+    const periodRevenue = computeServiceRevenue(service);
+    // FIN-005/006 — single source-of-truth COGS helper (manual mode default).
+    const cogs = calculateServiceCogs({
+      costMode: service.costMode,
+      manualCostPerProject: service.cost,
+      estimatedHoursPerProject: service.estimatedHoursPerProject,
+      loadedHourlyCost: service.loadedHourlyCost,
+      subcontractorCostPerProject: service.subcontractorCostPerProject,
+      projectMaterialsPerProject: service.projectMaterialsPerProject,
+      projectLogisticsPerProject: service.projectLogisticsPerProject,
+      quantity: service.quantity,
+    });
+    const periodCost = cogs.totalCost;
 
     // Distribute uniformly across periods
     for (let p = 0; p < horizonPeriods; p++) {
