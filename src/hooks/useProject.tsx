@@ -119,6 +119,9 @@ interface Metrics {
   projectMargin?: number;
   takeRate?: number;
   freeToPayConversion?: number;
+  // FIN-008 — revenue source-of-truth flag and manual override
+  revenueSource?: 'auto' | 'manual';
+  manualRevenueOverride?: number;
 }
 
 export type { Metrics, CompetitorProduct, Competitor, Product, LeadSource };
