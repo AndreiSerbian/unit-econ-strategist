@@ -589,6 +589,8 @@ export const useProject = (userId: string | undefined) => {
               paybackMonths: scenario.data.paybackMonths,
               totalLeads: scenario.data.totalLeads,
               projectMargin: scenario.data.projectMargin,
+              revenueSource: scenario.data.revenueSource,
+              manualRevenueOverride: scenario.data.manualRevenueOverride,
             },
           } as any,
           { onConflict: 'project_id,scenario_type' }
