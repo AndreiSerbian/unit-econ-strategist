@@ -19,12 +19,12 @@ interface DetailedExpenses {
       trafficPurchase: number;
       contractorsPayment: number;
       crmCosts: number;
-      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+    customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean; countsAsAcquisitionCost?: boolean }>;
     };
     salesPayroll: {
       bonusOldClients: number;
       bonusNewClients: number;
-      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean }>;
+      customCategories: Array<{ id: string; name: string; value: number; isCustom: boolean; countsAsAcquisitionCost?: boolean }>;
     };
     production: {
       materials: number;
