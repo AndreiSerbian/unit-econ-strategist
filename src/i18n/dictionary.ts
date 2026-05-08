@@ -2181,6 +2181,7 @@ const en: DictionaryShape = {
     variableCosts: "Variable costs",
     grossProfit: "Gross profit",
     margin: "Margin",
+    contributionMargin: "Contribution Margin",
     paidSubscribers: "Paid subscribers",
     freeUsers: "Free users",
     oneTimeBuyers: "One-time buyers",
