@@ -968,11 +968,16 @@ export const useProject = (userId: string | undefined) => {
             paybackMonths: bm.paybackMonths,
             totalLeads: bm.totalLeads,
             projectMargin: bm.projectMargin,
+            revenueSource: bm.revenueSource,
+            manualRevenueOverride: bm.manualRevenueOverride,
           };
 
-          if (scenario.scenario_type === "current") setCurrentMetrics(metrics);
-          else if (scenario.scenario_type === "scenarioA") setScenarioA(metrics);
-          else if (scenario.scenario_type === "scenarioB") setScenarioB(metrics);
+          // FIN-002/003 — normalize legacy contaminated aggregates on load.
+          const normalized = normalizeMetrics(metrics) as Metrics;
+
+          if (scenario.scenario_type === "current") setCurrentMetrics(normalized);
+          else if (scenario.scenario_type === "scenarioA") setScenarioA(normalized);
+          else if (scenario.scenario_type === "scenarioB") setScenarioB(normalized);
         });
       }
 
