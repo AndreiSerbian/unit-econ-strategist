@@ -181,13 +181,13 @@ export const SaasProductCard = memo(function SaasProductCard({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[120px]">Название</TableHead>
-                    <TableHead className="min-w-[130px]">Тип</TableHead>
-                    <TableHead className="min-w-[100px]">Цена ({currency})</TableHead>
-                    <TableHead className="min-w-[100px]">Кол-во</TableHead>
-                    <TableHead className="min-w-[90px]">Новых/пер.</TableHead>
-                    <TableHead className="min-w-[100px]">Себест.</TableHead>
-                    <TableHead className="min-w-[80px]">Free</TableHead>
+                    <TableHead className="min-w-[120px]">{t('saasProducts.colName')}</TableHead>
+                    <TableHead className="min-w-[130px]">{t('saasProducts.colType')}</TableHead>
+                    <TableHead className="min-w-[100px]">{t('saasProducts.colPrice')} ({currency})</TableHead>
+                    <TableHead className="min-w-[100px]">{t('saasProducts.colQty')}</TableHead>
+                    <TableHead className="min-w-[90px]">{t('saasProducts.colNewPerPeriod')}</TableHead>
+                    <TableHead className="min-w-[100px]">{t('saasProducts.colCost')}</TableHead>
+                    <TableHead className="min-w-[80px]">{t('saasProducts.colFree')}</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
