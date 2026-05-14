@@ -1,59 +1,50 @@
-# Localize the Products block to RU / EN / RO
+# Localize ProductsCharts to RU / EN / RO
 
-## Problem
-
-In the selected card (`ProductsManagement.tsx` for E-commerce) the title `Products` and the `Add product` button already switch language correctly, but the field labels stay in Russian: **Название, Цена, Себестоимость, Количество, Качество, Логистика до клиента (за 1 шт.), Вес (кг), Объём (м³), Тип доставки**.
-
-Reason: in `src/config/businessTypeMetrics.ts` the `productFields` for most business types only have a hard-coded `label` (Russian) and a free-text `suffix` — no `labelKey` / `suffixKey`. `resolveI18nText` therefore falls back to the Russian string regardless of the active language.
-
-## Scope
-
-Pure i18n / presentation work. No business logic, no data model, no calculation changes.
-
-Cover **all** business types so every Products card is fully trilingual, not only E-commerce:
-- saas, ecommerce, production, services, freemium, sharing, marketplace, token_saas
+The selected block (and the rest of `src/components/ProductsCharts.tsx`) renders all titles, descriptions, axis legends, tooltip rows and the marginality table with hard-coded Russian strings. Switch language → text stays Russian.
 
 ## Changes
 
-### 1. `src/config/businessTypeMetrics.ts`
-- Add `labelKey` to every entry in `productFields[]` that currently lacks one.
-  - Naming convention: `businessTypeMetrics.field_<key>` for shared keys (`name`, `price`, `cost`, `quantity`), and `businessTypeMetrics.<type>_field_<key>` when the wording differs per type (e.g. production `quantity` = "Объём производства", services `price` = "Стоимость услуги", etc.).
-- Replace the free-text `suffix` with a new optional `suffixKey?: string` on the `ProductField` type, and populate it for: `за 1 шт.`, `кг`, `м³`, `%`, `ч/нед`, etc. Keep `suffix` as a fallback so any field that doesn't define `suffixKey` still renders.
-- Update the `ProductField` TypeScript interface accordingly.
+### `src/components/ProductsCharts.tsx`
+- Import `useTranslation` and call `const { t } = useTranslation()`.
+- Replace every hard-coded Russian string with `t("productsCharts.<key>")`:
+  - Card titles & descriptions: `Прибыльность продуктов`, `Выручка, себестоимость и прибыль…`, `Сравнительный анализ продуктов`, `Детальное сравнение цен…`, `Ценообразование`, `Сравнение цен и себестоимости`, `Объёмы продаж`, `Количество проданных единиц`, `Структура выручки`, `Распределение выручки по продуктам`, `Доля в общей прибыли`, `Вклад каждого продукта в прибыль`, `Маржинальность продуктов`, `Процент прибыли от выручки`.
+  - Bar legend names (`name="…"`): `Выручка`, `Себестоимость`, `Прибыль`.
+  - Bar `dataKey` strings used as legend labels (`цена`, `себестоимость`, `количество`, `выручка`): keep the dataKey English-stable (e.g. `price`, `cost`, `quantity`, `revenue`) and pass localized `name` props to `<Bar>`. Update the matching object keys in `avgPriceData` / `salesVolumeData` and the `CustomTooltip` `dataKey` checks accordingly.
+  - Tooltip strings: `Выручка:`, `Прибыль:`, `Доля:`, `ед.`, `Общая выручка:`, `Общая прибыль:`, `маржа`.
 
-### 2. `src/components/ProductsManagement.tsx`
-- In `renderField` (number branch, line ~223), prefer `resolveI18nText(t, field.suffix, field.suffixKey)` over the raw `field.suffix` when rendering the parenthetical unit.
-- No other component changes needed — title, button and delivery options already go through `resolveI18nText`.
+### `src/i18n/dictionary.ts`
+Add a new `productsCharts: { … }` block in each of the three language sections (`ru`, `en`, `ro`) with the keys above. Suggested EN/RO equivalents:
 
-### 3. `src/i18n/dictionary.ts`
-For each of the three language blocks (`ru`, `en`, `ro`), inside the existing `businessTypeMetrics: { ... }` object, add the new keys. Concretely:
-
-Shared field labels:
-- `field_name`         → Название / Name / Denumire
-- `field_price`        → Цена / Price / Preț
-- `field_cost`         → Себестоимость / Cost / Cost
-- `field_quantity`     → Количество / Quantity / Cantitate
-- `field_quality`      → Качество / Quality / Calitate
-- `field_logisticsToClientPerUnit` → Логистика до клиента / Logistics to customer / Logistică către client
-- `field_weightPerUnit` → Вес / Weight / Greutate
-- `field_volumePerUnit` → Объём / Volume / Volum
-- `field_deliveryType` → Тип доставки / Delivery type / Tip de livrare
-- `field_defectRate`   → Процент брака / Defect rate / Rata defectelor
-
-Type-specific overrides where wording differs (e.g. `production_field_quantity` = Объём производства / Production volume / Volum de producție; `services_field_price`, `services_field_cost`, SaaS plan fields, marketplace fields, token-saas fields, sharing fields, etc.).
-
-Suffix keys:
-- `suffix_per_unit`    → за 1 шт. / per unit / pe unitate
-- `suffix_kg`          → кг / kg / kg
-- `suffix_m3`          → м³ / m³ / m³
-- `suffix_percent`     → % / % / %
-- `suffix_hours_week`  → ч/нед / h/wk / h/săpt
+| key | RU | EN | RO |
+|---|---|---|---|
+| profitabilityTitle | Прибыльность продуктов | Product profitability | Profitabilitatea produselor |
+| profitabilityDesc | Выручка, себестоимость и прибыль по каждому продукту | Revenue, cost and profit per product | Venit, cost și profit pe fiecare produs |
+| comparisonTitle | Сравнительный анализ продуктов | Product comparison | Analiză comparativă |
+| comparisonDesc | Детальное сравнение цен, объёмов и каналов продаж | Detailed comparison of prices, volumes and channels | Comparație detaliată: prețuri, volume, canale |
+| pricingTitle | Ценообразование | Pricing | Stabilire preț |
+| pricingDesc | Сравнение цен и себестоимости | Price vs cost comparison | Compararea prețului și costului |
+| salesVolumeTitle | Объёмы продаж | Sales volume | Volume de vânzări |
+| salesVolumeDesc | Количество проданных единиц | Units sold | Unități vândute |
+| revenueStructureTitle | Структура выручки | Revenue structure | Structura veniturilor |
+| revenueStructureDesc | Распределение выручки по продуктам | Revenue distribution by product | Distribuția veniturilor pe produse |
+| profitShareTitle | Доля в общей прибыли | Share of total profit | Pondere în profit total |
+| profitShareDesc | Вклад каждого продукта в прибыль | Each product's contribution to profit | Contribuția fiecărui produs la profit |
+| marginTitle | Маржинальность продуктов | Product margins | Marja produselor |
+| marginDesc | Процент прибыли от выручки | Profit as % of revenue | Profit ca % din venituri |
+| revenue | Выручка | Revenue | Venituri |
+| cost | Себестоимость | Cost | Cost |
+| profit | Прибыль | Profit | Profit |
+| price | Цена | Price | Preț |
+| quantity | Количество | Quantity | Cantitate |
+| share | Доля | Share | Pondere |
+| units | ед. | units | unități |
+| totalRevenue | Общая выручка: | Total revenue: | Venit total: |
+| totalProfit | Общая прибыль: | Total profit: | Profit total: |
+| margin | маржа | margin | marjă |
+| revenueLabel | Выручка: | Revenue: | Venituri: |
+| profitLabel | Прибыль: | Profit: | Profit: |
 
 ## Out of scope
-- No changes to the dynamic currency suffix `(USD)` — it already comes from the project setting and is not language-dependent.
-- No edits to `ServicesProductCard` (it already uses its own translated strings).
-- No new languages, no new fields, no formula or layout changes.
-
-## Verification
-- Switch the language toggle between RU / EN / RO on the Моя компания → Products card for each business type and confirm: title, every field label, every parenthetical unit, the delivery dropdown options, and the Add button update.
-- Build passes (no TS errors from the new optional `suffixKey`).
+- No layout, chart-type, color, or calculation changes.
+- No edits to other chart components.
+- Number formatting stays `toLocaleString("ru-RU")` for now (separate concern).
