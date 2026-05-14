@@ -1,44 +1,59 @@
-# Business Type Calculation Readiness Audit — Plan
+# Localize the Products block to RU / EN / RO
 
-Read-only audit. Single deliverable: `docs/BUSINESS_TYPE_READINESS_AUDIT.md`. No UI changes, no formula rewrites, no DB changes.
+## Problem
 
-## Approach
+In the selected card (`ProductsManagement.tsx` for E-commerce) the title `Products` and the `Add product` button already switch language correctly, but the field labels stay in Russian: **Название, Цена, Себестоимость, Количество, Качество, Логистика до клиента (за 1 шт.), Вес (кг), Объём (м³), Тип доставки**.
 
-1. **Inventory business types** from `src/config/businessTypeMetrics.ts` and the `BusinessType` enum used across `Dashboard.tsx`, `useProject.tsx`, and the cash-flow adapters. Compare against the PRD's seven canonical types (SaaS, E-commerce, Service, Marketplace, Sharing, Production, Token SaaS) plus any others present (e.g. Freemium).
+Reason: in `src/config/businessTypeMetrics.ts` the `productFields` for most business types only have a hard-coded `label` (Russian) and a free-text `suffix` — no `labelKey` / `suffixKey`. `resolveI18nText` therefore falls back to the Russian string regardless of the active language.
 
-2. **Per-type evidence pass** — for each type, read the canonical files (no edits):
-   - SaaS: `hooks/useSaasProducts.ts`, `components/saas-products/*`, adapter in `cashflow-timeline/adapters.ts`.
-   - E-commerce / Production / Sharing / Freemium: `components/ProductsManagement.tsx`, `cashflow-timeline/adapters.ts`, `Dashboard.tsx` revenue bridge.
-   - Service: `components/services/*`, `utils/serviceCogs.ts`, `components/services/revenue.ts`.
-   - Marketplace: `components/marketplace/*`, `hooks/useMarketplace.ts`.
-   - Token SaaS: `hooks/useTokenSaas.ts`, `components/token-saas/*`.
-   - Cross-cutting: `utils/metricsCalculations.ts`, `utils/revenueResolver.ts`, `utils/normalizeMetrics.ts`, `utils/financialWarnings.ts`.
+## Scope
 
-3. **Evaluate against PRD criteria** (input completeness, formula correctness, type-specific logic, data flow, UI clarity, scenario readiness, cash-flow readiness, summary/recommendation readiness).
+Pure i18n / presentation work. No business logic, no data model, no calculation changes.
 
-4. **Run the PRD test cases on paper** (no test harness, no code changes): substitute the example values into the formulas the code actually uses and compare against the PRD's expected outputs. Discrepancies become risks.
+Cover **all** business types so every Products card is fully trilingual, not only E-commerce:
+- saas, ecommerce, production, services, freemium, sharing, marketplace, token_saas
 
-5. **Assign status** per type — READY / PARTIALLY READY / NOT READY / UNKNOWN — using the PRD's definitions. Where the code is too tangled to confirm, mark UNKNOWN rather than guess.
+## Changes
 
-## Report sections (`docs/BUSINESS_TYPE_READINESS_AUDIT.md`)
+### 1. `src/config/businessTypeMetrics.ts`
+- Add `labelKey` to every entry in `productFields[]` that currently lacks one.
+  - Naming convention: `businessTypeMetrics.field_<key>` for shared keys (`name`, `price`, `cost`, `quantity`), and `businessTypeMetrics.<type>_field_<key>` when the wording differs per type (e.g. production `quantity` = "Объём производства", services `price` = "Стоимость услуги", etc.).
+- Replace the free-text `suffix` with a new optional `suffixKey?: string` on the `ProductField` type, and populate it for: `за 1 шт.`, `кг`, `м³`, `%`, `ч/нед`, etc. Keep `suffix` as a fallback so any field that doesn't define `suffixKey` still renders.
+- Update the `ProductField` TypeScript interface accordingly.
 
-1. Executive Summary — recommended type for the conference, second-best, do-not-use, critical blockers.
-2. Business Type Readiness Matrix — table with Status, What Works, Main Problems, Demo Suitability per type.
-3. Formula Validation Table — Revenue, Gross Margin, Contribution Margin, CAC, LTV, Payback, Break-even; columns: Formula Found / Expected / Status / Notes (with file:line refs).
-4. Data Flow Review — per type: input → store → calculator → display → persistence → summary.
-5. UI/UX Issues — labels, missing explanations, misleading outputs.
-6. Cash Flow & Scenario Readiness — per type, separately.
-7. Test-case Replay — PRD's SaaS / E-commerce / Service / Marketplace examples, computed values, pass/fail vs PRD expectations.
-8. Conference Demo Recommendation — practical case, unit, metrics to show, benchmark logic, slide outline, honest risks.
-9. Critical Fixes Before Demo — Critical / High / Medium / Low priority list, each with FIN ID where applicable.
-10. Appendix — file/function index used as evidence.
+### 2. `src/components/ProductsManagement.tsx`
+- In `renderField` (number branch, line ~223), prefer `resolveI18nText(t, field.suffix, field.suffixKey)` over the raw `field.suffix` when rendering the parenthetical unit.
+- No other component changes needed — title, button and delivery options already go through `resolveI18nText`.
 
-## Status badge convention
+### 3. `src/i18n/dictionary.ts`
+For each of the three language blocks (`ru`, `en`, `ro`), inside the existing `businessTypeMetrics: { ... }` object, add the new keys. Concretely:
 
-`READY` ✅ · `PARTIALLY READY` ⚠️ · `NOT READY` ❌ · `UNKNOWN` ❓
+Shared field labels:
+- `field_name`         → Название / Name / Denumire
+- `field_price`        → Цена / Price / Preț
+- `field_cost`         → Себестоимость / Cost / Cost
+- `field_quantity`     → Количество / Quantity / Cantitate
+- `field_quality`      → Качество / Quality / Calitate
+- `field_logisticsToClientPerUnit` → Логистика до клиента / Logistics to customer / Logistică către client
+- `field_weightPerUnit` → Вес / Weight / Greutate
+- `field_volumePerUnit` → Объём / Volume / Volum
+- `field_deliveryType` → Тип доставки / Delivery type / Tip de livrare
+- `field_defectRate`   → Процент брака / Defect rate / Rata defectelor
 
-## Output & non-goals
+Type-specific overrides where wording differs (e.g. `production_field_quantity` = Объём производства / Production volume / Volum de producție; `services_field_price`, `services_field_cost`, SaaS plan fields, marketplace fields, token-saas fields, sharing fields, etc.).
 
-- Single new file: `docs/BUSINESS_TYPE_READINESS_AUDIT.md`.
-- Short summary in chat (matrix + recommendation only) when finished.
-- No source/UI/i18n/DB edits. No silent formula fixes. No new business logic. UNKNOWN over guessing.
+Suffix keys:
+- `suffix_per_unit`    → за 1 шт. / per unit / pe unitate
+- `suffix_kg`          → кг / kg / kg
+- `suffix_m3`          → м³ / m³ / m³
+- `suffix_percent`     → % / % / %
+- `suffix_hours_week`  → ч/нед / h/wk / h/săpt
+
+## Out of scope
+- No changes to the dynamic currency suffix `(USD)` — it already comes from the project setting and is not language-dependent.
+- No edits to `ServicesProductCard` (it already uses its own translated strings).
+- No new languages, no new fields, no formula or layout changes.
+
+## Verification
+- Switch the language toggle between RU / EN / RO on the Моя компания → Products card for each business type and confirm: title, every field label, every parenthetical unit, the delivery dropdown options, and the Add button update.
+- Build passes (no TS errors from the new optional `suffixKey`).

@@ -220,7 +220,7 @@ export const ProductsManagement = ({
             <Label htmlFor={fieldId} className="flex items-center gap-1">
               {field.key === 'quality' && <Star className="w-3 h-3 text-warning" />}
               {resolveI18nText(t, field.label, field.labelKey)}
-              {field.suffix && ` (${field.suffix})`}
+              {(field.suffixKey || field.suffix) && ` (${resolveI18nText(t, field.suffix, field.suffixKey)})`}
               {!field.suffix && field.key !== 'name' && field.key !== 'quantity' && 
                !field.key.includes('Rate') && !field.key.includes('utilization') && 
                !field.key.includes('conversion') && ` (${currency})`}
