@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, ChevronRight, Plus, Trash2, Package, Edit2, Check, X } from 'lucide-react';
 import { PlanRow } from './PlanRow';
 import { SaasKpiCards } from './SaasKpiCards';
+import { useTranslation } from '@/i18n/useTranslation';
 import type { SaasProductWithPlans, ProductKPIs, PlanFormData, SaasProduct } from './types';
 
 interface SalesChannel {
