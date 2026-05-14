@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { TrendingUp, PieChart as PieChartIcon, BarChart3, Package } from "lucide-react";
-import { useTranslation } from "@/i18n";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface Product {
   id: string;
