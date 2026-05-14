@@ -191,7 +191,8 @@ export const MetricsForm = memo(({
   isAuthenticated,
   calculateProfit,
 }: MetricsFormProps) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const navigate = useNavigate();
   const location = useLocation();
   const [showFunnel, setShowFunnel] = useState(true);
