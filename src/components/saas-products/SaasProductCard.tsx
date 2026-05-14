@@ -58,7 +58,7 @@ export const SaasProductCard = memo(function SaasProductCard({
 
   const handleAddPlan = useCallback(() => {
     const defaultPlan: PlanFormData = {
-      name: `План ${product.plans.length + 1}`,
+      name: `${t('saasProducts.planNamePrefix')} ${product.plans.length + 1}`,
       billing_type: 'subscription',
       price_eur: 0,
       subscribers: 0,
@@ -69,13 +69,13 @@ export const SaasProductCard = memo(function SaasProductCard({
       cost_per_buyer_eur: null,
     };
     onAddPlan(product.id, defaultPlan);
-  }, [product.id, product.plans.length, onAddPlan]);
+  }, [product.id, product.plans.length, onAddPlan, t]);
 
   const planningPeriodLabels: Record<string, string> = {
-    week: 'Неделя',
-    month: 'Месяц',
-    quarter: 'Квартал',
-    year: 'Год',
+    week: t('saasProducts.week'),
+    month: t('saasProducts.month'),
+    quarter: t('saasProducts.quarter'),
+    year: t('saasProducts.year'),
   };
 
   return (
