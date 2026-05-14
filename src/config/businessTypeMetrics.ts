@@ -336,12 +336,12 @@ export const businessTypes: BusinessTypeConfig[] = [
     productLabelPlural: 'Ресурсы',
     productLabelPluralKey: 'businessTypeMetrics.sharing_productLabelPlural',
     productFields: [
-      { key: 'name', label: 'Название ресурса', type: 'text', required: true },
-      { key: 'price', label: 'Цена аренды', type: 'number', suffix: '/час' },
-      { key: 'quantity', label: 'Кол-во единиц', type: 'number' },
-      { key: 'cost', label: 'Стоимость содержания', type: 'number', suffix: '/мес' },
-      { key: 'utilizationRate', label: 'Загрузка', type: 'number', suffix: '%', min: 0, max: 100 },
-      { key: 'takeRate', label: 'Take Rate', type: 'number', suffix: '%', min: 0, max: 100 },
+      { key: 'name', label: 'Название ресурса', labelKey: 'businessTypeMetrics.sharing_field_name', type: 'text', required: true },
+      { key: 'price', label: 'Цена аренды', labelKey: 'businessTypeMetrics.sharing_field_price', type: 'number', suffix: '/час', suffixKey: 'businessTypeMetrics.suffix_per_hour' },
+      { key: 'quantity', label: 'Кол-во единиц', labelKey: 'businessTypeMetrics.sharing_field_quantity', type: 'number' },
+      { key: 'cost', label: 'Стоимость содержания', labelKey: 'businessTypeMetrics.sharing_field_cost', type: 'number', suffix: '/мес', suffixKey: 'businessTypeMetrics.suffix_per_month' },
+      { key: 'utilizationRate', label: 'Загрузка', labelKey: 'businessTypeMetrics.field_utilizationRate', type: 'number', suffix: '%', suffixKey: 'businessTypeMetrics.suffix_percent', min: 0, max: 100 },
+      { key: 'takeRate', label: 'Take Rate', labelKey: 'businessTypeMetrics.field_takeRate', type: 'number', suffix: '%', suffixKey: 'businessTypeMetrics.suffix_percent', min: 0, max: 100 },
     ],
     metricFields: [
       { key: 'gmv', label: 'GMV', description: 'Gross Merchandise Value — объём транзакций', category: 'revenue' },
