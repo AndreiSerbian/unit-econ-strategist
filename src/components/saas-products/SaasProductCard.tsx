@@ -145,10 +145,10 @@ export const SaasProductCard = memo(function SaasProductCard({
                   })}
                 >
                   <SelectTrigger className="h-8 w-36 text-xs">
-                    <SelectValue placeholder="Канал продаж" />
+                    <SelectValue placeholder={t('saasProducts.salesChannelPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Без канала</SelectItem>
+                    <SelectItem value="none">{t('saasProducts.noChannel')}</SelectItem>
                     {salesChannels.map(ch => (
                       <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>
                     ))}
