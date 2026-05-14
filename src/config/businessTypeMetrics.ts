@@ -240,21 +240,21 @@ export const businessTypes: BusinessTypeConfig[] = [
     productLabelPluralKey: 'businessTypeMetrics.services_productLabelPlural',
     // Services v2: minimal fields for add form, full editing in ServicesProductCard
     productFields: [
-      { key: 'name', label: 'Название услуги', type: 'text', required: true },
-      { key: 'billingModel', label: 'Модель оплаты', type: 'select', options: [
-        { value: 'fixed_project', label: 'Фиксированный проект' },
-        { value: 'hourly', label: 'Почасовая оплата' },
-        { value: 'retainer', label: 'Абонентское сопровождение' },
+      { key: 'name', label: 'Название услуги', labelKey: 'businessTypeMetrics.services_field_name', type: 'text', required: true },
+      { key: 'billingModel', label: 'Модель оплаты', labelKey: 'businessTypeMetrics.field_billingModel', type: 'select', options: [
+        { value: 'fixed_project', label: 'Фиксированный проект', labelKey: 'businessTypeMetrics.billing_fixed_project' },
+        { value: 'hourly', label: 'Почасовая оплата', labelKey: 'businessTypeMetrics.billing_hourly' },
+        { value: 'retainer', label: 'Абонентское сопровождение', labelKey: 'businessTypeMetrics.billing_retainer' },
       ]},
-      { key: 'planningPeriod', label: 'Период', type: 'select', options: [
-        { value: 'week', label: 'Неделя' },
-        { value: 'month', label: 'Месяц' },
-        { value: 'quarter', label: 'Квартал' },
-        { value: 'year', label: 'Год' },
+      { key: 'planningPeriod', label: 'Период', labelKey: 'businessTypeMetrics.field_planningPeriod', type: 'select', options: [
+        { value: 'week', label: 'Неделя', labelKey: 'businessTypeMetrics.period_week' },
+        { value: 'month', label: 'Месяц', labelKey: 'businessTypeMetrics.period_month' },
+        { value: 'quarter', label: 'Квартал', labelKey: 'businessTypeMetrics.period_quarter' },
+        { value: 'year', label: 'Год', labelKey: 'businessTypeMetrics.period_year' },
       ]},
-      { key: 'price', label: 'Цена проекта', type: 'number' },
-      { key: 'hoursPerWeek', label: 'Часов/нед', type: 'number', suffix: 'ч', min: 0, max: 168 },
-      { key: 'billablePercent', label: 'Оплачиваемое время %', type: 'number', suffix: '%', min: 0, max: 100 },
+      { key: 'price', label: 'Цена проекта', labelKey: 'businessTypeMetrics.services_field_price', type: 'number' },
+      { key: 'hoursPerWeek', label: 'Часов/нед', labelKey: 'businessTypeMetrics.field_hoursPerWeek', type: 'number', suffix: 'ч', suffixKey: 'businessTypeMetrics.suffix_hours_short', min: 0, max: 168 },
+      { key: 'billablePercent', label: 'Оплачиваемое время %', labelKey: 'businessTypeMetrics.field_billablePercent', type: 'number', suffix: '%', suffixKey: 'businessTypeMetrics.suffix_percent', min: 0, max: 100 },
     ],
     metricFields: [
       { key: 'hourlyRate', label: 'Часовая ставка', description: 'Средняя ставка за час работы', category: 'revenue' },
