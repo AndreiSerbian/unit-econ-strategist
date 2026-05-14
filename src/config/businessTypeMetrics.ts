@@ -97,12 +97,12 @@ export const businessTypes: BusinessTypeConfig[] = [
     productLabelPlural: 'Тарифные планы',
     productLabelPluralKey: 'businessTypeMetrics.saas_productLabelPlural',
     productFields: [
-      { key: 'name', label: 'Название плана', type: 'text', required: true },
-      { key: 'price', label: 'Цена подписки', type: 'number', suffix: '/мес' },
-      { key: 'quantity', label: 'Подписчики', type: 'number' },
-      { key: 'newSubscribers', label: 'Новые подп.', type: 'number', suffix: '/мес' },
-      { key: 'cost', label: 'Себестоимость', type: 'number', suffix: '/мес' },
-      { key: 'churnRate', label: 'Churn Rate', type: 'number', suffix: '%', min: 0, max: 100 },
+      { key: 'name', label: 'Название плана', labelKey: 'businessTypeMetrics.saas_field_name', type: 'text', required: true },
+      { key: 'price', label: 'Цена подписки', labelKey: 'businessTypeMetrics.saas_field_price', type: 'number', suffix: '/мес', suffixKey: 'businessTypeMetrics.suffix_per_month' },
+      { key: 'quantity', label: 'Подписчики', labelKey: 'businessTypeMetrics.saas_field_quantity', type: 'number' },
+      { key: 'newSubscribers', label: 'Новые подп.', labelKey: 'businessTypeMetrics.field_newSubscribers', type: 'number', suffix: '/мес', suffixKey: 'businessTypeMetrics.suffix_per_month' },
+      { key: 'cost', label: 'Себестоимость', labelKey: 'businessTypeMetrics.field_cost', type: 'number', suffix: '/мес', suffixKey: 'businessTypeMetrics.suffix_per_month' },
+      { key: 'churnRate', label: 'Churn Rate', labelKey: 'businessTypeMetrics.field_churnRate', type: 'number', suffix: '%', suffixKey: 'businessTypeMetrics.suffix_percent', min: 0, max: 100 },
     ],
     metricFields: [
       { key: 'mrr', label: 'MRR', description: 'Месячная регулярная выручка', category: 'revenue', calculatedFrom: ['products'] },
