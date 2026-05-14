@@ -54,10 +54,15 @@ export interface BusinessTypeConfig {
   additionalMetrics: string[];
   labels: {
     revenue?: string;
+    revenueKey?: string;
     clients?: string;
+    clientsKey?: string;
     avgCheck?: string;
+    avgCheckKey?: string;
     conversion?: string;
+    conversionKey?: string;
     retention?: string;
+    retentionKey?: string;
   };
   productLabel: string;
   productLabelKey?: string;
