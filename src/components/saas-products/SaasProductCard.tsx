@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, ChevronRight, Plus, Trash2, Package, Edit2, Check, X } from 'lucide-react';
 import { PlanRow } from './PlanRow';
 import { SaasKpiCards } from './SaasKpiCards';
+import { useTranslation } from '@/i18n/useTranslation';
 import type { SaasProductWithPlans, ProductKPIs, PlanFormData, SaasProduct } from './types';
 
 interface SalesChannel {
@@ -38,6 +39,7 @@ export const SaasProductCard = memo(function SaasProductCard({
   onUpdatePlan,
   onDeletePlan,
 }: SaasProductCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(product.name);
@@ -56,7 +58,7 @@ export const SaasProductCard = memo(function SaasProductCard({
 
   const handleAddPlan = useCallback(() => {
     const defaultPlan: PlanFormData = {
-      name: `План ${product.plans.length + 1}`,
+      name: `${t('saasProducts.planNamePrefix')} ${product.plans.length + 1}`,
       billing_type: 'subscription',
       price_eur: 0,
       subscribers: 0,
@@ -67,13 +69,13 @@ export const SaasProductCard = memo(function SaasProductCard({
       cost_per_buyer_eur: null,
     };
     onAddPlan(product.id, defaultPlan);
-  }, [product.id, product.plans.length, onAddPlan]);
+  }, [product.id, product.plans.length, onAddPlan, t]);
 
   const planningPeriodLabels: Record<string, string> = {
-    week: 'Неделя',
-    month: 'Месяц',
-    quarter: 'Квартал',
-    year: 'Год',
+    week: t('saasProducts.week'),
+    month: t('saasProducts.month'),
+    quarter: t('saasProducts.quarter'),
+    year: t('saasProducts.year'),
   };
 
   return (
@@ -128,10 +130,10 @@ export const SaasProductCard = memo(function SaasProductCard({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="week">Неделя</SelectItem>
-                  <SelectItem value="month">Месяц</SelectItem>
-                  <SelectItem value="quarter">Квартал</SelectItem>
-                  <SelectItem value="year">Год</SelectItem>
+                  <SelectItem value="week">{t('saasProducts.week')}</SelectItem>
+                  <SelectItem value="month">{t('saasProducts.month')}</SelectItem>
+                  <SelectItem value="quarter">{t('saasProducts.quarter')}</SelectItem>
+                  <SelectItem value="year">{t('saasProducts.year')}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -143,10 +145,10 @@ export const SaasProductCard = memo(function SaasProductCard({
                   })}
                 >
                   <SelectTrigger className="h-8 w-36 text-xs">
-                    <SelectValue placeholder="Канал продаж" />
+                    <SelectValue placeholder={t('saasProducts.salesChannelPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Без канала</SelectItem>
+                    <SelectItem value="none">{t('saasProducts.noChannel')}</SelectItem>
                     {salesChannels.map(ch => (
                       <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>
                     ))}
@@ -165,7 +167,7 @@ export const SaasProductCard = memo(function SaasProductCard({
             </div>
           </div>
           <CardDescription className="ml-8">
-            Период: {planningPeriodLabels[product.planning_period]} • {product.plans.length} план(ов)
+            {t('saasProducts.period')}: {planningPeriodLabels[product.planning_period]} • {product.plans.length} {t('saasProducts.plansCount')}
           </CardDescription>
         </CardHeader>
 
@@ -179,13 +181,13 @@ export const SaasProductCard = memo(function SaasProductCard({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[120px]">Название</TableHead>
-                    <TableHead className="min-w-[130px]">Тип</TableHead>
-                    <TableHead className="min-w-[100px]">Цена ({currency})</TableHead>
-                    <TableHead className="min-w-[100px]">Кол-во</TableHead>
-                    <TableHead className="min-w-[90px]">Новых/пер.</TableHead>
-                    <TableHead className="min-w-[100px]">Себест.</TableHead>
-                    <TableHead className="min-w-[80px]">Free</TableHead>
+                    <TableHead className="min-w-[120px]">{t('saasProducts.colName')}</TableHead>
+                    <TableHead className="min-w-[130px]">{t('saasProducts.colType')}</TableHead>
+                    <TableHead className="min-w-[100px]">{t('saasProducts.colPrice')} ({currency})</TableHead>
+                    <TableHead className="min-w-[100px]">{t('saasProducts.colQty')}</TableHead>
+                    <TableHead className="min-w-[90px]">{t('saasProducts.colNewPerPeriod')}</TableHead>
+                    <TableHead className="min-w-[100px]">{t('saasProducts.colCost')}</TableHead>
+                    <TableHead className="min-w-[80px]">{t('saasProducts.colFree')}</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -205,7 +207,7 @@ export const SaasProductCard = memo(function SaasProductCard({
 
             <Button variant="outline" size="sm" onClick={handleAddPlan} className="w-full">
               <Plus className="w-4 h-4 mr-2" />
-              Добавить план
+              {t('saasProducts.addPlan')}
             </Button>
           </CardContent>
         </CollapsibleContent>
