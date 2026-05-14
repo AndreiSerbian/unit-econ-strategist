@@ -293,11 +293,11 @@ export const businessTypes: BusinessTypeConfig[] = [
     productLabelPlural: 'Тарифы',
     productLabelPluralKey: 'businessTypeMetrics.freemium_productLabelPlural',
     productFields: [
-      { key: 'name', label: 'Название тарифа', type: 'text', required: true },
-      { key: 'price', label: 'Цена', type: 'number', suffix: '/мес' },
-      { key: 'quantity', label: 'Пользователи', type: 'number' },
-      { key: 'cost', label: 'Себестоимость', type: 'number' },
-      { key: 'freeToPayConversion', label: 'Free → Paid', type: 'number', suffix: '%', min: 0, max: 100 },
+      { key: 'name', label: 'Название тарифа', labelKey: 'businessTypeMetrics.freemium_field_name', type: 'text', required: true },
+      { key: 'price', label: 'Цена', labelKey: 'businessTypeMetrics.field_price', type: 'number', suffix: '/мес', suffixKey: 'businessTypeMetrics.suffix_per_month' },
+      { key: 'quantity', label: 'Пользователи', labelKey: 'businessTypeMetrics.freemium_field_quantity', type: 'number' },
+      { key: 'cost', label: 'Себестоимость', labelKey: 'businessTypeMetrics.field_cost', type: 'number' },
+      { key: 'freeToPayConversion', label: 'Free → Paid', labelKey: 'businessTypeMetrics.field_freeToPayConversion', type: 'number', suffix: '%', suffixKey: 'businessTypeMetrics.suffix_percent', min: 0, max: 100 },
     ],
     metricFields: [
       { key: 'freeUsers', label: 'Бесплатные пользователи', description: 'Количество пользователей на Free плане', category: 'clients' },
