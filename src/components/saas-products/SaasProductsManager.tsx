@@ -10,6 +10,7 @@ import { Plus, Package, TrendingUp } from 'lucide-react';
 import { useSaasProducts } from '@/hooks/useSaasProducts';
 import { SaasProductCard } from './SaasProductCard';
 import { SaasKpiCards } from './SaasKpiCards';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface SalesChannel {
   id: string;
@@ -23,6 +24,7 @@ interface SaasProductsManagerProps {
 }
 
 export function SaasProductsManager({ projectId, currency, salesChannels }: SaasProductsManagerProps) {
+  const { t } = useTranslation();
   const {
     products,
     loading,
@@ -70,63 +72,63 @@ export function SaasProductsManager({ projectId, currency, salesChannels }: Saas
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Package className="w-5 h-5 text-primary" />
-            <CardTitle>SaaS Продукты</CardTitle>
+            <CardTitle>{t('saasProducts.title')}</CardTitle>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm">
                 <Plus className="w-4 h-4 mr-2" />
-                Добавить продукт
+                {t('saasProducts.addProduct')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Новый SaaS продукт</DialogTitle>
+                <DialogTitle>{t('saasProducts.newProduct')}</DialogTitle>
                 <DialogDescription>
-                  Создайте продукт, затем добавьте тарифные планы (подписки или разовые покупки).
+                  {t('saasProducts.newProductDescription')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="product-name">Название продукта</Label>
+                  <Label htmlFor="product-name">{t('saasProducts.productName')}</Label>
                   <Input
                     id="product-name"
                     value={newProductName}
                     onChange={(e) => setNewProductName(e.target.value)}
-                    placeholder="Например: Мобильное приложение"
+                    placeholder={t('saasProducts.productNamePlaceholder')}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAddProduct();
                     }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="planning-period">Период планирования</Label>
+                  <Label htmlFor="planning-period">{t('saasProducts.planningPeriod')}</Label>
                   <Select value={newProductPeriod} onValueChange={(val) => setNewProductPeriod(val as any)}>
                     <SelectTrigger id="planning-period">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="week">Неделя</SelectItem>
-                      <SelectItem value="month">Месяц</SelectItem>
-                      <SelectItem value="quarter">Квартал</SelectItem>
-                      <SelectItem value="year">Год</SelectItem>
+                      <SelectItem value="week">{t('saasProducts.week')}</SelectItem>
+                      <SelectItem value="month">{t('saasProducts.month')}</SelectItem>
+                      <SelectItem value="quarter">{t('saasProducts.quarter')}</SelectItem>
+                      <SelectItem value="year">{t('saasProducts.year')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Отмена
+                  {t('saasProducts.cancel')}
                 </Button>
                 <Button onClick={handleAddProduct} disabled={!newProductName.trim()}>
-                  Создать
+                  {t('saasProducts.create')}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
         <CardDescription>
-          Управляйте подписками и разовыми покупками. Бесплатные планы учитываются в расходах.
+          {t('saasProducts.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -135,7 +137,7 @@ export function SaasProductsManager({ projectId, currency, salesChannels }: Saas
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <TrendingUp className="w-4 h-4" />
-              Сводные показатели (все продукты)
+              {t('saasProducts.aggregateKPIs')}
             </div>
             <SaasKpiCards kpis={aggregateKPIs} currency={currency} />
           </div>
@@ -145,8 +147,8 @@ export function SaasProductsManager({ projectId, currency, salesChannels }: Saas
         {products.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">Нет SaaS продуктов</p>
-            <p className="text-sm">Добавьте первый продукт, чтобы начать работу с подписками</p>
+            <p className="text-lg font-medium">{t('saasProducts.emptyTitle')}</p>
+            <p className="text-sm">{t('saasProducts.emptyDescription')}</p>
           </div>
         ) : (
           <div className="space-y-4">
