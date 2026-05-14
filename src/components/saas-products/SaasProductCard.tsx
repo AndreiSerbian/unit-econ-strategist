@@ -167,7 +167,7 @@ export const SaasProductCard = memo(function SaasProductCard({
             </div>
           </div>
           <CardDescription className="ml-8">
-            Период: {planningPeriodLabels[product.planning_period]} • {product.plans.length} план(ов)
+            {t('saasProducts.period')}: {planningPeriodLabels[product.planning_period]} • {product.plans.length} {t('saasProducts.plansCount')}
           </CardDescription>
         </CardHeader>
 
