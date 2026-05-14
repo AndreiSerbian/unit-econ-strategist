@@ -10,7 +10,7 @@ import { NumericInput } from "@/components/ui/numeric-input";
 import { LeadSourcesForm, LeadSource } from "./LeadSourcesForm";
 import { SalesFunnel } from "./SalesFunnel";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { getBusinessTypeConfig, type BusinessType } from "@/config/businessTypeMetrics";
+import { getBusinessTypeConfig, resolveI18nText, type BusinessType } from "@/config/businessTypeMetrics";
 import { useTranslation } from "@/i18n/useTranslation";
 
 interface ExpenseCategory {
