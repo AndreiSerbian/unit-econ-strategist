@@ -207,7 +207,7 @@ export const SaasProductCard = memo(function SaasProductCard({
 
             <Button variant="outline" size="sm" onClick={handleAddPlan} className="w-full">
               <Plus className="w-4 h-4 mr-2" />
-              Добавить план
+              {t('saasProducts.addPlan')}
             </Button>
           </CardContent>
         </CollapsibleContent>
