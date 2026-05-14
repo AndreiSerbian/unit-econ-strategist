@@ -12,7 +12,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, PieChart as PieChartIcon, BarChart3, Package, Share2 } from "lucide-react";
+import { TrendingUp, PieChart as PieChartIcon, BarChart3, Package } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 interface Product {
   id: string;
@@ -35,11 +36,12 @@ const COLORS = [
 ];
 
 export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
+  const { t } = useTranslation();
+
   if (products.length === 0) {
     return null;
   }
 
-  // Подготовка данных для графика прибыльности
   const profitabilityData = products.map((product) => {
     const revenue = product.price * product.quantity;
     const totalCost = product.cost * product.quantity;
@@ -56,7 +58,6 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
     };
   });
 
-  // Подготовка данных для круговой диаграммы выручки
   const revenueStructureData = products
     .map((product) => ({
       name: product.name,
@@ -65,7 +66,6 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
     .filter((item) => item.value > 0)
     .sort((a, b) => b.value - a.value);
 
-  // Подготовка данных для доли в прибыли
   const profitShareData = products
     .map((product) => {
       const profit = (product.price - product.cost) * product.quantity;
@@ -77,24 +77,19 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
     .filter((item) => item.value > 0)
     .sort((a, b) => b.value - a.value);
 
-  // Средние цены продуктов
   const avgPriceData = products.map((p) => ({
     name: p.name.length > 10 ? p.name.substring(0, 10) + "..." : p.name,
     fullName: p.name,
-    цена: p.price,
-    себестоимость: p.cost,
+    price: p.price,
+    cost: p.cost,
   }));
 
-  // Объёмы продаж
   const salesVolumeData = products.map((p) => ({
     name: p.name.length > 10 ? p.name.substring(0, 10) + "..." : p.name,
     fullName: p.name,
-    количество: p.quantity,
-    выручка: p.price * p.quantity,
+    quantity: p.quantity,
+    revenue: p.price * p.quantity,
   }));
-
-  // Каналы продаж теперь управляются через ProductChannelAllocation
-  const hasChannels = false; // Deprecated - use ChannelAnalytics component
 
   const totalRevenue = revenueStructureData.reduce((sum, item) => sum + item.value, 0);
   const totalProfit = profitShareData.reduce((sum, item) => sum + item.value, 0);
@@ -105,11 +100,10 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="font-semibold mb-1">{payload[0].payload.fullName || payload[0].payload.name}</p>
           {payload.map((entry: any, index: number) => {
-            // Определяем единицу измерения в зависимости от типа данных
-            const isQuantity = entry.dataKey === "количество";
+            const isQuantity = entry.dataKey === "quantity";
             const isPercent = entry.dataKey === "profitMargin";
-            const unit = isQuantity ? "ед." : isPercent ? "%" : currency;
-            
+            const unit = isQuantity ? t("productsCharts.units") : isPercent ? "%" : currency;
+
             return (
               <p key={index} className="text-sm" style={{ color: entry.color }}>
                 {entry.name}: {entry.value.toLocaleString("ru-RU")} {unit}
@@ -130,9 +124,9 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="font-semibold mb-1">{data.name}</p>
           <p className="text-sm">
-            Выручка: {data.value.toLocaleString("ru-RU")} {currency}
+            {t("productsCharts.revenueLabel")} {data.value.toLocaleString("ru-RU")} {currency}
           </p>
-          <p className="text-sm text-muted-foreground">Доля: {percentage}%</p>
+          <p className="text-sm text-muted-foreground">{t("productsCharts.shareLabel")} {percentage}%</p>
         </div>
       );
     }
@@ -147,9 +141,9 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="font-semibold mb-1">{data.name}</p>
           <p className="text-sm">
-            Прибыль: {data.value.toLocaleString("ru-RU")} {currency}
+            {t("productsCharts.profitLabel")} {data.value.toLocaleString("ru-RU")} {currency}
           </p>
-          <p className="text-sm text-muted-foreground">Доля: {percentage}%</p>
+          <p className="text-sm text-muted-foreground">{t("productsCharts.shareLabel")} {percentage}%</p>
         </div>
       );
     }
@@ -158,14 +152,13 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {/* График прибыльности */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary" />
-            Прибыльность продуктов
+            {t("productsCharts.profitabilityTitle")}
           </CardTitle>
-          <CardDescription>Выручка, себестоимость и прибыль по каждому продукту</CardDescription>
+          <CardDescription>{t("productsCharts.profitabilityDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400} className="text-xs sm:text-sm">
@@ -181,43 +174,41 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
               <YAxis className="text-xs" />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar dataKey="revenue" name="Выручка" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="cost" name="Себестоимость" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="profit" name="Прибыль" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" name={t("productsCharts.revenue")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="cost" name={t("productsCharts.cost")} fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="profit" name={t("productsCharts.profit")} fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Новые графики для сравнения */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="w-5 h-5 text-secondary" />
-            Сравнительный анализ продуктов
+            {t("productsCharts.comparisonTitle")}
           </CardTitle>
           <CardDescription>
-            Детальное сравнение цен, объёмов и каналов продаж
+            {t("productsCharts.comparisonDesc")}
           </CardDescription>
         </CardHeader>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Средние цены */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <TrendingUp className="w-4 h-4 text-secondary" />
-              Ценообразование
+              {t("productsCharts.pricingTitle")}
             </CardTitle>
-            <CardDescription>Сравнение цен и себестоимости</CardDescription>
+            <CardDescription>{t("productsCharts.pricingDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={avgPriceData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="name" 
+                <XAxis
+                  dataKey="name"
                   stroke="hsl(var(--foreground))"
                   angle={-45}
                   textAnchor="end"
@@ -226,28 +217,27 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
                 <YAxis stroke="hsl(var(--foreground))" />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="цена" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="себестоимость" fill="hsl(var(--destructive))" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="price" name={t("productsCharts.price")} fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="cost" name={t("productsCharts.cost")} fill="hsl(var(--destructive))" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Объёмы продаж */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Package className="w-4 h-4 text-accent" />
-              Объёмы продаж
+              {t("productsCharts.salesVolumeTitle")}
             </CardTitle>
-            <CardDescription>Количество проданных единиц</CardDescription>
+            <CardDescription>{t("productsCharts.salesVolumeDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
               <BarChart data={salesVolumeData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="name" 
+                <XAxis
+                  dataKey="name"
                   stroke="hsl(var(--foreground))"
                   angle={-45}
                   textAnchor="end"
@@ -256,24 +246,22 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
                 <YAxis stroke="hsl(var(--foreground))" />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="количество" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="quantity" name={t("productsCharts.quantity")} fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
-      {/* Каналы продаж теперь отображаются в ChannelAnalytics */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Структура выручки */}
         {revenueStructureData.length > 0 && (
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PieChartIcon className="w-5 h-5 text-secondary" />
-                Структура выручки
+                {t("productsCharts.revenueStructureTitle")}
               </CardTitle>
-              <CardDescription>Распределение выручки по продуктам</CardDescription>
+              <CardDescription>{t("productsCharts.revenueStructureDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
@@ -296,7 +284,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2">
-                <p className="text-sm font-semibold">Общая выручка:</p>
+                <p className="text-sm font-semibold">{t("productsCharts.totalRevenue")}</p>
                 <p className="text-2xl font-bold text-primary font-mono">
                   {totalRevenue.toLocaleString("ru-RU")} {currency}
                 </p>
@@ -305,15 +293,14 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
           </Card>
         )}
 
-        {/* Доля в общей прибыли */}
         {profitShareData.length > 0 && (
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-success" />
-                Доля в общей прибыли
+                {t("productsCharts.profitShareTitle")}
               </CardTitle>
-              <CardDescription>Вклад каждого продукта в прибыль</CardDescription>
+              <CardDescription>{t("productsCharts.profitShareDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
             <ResponsiveContainer width="100%" height={300} className="text-xs sm:text-sm">
@@ -336,7 +323,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2">
-                <p className="text-sm font-semibold">Общая прибыль:</p>
+                <p className="text-sm font-semibold">{t("productsCharts.totalProfit")}</p>
                 <p className={`text-2xl font-bold font-mono ${totalProfit >= 0 ? "text-success" : "text-destructive"}`}>
                   {totalProfit.toLocaleString("ru-RU")} {currency}
                 </p>
@@ -346,11 +333,10 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
         )}
       </div>
 
-      {/* Таблица маржинальности */}
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Маржинальность продуктов</CardTitle>
-          <CardDescription>Процент прибыли от выручки</CardDescription>
+          <CardTitle>{t("productsCharts.marginTitle")}</CardTitle>
+          <CardDescription>{t("productsCharts.marginDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -364,7 +350,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
                   <div className="flex-1">
                     <p className="font-medium">{product.fullName}</p>
                     <p className="text-sm text-muted-foreground">
-                      Выручка: {product.revenue.toLocaleString("ru-RU")} {currency}
+                      {t("productsCharts.revenueLabel")} {product.revenue.toLocaleString("ru-RU")} {currency}
                     </p>
                   </div>
                   <div className="text-right">
@@ -379,7 +365,7 @@ export const ProductsCharts = ({ products, currency }: ProductsChartsProps) => {
                     >
                       {product.profitMargin}%
                     </p>
-                    <p className="text-xs text-muted-foreground">маржа</p>
+                    <p className="text-xs text-muted-foreground">{t("productsCharts.margin")}</p>
                   </div>
                 </div>
               ))}
