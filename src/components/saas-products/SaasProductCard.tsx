@@ -39,6 +39,7 @@ export const SaasProductCard = memo(function SaasProductCard({
   onUpdatePlan,
   onDeletePlan,
 }: SaasProductCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(product.name);
