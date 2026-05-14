@@ -130,10 +130,10 @@ export const SaasProductCard = memo(function SaasProductCard({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="week">Неделя</SelectItem>
-                  <SelectItem value="month">Месяц</SelectItem>
-                  <SelectItem value="quarter">Квартал</SelectItem>
-                  <SelectItem value="year">Год</SelectItem>
+                  <SelectItem value="week">{t('saasProducts.week')}</SelectItem>
+                  <SelectItem value="month">{t('saasProducts.month')}</SelectItem>
+                  <SelectItem value="quarter">{t('saasProducts.quarter')}</SelectItem>
+                  <SelectItem value="year">{t('saasProducts.year')}</SelectItem>
                 </SelectContent>
               </Select>
 
