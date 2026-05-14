@@ -1,50 +1,52 @@
-# Localize ProductsCharts to RU / EN / RO
+## Goal
 
-The selected block (and the rest of `src/components/ProductsCharts.tsx`) renders all titles, descriptions, axis legends, tooltip rows and the marginality table with hard-coded Russian strings. Switch language → text stays Russian.
+Localize the entire "Metrics" form block (Revenue/Clients/Conversion/Expenses) in `MetricsForm.tsx` to RU/EN/RO. Currently most strings already use `t(...)`, but card titles and field labels coming from `config.labels.*` (revenue, clients, avgCheck) are hardcoded in Russian and never translated, so when the user switches to EN or RO they still see "Выручка / Покупатели / Средний чек (AOV) / MRR / ARPU" etc.
+
+## Scope (visible block)
+
+The 4 cards inside `<div className="grid grid-cols-1 md:grid-cols-2 gap-6">` at line 304 of `src/components/MetricsForm.tsx`:
+1. Revenue & income (uses `config.labels.revenue`, `config.labels.avgCheck`)
+2. Clients (uses `config.labels.clients`)
+3. Conversion & LTV (already fully via `t`)
+4. Expenses (already fully via `t`)
 
 ## Changes
 
-### `src/components/ProductsCharts.tsx`
-- Import `useTranslation` and call `const { t } = useTranslation()`.
-- Replace every hard-coded Russian string with `t("productsCharts.<key>")`:
-  - Card titles & descriptions: `Прибыльность продуктов`, `Выручка, себестоимость и прибыль…`, `Сравнительный анализ продуктов`, `Детальное сравнение цен…`, `Ценообразование`, `Сравнение цен и себестоимости`, `Объёмы продаж`, `Количество проданных единиц`, `Структура выручки`, `Распределение выручки по продуктам`, `Доля в общей прибыли`, `Вклад каждого продукта в прибыль`, `Маржинальность продуктов`, `Процент прибыли от выручки`.
-  - Bar legend names (`name="…"`): `Выручка`, `Себестоимость`, `Прибыль`.
-  - Bar `dataKey` strings used as legend labels (`цена`, `себестоимость`, `количество`, `выручка`): keep the dataKey English-stable (e.g. `price`, `cost`, `quantity`, `revenue`) and pass localized `name` props to `<Bar>`. Update the matching object keys in `avgPriceData` / `salesVolumeData` and the `CustomTooltip` `dataKey` checks accordingly.
-  - Tooltip strings: `Выручка:`, `Прибыль:`, `Доля:`, `ед.`, `Общая выручка:`, `Общая прибыль:`, `маржа`.
+### 1. `src/config/businessTypeMetrics.ts`
+Add `labelKey` siblings on every `labels` object so translations can be resolved, e.g.:
 
-### `src/i18n/dictionary.ts`
-Add a new `productsCharts: { … }` block in each of the three language sections (`ru`, `en`, `ro`) with the keys above. Suggested EN/RO equivalents:
+```ts
+labels: {
+  revenue: 'MRR',
+  revenueKey: 'businessTypeMetrics.saas_label_revenue',
+  clients: 'Активные подписчики',
+  clientsKey: 'businessTypeMetrics.saas_label_clients',
+  avgCheck: 'ARPU',
+  avgCheckKey: 'businessTypeMetrics.saas_label_avgCheck',
+  conversion: 'Trial → Paid конверсия',
+  conversionKey: 'businessTypeMetrics.saas_label_conversion',
+  retention: 'Retention Rate',
+  retentionKey: 'businessTypeMetrics.saas_label_retention',
+},
+```
 
-| key | RU | EN | RO |
-|---|---|---|---|
-| profitabilityTitle | Прибыльность продуктов | Product profitability | Profitabilitatea produselor |
-| profitabilityDesc | Выручка, себестоимость и прибыль по каждому продукту | Revenue, cost and profit per product | Venit, cost și profit pe fiecare produs |
-| comparisonTitle | Сравнительный анализ продуктов | Product comparison | Analiză comparativă |
-| comparisonDesc | Детальное сравнение цен, объёмов и каналов продаж | Detailed comparison of prices, volumes and channels | Comparație detaliată: prețuri, volume, canale |
-| pricingTitle | Ценообразование | Pricing | Stabilire preț |
-| pricingDesc | Сравнение цен и себестоимости | Price vs cost comparison | Compararea prețului și costului |
-| salesVolumeTitle | Объёмы продаж | Sales volume | Volume de vânzări |
-| salesVolumeDesc | Количество проданных единиц | Units sold | Unități vândute |
-| revenueStructureTitle | Структура выручки | Revenue structure | Structura veniturilor |
-| revenueStructureDesc | Распределение выручки по продуктам | Revenue distribution by product | Distribuția veniturilor pe produse |
-| profitShareTitle | Доля в общей прибыли | Share of total profit | Pondere în profit total |
-| profitShareDesc | Вклад каждого продукта в прибыль | Each product's contribution to profit | Contribuția fiecărui produs la profit |
-| marginTitle | Маржинальность продуктов | Product margins | Marja produselor |
-| marginDesc | Процент прибыли от выручки | Profit as % of revenue | Profit ca % din venituri |
-| revenue | Выручка | Revenue | Venituri |
-| cost | Себестоимость | Cost | Cost |
-| profit | Прибыль | Profit | Profit |
-| price | Цена | Price | Preț |
-| quantity | Количество | Quantity | Cantitate |
-| share | Доля | Share | Pondere |
-| units | ед. | units | unități |
-| totalRevenue | Общая выручка: | Total revenue: | Venit total: |
-| totalProfit | Общая прибыль: | Total profit: | Profit total: |
-| margin | маржа | margin | marjă |
-| revenueLabel | Выручка: | Revenue: | Venituri: |
-| profitLabel | Прибыль: | Profit: | Profit: |
+Repeat for all 8 business types: `saas`, `ecommerce`, `production`, `services`, `freemium`, `sharing`, `marketplace`, `token_saas`. Update the `BusinessTypeConfig.labels` TS interface to include the optional `*Key` fields.
+
+### 2. `src/i18n/dictionary.ts`
+Add a new `businessTypeMetrics.{type}_label_{revenue|clients|avgCheck|conversion|retention}` set in each of the three sections (`ru`, `en`, `ro`). Russian values mirror the existing config strings; English and Romanian use standard equivalents already used in the app's glossary (e.g. SaaS clients → "Active subscribers" / "Abonați activi"; AOV → "Average order value" / "Valoare medie comandă"; Take Rate → "Take Rate" kept as-is, etc.).
+
+### 3. `src/components/MetricsForm.tsx`
+Use `resolveI18nText(t, config.labels.revenue, config.labels.revenueKey) || t("metricsForm.revenueAndIncome")` (same helper pattern already used in `ProductsManagement.tsx`) for:
+- Card 1 title (line 309) and avgCheck label (line 333)
+- Card 2 title (line 354) and total clients label (line 359)
+
+No layout, no logic, no calculation changes.
+
+### 4. Number formatting
+Replace the hardcoded `toLocaleString("ru-RU")` for displayed values inside this block with `language`-aware locale (`ru-RU` / `en-US` / `ro-RO`) using the `language` from `useTranslation()`, matching what `MarketingMetrics.tsx` already does. This keeps thousand separators consistent with the chosen UI language.
 
 ## Out of scope
-- No layout, chart-type, color, or calculation changes.
-- No edits to other chart components.
-- Number formatting stays `toLocaleString("ru-RU")` for now (separate concern).
+
+- The `productsIntegration` sync card above this block is already fully translated.
+- Business-type-specific extra metrics card below (SaaS/E-commerce/etc.) — already uses `t()` keys that exist in all three languages.
+- No edits to other forms or charts.

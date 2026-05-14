@@ -10,7 +10,7 @@ import { NumericInput } from "@/components/ui/numeric-input";
 import { LeadSourcesForm, LeadSource } from "./LeadSourcesForm";
 import { SalesFunnel } from "./SalesFunnel";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { getBusinessTypeConfig, type BusinessType } from "@/config/businessTypeMetrics";
+import { getBusinessTypeConfig, resolveI18nText, type BusinessType } from "@/config/businessTypeMetrics";
 import { useTranslation } from "@/i18n/useTranslation";
 
 interface ExpenseCategory {
@@ -191,7 +191,8 @@ export const MetricsForm = memo(({
   isAuthenticated,
   calculateProfit,
 }: MetricsFormProps) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const navigate = useNavigate();
   const location = useLocation();
   const [showFunnel, setShowFunnel] = useState(true);
@@ -284,13 +285,13 @@ export const MetricsForm = memo(({
               <div>
                 <p className="text-muted-foreground">{t("metricsForm.productsRevenue")}</p>
                 <p className="font-mono font-semibold text-accent">
-                  {productsRevenue.toLocaleString("ru-RU")} {currency}
+                  {productsRevenue.toLocaleString(numLocale)} {currency}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground">{t("metricsForm.productsCosts")}</p>
                 <p className="font-mono font-semibold text-destructive">
-                  {productsCosts.toLocaleString("ru-RU")} {currency}
+                  {productsCosts.toLocaleString(numLocale)} {currency}
                 </p>
               </div>
             </div>
@@ -306,7 +307,7 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-primary" />
-              {config.labels.revenue || t("metricsForm.revenueAndIncome")}
+              {resolveI18nText(t, config.labels.revenue, config.labels.revenueKey) || t("metricsForm.revenueAndIncome")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -315,22 +316,22 @@ export const MetricsForm = memo(({
                 {businessType === 'saas' ? t("metricsForm.revenueMrrFromPlans") : t("metricsForm.revenueAutoFromProducts")}
               </p>
               <p className="text-xl font-bold font-mono text-primary">
-                {metrics.revenue.toLocaleString("ru-RU")} {currency}
+                {metrics.revenue.toLocaleString(numLocale)} {currency}
               </p>
               {productsRevenue > 0 && (
                 <p className="text-[11px] text-muted-foreground">
-                  {t("metricsForm.revenueFromProducts")} {productsRevenue.toLocaleString("ru-RU")} {currency}
+                  {t("metricsForm.revenueFromProducts")} {productsRevenue.toLocaleString(numLocale)} {currency}
                 </p>
               )}
               {businessType === 'saas' && (
                 <p className="text-sm text-muted-foreground">
-                  ARR: <span className="font-mono font-semibold">{(metrics.revenue * 12).toLocaleString("ru-RU")} {currency}</span>
+                  ARR: <span className="font-mono font-semibold">{(metrics.revenue * 12).toLocaleString(numLocale)} {currency}</span>
                 </p>
               )}
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                {config.labels.avgCheck || t("metricsForm.avgCheck")}
+                {resolveI18nText(t, config.labels.avgCheck, config.labels.avgCheckKey) || t("metricsForm.avgCheck")}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
@@ -341,7 +342,7 @@ export const MetricsForm = memo(({
                 </Tooltip>
               </p>
               <p className="text-xl font-bold font-mono text-secondary">
-                {(metrics.avgCheck || 0).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                {(metrics.avgCheck || 0).toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
               </p>
             </div>
           </CardContent>
@@ -351,12 +352,12 @@ export const MetricsForm = memo(({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="w-4 h-4 text-secondary" />
-              {config.labels.clients || t("metricsForm.clients")}
+              {resolveI18nText(t, config.labels.clients, config.labels.clientsKey) || t("metricsForm.clients")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor={`${scenario}-totalClients`}>{config.labels.clients || t("metricsForm.totalClients")}</Label>
+              <Label htmlFor={`${scenario}-totalClients`}>{t("metricsForm.totalClients")}</Label>
               <NumericInput
                 id={`${scenario}-totalClients`}
                 value={metrics.totalClients}
@@ -439,7 +440,7 @@ export const MetricsForm = memo(({
                 {t("metricsForm.fixedExpensesHint")}
               </p>
               <p className="text-lg font-bold font-mono text-destructive">
-                {metrics.fixedCosts.toLocaleString("ru-RU")} {currency}
+                {metrics.fixedCosts.toLocaleString(numLocale)} {currency}
               </p>
             </div>
             <div className="space-y-1">
@@ -447,7 +448,7 @@ export const MetricsForm = memo(({
                 {t("metricsForm.variableExpensesHint")}
               </p>
               <p className="text-lg font-bold font-mono text-warning">
-                {metrics.variableCosts.toLocaleString("ru-RU")} {currency}
+                {metrics.variableCosts.toLocaleString(numLocale)} {currency}
               </p>
             </div>
             <div className="space-y-1">
@@ -455,7 +456,7 @@ export const MetricsForm = memo(({
                 {t("metricsForm.marketingExpensesHint")}
               </p>
               <p className="text-lg font-bold font-mono text-primary">
-                {metrics.marketingCosts.toLocaleString("ru-RU")} {currency}
+                {metrics.marketingCosts.toLocaleString(numLocale)} {currency}
               </p>
             </div>
           </CardContent>

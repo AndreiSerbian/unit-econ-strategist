@@ -54,10 +54,15 @@ export interface BusinessTypeConfig {
   additionalMetrics: string[];
   labels: {
     revenue?: string;
+    revenueKey?: string;
     clients?: string;
+    clientsKey?: string;
     avgCheck?: string;
+    avgCheckKey?: string;
     conversion?: string;
+    conversionKey?: string;
     retention?: string;
+    retentionKey?: string;
   };
   productLabel: string;
   productLabelKey?: string;
@@ -87,10 +92,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['Retention Rate', 'Expansion Revenue', 'NRR'],
     labels: {
       revenue: 'MRR',
+      revenueKey: 'businessTypeMetrics.saas_label_revenue',
       clients: 'Активные подписчики',
+      clientsKey: 'businessTypeMetrics.saas_label_clients',
       avgCheck: 'ARPU',
+      avgCheckKey: 'businessTypeMetrics.saas_label_avgCheck',
       conversion: 'Trial → Paid конверсия',
+      conversionKey: 'businessTypeMetrics.saas_label_conversion',
       retention: 'Retention Rate',
+      retentionKey: 'businessTypeMetrics.saas_label_retention',
     },
     productLabel: 'Тарифный план',
     productLabelKey: 'businessTypeMetrics.saas_productLabel',
@@ -133,10 +143,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['ROAS', 'CPA', 'GMV'],
     labels: {
       revenue: 'Выручка',
+      revenueKey: 'businessTypeMetrics.ecommerce_label_revenue',
       clients: 'Покупатели',
+      clientsKey: 'businessTypeMetrics.ecommerce_label_clients',
       avgCheck: 'Средний чек (AOV)',
+      avgCheckKey: 'businessTypeMetrics.ecommerce_label_avgCheck',
       conversion: 'Конверсия в покупку',
+      conversionKey: 'businessTypeMetrics.ecommerce_label_conversion',
       retention: 'Repeat Rate',
+      retentionKey: 'businessTypeMetrics.ecommerce_label_retention',
     },
     productLabel: 'Продукт',
     productLabelKey: 'businessTypeMetrics.ecommerce_productLabel',
@@ -181,10 +196,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['Оборачиваемость', 'Брак %', 'OEE'],
     labels: {
       revenue: 'Выручка от продаж',
+      revenueKey: 'businessTypeMetrics.production_label_revenue',
       clients: 'Клиенты/Заказы',
+      clientsKey: 'businessTypeMetrics.production_label_clients',
       avgCheck: 'Средний заказ',
+      avgCheckKey: 'businessTypeMetrics.production_label_avgCheck',
       conversion: 'Конверсия',
+      conversionKey: 'businessTypeMetrics.production_label_conversion',
       retention: 'Повторные заказы',
+      retentionKey: 'businessTypeMetrics.production_label_retention',
     },
     productLabel: 'Продукт',
     productLabelKey: 'businessTypeMetrics.production_productLabel',
@@ -229,10 +249,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['Загрузка (%)', 'Оплачиваемые часы', 'Удержание клиентов'],
     labels: {
       revenue: 'Выручка от услуг',
+      revenueKey: 'businessTypeMetrics.services_label_revenue',
       clients: 'Клиенты/Проекты',
+      clientsKey: 'businessTypeMetrics.services_label_clients',
       avgCheck: 'Средний проект',
+      avgCheckKey: 'businessTypeMetrics.services_label_avgCheck',
       conversion: 'Конверсия в договор',
+      conversionKey: 'businessTypeMetrics.services_label_conversion',
       retention: 'Удержание клиентов',
+      retentionKey: 'businessTypeMetrics.services_label_retention',
     },
     productLabel: 'Услуга',
     productLabelKey: 'businessTypeMetrics.services_productLabel',
@@ -283,10 +308,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['DAU/MAU', 'Activation Rate', 'Feature Adoption'],
     labels: {
       revenue: 'Выручка от Premium',
+      revenueKey: 'businessTypeMetrics.freemium_label_revenue',
       clients: 'Платящие пользователи',
+      clientsKey: 'businessTypeMetrics.freemium_label_clients',
       avgCheck: 'ARPU',
+      avgCheckKey: 'businessTypeMetrics.freemium_label_avgCheck',
       conversion: 'Free → Paid',
+      conversionKey: 'businessTypeMetrics.freemium_label_conversion',
       retention: 'Retention Rate',
+      retentionKey: 'businessTypeMetrics.freemium_label_retention',
     },
     productLabel: 'Тариф',
     productLabelKey: 'businessTypeMetrics.freemium_productLabel',
@@ -326,10 +356,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['Supply/Demand Balance', 'Time to First Booking'],
     labels: {
       revenue: 'Комиссионный доход',
+      revenueKey: 'businessTypeMetrics.sharing_label_revenue',
       clients: 'Активные пользователи',
+      clientsKey: 'businessTypeMetrics.sharing_label_clients',
       avgCheck: 'Средняя транзакция',
+      avgCheckKey: 'businessTypeMetrics.sharing_label_avgCheck',
       conversion: 'Конверсия в бронь',
+      conversionKey: 'businessTypeMetrics.sharing_label_conversion',
       retention: 'Repeat Usage',
+      retentionKey: 'businessTypeMetrics.sharing_label_retention',
     },
     productLabel: 'Ресурс',
     productLabelKey: 'businessTypeMetrics.sharing_productLabel',
@@ -370,10 +405,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['Seller Acquisition', 'Buyer Acquisition', 'AOV'],
     labels: {
       revenue: 'Комиссия (Take Rate)',
+      revenueKey: 'businessTypeMetrics.marketplace_label_revenue',
       clients: 'Активные покупатели',
+      clientsKey: 'businessTypeMetrics.marketplace_label_clients',
       avgCheck: 'Средний заказ',
+      avgCheckKey: 'businessTypeMetrics.marketplace_label_avgCheck',
       conversion: 'Конверсия',
+      conversionKey: 'businessTypeMetrics.marketplace_label_conversion',
       retention: 'Retention',
+      retentionKey: 'businessTypeMetrics.marketplace_label_retention',
     },
     productLabel: 'Категория',
     productLabelKey: 'businessTypeMetrics.marketplace_productLabel',
@@ -413,10 +453,15 @@ export const businessTypes: BusinessTypeConfig[] = [
     additionalMetrics: ['Platform Profit', 'Avg IT Cost', 'Markup %'],
     labels: {
       revenue: 'Выручка от пакетов',
+      revenueKey: 'businessTypeMetrics.token_saas_label_revenue',
       clients: 'Покупатели пакетов',
+      clientsKey: 'businessTypeMetrics.token_saas_label_clients',
       avgCheck: 'Средний пакет',
+      avgCheckKey: 'businessTypeMetrics.token_saas_label_avgCheck',
       conversion: 'Конверсия в покупку',
+      conversionKey: 'businessTypeMetrics.token_saas_label_conversion',
       retention: 'Повторные покупки',
+      retentionKey: 'businessTypeMetrics.token_saas_label_retention',
     },
     productLabel: 'Пакет токенов',
     productLabelKey: 'businessTypeMetrics.token_saas_productLabel',
