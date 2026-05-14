@@ -424,9 +424,9 @@ export const businessTypes: BusinessTypeConfig[] = [
     productLabelPluralKey: 'businessTypeMetrics.token_saas_productLabelPlural',
     productFields: [
       // Token SaaS uses custom UI, minimal fields for compatibility
-      { key: 'name', label: 'Название пакета', type: 'text', required: true },
-      { key: 'price', label: 'Цена пакета ($)', type: 'number' },
-      { key: 'quantity', label: 'Ожидаемые продажи', type: 'number' },
+      { key: 'name', label: 'Название пакета', labelKey: 'businessTypeMetrics.token_saas_field_name', type: 'text', required: true },
+      { key: 'price', label: 'Цена пакета ($)', labelKey: 'businessTypeMetrics.token_saas_field_price', type: 'number' },
+      { key: 'quantity', label: 'Ожидаемые продажи', labelKey: 'businessTypeMetrics.token_saas_field_quantity', type: 'number' },
     ],
     metricFields: [
       { key: 'itValueUsd', label: 'IT Value', description: 'Стоимость 1 Internal Token в USD', category: 'custom' },
