@@ -380,11 +380,11 @@ export const businessTypes: BusinessTypeConfig[] = [
     productLabelPlural: 'Категории',
     productLabelPluralKey: 'businessTypeMetrics.marketplace_productLabelPlural',
     productFields: [
-      { key: 'name', label: 'Название категории', type: 'text', required: true },
-      { key: 'gmv', label: 'GMV', type: 'number' },
-      { key: 'quantity', label: 'Кол-во транзакций', type: 'number' },
-      { key: 'takeRate', label: 'Take Rate', type: 'number', suffix: '%', min: 0, max: 100 },
-      { key: 'avgOrderValue', label: 'Средний чек', type: 'number' },
+      { key: 'name', label: 'Название категории', labelKey: 'businessTypeMetrics.marketplace_field_name', type: 'text', required: true },
+      { key: 'gmv', label: 'GMV', labelKey: 'businessTypeMetrics.field_gmv', type: 'number' },
+      { key: 'quantity', label: 'Кол-во транзакций', labelKey: 'businessTypeMetrics.marketplace_field_quantity', type: 'number' },
+      { key: 'takeRate', label: 'Take Rate', labelKey: 'businessTypeMetrics.field_takeRate', type: 'number', suffix: '%', suffixKey: 'businessTypeMetrics.suffix_percent', min: 0, max: 100 },
+      { key: 'avgOrderValue', label: 'Средний чек', labelKey: 'businessTypeMetrics.field_avgOrderValue', type: 'number' },
     ],
     metricFields: [
       { key: 'gmv', label: 'GMV', description: 'Gross Merchandise Value — общий объём продаж', category: 'revenue' },
