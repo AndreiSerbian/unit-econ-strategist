@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { ServiceProduct, ServiceCalculatedMetrics, BillingModel, PlanningPeriod } from "./types";
 import { computeServiceRevenue } from "./revenue";
 import { calculateServiceCogs } from "@/utils/serviceCogs";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ServicesProductCardProps {
   product: ServiceProduct;
