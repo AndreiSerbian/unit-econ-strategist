@@ -20,7 +20,7 @@ import {
 } from "@/hooks/useMarketplace";
 import { CategoryCard } from "./CategoryCard";
 import type { PlanningPeriod } from "./types";
-import { getPeriodLabel } from "./types";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface MarketplaceManagerProps {
   projectId: string | undefined;
@@ -50,6 +50,11 @@ export const MarketplaceManager = ({
   planningPeriod,
   onPlanningPeriodChange,
 }: MarketplaceManagerProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
+
+  const periodLabel = t(`marketplace.period${planningPeriod.charAt(0).toUpperCase() + planningPeriod.slice(1)}`);
+
   const {
     categories,
     channelStats,
@@ -72,7 +77,7 @@ export const MarketplaceManager = ({
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error('Введите название категории');
+      toast.error(t("marketplace.enterCategoryName"));
       return;
     }
 
@@ -122,7 +127,7 @@ export const MarketplaceManager = ({
   }, [categories, channelStats, channels]);
 
   const formatCurrency = (value: number) => 
-    `${value.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ${currency}`;
+    `${value.toLocaleString(numLocale, { maximumFractionDigits: 2 })} ${currency}`;
 
   return (
     <div className="space-y-6">
@@ -132,8 +137,8 @@ export const MarketplaceManager = ({
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="w-4 h-4 text-primary" />
-              Период планирования
-              <FieldTooltip content="Единица времени для всех объёмов (транзакции, GMV). Влияет на интерпретацию данных." />
+              {t("marketplace.planningPeriod")}
+              <FieldTooltip content={t("marketplace.planningPeriodTooltip")} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -143,14 +148,14 @@ export const MarketplaceManager = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="week">Неделя</SelectItem>
-                  <SelectItem value="month">Месяц</SelectItem>
-                  <SelectItem value="quarter">Квартал</SelectItem>
-                  <SelectItem value="year">Год</SelectItem>
+                  <SelectItem value="week">{t("marketplace.week")}</SelectItem>
+                  <SelectItem value="month">{t("marketplace.month")}</SelectItem>
+                  <SelectItem value="quarter">{t("marketplace.quarter")}</SelectItem>
+                  <SelectItem value="year">{t("marketplace.year")}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Все объёмы указываются за {getPeriodLabel(planningPeriod)}
+                {t("marketplace.volumesPerPeriod").replace("{period}", periodLabel)}
               </p>
             </div>
           </CardContent>
@@ -162,7 +167,7 @@ export const MarketplaceManager = ({
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
             <TrendingUp className="w-4 h-4 text-primary" />
-            Сводка по маркетплейсу
+            {t("marketplace.summary")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -170,32 +175,32 @@ export const MarketplaceManager = ({
             <div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <DollarSign className="w-3 h-3" />
-                Total GMV
+                {t("marketplace.totalGmv")}
               </p>
               <p className="text-lg font-bold">{formatCurrency(aggregatedMetrics.totalGmv)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" />
-                Platform Revenue
+                {t("marketplace.platformRevenue")}
               </p>
               <p className="text-lg font-bold text-primary">{formatCurrency(aggregatedMetrics.totalPlatformRevenue)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Percent className="w-3 h-3" />
-                Avg Take Rate
+                {t("marketplace.avgTakeRate")}
               </p>
               <p className="text-lg font-bold">{aggregatedMetrics.avgTakeRate.toFixed(1)}%</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Package className="w-3 h-3" />
-                Категории
+                {t("marketplace.categories")}
               </p>
               <p className="text-lg font-bold">
                 {aggregatedMetrics.categoriesWithData}/{aggregatedMetrics.categoriesCount}
-                <span className="text-xs font-normal text-muted-foreground ml-1">с данными</span>
+                <span className="text-xs font-normal text-muted-foreground ml-1">{t("marketplace.withData")}</span>
               </p>
             </div>
           </div>
@@ -207,30 +212,30 @@ export const MarketplaceManager = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="w-5 h-5 text-primary" />
-            Категории товаров/услуг
+            {t("marketplace.categoriesTitle")}
           </CardTitle>
           <CardDescription>
-            Настройте категории маркетплейса и распределение по каналам продаж
+            {t("marketplace.categoriesDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Add new category form */}
           <div className="p-3 sm:p-4 border rounded-lg bg-muted/30 space-y-4">
-            <h3 className="font-medium text-sm">Добавить категорию</h3>
+            <h3 className="font-medium text-sm">{t("marketplace.addCategory")}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <div className="sm:col-span-2 md:col-span-1">
-                <Label className="text-xs sm:text-sm">Название</Label>
+                <Label className="text-xs sm:text-sm">{t("marketplace.name")}</Label>
                 <Input
                   value={newCategory.name}
                   onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Электроника"
+                  placeholder={t("marketplace.namePlaceholder")}
                   className="text-sm"
                 />
               </div>
               <div>
                 <Label className="text-xs sm:text-sm flex items-center">
-                  Транзакции
-                  <FieldTooltip content={`Количество транзакций за ${getPeriodLabel(planningPeriod)}`} />
+                  {t("marketplace.transactions")}
+                  <FieldTooltip content={t("marketplace.transactionsTooltip").replace("{period}", periodLabel)} />
                 </Label>
                 <NumericInput
                   value={newCategory.transactionsCount}
@@ -241,8 +246,8 @@ export const MarketplaceManager = ({
               </div>
               <div>
                 <Label className="text-xs sm:text-sm flex items-center">
-                  Средний чек ({currency})
-                  <FieldTooltip content="Средняя стоимость транзакции в категории" />
+                  {t("marketplace.avgCheck")} ({currency})
+                  <FieldTooltip content={t("marketplace.avgCheckTooltip")} />
                 </Label>
                 <NumericInput
                   value={newCategory.avgCheck}
@@ -254,8 +259,8 @@ export const MarketplaceManager = ({
               </div>
               <div>
                 <Label className="text-xs sm:text-sm flex items-center">
-                  Take Rate (%)
-                  <FieldTooltip content="Комиссия платформы по умолчанию для категории" />
+                  {t("marketplace.takeRate")}
+                  <FieldTooltip content={t("marketplace.takeRateTooltip")} />
                 </Label>
                 <NumericInput
                   value={newCategory.takeRatePercent}
@@ -268,7 +273,7 @@ export const MarketplaceManager = ({
             </div>
             <Button onClick={handleAddCategory} className="w-full" disabled={isLoading}>
               <Plus className="w-4 h-4 mr-2" />
-              Добавить категорию
+              {t("marketplace.addCategory")}
             </Button>
           </div>
 
@@ -297,7 +302,7 @@ export const MarketplaceManager = ({
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>Нет категорий. Добавьте первую категорию выше.</p>
+              <p>{t("marketplace.emptyCategories")}</p>
             </div>
           )}
 
@@ -307,7 +312,7 @@ export const MarketplaceManager = ({
               <div className="flex items-center gap-2 text-warning-foreground">
                 <Store className="w-4 h-4" />
                 <p className="text-sm">
-                  Для распределения по каналам сначала добавьте каналы продаж в разделе "Каналы продаж"
+                  {t("marketplace.channelsWarning")}
                 </p>
               </div>
             </div>
