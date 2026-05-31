@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Package, Plus, Trash2, Factory, RefreshCw, ChevronDown, Scale, Box, DollarSign } from "lucide-react";
 import { Product, RawMaterial, ProductMaterialUsage } from "@/hooks/useProject";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ProductMaterialsAllocationProps {
   products: Product[];
@@ -40,9 +41,11 @@ export const ProductMaterialsAllocation = ({
   calculateProductWeightFromMaterials,
   calculateProductVolumeFromMaterials,
 }: ProductMaterialsAllocationProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
+
   const handleAddLine = (productId: string) => {
     if (materials.length === 0) return;
-
     setProductMaterials((prev) => [
       ...prev,
       {
@@ -82,16 +85,16 @@ export const ProductMaterialsAllocation = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Factory className="w-5 h-5 text-secondary" />
-          Сырьё по продуктам
+          {t("productMaterials.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {materials.length === 0 && (
           <div className="p-4 border-2 border-dashed border-muted rounded-lg text-center text-muted-foreground">
-            <p>Сначала добавьте хотя бы одно сырьё выше ↑</p>
+            <p>{t("productMaterials.emptyMaterials")}</p>
           </div>
         )}
-        
+
         {materials.length > 0 && (
           <div className="space-y-4">
             {products.map((product) => {
@@ -100,7 +103,7 @@ export const ProductMaterialsAllocation = ({
               const totalForProduct = materialsCostPerUnit * product.quantity;
               const calculatedWeight = calculateProductWeightFromMaterials(product.id);
               const calculatedVolume = calculateProductVolumeFromMaterials(product.id);
-              
+
               const hasCostDiff = Math.abs(materialsCostPerUnit - product.cost) > 0.01 && materialsCostPerUnit > 0;
               const hasWeightDiff = Math.abs(calculatedWeight - (product.weightPerUnit || 0)) > 0.001 && calculatedWeight > 0;
               const hasVolumeDiff = Math.abs(calculatedVolume - (product.volumePerUnit || 0)) > 0.000001 && calculatedVolume > 0;
@@ -118,40 +121,39 @@ export const ProductMaterialsAllocation = ({
                         {product.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Кол-во: {product.quantity.toLocaleString("ru-RU")} шт.
+                        {t("productMaterials.quantity")}: {product.quantity.toLocaleString(numLocale)} {t("productMaterials.pieces")}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm">
                       <div>
-                        <p className="text-xs text-muted-foreground">Себестоимость по сырью / шт.</p>
+                        <p className="text-xs text-muted-foreground">{t("productMaterials.costPerUnit")}</p>
                         <p className="font-mono font-semibold">
-                          {materialsCostPerUnit.toLocaleString("ru-RU", { maximumFractionDigits: 2 })} {currency}
+                          {materialsCostPerUnit.toLocaleString(numLocale, { maximumFractionDigits: 2 })} {currency}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Всего по сырью для продукта</p>
+                        <p className="text-xs text-muted-foreground">{t("productMaterials.totalForProduct")}</p>
                         <p className="font-mono font-semibold text-secondary">
-                          {totalForProduct.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+                          {totalForProduct.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Сравнение расчётных и текущих значений */}
                   {lines.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-background/50 rounded-lg border border-dashed">
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <DollarSign className="w-3.5 h-3.5" />
-                          Себестоимость
+                          {t("productMaterials.cost")}
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`font-mono text-sm ${hasCostDiff ? 'text-amber-500' : 'text-muted-foreground'}`}>
-                            Расчёт: {materialsCostPerUnit.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}
+                            {t("productMaterials.calculated")}: {materialsCostPerUnit.toLocaleString(numLocale, { maximumFractionDigits: 2 })}
                           </span>
                           <span className="text-xs text-muted-foreground">|</span>
                           <span className="font-mono text-sm">
-                            Текущ: {product.cost.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}
+                            {t("productMaterials.current")}: {product.cost.toLocaleString(numLocale, { maximumFractionDigits: 2 })}
                           </span>
                           {hasCostDiff && <span className="text-amber-500 text-xs">⚠</span>}
                         </div>
@@ -159,15 +161,15 @@ export const ProductMaterialsAllocation = ({
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Scale className="w-3.5 h-3.5" />
-                          Вес (кг)
+                          {t("productMaterials.weight")}
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`font-mono text-sm ${hasWeightDiff ? 'text-amber-500' : 'text-muted-foreground'}`}>
-                            Расчёт: {calculatedWeight.toLocaleString("ru-RU", { maximumFractionDigits: 3 })}
+                            {t("productMaterials.calculated")}: {calculatedWeight.toLocaleString(numLocale, { maximumFractionDigits: 3 })}
                           </span>
                           <span className="text-xs text-muted-foreground">|</span>
                           <span className="font-mono text-sm">
-                            Текущ: {(product.weightPerUnit || 0).toLocaleString("ru-RU", { maximumFractionDigits: 3 })}
+                            {t("productMaterials.current")}: {(product.weightPerUnit || 0).toLocaleString(numLocale, { maximumFractionDigits: 3 })}
                           </span>
                           {hasWeightDiff && <span className="text-amber-500 text-xs">⚠</span>}
                         </div>
@@ -175,15 +177,15 @@ export const ProductMaterialsAllocation = ({
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Box className="w-3.5 h-3.5" />
-                          Объём (м³)
+                          {t("productMaterials.volume")}
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`font-mono text-sm ${hasVolumeDiff ? 'text-amber-500' : 'text-muted-foreground'}`}>
-                            Расчёт: {calculatedVolume.toLocaleString("ru-RU", { maximumFractionDigits: 6 })}
+                            {t("productMaterials.calculated")}: {calculatedVolume.toLocaleString(numLocale, { maximumFractionDigits: 6 })}
                           </span>
                           <span className="text-xs text-muted-foreground">|</span>
                           <span className="font-mono text-sm">
-                            Текущ: {(product.volumePerUnit || 0).toLocaleString("ru-RU", { maximumFractionDigits: 6 })}
+                            {t("productMaterials.current")}: {(product.volumePerUnit || 0).toLocaleString(numLocale, { maximumFractionDigits: 6 })}
                           </span>
                           {hasVolumeDiff && <span className="text-amber-500 text-xs">⚠</span>}
                         </div>
@@ -203,7 +205,7 @@ export const ProductMaterialsAllocation = ({
                           className="grid grid-cols-1 md:grid-cols-[2fr_2fr_2fr_auto] gap-3 items-end"
                         >
                           <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Сырьё</Label>
+                            <Label className="text-xs text-muted-foreground">{t("productMaterials.material")}</Label>
                             <Select
                               value={line.materialId}
                               onValueChange={(value) =>
@@ -211,7 +213,7 @@ export const ProductMaterialsAllocation = ({
                               }
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Выберите сырьё" />
+                                <SelectValue placeholder={t("productMaterials.selectMaterial")} />
                               </SelectTrigger>
                               <SelectContent>
                                 {materials.map((m) => (
@@ -224,7 +226,7 @@ export const ProductMaterialsAllocation = ({
                           </div>
                           <div className="space-y-1">
                             <Label className="text-xs text-muted-foreground">
-                              Расход на 1 шт. ({material?.unit || "ед."})
+                              {t("productMaterials.consumptionPerUnit")} ({material?.unit || t("productMaterials.unit")})
                             </Label>
                             <NumericInput
                               value={line.quantityPerUnit}
@@ -235,10 +237,10 @@ export const ProductMaterialsAllocation = ({
                           </div>
                           <div className="space-y-1">
                             <Label className="text-xs text-muted-foreground">
-                              Стоимость сырья на 1 шт. ({currency})
+                              {t("productMaterials.materialCostPerUnit")} ({currency})
                             </Label>
                             <p className="font-mono font-semibold">
-                              {lineCost.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}
+                              {lineCost.toLocaleString(numLocale, { maximumFractionDigits: 2 })}
                             </p>
                           </div>
                           <Button
@@ -259,7 +261,7 @@ export const ProductMaterialsAllocation = ({
                       onClick={() => handleAddLine(product.id)}
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Добавить сырьё для продукта
+                      {t("productMaterials.addMaterial")}
                     </Button>
                   </div>
 
@@ -272,34 +274,34 @@ export const ProductMaterialsAllocation = ({
                           className="gap-2"
                         >
                           <RefreshCw className="w-4 h-4" />
-                          Синхронизировать
+                          {t("productMaterials.sync")}
                           <ChevronDown className="w-3 h-3" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => onSyncProduct(product.id, { cost: true })}
                           disabled={!hasCostDiff}
                         >
                           <DollarSign className="w-4 h-4 mr-2" />
-                          Только себестоимость
+                          {t("productMaterials.syncCostOnly")}
                           {hasCostDiff && <span className="ml-auto text-amber-500 text-xs">⚠</span>}
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => onSyncProduct(product.id, { weight: true, volume: true })}
                           disabled={!hasWeightDiff && !hasVolumeDiff}
                         >
                           <Scale className="w-4 h-4 mr-2" />
-                          Только вес и объём
+                          {t("productMaterials.syncWeightVolumeOnly")}
                           {(hasWeightDiff || hasVolumeDiff) && <span className="ml-auto text-amber-500 text-xs">⚠</span>}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => onSyncProduct(product.id, { cost: true, weight: true, volume: true })}
                           disabled={!hasDiff}
                         >
                           <RefreshCw className="w-4 h-4 mr-2" />
-                          Обновить всё
+                          {t("productMaterials.syncAll")}
                           {hasDiff && <span className="ml-auto text-amber-500 text-xs">⚠</span>}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -315,14 +317,14 @@ export const ProductMaterialsAllocation = ({
           <div className="mt-2 p-4 rounded-lg bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground">
-              Общие расходы на сырьё по всем продуктам (по текущим количествам)
+              {t("productMaterials.totalExpenses")}
             </p>
             <p className="font-mono font-semibold text-primary text-lg">
-              {totalMaterialsCost.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} {currency}
+              {totalMaterialsCost.toLocaleString(numLocale, { maximumFractionDigits: 0 })} {currency}
             </p>
           </div>
           <Button size="sm" onClick={onApplyMaterialsExpenses}>
-            Перенести в статью "Материалы" в расходах
+            {t("productMaterials.applyToExpenses")}
           </Button>
           </div>
         )}
