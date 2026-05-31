@@ -202,7 +202,7 @@ export const ServicesProductCard = memo(({
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <h4 className="font-medium text-sm sm:text-base truncate max-w-[200px]">
-            {product.name || 'Без названия'}
+            {product.name || t("servicesCard.unnamed")}
           </h4>
           {getStatusBadge()}
         </div>
@@ -219,19 +219,19 @@ export const ServicesProductCard = memo(({
       {/* Main fields - row 1: name + billing model + period */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="sm:col-span-2 lg:col-span-1">
-          <Label htmlFor={`${product.id}-name`}>Название</Label>
+          <Label htmlFor={`${product.id}-name`}>{t("servicesCard.name")}</Label>
           <Input
             id={`${product.id}-name`}
             value={product.name ?? ''}
             onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="Название услуги"
+            placeholder={t("servicesCard.namePlaceholder")}
           />
         </div>
         
         <div>
           <Label htmlFor={`${product.id}-billingModel`}>
-            <FieldTooltip content="Фиксированный проект — оплата за результат. Почасовая — оплата за время. Абонентское сопровождение — фиксированная плата за период.">
-              Модель оплаты
+            <FieldTooltip content={t("servicesCard.billingModelTooltip")}>
+              {t("servicesCard.billingModel")}
             </FieldTooltip>
           </Label>
           <Select
@@ -242,17 +242,17 @@ export const ServicesProductCard = memo(({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fixed_project">Фиксированный проект</SelectItem>
-              <SelectItem value="hourly">Почасовая оплата</SelectItem>
-              <SelectItem value="retainer">Абонентское сопровождение</SelectItem>
+              <SelectItem value="fixed_project">{t("servicesCard.fixedProject")}</SelectItem>
+              <SelectItem value="hourly">{t("servicesCard.hourly")}</SelectItem>
+              <SelectItem value="retainer">{t("servicesCard.retainer")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div>
           <Label htmlFor={`${product.id}-planningPeriod`}>
-            <FieldTooltip content="Период планирования влияет на расчёт выручки, количества часов и итоговых показателей услуги.">
-              Период планирования
+            <FieldTooltip content={t("servicesCard.planningPeriodTooltip")}>
+              {t("servicesCard.planningPeriod")}
             </FieldTooltip>
           </Label>
           <Select
@@ -263,10 +263,10 @@ export const ServicesProductCard = memo(({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="week">Неделя</SelectItem>
-              <SelectItem value="month">Месяц</SelectItem>
-              <SelectItem value="quarter">Квартал</SelectItem>
-              <SelectItem value="year">Год</SelectItem>
+              <SelectItem value="week">{t("servicesCard.week")}</SelectItem>
+              <SelectItem value="month">{t("servicesCard.month")}</SelectItem>
+              <SelectItem value="quarter">{t("servicesCard.quarter")}</SelectItem>
+              <SelectItem value="year">{t("servicesCard.year")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -274,10 +274,10 @@ export const ServicesProductCard = memo(({
         <div>
           <Label htmlFor={`${product.id}-price`}>
             {billingModel === 'fixed_project' 
-              ? `Цена проекта (${currency})`
+              ? `${t("servicesCard.projectPrice")} (${currency})`
               : billingModel === 'retainer'
-              ? `Стоимость сопровождения/мес (${currency})`
-              : `Ставка/час (${currency})`
+              ? `${t("servicesCard.retainerFeeShort")} (${currency})`
+              : `${t("servicesCard.hourlyRate")} (${currency})`
             }
           </Label>
           <NumericInput
@@ -293,8 +293,8 @@ export const ServicesProductCard = memo(({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div>
           <Label htmlFor={`${product.id}-hoursPerWeek`}>
-            <FieldTooltip content="Общее кол-во рабочих часов в неделю (до вычета небиллабельных).">
-              Часов/нед
+            <FieldTooltip content={t("servicesCard.hoursPerWeekTooltip")}>
+              {t("servicesCard.hoursPerWeek")}
             </FieldTooltip>
           </Label>
           <NumericInput
