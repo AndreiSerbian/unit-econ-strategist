@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { ServiceProduct, ServiceCalculatedMetrics, BillingModel, PlanningPeriod } from "./types";
 import { computeServiceRevenue } from "./revenue";
 import { calculateServiceCogs } from "@/utils/serviceCogs";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface ServicesProductCardProps {
   product: ServiceProduct;
@@ -157,10 +158,14 @@ export const ServicesProductCard = memo(({
   onDelete,
   currency,
 }: ServicesProductCardProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const billingModel = product.billingModel ?? 'fixed_project';
   const planningPeriod = product.planningPeriod ?? 'month';
   const metrics = useMemo(() => calculateMetrics(product), [product]);
-  
+  const periodKey = planningPeriod.charAt(0).toUpperCase() + planningPeriod.slice(1);
+  const periodLabel = t(`servicesCard.period${periodKey}`);
+
   const handleChange = (key: keyof ServiceProduct, value: any) => {
     onUpdate(product.id, { [key]: value });
   };
@@ -171,7 +176,7 @@ export const ServicesProductCard = memo(({
       return (
         <Badge variant="outline" className="text-xs bg-muted">
           <Info className="w-3 h-3 mr-1" />
-          Недостаточно данных
+          {t("servicesCard.notEnoughData")}
         </Badge>
       );
     }
@@ -179,14 +184,14 @@ export const ServicesProductCard = memo(({
       return (
         <Badge variant="destructive" className="text-xs">
           <AlertTriangle className="w-3 h-3 mr-1" />
-          Перегруз
+          {t("servicesCard.overloaded")}
         </Badge>
       );
     }
     return (
       <Badge variant="default" className="text-xs bg-success text-success-foreground">
         <CheckCircle className="w-3 h-3 mr-1" />
-        OK
+        {t("servicesCard.ok")}
       </Badge>
     );
   };
@@ -197,7 +202,7 @@ export const ServicesProductCard = memo(({
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <h4 className="font-medium text-sm sm:text-base truncate max-w-[200px]">
-            {product.name || 'Без названия'}
+            {product.name || t("servicesCard.unnamed")}
           </h4>
           {getStatusBadge()}
         </div>
@@ -214,19 +219,19 @@ export const ServicesProductCard = memo(({
       {/* Main fields - row 1: name + billing model + period */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="sm:col-span-2 lg:col-span-1">
-          <Label htmlFor={`${product.id}-name`}>Название</Label>
+          <Label htmlFor={`${product.id}-name`}>{t("servicesCard.name")}</Label>
           <Input
             id={`${product.id}-name`}
             value={product.name ?? ''}
             onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="Название услуги"
+            placeholder={t("servicesCard.namePlaceholder")}
           />
         </div>
         
         <div>
           <Label htmlFor={`${product.id}-billingModel`}>
-            <FieldTooltip content="Фиксированный проект — оплата за результат. Почасовая — оплата за время. Абонентское сопровождение — фиксированная плата за период.">
-              Модель оплаты
+            <FieldTooltip content={t("servicesCard.billingModelTooltip")}>
+              {t("servicesCard.billingModel")}
             </FieldTooltip>
           </Label>
           <Select
@@ -237,17 +242,17 @@ export const ServicesProductCard = memo(({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fixed_project">Фиксированный проект</SelectItem>
-              <SelectItem value="hourly">Почасовая оплата</SelectItem>
-              <SelectItem value="retainer">Абонентское сопровождение</SelectItem>
+              <SelectItem value="fixed_project">{t("servicesCard.fixedProject")}</SelectItem>
+              <SelectItem value="hourly">{t("servicesCard.hourly")}</SelectItem>
+              <SelectItem value="retainer">{t("servicesCard.retainer")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div>
           <Label htmlFor={`${product.id}-planningPeriod`}>
-            <FieldTooltip content="Период планирования влияет на расчёт выручки, количества часов и итоговых показателей услуги.">
-              Период планирования
+            <FieldTooltip content={t("servicesCard.planningPeriodTooltip")}>
+              {t("servicesCard.planningPeriod")}
             </FieldTooltip>
           </Label>
           <Select
@@ -258,10 +263,10 @@ export const ServicesProductCard = memo(({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="week">Неделя</SelectItem>
-              <SelectItem value="month">Месяц</SelectItem>
-              <SelectItem value="quarter">Квартал</SelectItem>
-              <SelectItem value="year">Год</SelectItem>
+              <SelectItem value="week">{t("servicesCard.week")}</SelectItem>
+              <SelectItem value="month">{t("servicesCard.month")}</SelectItem>
+              <SelectItem value="quarter">{t("servicesCard.quarter")}</SelectItem>
+              <SelectItem value="year">{t("servicesCard.year")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -269,10 +274,10 @@ export const ServicesProductCard = memo(({
         <div>
           <Label htmlFor={`${product.id}-price`}>
             {billingModel === 'fixed_project' 
-              ? `Цена проекта (${currency})`
+              ? `${t("servicesCard.projectPrice")} (${currency})`
               : billingModel === 'retainer'
-              ? `Стоимость сопровождения/мес (${currency})`
-              : `Ставка/час (${currency})`
+              ? `${t("servicesCard.retainerFeeShort")} (${currency})`
+              : `${t("servicesCard.hourlyRate")} (${currency})`
             }
           </Label>
           <NumericInput
@@ -288,8 +293,8 @@ export const ServicesProductCard = memo(({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div>
           <Label htmlFor={`${product.id}-hoursPerWeek`}>
-            <FieldTooltip content="Общее кол-во рабочих часов в неделю (до вычета небиллабельных).">
-              Часов/нед
+            <FieldTooltip content={t("servicesCard.hoursPerWeekTooltip")}>
+              {t("servicesCard.hoursPerWeek")}
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -301,8 +306,8 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-allocationPercent`}>
-            <FieldTooltip content="Какой % мощности выделен на эту услугу (если несколько услуг).">
-              Доля мощности %
+            <FieldTooltip content={t("servicesCard.allocationPercentTooltip")}>
+              {t("servicesCard.allocationPercent")}
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -314,8 +319,8 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-billablePercent`}>
-            <FieldTooltip content="Какой % выделенного времени оплачивается клиентом.">
-              Оплачиваемое время %
+            <FieldTooltip content={t("servicesCard.billablePercentTooltip")}>
+              {t("servicesCard.billablePercent")}
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -326,7 +331,7 @@ export const ServicesProductCard = memo(({
         </div>
         
         <div>
-          <Label htmlFor={`${product.id}-cost`}>Себестоимость ({currency})</Label>
+          <Label htmlFor={`${product.id}-cost`}>{t("servicesCard.cost")} ({currency})</Label>
           <NumericInput
             id={`${product.id}-cost`}
             value={product.cost ?? 0}
@@ -339,8 +344,8 @@ export const ServicesProductCard = memo(({
         {billingModel === 'fixed_project' && (
           <div>
             <Label htmlFor={`${product.id}-estimatedHours`}>
-              <FieldTooltip content="Сколько часов нужно на 1 проект. Обязательно для расчёта пропускной способности.">
-                Часов/проект
+              <FieldTooltip content={t("servicesCard.estimatedHoursTooltip")}>
+                {t("servicesCard.estimatedHours")}
               </FieldTooltip>
             </Label>
             <NumericInput
@@ -355,8 +360,8 @@ export const ServicesProductCard = memo(({
         {billingModel === 'hourly' && (
           <div>
             <Label htmlFor={`${product.id}-plannedHours`}>
-              <FieldTooltip content="Планируемое кол-во оплачиваемых часов за период.">
-                План часов/{PERIOD_LABELS[planningPeriod]}
+              <FieldTooltip content={t("servicesCard.plannedHoursTooltip")}>
+                {t("servicesCard.plannedHours")}/{periodLabel}
               </FieldTooltip>
             </Label>
             <NumericInput
@@ -372,8 +377,8 @@ export const ServicesProductCard = memo(({
           <>
             <div>
               <Label htmlFor={`${product.id}-retainerFee`}>
-                <FieldTooltip content="Фиксированная месячная плата за абонентское сопровождение.">
-                  Стоимость сопровождения/мес ({currency})
+                <FieldTooltip content={t("servicesCard.retainerFeeTooltip")}>
+                  {t("servicesCard.retainerFee")} ({currency})
                 </FieldTooltip>
               </Label>
               <NumericInput
@@ -392,7 +397,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'fixed_project' && (
           <div>
             <Label htmlFor={`${product.id}-quantity`}>
-              Проектов/{PERIOD_LABELS[planningPeriod]}
+              {t("servicesCard.projectsPerPeriod")}/{periodLabel}
             </Label>
             <NumericInput
               id={`${product.id}-quantity`}
@@ -405,7 +410,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'retainer' && (
           <div>
             <Label htmlFor={`${product.id}-clientsCount`}>
-              Клиентов на сопровождении
+              {t("servicesCard.clientsCount")}
             </Label>
             <NumericInput
               id={`${product.id}-clientsCount`}
@@ -418,7 +423,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'hourly' && (
           <div>
             <Label htmlFor={`${product.id}-hourlyRate`}>
-              Часовая ставка ({currency})
+              {t("servicesCard.hourlyRateField")} ({currency})
             </Label>
             <NumericInput
               id={`${product.id}-hourlyRate`}
@@ -434,34 +439,34 @@ export const ServicesProductCard = memo(({
       <div className="pt-3 border-t space-y-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <TrendingUp className="w-3 h-3" />
-          <span>Расчётные метрики</span>
+          <span>{t("servicesCard.calculatedMetrics")}</span>
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs sm:text-sm">
           {/* Billable hours */}
           <div className="p-2 bg-muted/50 rounded">
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Оплач. часов/нед</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs">{t("servicesCard.billableHoursWeek")}</p>
             <p className="font-mono font-semibold">
-              {metrics.billableHoursWeek.toFixed(1)} ч
+              {metrics.billableHoursWeek.toFixed(1)} {t("servicesCard.hoursUnit")}
             </p>
           </div>
           
           <div className="p-2 bg-muted/50 rounded">
             <p className="text-muted-foreground text-[10px] sm:text-xs">
-              Оплач. часов/{PERIOD_LABELS[planningPeriod]}
+              {t("servicesCard.billableHoursPeriod")}/{periodLabel}
             </p>
             <p className="font-mono font-semibold">
-              {metrics.billableHoursPeriod.toFixed(0)} ч
+              {metrics.billableHoursPeriod.toFixed(0)} {t("servicesCard.hoursUnit")}
             </p>
           </div>
           
           {/* Duration per project (fixed_project only) */}
           {billingModel === 'fixed_project' && (
             <div className="p-2 bg-muted/50 rounded">
-              <p className="text-muted-foreground text-[10px] sm:text-xs">Длит. проекта</p>
+              <p className="text-muted-foreground text-[10px] sm:text-xs">{t("servicesCard.projectDuration")}</p>
               <p className="font-mono font-semibold">
                 {metrics.durationWeeksPerProject !== null 
-                  ? `${metrics.durationWeeksPerProject.toFixed(1)} нед` 
+                  ? `${metrics.durationWeeksPerProject.toFixed(1)} ${t("servicesCard.weeksUnit")}` 
                   : '—'}
               </p>
             </div>
@@ -474,7 +479,7 @@ export const ServicesProductCard = memo(({
               metrics.isOverloaded ? "bg-destructive/10" : "bg-muted/50"
             )}>
               <p className="text-muted-foreground text-[10px] sm:text-xs">
-                Макс. проектов/{PERIOD_LABELS[planningPeriod]}
+                {t("servicesCard.maxProjectsPerPeriod")}/{periodLabel}
               </p>
               <p className={cn(
                 "font-mono font-semibold",
@@ -487,7 +492,7 @@ export const ServicesProductCard = memo(({
           
           {/* Effective hourly rate */}
           <div className="p-2 bg-muted/50 rounded">
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Эфф. ставка/ч</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs">{t("servicesCard.effectiveHourlyRate")}</p>
             <p className="font-mono font-semibold">
               {metrics.effectiveHourlyRate !== null 
                 ? `${metrics.effectiveHourlyRate.toFixed(0)} ${currency}` 
@@ -498,11 +503,11 @@ export const ServicesProductCard = memo(({
           {/* Revenue per period */}
           <div className="p-2 bg-primary/10 rounded">
             <p className="text-muted-foreground text-[10px] sm:text-xs">
-              Выручка/{PERIOD_LABELS[planningPeriod]}
+              {t("servicesCard.revenuePerPeriod")}/{periodLabel}
             </p>
             <p className="font-mono font-semibold text-primary">
               {metrics.revenuePeriod !== null 
-                ? `${metrics.revenuePeriod.toLocaleString('ru-RU')} ${currency}` 
+                ? `${metrics.revenuePeriod.toLocaleString(numLocale)} ${currency}` 
                 : '—'}
             </p>
           </div>
@@ -514,8 +519,10 @@ export const ServicesProductCard = memo(({
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
               {billingModel === 'fixed_project' 
-                ? `Указано ${product.quantity} проектов, но пропускная способность позволяет максимум ${metrics.maxProjectsPerPeriod}`
-                : 'Запланировано больше часов, чем доступно оплачиваемого времени'
+                ? t("servicesCard.overloadWarningProjects")
+                    .replace("{count}", String(product.quantity ?? 0))
+                    .replace("{max}", String(metrics.maxProjectsPerPeriod ?? 0))
+                : t("servicesCard.overloadWarningHours")
               }
             </span>
           </div>
@@ -526,7 +533,7 @@ export const ServicesProductCard = memo(({
           <div className="flex items-center gap-2 p-2 bg-muted rounded text-muted-foreground text-xs">
             <Info className="w-4 h-4 shrink-0" />
             <span>
-              Заполните "Часов/проект" для расчёта capacity и длительности проекта
+              {t("servicesCard.insufficientDataHint")}
             </span>
           </div>
         )}
