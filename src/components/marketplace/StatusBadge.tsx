@@ -2,52 +2,43 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CheckCircle, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import type { DataStatus } from "./types";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface StatusBadgeProps {
   status: DataStatus;
   details?: string;
 }
 
-const statusConfig: Record<DataStatus, { 
-  label: string; 
-  variant: 'default' | 'secondary' | 'destructive' | 'outline';
-  icon: typeof CheckCircle;
-  className: string;
-}> = {
-  ok: {
-    label: 'OK',
-    variant: 'default',
-    icon: CheckCircle,
-    className: 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20',
-  },
-  not_enough_data: {
-    label: 'Нет данных',
-    variant: 'secondary',
-    icon: Info,
-    className: 'bg-muted text-muted-foreground',
-  },
-  mismatch: {
-    label: 'Расхождение',
-    variant: 'outline',
-    icon: AlertTriangle,
-    className: 'bg-warning/10 text-warning-foreground border-warning/30',
-  },
-  shares_overflow: {
-    label: 'Доли >100%',
-    variant: 'destructive',
-    icon: AlertCircle,
-    className: 'bg-destructive/10 text-destructive border-destructive/30',
-  },
+const statusIcons: Record<DataStatus, typeof CheckCircle> = {
+  ok: CheckCircle,
+  not_enough_data: Info,
+  mismatch: AlertTriangle,
+  shares_overflow: AlertCircle,
+};
+
+const statusClasses: Record<DataStatus, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; className: string }> = {
+  ok: { variant: 'default', className: 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20' },
+  not_enough_data: { variant: 'secondary', className: 'bg-muted text-muted-foreground' },
+  mismatch: { variant: 'outline', className: 'bg-warning/10 text-warning-foreground border-warning/30' },
+  shares_overflow: { variant: 'destructive', className: 'bg-destructive/10 text-destructive border-destructive/30' },
+};
+
+const statusLabelKey: Record<DataStatus, string> = {
+  ok: 'marketplace.statusOk',
+  not_enough_data: 'marketplace.statusNoData',
+  mismatch: 'marketplace.statusMismatch',
+  shares_overflow: 'marketplace.statusOverflow',
 };
 
 export const StatusBadge = ({ status, details }: StatusBadgeProps) => {
-  const config = statusConfig[status];
-  const Icon = config.icon;
+  const { t } = useTranslation();
+  const cfg = statusClasses[status];
+  const Icon = statusIcons[status];
 
   const badge = (
-    <Badge variant={config.variant} className={`${config.className} gap-1 text-xs`}>
+    <Badge variant={cfg.variant} className={`${cfg.className} gap-1 text-xs`}>
       <Icon className="w-3 h-3" />
-      {config.label}
+      {t(statusLabelKey[status])}
     </Badge>
   );
 
