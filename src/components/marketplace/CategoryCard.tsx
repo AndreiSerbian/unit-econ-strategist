@@ -23,6 +23,7 @@ import {
 } from "@/hooks/useMarketplace";
 import { StatusBadge } from "./StatusBadge";
 import type { DataStatus, PlanningPeriod } from "./types";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface CategoryCardProps {
   category: MarketplaceCategory;
@@ -62,16 +63,21 @@ export const CategoryCard = ({
   onUpdateChannelStat,
   onDeleteChannelStat,
 }: CategoryCardProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
+  const periodLabel = t(`marketplace.period${planningPeriod.charAt(0).toUpperCase() + planningPeriod.slice(1)}`);
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [newChannelId, setNewChannelId] = useState<string>('');
 
-  // Calculate metrics
   const metrics = useMemo(() => 
     calculateCategoryMetrics(category, channelStats, channels),
     [category, channelStats, channels]
   );
 
-  // Determine status
+  const formatCurrency = (value: number) => 
+    `${value.toLocaleString(numLocale, { maximumFractionDigits: 2 })} ${currency}`;
+
   const status: DataStatus = useMemo(() => {
     if (category.transactionsCount === 0 || channelStats.length === 0) {
       return 'not_enough_data';
@@ -87,24 +93,23 @@ export const CategoryCard = ({
 
   const statusDetails = useMemo(() => {
     if (status === 'not_enough_data') {
-      return 'Добавьте транзакции и распределение по каналам';
+      return t("marketplace.notEnoughDataDetails");
     }
     if (status === 'shares_overflow') {
-      return `Сумма долей каналов: ${metrics.totalSharePercent.toFixed(0)}% (>100%)`;
+      return t("marketplace.sharesOverflowDetails").replace("{sum}", metrics.totalSharePercent.toFixed(0));
     }
     if (status === 'mismatch') {
-      return `GMV override отличается от computed на ${metrics.gmvMismatchPercent?.toFixed(1)}%`;
+      return t("marketplace.mismatchDetails").replace("{pct}", metrics.gmvMismatchPercent?.toFixed(1) ?? "0");
     }
     return undefined;
-  }, [status, metrics]);
+  }, [status, metrics, t]);
 
-  // Available channels (not already linked)
   const linkedChannelIds = channelStats.map(cs => cs.channelId);
   const availableChannels = channels.filter(c => !linkedChannelIds.includes(c.id));
 
   const handleAddChannelMix = async () => {
     if (!newChannelId) {
-      toast.error('Выберите канал');
+      toast.error(t("marketplace.pickChannel"));
       return;
     }
     await onSaveChannelStat({
@@ -117,9 +122,6 @@ export const CategoryCard = ({
     });
     setNewChannelId('');
   };
-
-  const formatCurrency = (value: number) => 
-    `${value.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ${currency}`;
 
   return (
     <Card className="border">
@@ -162,7 +164,7 @@ export const CategoryCard = ({
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-muted-foreground" />
-              <span className="text-muted-foreground">Revenue:</span>
+              <span className="text-muted-foreground">{t("marketplace.revenue")}:</span>
               <span className="font-medium text-primary">{formatCurrency(metrics.platformRevenue)}</span>
             </div>
             <div className="flex items-center gap-1">
@@ -172,7 +174,7 @@ export const CategoryCard = ({
             </div>
             <div className="flex items-center gap-1">
               <Store className="w-3 h-3 text-muted-foreground" />
-              <span className="text-muted-foreground">Каналы:</span>
+              <span className="text-muted-foreground">{t("marketplace.channels")}:</span>
               <span className="font-medium">{channelStats.length}</span>
             </div>
           </div>
@@ -184,8 +186,8 @@ export const CategoryCard = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <Label className="text-xs flex items-center">
-                  Транзакции
-                  <FieldTooltip content={`Количество транзакций за ${planningPeriod === 'month' ? 'месяц' : planningPeriod}`} />
+                  {t("marketplace.transactions")}
+                  <FieldTooltip content={t("marketplace.transactionsTooltip").replace("{period}", periodLabel)} />
                 </Label>
                 <NumericInput
                   value={category.transactionsCount}
@@ -195,8 +197,8 @@ export const CategoryCard = ({
               </div>
               <div>
                 <Label className="text-xs flex items-center">
-                  Средний чек ({currency})
-                  <FieldTooltip content="Средняя стоимость транзакции" />
+                  {t("marketplace.avgCheck")} ({currency})
+                  <FieldTooltip content={t("marketplace.avgCheckTooltip")} />
                 </Label>
                 <NumericInput
                   value={category.avgCheck}
@@ -207,8 +209,8 @@ export const CategoryCard = ({
               </div>
               <div>
                 <Label className="text-xs flex items-center">
-                  Take Rate (%)
-                  <FieldTooltip content="Комиссия платформы по умолчанию" />
+                  {t("marketplace.takeRate")}
+                  <FieldTooltip content={t("marketplace.takeRateCardTooltip")} />
                 </Label>
                 <NumericInput
                   value={category.takeRatePercent}
@@ -219,8 +221,8 @@ export const CategoryCard = ({
               </div>
               <div>
                 <Label className="text-xs flex items-center">
-                  GMV Override ({currency})
-                  <FieldTooltip content={`Ручной override GMV. Computed: ${formatCurrency(category.gmvComputed)}`} />
+                  {t("marketplace.gmvOverride")} ({currency})
+                  <FieldTooltip content={t("marketplace.gmvOverrideTooltip").replace("{computed}", formatCurrency(category.gmvComputed))} />
                 </Label>
                 <NumericInput
                   value={category.gmvOverride ?? null}
@@ -240,9 +242,10 @@ export const CategoryCard = ({
                   ? 'bg-warning/10 text-warning-foreground' 
                   : 'bg-muted text-muted-foreground'
               }`}>
-                GMV Computed: {formatCurrency(category.gmvComputed)} | 
-                Override: {formatCurrency(category.gmvOverride)} | 
-                Разница: {metrics.gmvMismatchPercent.toFixed(1)}%
+                {t("marketplace.gmvComparison")
+                  .replace("{computed}", formatCurrency(category.gmvComputed))
+                  .replace("{override}", formatCurrency(category.gmvOverride))
+                  .replace("{pct}", metrics.gmvMismatchPercent.toFixed(1))}
               </div>
             )}
 
@@ -250,7 +253,7 @@ export const CategoryCard = ({
             <div className="border-t pt-4">
               <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
                 <Store className="w-4 h-4" />
-                Распределение по каналам
+                {t("marketplace.channelDistribution")}
                 {metrics.totalSharePercent > 0 && (
                   <Badge variant={metrics.totalSharePercent > 100 ? 'destructive' : 'secondary'} className="text-xs">
                     Σ {metrics.totalSharePercent.toFixed(0)}%
@@ -269,7 +272,7 @@ export const CategoryCard = ({
                       return (
                         <div key={stat.id} className="p-2 border rounded-lg bg-muted/30 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="font-medium text-sm">{channel?.name || 'Неизвестный'}</span>
+                            <span className="font-medium text-sm">{channel?.name || t("marketplace.unknown")}</span>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -281,7 +284,7 @@ export const CategoryCard = ({
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <Label className="text-[10px]">Доля (%)</Label>
+                              <Label className="text-[10px]">{t("marketplace.share")}</Label>
                               <NumericInput
                                 value={stat.sharePercent ?? null}
                                 onChange={(v) => onUpdateChannelStat(stat.id, { sharePercent: v })}
@@ -291,13 +294,13 @@ export const CategoryCard = ({
                               />
                             </div>
                             <div>
-                              <Label className="text-[10px]">Транзакции</Label>
+                              <Label className="text-[10px]">{t("marketplace.transactions")}</Label>
                               <NumericInput
                                 value={stat.transactionsPerPeriod ?? null}
                                 onChange={(v) => onUpdateChannelStat(stat.id, { transactionsPerPeriod: v })}
                                 className="h-7 text-xs"
                                 allowNull
-                                placeholder="auto"
+                                placeholder={t("marketplace.auto")}
                               />
                             </div>
                           </div>
@@ -318,13 +321,13 @@ export const CategoryCard = ({
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-1 px-2">Канал</th>
-                          <th className="text-right py-1 px-2 w-20">Доля (%)</th>
-                          <th className="text-right py-1 px-2 w-20">Транзакции</th>
+                          <th className="text-left py-1 px-2">{t("marketplace.channel")}</th>
+                          <th className="text-right py-1 px-2 w-20">{t("marketplace.share")}</th>
+                          <th className="text-right py-1 px-2 w-20">{t("marketplace.transactions")}</th>
                           <th className="text-right py-1 px-2 w-20">Take Rate</th>
                           <th className="text-right py-1 px-2">GMV</th>
-                          <th className="text-right py-1 px-2">Net GMV</th>
-                          <th className="text-right py-1 px-2 text-primary">Revenue</th>
+                          <th className="text-right py-1 px-2">{t("marketplace.netGmv")}</th>
+                          <th className="text-right py-1 px-2 text-primary">{t("marketplace.revenue")}</th>
                           <th className="w-8"></th>
                         </tr>
                       </thead>
@@ -335,7 +338,7 @@ export const CategoryCard = ({
                           
                           return (
                             <tr key={stat.id} className="border-b border-muted/50 hover:bg-muted/30">
-                              <td className="py-1 px-2 font-medium">{channel?.name || 'Неизвестный'}</td>
+                              <td className="py-1 px-2 font-medium">{channel?.name || t("marketplace.unknown")}</td>
                               <td className="py-1 px-2">
                                 <NumericInput
                                   value={stat.sharePercent ?? null}
@@ -351,7 +354,7 @@ export const CategoryCard = ({
                                   onChange={(v) => onUpdateChannelStat(stat.id, { transactionsPerPeriod: v })}
                                   className="h-6 text-xs w-16"
                                   allowNull
-                                  placeholder="auto"
+                                  placeholder={t("marketplace.auto")}
                                 />
                               </td>
                               <td className="py-1 px-2">
@@ -391,13 +394,13 @@ export const CategoryCard = ({
               {availableChannels.length > 0 && (
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
-                    <Label className="text-xs">Добавить канал</Label>
+                    <Label className="text-xs">{t("marketplace.addChannel")}</Label>
                     <select
                       value={newChannelId}
                       onChange={(e) => setNewChannelId(e.target.value)}
                       className="w-full h-8 text-sm border rounded-md px-2 bg-background"
                     >
-                      <option value="">Выберите канал...</option>
+                      <option value="">{t("marketplace.selectChannel")}</option>
                       {availableChannels.map(ch => (
                         <option key={ch.id} value={ch.id}>{ch.name}</option>
                       ))}
@@ -411,7 +414,7 @@ export const CategoryCard = ({
 
               {availableChannels.length === 0 && channelStats.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Сначала добавьте каналы продаж в разделе "Каналы продаж"
+                  {t("marketplace.addedChannelMixHint")}
                 </p>
               )}
             </div>
