@@ -439,34 +439,34 @@ export const ServicesProductCard = memo(({
       <div className="pt-3 border-t space-y-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <TrendingUp className="w-3 h-3" />
-          <span>Расчётные метрики</span>
+          <span>{t("servicesCard.calculatedMetrics")}</span>
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs sm:text-sm">
           {/* Billable hours */}
           <div className="p-2 bg-muted/50 rounded">
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Оплач. часов/нед</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs">{t("servicesCard.billableHoursWeek")}</p>
             <p className="font-mono font-semibold">
-              {metrics.billableHoursWeek.toFixed(1)} ч
+              {metrics.billableHoursWeek.toFixed(1)} {t("servicesCard.hoursUnit")}
             </p>
           </div>
           
           <div className="p-2 bg-muted/50 rounded">
             <p className="text-muted-foreground text-[10px] sm:text-xs">
-              Оплач. часов/{PERIOD_LABELS[planningPeriod]}
+              {t("servicesCard.billableHoursPeriod")}/{periodLabel}
             </p>
             <p className="font-mono font-semibold">
-              {metrics.billableHoursPeriod.toFixed(0)} ч
+              {metrics.billableHoursPeriod.toFixed(0)} {t("servicesCard.hoursUnit")}
             </p>
           </div>
           
           {/* Duration per project (fixed_project only) */}
           {billingModel === 'fixed_project' && (
             <div className="p-2 bg-muted/50 rounded">
-              <p className="text-muted-foreground text-[10px] sm:text-xs">Длит. проекта</p>
+              <p className="text-muted-foreground text-[10px] sm:text-xs">{t("servicesCard.projectDuration")}</p>
               <p className="font-mono font-semibold">
                 {metrics.durationWeeksPerProject !== null 
-                  ? `${metrics.durationWeeksPerProject.toFixed(1)} нед` 
+                  ? `${metrics.durationWeeksPerProject.toFixed(1)} ${t("servicesCard.weeksUnit")}` 
                   : '—'}
               </p>
             </div>
@@ -479,7 +479,7 @@ export const ServicesProductCard = memo(({
               metrics.isOverloaded ? "bg-destructive/10" : "bg-muted/50"
             )}>
               <p className="text-muted-foreground text-[10px] sm:text-xs">
-                Макс. проектов/{PERIOD_LABELS[planningPeriod]}
+                {t("servicesCard.maxProjectsPerPeriod")}/{periodLabel}
               </p>
               <p className={cn(
                 "font-mono font-semibold",
@@ -492,7 +492,7 @@ export const ServicesProductCard = memo(({
           
           {/* Effective hourly rate */}
           <div className="p-2 bg-muted/50 rounded">
-            <p className="text-muted-foreground text-[10px] sm:text-xs">Эфф. ставка/ч</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs">{t("servicesCard.effectiveHourlyRate")}</p>
             <p className="font-mono font-semibold">
               {metrics.effectiveHourlyRate !== null 
                 ? `${metrics.effectiveHourlyRate.toFixed(0)} ${currency}` 
@@ -503,11 +503,11 @@ export const ServicesProductCard = memo(({
           {/* Revenue per period */}
           <div className="p-2 bg-primary/10 rounded">
             <p className="text-muted-foreground text-[10px] sm:text-xs">
-              Выручка/{PERIOD_LABELS[planningPeriod]}
+              {t("servicesCard.revenuePerPeriod")}/{periodLabel}
             </p>
             <p className="font-mono font-semibold text-primary">
               {metrics.revenuePeriod !== null 
-                ? `${metrics.revenuePeriod.toLocaleString('ru-RU')} ${currency}` 
+                ? `${metrics.revenuePeriod.toLocaleString(numLocale)} ${currency}` 
                 : '—'}
             </p>
           </div>
@@ -519,8 +519,10 @@ export const ServicesProductCard = memo(({
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
               {billingModel === 'fixed_project' 
-                ? `Указано ${product.quantity} проектов, но пропускная способность позволяет максимум ${metrics.maxProjectsPerPeriod}`
-                : 'Запланировано больше часов, чем доступно оплачиваемого времени'
+                ? t("servicesCard.overloadWarningProjects")
+                    .replace("{count}", String(product.quantity ?? 0))
+                    .replace("{max}", String(metrics.maxProjectsPerPeriod ?? 0))
+                : t("servicesCard.overloadWarningHours")
               }
             </span>
           </div>
@@ -531,7 +533,7 @@ export const ServicesProductCard = memo(({
           <div className="flex items-center gap-2 p-2 bg-muted rounded text-muted-foreground text-xs">
             <Info className="w-4 h-4 shrink-0" />
             <span>
-              Заполните "Часов/проект" для расчёта capacity и длительности проекта
+              {t("servicesCard.insufficientDataHint")}
             </span>
           </div>
         )}
