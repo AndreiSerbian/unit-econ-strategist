@@ -306,8 +306,8 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-allocationPercent`}>
-            <FieldTooltip content="Какой % мощности выделен на эту услугу (если несколько услуг).">
-              Доля мощности %
+            <FieldTooltip content={t("servicesCard.allocationPercentTooltip")}>
+              {t("servicesCard.allocationPercent")}
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -319,8 +319,8 @@ export const ServicesProductCard = memo(({
         
         <div>
           <Label htmlFor={`${product.id}-billablePercent`}>
-            <FieldTooltip content="Какой % выделенного времени оплачивается клиентом.">
-              Оплачиваемое время %
+            <FieldTooltip content={t("servicesCard.billablePercentTooltip")}>
+              {t("servicesCard.billablePercent")}
             </FieldTooltip>
           </Label>
           <NumericInput
@@ -331,7 +331,7 @@ export const ServicesProductCard = memo(({
         </div>
         
         <div>
-          <Label htmlFor={`${product.id}-cost`}>Себестоимость ({currency})</Label>
+          <Label htmlFor={`${product.id}-cost`}>{t("servicesCard.cost")} ({currency})</Label>
           <NumericInput
             id={`${product.id}-cost`}
             value={product.cost ?? 0}
@@ -344,8 +344,8 @@ export const ServicesProductCard = memo(({
         {billingModel === 'fixed_project' && (
           <div>
             <Label htmlFor={`${product.id}-estimatedHours`}>
-              <FieldTooltip content="Сколько часов нужно на 1 проект. Обязательно для расчёта пропускной способности.">
-                Часов/проект
+              <FieldTooltip content={t("servicesCard.estimatedHoursTooltip")}>
+                {t("servicesCard.estimatedHours")}
               </FieldTooltip>
             </Label>
             <NumericInput
@@ -360,8 +360,8 @@ export const ServicesProductCard = memo(({
         {billingModel === 'hourly' && (
           <div>
             <Label htmlFor={`${product.id}-plannedHours`}>
-              <FieldTooltip content="Планируемое кол-во оплачиваемых часов за период.">
-                План часов/{PERIOD_LABELS[planningPeriod]}
+              <FieldTooltip content={t("servicesCard.plannedHoursTooltip")}>
+                {t("servicesCard.plannedHours")}/{periodLabel}
               </FieldTooltip>
             </Label>
             <NumericInput
@@ -377,8 +377,8 @@ export const ServicesProductCard = memo(({
           <>
             <div>
               <Label htmlFor={`${product.id}-retainerFee`}>
-                <FieldTooltip content="Фиксированная месячная плата за абонентское сопровождение.">
-                  Стоимость сопровождения/мес ({currency})
+                <FieldTooltip content={t("servicesCard.retainerFeeTooltip")}>
+                  {t("servicesCard.retainerFee")} ({currency})
                 </FieldTooltip>
               </Label>
               <NumericInput
@@ -397,7 +397,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'fixed_project' && (
           <div>
             <Label htmlFor={`${product.id}-quantity`}>
-              Проектов/{PERIOD_LABELS[planningPeriod]}
+              {t("servicesCard.projectsPerPeriod")}/{periodLabel}
             </Label>
             <NumericInput
               id={`${product.id}-quantity`}
@@ -410,7 +410,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'retainer' && (
           <div>
             <Label htmlFor={`${product.id}-clientsCount`}>
-              Клиентов на сопровождении
+              {t("servicesCard.clientsCount")}
             </Label>
             <NumericInput
               id={`${product.id}-clientsCount`}
@@ -423,7 +423,7 @@ export const ServicesProductCard = memo(({
         {billingModel === 'hourly' && (
           <div>
             <Label htmlFor={`${product.id}-hourlyRate`}>
-              Часовая ставка ({currency})
+              {t("servicesCard.hourlyRateField")} ({currency})
             </Label>
             <NumericInput
               id={`${product.id}-hourlyRate`}
