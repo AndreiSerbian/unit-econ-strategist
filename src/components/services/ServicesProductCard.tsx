@@ -158,10 +158,14 @@ export const ServicesProductCard = memo(({
   onDelete,
   currency,
 }: ServicesProductCardProps) => {
+  const { t, language } = useTranslation();
+  const numLocale = language === "ru" ? "ru-RU" : language === "ro" ? "ro-RO" : "en-US";
   const billingModel = product.billingModel ?? 'fixed_project';
   const planningPeriod = product.planningPeriod ?? 'month';
   const metrics = useMemo(() => calculateMetrics(product), [product]);
-  
+  const periodKey = planningPeriod.charAt(0).toUpperCase() + planningPeriod.slice(1);
+  const periodLabel = t(`servicesCard.period${periodKey}`);
+
   const handleChange = (key: keyof ServiceProduct, value: any) => {
     onUpdate(product.id, { [key]: value });
   };
@@ -172,7 +176,7 @@ export const ServicesProductCard = memo(({
       return (
         <Badge variant="outline" className="text-xs bg-muted">
           <Info className="w-3 h-3 mr-1" />
-          Недостаточно данных
+          {t("servicesCard.notEnoughData")}
         </Badge>
       );
     }
@@ -180,14 +184,14 @@ export const ServicesProductCard = memo(({
       return (
         <Badge variant="destructive" className="text-xs">
           <AlertTriangle className="w-3 h-3 mr-1" />
-          Перегруз
+          {t("servicesCard.overloaded")}
         </Badge>
       );
     }
     return (
       <Badge variant="default" className="text-xs bg-success text-success-foreground">
         <CheckCircle className="w-3 h-3 mr-1" />
-        OK
+        {t("servicesCard.ok")}
       </Badge>
     );
   };
