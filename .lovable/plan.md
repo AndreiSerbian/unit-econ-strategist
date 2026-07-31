@@ -1,52 +1,60 @@
-## Goal
+# Financial Safety Guardrails v1
 
-Localize the entire "Metrics" form block (Revenue/Clients/Conversion/Expenses) in `MetricsForm.tsx` to RU/EN/RO. Currently most strings already use `t(...)`, but card titles and field labels coming from `config.labels.*` (revenue, clients, avgCheck) are hardcoded in Russian and never translated, so when the user switches to EN or RO they still see "Выручка / Покупатели / Средний чек (AOV) / MRR / ARPU" etc.
+Surface existing diagnostics, make the revenue source explicit, normalize every scenario load path, and label incomplete business models. No financial formula is touched.
 
-## Scope (visible block)
+## 1. Financial warnings panel
 
-The 4 cards inside `<div className="grid grid-cols-1 md:grid-cols-2 gap-6">` at line 304 of `src/components/MetricsForm.tsx`:
-1. Revenue & income (uses `config.labels.revenue`, `config.labels.avgCheck`)
-2. Clients (uses `config.labels.clients`)
-3. Conversion & LTV (already fully via `t`)
-4. Expenses (already fully via `t`)
+New `src/components/financial/FinancialWarningsPanel.tsx`.
 
-## Changes
+- Renders the output of `detectFinancialWarnings` (already computed in `Dashboard.tsx` but currently discarded via `void financialWarnings`).
+- Each warning row shows: affected metric, reason, severity badge (Info / Warning / Critical), recommended action.
+- Severity + metric + action come from a small static map keyed by the existing warning codes (`SERVICE_LABOR_DOUBLE_COUNT_RISK`, `LOGISTICS_DOUBLE_OR_TRIPLE_COUNT_RISK`) — `financialWarnings.ts` itself is not modified.
+- Mounted at the top of the Summary tab and the top of the Cash Flow tab, before results.
+- Fires `financial_warning_viewed` once per mount when warnings exist.
 
-### 1. `src/config/businessTypeMetrics.ts`
-Add `labelKey` siblings on every `labels` object so translations can be resolved, e.g.:
+## 2. Explicit revenue source selector
 
-```ts
-labels: {
-  revenue: 'MRR',
-  revenueKey: 'businessTypeMetrics.saas_label_revenue',
-  clients: 'Активные подписчики',
-  clientsKey: 'businessTypeMetrics.saas_label_clients',
-  avgCheck: 'ARPU',
-  avgCheckKey: 'businessTypeMetrics.saas_label_avgCheck',
-  conversion: 'Trial → Paid конверсия',
-  conversionKey: 'businessTypeMetrics.saas_label_conversion',
-  retention: 'Retention Rate',
-  retentionKey: 'businessTypeMetrics.saas_label_retention',
-},
-```
+New `src/components/financial/RevenueSourceSelector.tsx` (radio group: "Automatic — calculated from products" / "Manual — entered by the user").
 
-Repeat for all 8 business types: `saas`, `ecommerce`, `production`, `services`, `freemium`, `sharing`, `marketplace`, `token_saas`. Update the `BusinessTypeConfig.labels` TS interface to include the optional `*Key` fields.
+- Placed in the revenue card of `MetricsForm.tsx`.
+- Writes `revenueSource` and, in manual mode, `manualRevenueOverride` through the existing metric update path.
+- `Dashboard.tsx` revenue effect: only the guard changes — auto-write applies solely when `currentMetrics.revenueSource === 'auto'` (no more legacy fallback into auto), so manual never flips silently. `resolveRevenue` itself is unchanged.
+- A small `RevenueSourceBadge` shows the active source next to revenue totals in Metrics, Cash Flow summary, and Summary cards.
+- Fires `revenue_source_selected` on change.
 
-### 2. `src/i18n/dictionary.ts`
-Add a new `businessTypeMetrics.{type}_label_{revenue|clients|avgCheck|conversion|retention}` set in each of the three sections (`ru`, `en`, `ro`). Russian values mirror the existing config strings; English and Romanian use standard equivalents already used in the app's glossary (e.g. SaaS clients → "Active subscribers" / "Abonați activi"; AOV → "Average order value" / "Valoare medie comandă"; Take Rate → "Take Rate" kept as-is, etc.).
+## 3. Normalize all scenario load paths
 
-### 3. `src/components/MetricsForm.tsx`
-Use `resolveI18nText(t, config.labels.revenue, config.labels.revenueKey) || t("metricsForm.revenueAndIncome")` (same helper pattern already used in `ProductsManagement.tsx`) for:
-- Card 1 title (line 309) and avgCheck label (line 333)
-- Card 2 title (line 354) and total clients label (line 359)
+`src/hooks/useProject.tsx`:
 
-No layout, no logic, no calculation changes.
+- Cloud load already normalizes; add `normalizeMetrics` to `restoreFromLocalStorage` for `currentMetrics`, `scenarioA`, `scenarioB`, and to any scenario duplication/import path.
+- Compare normalized vs raw aggregates; if they differ, show a non-blocking sonner notice ("Legacy data was normalized") and fire `legacy_data_normalized`. Valid values are left untouched by `normalizeMetrics` by construction.
 
-### 4. Number formatting
-Replace the hardcoded `toLocaleString("ru-RU")` for displayed values inside this block with `language`-aware locale (`ru-RU` / `en-US` / `ro-RO`) using the `language` from `useTranslation()`, matching what `MarketingMetrics.tsx` already does. This keeps thousand separators consistent with the chosen UI language.
+## 4. Incomplete business-type warning
 
-## Out of scope
+New `src/components/financial/IncompleteModelNotice.tsx`, shown for `token_saas`, `sharing`, `production`, `marketplace`:
 
-- The `productsIntegration` sync card above this block is already fully translated.
-- Business-type-specific extra metrics card below (SaaS/E-commerce/etc.) — already uses `t()` keys that exist in all three languages.
-- No edits to other forms or charts.
+"This business model contains incomplete financial integrations. Results are preliminary and should not be used for final financial decisions."
+
+- Rendered on My Company, Metrics, Cash Flow, and Summary tabs.
+- Fires `incomplete_model_warning_viewed`.
+- For those types, result headings/badges use "Preliminary estimate" / "Requires financial validation"; any wording implying validated / production-ready / safe to scale / investment-ready is replaced. No formulas change.
+
+## 5. Orphaned module protection
+
+`src/components/distribution-v2/*` and `src/components/token-economics/*` are already not imported by any route or tab (verified). To make that explicit and prevent accidental exposure:
+
+- Add an `INTERNAL — inactive module, not part of the user flow` header comment to both `index.ts` files and a short `docs/INACTIVE_MODULES.md` note.
+- No files deleted, no database records touched.
+
+## 6. Analytics
+
+New `src/utils/financialAnalytics.ts` following the existing `onboardingAnalytics.ts` pattern (CustomEvent + console.debug) for the four events.
+
+## 7. i18n
+
+All new strings added to `src/i18n/dictionary.ts` in RU / EN / RO.
+
+## Verification before completion
+
+- Diff review confirming `metricsCalculations.ts`, `revenueResolver.ts` (calculation part), `normalizeMetrics.ts`, `financialWarnings.ts`, and all adapters are unchanged in formula logic.
+- Manual pass: manual revenue stays manual after product edits; warnings visible; incomplete-type notice appears for the four types; SaaS numbers identical to before.
