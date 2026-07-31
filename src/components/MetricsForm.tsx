@@ -168,6 +168,7 @@ interface MetricsFormProps {
   currency: string;
   businessType: BusinessType;
   onUpdateMetric: (field: keyof Metrics, value: number) => void;
+  onUpdateRevenueSource?: (source: "auto" | "manual", manualOverride?: number) => void;
   onUpdateDetailedExpenses: (expenses: DetailedExpenses) => void;
   onUpdateLeadSources: (sources: LeadSource[]) => void;
   onSyncProducts: () => void;
@@ -185,6 +186,7 @@ export const MetricsForm = memo(({
   currency,
   businessType,
   onUpdateMetric,
+  onUpdateRevenueSource,
   onUpdateDetailedExpenses,
   onUpdateLeadSources,
   onSyncProducts,
