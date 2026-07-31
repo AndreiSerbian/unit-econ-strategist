@@ -86,6 +86,8 @@ interface Metrics {
   gmv?: number;
   takeRate?: number;
   liquidity?: number;
+  revenueSource?: "auto" | "manual";
+  manualRevenueOverride?: number;
 }
 
 interface CompanyMetricsProps {
