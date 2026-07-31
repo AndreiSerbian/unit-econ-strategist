@@ -21,6 +21,8 @@ New `src/components/financial/RevenueSourceSelector.tsx` (radio group: "Automati
 - `Dashboard.tsx` revenue effect: only the guard changes — auto-write applies solely when `currentMetrics.revenueSource === 'auto'` (no more legacy fallback into auto), so manual never flips silently. `resolveRevenue` itself is unchanged.
 - A small `RevenueSourceBadge` shows the active source next to revenue totals in Metrics, Cash Flow summary, and Summary cards.
 - Fires `revenue_source_selected` on change.
+- On switching to manual, if `manualRevenueOverride` is empty/undefined, seed it with the currently displayed `revenue` so the user never lands on 0.
+- `revenueSource` / `manualRevenueOverride` are stored per scenario (current, Scenario A, Scenario B) in the existing `business_metrics` JSONB; switching one scenario does not affect the others.
 
 ## 3. Normalize all scenario load paths
 
