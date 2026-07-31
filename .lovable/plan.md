@@ -10,7 +10,7 @@ New `src/components/financial/FinancialWarningsPanel.tsx`.
 - Each warning row shows: affected metric, reason, severity badge (Info / Warning / Critical), recommended action.
 - Severity + metric + action come from a small static map keyed by the existing warning codes (`SERVICE_LABOR_DOUBLE_COUNT_RISK`, `LOGISTICS_DOUBLE_OR_TRIPLE_COUNT_RISK`) — `financialWarnings.ts` itself is not modified.
 - Mounted at the top of the Summary tab and the top of the Cash Flow tab, before results.
-- Fires `financial_warning_viewed` once per mount when warnings exist.
+- Fires `financial_warning_viewed` once per project + session when warnings exist (see analytics dedup below).
 
 ## 2. Explicit revenue source selector
 
@@ -21,13 +21,15 @@ New `src/components/financial/RevenueSourceSelector.tsx` (radio group: "Automati
 - `Dashboard.tsx` revenue effect: only the guard changes — auto-write applies solely when `currentMetrics.revenueSource === 'auto'` (no more legacy fallback into auto), so manual never flips silently. `resolveRevenue` itself is unchanged.
 - A small `RevenueSourceBadge` shows the active source next to revenue totals in Metrics, Cash Flow summary, and Summary cards.
 - Fires `revenue_source_selected` on change.
+- On switching to manual, if `manualRevenueOverride` is empty/undefined, seed it with the currently displayed `revenue` so the user never lands on 0.
+- `revenueSource` / `manualRevenueOverride` are stored per scenario (current, Scenario A, Scenario B) in the existing `business_metrics` JSONB; switching one scenario does not affect the others.
 
 ## 3. Normalize all scenario load paths
 
 `src/hooks/useProject.tsx`:
 
 - Cloud load already normalizes; add `normalizeMetrics` to `restoreFromLocalStorage` for `currentMetrics`, `scenarioA`, `scenarioB`, and to any scenario duplication/import path.
-- Compare normalized vs raw aggregates; if they differ, show a non-blocking sonner notice ("Legacy data was normalized") and fire `legacy_data_normalized`. Valid values are left untouched by `normalizeMetrics` by construction.
+- Compare only the fields `normalizeMetrics` actually rewrites (`marketingCosts`, `variableCosts`) with a numeric tolerance — no deep object comparison — so key order, `undefined`, or service fields cannot trigger a false notice. If they differ, show a non-blocking sonner notice ("Legacy data was normalized") and fire `legacy_data_normalized`. Valid values stay untouched.
 
 ## 4. Incomplete business-type warning
 
@@ -36,7 +38,7 @@ New `src/components/financial/IncompleteModelNotice.tsx`, shown for `token_saas`
 "This business model contains incomplete financial integrations. Results are preliminary and should not be used for final financial decisions."
 
 - Rendered on My Company, Metrics, Cash Flow, and Summary tabs.
-- Fires `incomplete_model_warning_viewed`.
+- Fires `incomplete_model_warning_viewed` once per project + session (see analytics dedup below).
 - For those types, result headings/badges use "Preliminary estimate" / "Requires financial validation"; any wording implying validated / production-ready / safe to scale / investment-ready is replaced. No formulas change.
 
 ## 5. Orphaned module protection
@@ -49,6 +51,8 @@ New `src/components/financial/IncompleteModelNotice.tsx`, shown for `token_saas`
 ## 6. Analytics
 
 New `src/utils/financialAnalytics.ts` following the existing `onboardingAnalytics.ts` pattern (CustomEvent + console.debug) for the four events.
+
+- `financial_warning_viewed` and `incomplete_model_warning_viewed` are deduplicated per `projectId` + session (sessionStorage-backed key set), so tab switching does not re-emit them.
 
 ## 7. i18n
 
