@@ -29,7 +29,7 @@ New `src/components/financial/RevenueSourceSelector.tsx` (radio group: "Automati
 `src/hooks/useProject.tsx`:
 
 - Cloud load already normalizes; add `normalizeMetrics` to `restoreFromLocalStorage` for `currentMetrics`, `scenarioA`, `scenarioB`, and to any scenario duplication/import path.
-- Compare normalized vs raw aggregates; if they differ, show a non-blocking sonner notice ("Legacy data was normalized") and fire `legacy_data_normalized`. Valid values are left untouched by `normalizeMetrics` by construction.
+- Compare only the fields `normalizeMetrics` actually rewrites (`marketingCosts`, `variableCosts`) with a numeric tolerance — no deep object comparison — so key order, `undefined`, or service fields cannot trigger a false notice. If they differ, show a non-blocking sonner notice ("Legacy data was normalized") and fire `legacy_data_normalized`. Valid values stay untouched.
 
 ## 4. Incomplete business-type warning
 
@@ -38,7 +38,7 @@ New `src/components/financial/IncompleteModelNotice.tsx`, shown for `token_saas`
 "This business model contains incomplete financial integrations. Results are preliminary and should not be used for final financial decisions."
 
 - Rendered on My Company, Metrics, Cash Flow, and Summary tabs.
-- Fires `incomplete_model_warning_viewed`.
+- Fires `incomplete_model_warning_viewed` once per project + session (see analytics dedup below).
 - For those types, result headings/badges use "Preliminary estimate" / "Requires financial validation"; any wording implying validated / production-ready / safe to scale / investment-ready is replaced. No formulas change.
 
 ## 5. Orphaned module protection
