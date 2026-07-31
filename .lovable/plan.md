@@ -10,7 +10,7 @@ New `src/components/financial/FinancialWarningsPanel.tsx`.
 - Each warning row shows: affected metric, reason, severity badge (Info / Warning / Critical), recommended action.
 - Severity + metric + action come from a small static map keyed by the existing warning codes (`SERVICE_LABOR_DOUBLE_COUNT_RISK`, `LOGISTICS_DOUBLE_OR_TRIPLE_COUNT_RISK`) — `financialWarnings.ts` itself is not modified.
 - Mounted at the top of the Summary tab and the top of the Cash Flow tab, before results.
-- Fires `financial_warning_viewed` once per mount when warnings exist.
+- Fires `financial_warning_viewed` once per project + session when warnings exist (see analytics dedup below).
 
 ## 2. Explicit revenue source selector
 
@@ -51,6 +51,8 @@ New `src/components/financial/IncompleteModelNotice.tsx`, shown for `token_saas`
 ## 6. Analytics
 
 New `src/utils/financialAnalytics.ts` following the existing `onboardingAnalytics.ts` pattern (CustomEvent + console.debug) for the four events.
+
+- `financial_warning_viewed` and `incomplete_model_warning_viewed` are deduplicated per `projectId` + session (sessionStorage-backed key set), so tab switching does not re-emit them.
 
 ## 7. i18n
 
