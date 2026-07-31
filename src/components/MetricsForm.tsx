@@ -321,10 +321,10 @@ export const MetricsForm = memo(({
               <p className="text-xs text-muted-foreground">
                 {businessType === 'saas' ? t("metricsForm.revenueMrrFromPlans") : t("metricsForm.revenueAutoFromProducts")}
               </p>
-              <p className="text-xl font-bold font-mono text-primary flex items-center gap-2 flex-wrap">
-                {metrics.revenue.toLocaleString(numLocale)} {currency}
+              <div className="text-xl font-bold font-mono text-primary flex items-center gap-2 flex-wrap">
+                <span>{metrics.revenue.toLocaleString(numLocale)} {currency}</span>
                 <RevenueSourceBadge source={metrics.revenueSource} />
-              </p>
+              </div>
               {productsRevenue > 0 && (
                 <p className="text-[11px] text-muted-foreground">
                   {t("metricsForm.revenueFromProducts")} {productsRevenue.toLocaleString(numLocale)} {currency}
