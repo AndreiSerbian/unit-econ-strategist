@@ -80,6 +80,7 @@ import { motion } from "framer-motion";
 import { calculateCAC, calculateCPL, calculateProfit, calculateProfitMargin, calculateBreakEvenDifference } from "@/utils/metricsCalculations";
 import { resolveRevenue } from "@/utils/revenueResolver";
 import { detectFinancialWarnings } from "@/utils/financialWarnings";
+import { FinancialWarningsPanel, IncompleteModelNotice } from "@/components/financial";
 import { useAuth } from "@/hooks/useAuth";
 import { useProject } from "@/hooks/useProject";
 import { useSaasProducts } from "@/hooks/useSaasProducts";
@@ -223,7 +224,6 @@ export const Dashboard = () => {
     () => detectFinancialWarnings(currentMetrics, products, businessType),
     [currentMetrics, products, businessType],
   );
-  void financialWarnings; // available for future UI surfacing
 
   const handleOnboardingComplete = (selectedType: BusinessType) => {
     localStorage.setItem(ONBOARDING_KEY, "true");
@@ -759,6 +759,8 @@ export const Dashboard = () => {
               </TabsContent>
               {/* ===== TAB 2: ПОКАЗАТЕЛИ (derived company analytics) ===== */}
               <TabsContent value="metrics" className="space-y-6">
+                <IncompleteModelNotice businessType={businessType} projectId={projectId} />
+                <FinancialWarningsPanel warnings={financialWarnings} projectId={projectId} />
                 {/* Service flow explainer */}
                 {businessType === 'services' && (
                   <AnimatedCard delay={0.05}>
@@ -881,6 +883,8 @@ export const Dashboard = () => {
 
               {/* ===== TAB 3: CASH FLOW ===== */}
               <TabsContent value="cashflow" className="space-y-6">
+                <IncompleteModelNotice businessType={businessType} projectId={projectId} />
+                <FinancialWarningsPanel warnings={financialWarnings} projectId={projectId} />
                 <AnimatedCard delay={0.1}>
                   <CashFlowTimelineManager
                     projectId={projectId}
@@ -1180,6 +1184,8 @@ export const Dashboard = () => {
 
               {/* ===== TAB 6: ИТОГИ (executive summary) ===== */}
               <TabsContent value="summary" className="space-y-6">
+                <IncompleteModelNotice businessType={businessType} projectId={projectId} />
+                <FinancialWarningsPanel warnings={financialWarnings} projectId={projectId} />
                 {/* Executive summary cards (Company / CashFlow / Risks / Recommendations) */}
                 <AnimatedCard delay={0.05}>
                   <SummarySection

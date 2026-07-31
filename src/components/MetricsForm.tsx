@@ -12,6 +12,8 @@ import { SalesFunnel } from "./SalesFunnel";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getBusinessTypeConfig, resolveI18nText, type BusinessType } from "@/config/businessTypeMetrics";
 import { useTranslation } from "@/i18n/useTranslation";
+import { RevenueSourceSelector } from "@/components/financial/RevenueSourceSelector";
+import { RevenueSourceBadge } from "@/components/financial/RevenueSourceBadge";
 
 interface ExpenseCategory {
   id: string;
@@ -94,6 +96,8 @@ interface Metrics {
   gmv?: number;                 // Marketplace/Sharing: Gross Merchandise Value
   takeRate?: number;            // Marketplace/Sharing: platform commission %
   liquidity?: number;           // Marketplace: successful transaction rate %
+  revenueSource?: "auto" | "manual";
+  manualRevenueOverride?: number;
 }
 
 const defaultDetailedExpenses: DetailedExpenses = {
@@ -166,6 +170,7 @@ interface MetricsFormProps {
   currency: string;
   businessType: BusinessType;
   onUpdateMetric: (field: keyof Metrics, value: number) => void;
+  onUpdateRevenueSource?: (source: "auto" | "manual", manualOverride?: number) => void;
   onUpdateDetailedExpenses: (expenses: DetailedExpenses) => void;
   onUpdateLeadSources: (sources: LeadSource[]) => void;
   onSyncProducts: () => void;
@@ -183,6 +188,7 @@ export const MetricsForm = memo(({
   currency,
   businessType,
   onUpdateMetric,
+  onUpdateRevenueSource,
   onUpdateDetailedExpenses,
   onUpdateLeadSources,
   onSyncProducts,
@@ -315,9 +321,10 @@ export const MetricsForm = memo(({
               <p className="text-xs text-muted-foreground">
                 {businessType === 'saas' ? t("metricsForm.revenueMrrFromPlans") : t("metricsForm.revenueAutoFromProducts")}
               </p>
-              <p className="text-xl font-bold font-mono text-primary">
-                {metrics.revenue.toLocaleString(numLocale)} {currency}
-              </p>
+              <div className="text-xl font-bold font-mono text-primary flex items-center gap-2 flex-wrap">
+                <span>{metrics.revenue.toLocaleString(numLocale)} {currency}</span>
+                <RevenueSourceBadge source={metrics.revenueSource} />
+              </div>
               {productsRevenue > 0 && (
                 <p className="text-[11px] text-muted-foreground">
                   {t("metricsForm.revenueFromProducts")} {productsRevenue.toLocaleString(numLocale)} {currency}
@@ -329,6 +336,16 @@ export const MetricsForm = memo(({
                 </p>
               )}
             </div>
+            {onUpdateRevenueSource && (
+              <RevenueSourceSelector
+                scenario={scenario}
+                source={metrics.revenueSource}
+                manualOverride={metrics.manualRevenueOverride}
+                displayedRevenue={metrics.revenue}
+                currency={currency}
+                onChange={onUpdateRevenueSource}
+              />
+            )}
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 {resolveI18nText(t, config.labels.avgCheck, config.labels.avgCheckKey) || t("metricsForm.avgCheck")}

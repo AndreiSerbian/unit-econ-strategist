@@ -489,9 +489,9 @@ export const useProject = (userId: string | undefined) => {
   // Восстановление данных из localStorage при загрузке
   const restoreFromLocalStorage = useCallback((stored: any) => {
     if (stored) {
-      if (stored.currentMetrics) setCurrentMetrics(stored.currentMetrics);
-      if (stored.scenarioA) setScenarioA(stored.scenarioA);
-      if (stored.scenarioB) setScenarioB(stored.scenarioB);
+      if (stored.currentMetrics) setCurrentMetrics(normalizeMetrics(stored.currentMetrics) as Metrics);
+      if (stored.scenarioA) setScenarioA(normalizeMetrics(stored.scenarioA) as Metrics);
+      if (stored.scenarioB) setScenarioB(normalizeMetrics(stored.scenarioB) as Metrics);
       if (stored.competitors) setCompetitors(stored.competitors);
       if (stored.products) setProducts(stored.products);
       if (stored.materials) setMaterials(stored.materials);
