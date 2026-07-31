@@ -96,6 +96,8 @@ interface Metrics {
   gmv?: number;                 // Marketplace/Sharing: Gross Merchandise Value
   takeRate?: number;            // Marketplace/Sharing: platform commission %
   liquidity?: number;           // Marketplace: successful transaction rate %
+  revenueSource?: "auto" | "manual";
+  manualRevenueOverride?: number;
 }
 
 const defaultDetailedExpenses: DetailedExpenses = {
