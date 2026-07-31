@@ -321,8 +321,9 @@ export const MetricsForm = memo(({
               <p className="text-xs text-muted-foreground">
                 {businessType === 'saas' ? t("metricsForm.revenueMrrFromPlans") : t("metricsForm.revenueAutoFromProducts")}
               </p>
-              <p className="text-xl font-bold font-mono text-primary">
+              <p className="text-xl font-bold font-mono text-primary flex items-center gap-2 flex-wrap">
                 {metrics.revenue.toLocaleString(numLocale)} {currency}
+                <RevenueSourceBadge source={metrics.revenueSource} />
               </p>
               {productsRevenue > 0 && (
                 <p className="text-[11px] text-muted-foreground">
@@ -335,6 +336,16 @@ export const MetricsForm = memo(({
                 </p>
               )}
             </div>
+            {onUpdateRevenueSource && (
+              <RevenueSourceSelector
+                scenario={scenario}
+                source={metrics.revenueSource}
+                manualOverride={metrics.manualRevenueOverride}
+                displayedRevenue={metrics.revenue}
+                currency={currency}
+                onChange={onUpdateRevenueSource}
+              />
+            )}
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 {resolveI18nText(t, config.labels.avgCheck, config.labels.avgCheckKey) || t("metricsForm.avgCheck")}
