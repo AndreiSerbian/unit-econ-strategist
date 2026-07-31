@@ -128,6 +128,10 @@ export const CompanyMetrics = ({
 
   useEffect(() => {
     setCurrentMetrics(prev => {
+      // Financial Safety Guardrails v1 — never overwrite a manually entered
+      // revenue with the product-derived value.
+      if (prev.revenueSource === "manual") return prev;
+
       const nextRevenue = productsRevenue;
       const avgCheck = prev.totalClients > 0 && nextRevenue > 0
         ? nextRevenue / prev.totalClients
@@ -145,6 +149,43 @@ export const CompanyMetrics = ({
       };
     });
   }, [productsRevenue, setCurrentMetrics]);
+
+  // Per-scenario revenue source handlers — switching one scenario never
+  // affects the others.
+  const makeRevenueSourceHandler = useCallback(
+    (setter: Dispatch<SetStateAction<Metrics>>) =>
+      (source: "auto" | "manual", manualOverride?: number) => {
+        setter((prev) => {
+          if (source === "manual") {
+            const value =
+              manualOverride === undefined || manualOverride === null
+                ? prev.manualRevenueOverride ?? prev.revenue
+                : manualOverride;
+            return {
+              ...prev,
+              revenueSource: "manual",
+              manualRevenueOverride: value,
+              revenue: value,
+            };
+          }
+          return { ...prev, revenueSource: "auto" };
+        });
+      },
+    [],
+  );
+
+  const handleCurrentRevenueSource = useMemo(
+    () => makeRevenueSourceHandler(setCurrentMetrics),
+    [makeRevenueSourceHandler, setCurrentMetrics],
+  );
+  const handleScenarioARevenueSource = useMemo(
+    () => makeRevenueSourceHandler(setScenarioA),
+    [makeRevenueSourceHandler, setScenarioA],
+  );
+  const handleScenarioBRevenueSource = useMemo(
+    () => makeRevenueSourceHandler(setScenarioB),
+    [makeRevenueSourceHandler, setScenarioB],
+  );
 
   const updateDetailedExpenses = useCallback((
     scenario: "current" | "scenarioA" | "scenarioB",
