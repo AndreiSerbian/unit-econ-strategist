@@ -12,6 +12,8 @@ import { SalesFunnel } from "./SalesFunnel";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getBusinessTypeConfig, resolveI18nText, type BusinessType } from "@/config/businessTypeMetrics";
 import { useTranslation } from "@/i18n/useTranslation";
+import { RevenueSourceSelector } from "@/components/financial/RevenueSourceSelector";
+import { RevenueSourceBadge } from "@/components/financial/RevenueSourceBadge";
 
 interface ExpenseCategory {
   id: string;
